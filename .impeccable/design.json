@@ -1,0 +1,398 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T08:47:59.952003+00:00",
+  "title": "Design System: PDF Internals Viewer",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Background",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Foreground",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "primary": {
+        "role": "neutral",
+        "displayName": "Primary",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "primary-foreground": {
+        "role": "neutral",
+        "displayName": "Primary foreground",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "secondary": {
+        "role": "neutral",
+        "displayName": "Secondary",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "secondary-foreground": {
+        "role": "neutral",
+        "displayName": "Secondary foreground",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "muted-foreground": {
+        "role": "neutral",
+        "displayName": "Muted foreground",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "accent": {
+        "role": "neutral",
+        "displayName": "Accent",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "accent-foreground": {
+        "role": "neutral",
+        "displayName": "Accent foreground",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Border",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "input": {
+        "role": "neutral",
+        "displayName": "Input",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "ring": {
+        "role": "neutral",
+        "displayName": "Ring",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "sidebar": {
+        "role": "neutral",
+        "displayName": "Sidebar",
+        "tonalRamp": [
+          "oklch(0.145 0 0)",
+          "oklch(0.205 0 0)",
+          "oklch(0.556 0 0)",
+          "oklch(0.708 0 0)",
+          "oklch(0.922 0 0)",
+          "oklch(0.97 0 0)",
+          "oklch(0.985 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "reference": {
+        "role": "primary",
+        "displayName": "Reference blue"
+      },
+      "pdf-string": {
+        "role": "secondary",
+        "displayName": "String green"
+      },
+      "destructive": {
+        "role": "secondary",
+        "displayName": "Destructive red"
+      },
+      "selection-background": {
+        "role": "neutral",
+        "displayName": "Native selection background"
+      },
+      "selection-foreground": {
+        "role": "neutral",
+        "displayName": "Native selection foreground"
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Empty-workspace headline",
+        "purpose": "Responsive introduction heading."
+      },
+      "code": {
+        "displayName": "PDF syntax",
+        "purpose": "Object values, references, and stream syntax."
+      },
+      "hex": {
+        "displayName": "Original bytes",
+        "purpose": "Aligned original-file hexadecimal and ASCII data."
+      }
+    },
+    "shadows": [
+      {
+        "name": "hex-hover-border",
+        "value": "inset 0 0 0 1px var(--border)",
+        "purpose": "Byte hover boundary."
+      },
+      {
+        "name": "shared-control-focus",
+        "value": "0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent)",
+        "purpose": "Shared shadcn focus ring."
+      },
+      {
+        "name": "small",
+        "value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+        "purpose": "Tailwind shadow-sm on rendered PDF pages and shared default active tabs."
+      }
+    ],
+    "motion": [
+      {
+        "name": "sample-arrow",
+        "value": "transform 0.15s ease-out",
+        "purpose": "Sample row arrow moves on hover."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms",
+        "purpose": "Global animation and transition duration override under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile-panes",
+        "value": "900px"
+      },
+      {
+        "name": "compact-mobile",
+        "value": "480px"
+      },
+      {
+        "name": "compact-hex",
+        "value": "400px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Existing shared primary variant shown at default size; workspace controls apply compact sizes.",
+      "html": "<button class=\"ds-button-primary\">Open PDF</button>",
+      "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 10px;border:1px solid transparent;border-radius:var(--radius-lg);font-family:\"Geist Variable\",sans-serif;font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 150ms cubic-bezier(.4,0,.2,1);background:var(--primary);color:var(--primary-foreground);}.ds-button-primary:hover{background:color-mix(in oklch,var(--primary) 80%,transparent);}.ds-button-primary:focus-visible{border-color:var(--ring);outline:2px solid var(--ring);outline-offset:2px;box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent);}.ds-button-primary:active{transform:translateY(1px);}.ds-button-primary:disabled{pointer-events:none;opacity:.5;}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition-duration:.01ms;}}"
+    },
+    {
+      "name": "Outline button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Existing shared outline variant shown at default size; workspace controls apply compact sizes.",
+      "html": "<button class=\"ds-button-outline\">Document catalog</button>",
+      "css": ".ds-button-outline{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 10px;border:1px solid transparent;border-radius:var(--radius-lg);font-family:\"Geist Variable\",sans-serif;font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 150ms cubic-bezier(.4,0,.2,1);border-color:var(--border);background:var(--background);color:var(--foreground);}.ds-button-outline:hover{background:var(--muted);}.ds-button-outline:focus-visible{border-color:var(--ring);outline:2px solid var(--ring);outline-offset:2px;box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent);}.ds-button-outline:active{transform:translateY(1px);}.ds-button-outline:disabled{pointer-events:none;opacity:.5;}@media(prefers-reduced-motion:reduce){.ds-button-outline{transition-duration:.01ms;}}"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Existing shared secondary variant shown at default size; workspace controls apply compact sizes.",
+      "html": "<button class=\"ds-button-secondary\">Inspector</button>",
+      "css": ".ds-button-secondary{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 10px;border:1px solid transparent;border-radius:var(--radius-lg);font-family:\"Geist Variable\",sans-serif;font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 150ms cubic-bezier(.4,0,.2,1);background:var(--secondary);color:var(--secondary-foreground);}.ds-button-secondary:hover{background:color-mix(in oklch,var(--secondary),var(--foreground) 5%);}.ds-button-secondary:focus-visible{border-color:var(--ring);outline:2px solid var(--ring);outline-offset:2px;box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent);}.ds-button-secondary:active{transform:translateY(1px);}.ds-button-secondary:disabled{pointer-events:none;opacity:.5;}@media(prefers-reduced-motion:reduce){.ds-button-secondary{transition-duration:.01ms;}}"
+    },
+    {
+      "name": "Ghost button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Existing shared ghost variant shown at default size; workspace controls apply compact sizes.",
+      "html": "<button class=\"ds-button-ghost\">Preview</button>",
+      "css": ".ds-button-ghost{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 10px;border:1px solid transparent;border-radius:var(--radius-lg);font-family:\"Geist Variable\",sans-serif;font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer;transition:all 150ms cubic-bezier(.4,0,.2,1);background:transparent;color:var(--foreground);}.ds-button-ghost:hover{background:var(--muted);}.ds-button-ghost:focus-visible{border-color:var(--ring);outline:2px solid var(--ring);outline-offset:2px;box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent);}.ds-button-ghost:active{transform:translateY(1px);}.ds-button-ghost:disabled{pointer-events:none;opacity:.5;}@media(prefers-reduced-motion:reduce){.ds-button-ghost{transition-duration:.01ms;}}"
+    },
+    {
+      "name": "Search field",
+      "kind": "input",
+      "refersTo": "search-field",
+      "description": "Compact document search group with a locally borderless Base UI input.",
+      "html": "<label class=\"ds-search\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input aria-label=\"Search document\" placeholder=\"Search document\u2026\"/></label>",
+      "css": ".ds-search{display:flex;align-items:center;gap:5px;height:30px;max-width:440px;padding-left:9px;border:1px solid var(--border);border-radius:6px;background:var(--background);color:var(--muted-foreground);}.ds-search input{height:27px;min-width:55px;width:100%;padding:0 4px;border:0;border-radius:0;background:transparent;color:var(--foreground);font-family:\"Geist Variable\",sans-serif;font-size:11px;outline:none;box-shadow:none;}.ds-search input::placeholder{color:var(--muted-foreground);}.ds-search input:focus-visible{border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent);}"
+    },
+    {
+      "name": "Explorer navigation",
+      "kind": "nav",
+      "refersTo": "explorer-item",
+      "description": "Muted explorer rows with a neutral active surface.",
+      "html": "<nav class=\"ds-explorer\" aria-label=\"Explorer\"><button class=\"ds-nav-item\">Overview</button><button class=\"ds-nav-item\" aria-current=\"page\">Pages <span>1</span></button><button class=\"ds-nav-item\">Resources</button></nav>",
+      "css": ".ds-explorer{display:flex;flex-direction:column;gap:2px;padding:13px 9px;background:var(--sidebar);}.ds-nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border:0;border-radius:5px;text-align:left;font:11px \"Geist Variable\",sans-serif;background:transparent;color:var(--muted-foreground);cursor:pointer;}.ds-nav-item span{margin-left:auto;font-size:10px;font-variant-numeric:tabular-nums;}.ds-nav-item:hover,.ds-nav-item[aria-current]{background:var(--accent);color:var(--foreground);}.ds-nav-item[aria-current]{font-weight:500;}.ds-nav-item:focus-visible{outline:2px solid var(--ring);outline-offset:2px;}"
+    },
+    {
+      "name": "Object-kind badge",
+      "kind": "chip",
+      "refersTo": "badge-kind",
+      "description": "Secondary data badge as locally styled in the object inspector; noninteractive.",
+      "html": "<span class=\"ds-badge-kind\">Stream</span>",
+      "css": ".ds-badge-kind{display:inline-flex;align-items:center;justify-content:center;height:20px;padding:2px 8px;border:1px solid transparent;border-radius:4px;font:500 10px \"Geist Variable\",sans-serif;white-space:nowrap;background:var(--secondary);color:var(--secondary-foreground);}"
+    },
+    {
+      "name": "Inspector tabs",
+      "kind": "nav",
+      "refersTo": "inspector-tabs",
+      "description": "Transparent line tabs with the active foreground underline.",
+      "html": "<div class=\"ds-tab-list\" role=\"tablist\" aria-label=\"Representation\"><button class=\"ds-tab\" role=\"tab\" aria-selected=\"true\">Properties</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Source</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Raw stream</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Decoded</button></div>",
+      "css": ".ds-tab-list{display:flex;align-items:center;gap:13px;height:37px;padding:0 18px;border-bottom:1px solid var(--border);background:transparent;}.ds-tab{position:relative;height:32px;padding:0 3px;border:1px solid transparent;border-radius:var(--radius-md);background:transparent;color:color-mix(in oklch,var(--foreground) 60%,transparent);font:500 11px \"Geist Variable\",sans-serif;white-space:nowrap;cursor:pointer;}.ds-tab:hover,.ds-tab[aria-selected=true]{color:var(--foreground);}.ds-tab[aria-selected=true]::after{content:\"\";position:absolute;left:0;right:0;bottom:-5px;height:2px;background:var(--foreground);}.ds-tab:focus-visible{outline:2px solid var(--ring);outline-offset:2px;box-shadow:0 0 0 3px color-mix(in oklch,var(--ring) 50%,transparent);}"
+    },
+    {
+      "name": "Object reference",
+      "kind": "button",
+      "refersTo": "reference",
+      "description": "Navigable indirect PDF reference in system monospace.",
+      "html": "<button class=\"ds-reference\">4 0 R <svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></button>",
+      "css": ".ds-reference{display:inline-flex;align-items:baseline;gap:5px;padding:0;border:0;background:transparent;color:var(--reference);font:11px \"SFMono-Regular\",Consolas,monospace;white-space:nowrap;cursor:pointer;}.ds-reference:hover{text-decoration:underline;text-underline-offset:3px;}.ds-reference:focus-visible{outline:2px solid var(--ring);outline-offset:2px;}"
+    },
+    {
+      "name": "Original-byte selection",
+      "kind": "custom",
+      "refersTo": "hex-byte-selected",
+      "description": "Neutral selected byte cells with a separate keyboard cursor outline.",
+      "html": "<div class=\"ds-hex-cells\"><button class=\"ds-hex-byte\">25</button><button class=\"ds-hex-byte ds-hex-selected\" aria-pressed=\"true\">50</button><button class=\"ds-hex-byte ds-hex-selected\" aria-pressed=\"true\">44</button><button class=\"ds-hex-byte\">46</button></div>",
+      "css": ".ds-hex-cells{display:flex;background:var(--background);}.ds-hex-byte{width:23px;padding:3px 0;border:0;border-radius:2px;color:var(--foreground);background:transparent;text-align:center;font:11px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;cursor:pointer;}.ds-hex-byte:hover{background:var(--accent);color:var(--accent-foreground);box-shadow:inset 0 0 0 1px var(--border);}.ds-hex-byte.ds-hex-selected{background:var(--primary);color:var(--primary-foreground);}.ds-hex-byte:focus-visible{outline:1px solid var(--ring);outline-offset:-1px;}"
+    }
+  ],
+  "narrative": {
+    "overview": "The implemented interface follows the user-selected shadcn neutral defaults with Base UI controls. White inspection surfaces, a subtly tinted explorer, thin dividers, and compact typography keep attention on PDF structure and original bytes. Theme and brand exploration are low priority.\n\nThis is a desktop-first developer workspace with dense data and restrained controls. Geist supports navigation and explanations; system monospace distinguishes PDF syntax, object identifiers, offsets, and bytes. Blue references provide the clearest navigational color cue.",
+    "keyCharacteristics": [
+      "Neutral light surfaces with thin structural borders.",
+      "Compact controls and dense, independently scrolling data panes.",
+      "System monospace for syntax and original-byte inspection.",
+      "Blue object references; dark neutral byte selection."
+    ],
+    "rules": [
+      {
+        "name": "The Reference Color Rule",
+        "body": "Use reference blue for navigable object relationships; selected original bytes use the primary neutral pair.",
+        "section": "colors"
+      },
+      {
+        "name": "The Syntax Type Rule",
+        "body": "Keep byte syntax and object identifiers in system monospace while navigation and explanatory copy remain in Geist.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Do use the existing semantic neutral tokens and shadcn Base UI controls.",
+      "Do use monospace for object syntax, offsets, bytes, and references.",
+      "Do preserve the blue reference affordance and visible keyboard focus.",
+      "Do keep pane content independently scrollable and use the existing mobile pane switcher.",
+      "Do distinguish original file bytes from decoded data and rendered preview."
+    ],
+    "donts": [
+      "Don't introduce a new brand theme or decorative typeface without a user request.",
+      "Don't replace the workspace panes with a dashboard of cards.",
+      "Don't use reference blue as a general decorative surface or byte selection color.",
+      "Don't remove focus indicators or force desktop panes side by side on mobile."
+    ]
+  }
+}
