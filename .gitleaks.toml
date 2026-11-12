@@ -1,0 +1,3 @@
+# Keep all upstream detectors enabled; do not allowlist real credentials.
+[extend]
+useDefault = true

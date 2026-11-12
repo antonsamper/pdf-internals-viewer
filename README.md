@@ -90,3 +90,5 @@ The generated shadcn/ui + Base UI components are checked in. Their supporting CS
 ## Release work
 
 See [the shared work list](docs/WORKLIST.md) for owners, dependencies, release requirements, and pending decisions.
+
+See [the security policy](SECURITY.md) for private vulnerability reports, the known dependency advisory, and credential handling.
