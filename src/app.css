@@ -626,6 +626,135 @@ pre,
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+.inline-reference {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+}
+.inline-reference-details {
+  margin-top: 6px;
+  font-size: 11px;
+}
+.inline-reference-details > summary {
+  cursor: pointer;
+  color: var(--muted-foreground);
+  padding: 3px 0;
+}
+.inline-reference-details > summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.inline-reference-body {
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  overflow-wrap: anywhere;
+}
+.inline-reference-body .representation-note {
+  margin-bottom: 10px;
+}
+.content-stream-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0;
+}
+.operator-token {
+  font-weight: 600;
+}
+.resource-token {
+  color: var(--reference);
+}
+.content-context-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+.content-context-label select {
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 6px;
+  background: var(--background);
+}
+.content-instructions {
+  list-style: none;
+  padding: 0;
+}
+.content-instruction {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  column-gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.content-offset {
+  font: 10px "SFMono-Regular", Consolas, monospace;
+  color: var(--muted-foreground);
+  padding-top: 2px;
+}
+.content-syntax {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+  font-size: 11px;
+}
+.content-explanation {
+  grid-column: 2;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted-foreground);
+  margin-top: 5px;
+}
+.object-comparison h2,
+.resource-browser h2 {
+  margin: 0;
+}
+.inspection-detail-stack {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.inspection-detail-stack > .inspector {
+  flex: 1;
+}
+.inspection-detail-stack > :not(.inspector) {
+  max-height: 42%;
+  flex-shrink: 0;
+  overflow: auto;
+}
+.session-bookmarks {
+  flex-shrink: 0;
+  max-height: 35%;
+  overflow: auto;
+}
+.session-bookmarks h2 {
+  margin-top: 0;
+}
+.session-bookmarks .reference {
+  white-space: normal;
+}
+.exploration-trail {
+  margin-left: 8px;
+  scrollbar-width: thin;
+}
+@media (max-width: 900px) {
+  .main-inspector > .pane-heading {
+    height: auto;
+    min-height: 42px;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-block: 6px;
+  }
+  .pane-actions {
+    flex-wrap: wrap;
+  }
+}
 .relationship-section {
   margin-top: 30px;
 }
