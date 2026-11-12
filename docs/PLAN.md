@@ -9,9 +9,10 @@ Mode: Builder / developer tool and open-source project.
 
 Developers exploring unfamiliar PDFs need to discover the document's objects, understand their relationships, and connect those objects to their physical representation. Switching between a hex editor, a renderer, and command-line dumps loses context.
 
-The product is a read-only, browser-based PDF exploration workspace. Its central promise is: follow the structure without losing your place, and always know whether you are looking at original bytes or a decoded representation.
+The product is a read-only, browser-based PDF exploration workspace. Developers should be able to follow the structure without losing their place and distinguish original bytes from decoded representations.
 
 User-confirmed direction:
+
 - A developer tool or open-source project.
 - Primarily for understanding unfamiliar PDFs.
 - Browser application with files processed locally.
@@ -34,7 +35,7 @@ Success is a developer explaining how one page is assembled and locating the sou
 
 - Discovery and navigation lead the UI; hex remains directly accessible.
 - Original input bytes are immutable and authoritative for file offsets.
-- A PDF's relationships form a graph. The explorer provides paths into that graph, with lazy expansion and cycle markers rather than recursively duplicating everything.
+- A PDF's relationships form a graph. The explorer provides paths into that graph. Lazy expansion and cycle markers keep it from recursively duplicating objects.
 - Semantic values, original source syntax, decoded data, and rendered output are distinct representations.
 - Parse failures and unsupported features must be visible. Partial exploration remains useful.
 - No upload, account, document telemetry, PDF editing, repair output, or remote document analysis in the first release.
@@ -44,11 +45,11 @@ Success is a developer explaining how one page is assembled and locating the sou
 
 | Approach | Effort | Risk | Benefits | Costs |
 | --- | --- | --- | --- | --- |
-| Browser app with local parser worker | Medium–large | Medium–high until parser spike | Easy to share, private document handling, no installation | Must prove source mapping and browser engine packaging |
+| Browser app with local parser worker | Medium to large | Medium to high until parser spike | Easy to share, private document handling, no installation | Must prove source mapping and browser engine packaging |
 | Desktop app with native parser | Large | Medium | Native engine integration and filesystem access | Installation, packaging, updates, platform support |
 | Local web app with native backend | Medium | Medium | Fast access to native tooling during development | Requires local setup and service lifecycle |
 
-The browser approach is selected. The smallest useful slice is one PDF, one object explorer, one inspector, and one synchronized hex view. The longer-term architecture adds a parser adapter with provenance information, keeping the UI independent of the selected engine. There is no existing application code to reuse in this repository.
+The browser approach is selected. Start with one PDF, an object explorer, an inspector, and a synchronized hex view. A parser adapter will provide provenance information so the UI can work independently of the chosen engine. There is no existing application code to reuse in this repository.
 
 ## Workspace and interaction design
 
@@ -69,7 +70,7 @@ File structure    | Raw / Decoded (streams)   |
 Parse / indexing status · selected object's location · warnings
 ```
 
-- Overview is the first selection, with routes into the document rather than a large dump.
+- Overview is the first selection and provides routes into the document without dumping all its data.
 - Document starts at the catalog. Pages and resources are convenience indexes over real objects.
 - All objects is a virtualized flat index with object ID, type, location, and role when known.
 - File structure exposes header, cross-reference information, trailer, and `startxref` when reliably located.
@@ -86,12 +87,12 @@ Parse / indexing status · selected object's location · warnings
 
 Every navigable value has a provenance category:
 
-1. **Original file range:** zero-based, half-open byte range `[start, end)` in immutable input.
-2. **Decoded stream range:** container object ID plus a range within decoded bytes.
-3. **Derived value:** calculated or reconstructed, without a claimed exact source range.
-4. **Unknown:** parsing or recovery did not establish a reliable location.
+1. Original file range: zero-based, half-open byte range `[start, end)` in immutable input.
+2. Decoded stream range: container object ID plus a range within decoded bytes.
+3. Derived value: calculated or reconstructed, without a claimed exact source range.
+4. Unknown: parsing or recovery did not establish a reliable location.
 
-Objects in object streams link to their container's original bytes and their own decoded location. Never claim a one-to-one mapping through compression. The bytes pane remains explicitly labeled **Original file**; decoded hex belongs in the inspector. The initial mapping requirement is at object boundaries, not at every pretty-printed token.
+Objects in object streams link to their container's original bytes and their own decoded location. Never claim a one-to-one mapping through compression. The bytes pane remains explicitly labeled Original file; decoded hex belongs in the inspector. The initial mapping requirement covers object boundaries. Mapping every pretty-printed token is outside that scope.
 
 ## First release scope
 
@@ -104,7 +105,7 @@ Objects in object streams link to their container's original bytes and their own
 ### Structure and objects
 
 - Numbers, booleans, null, names, literal/hex strings, arrays, dictionaries, indirect references, and stream dictionaries.
-- Classic cross-reference tables, cross-reference streams, hybrid references, and object streams are required for release, not silently excluded as uncommon PDFs.
+- The release must support classic cross-reference tables, cross-reference streams, hybrid references, and object streams. Unsupported cases must be explicit.
 - Resolve the current effective object set across incremental updates, preserving original bytes. Historical object-version browsing and revision comparison are deferred.
 - Detect dangling references and cycles; display them without freezing navigation.
 - Page resources indicate whether they are local or inherited. Resource lists preserve links to defining objects.
@@ -134,22 +135,23 @@ Objects in object streams link to their container's original bytes and their own
 - Use the template's Tailwind CSS setup and a simple neutral default theme. Defer bespoke theming; preserve accessible contrast and focus states.
 - Keep the application a client-rendered SPA. Routing is optional if later navigation needs justify it; no server-rendering framework is required.
 - Node.js runs development tooling, tests, and production builds. PDF inspection runs in the browser; no Node.js server is required for normal use.
-- Prefer JavaScript/TypeScript parser dependencies and keep application and worker integration code in TypeScript. A parser compiled from another language to WebAssembly is a fallback, not a selected dependency. Explain the language, benefit, and maintenance/build implications to the user before adopting that fallback or changing the application stack.
+- Prefer JavaScript/TypeScript parser dependencies and keep application and worker integration code in TypeScript. A parser compiled from another language to WebAssembly remains a fallback; none has been selected for inspection. Explain the language, benefit, and maintenance/build implications to the user before adopting that fallback or changing the application stack.
 - A small shared selection/history store drives the panes.
 - UI retains immutable source bytes for hex access; a dedicated worker owns parser state. Any transfer/copy strategy must account for worker memory copies.
 - A parser adapter exposes capabilities, summaries, object enumeration, object values, source locations, stream decoding, reference indexes, and diagnostics. Requests carry document IDs and cancellation IDs so stale results cannot update a newly opened file.
 - Preserve raw dictionary entries, string bytes, duplicate-key information where available, and unknown syntax separately from convenience summaries. Missing fidelity must be explicit.
 - Parse objects and decode streams lazily; run resource/reference indexing in cancellable batches. Version index results so partial results cannot be mistaken for a complete graph.
 - Cache decoded streams under a bounded eviction policy. Use virtualized lists for objects, stream text, and hex.
-- Optional page rendering prefers EmbedPDF, using its headless React integration or engine directly so shadcn/ui + Base UI remain responsible for application controls. Evaluate EmbedPDF first rather than automatically introducing PDF.js and a later migration. PDF.js remains an acceptable temporary fallback if demonstrably easier.
+- Optional page rendering prefers EmbedPDF, using its headless React integration or engine directly so shadcn/ui + Base UI remain responsible for application controls. Evaluate EmbedPDF first to avoid an unnecessary migration from PDF.js. PDF.js remains an acceptable temporary fallback if demonstrably easier.
 - EmbedPDF's local engine runs PDFium compiled to WebAssembly in a Web Worker. This is a third-party compiled engine dependency; application and integration code remain TypeScript/React. Explain that distinction before introducing the dependency, as requested for non-TypeScript engines. Use local processing and self-hosted build assets, not a cloud engine.
 - Keep a small preview adapter boundary for document opening, page rendering/navigation, zoom, and cleanup. Inspection and byte provenance stay independent of the preview engine. Neither EmbedPDF nor PDF.js rendering support proves access to arbitrary PDF objects or exact original source spans; assess those separately in the parser spike.
 
 ### Parser feasibility checkpoint: first implementation task
 
-Do this before building the polished interface. Start by evaluating a JavaScript/TypeScript-compatible established engine, such as a PDF.js-based inspection adapter or maintained alternative. If these cannot meet the provenance contract, evaluate a QPDF WebAssembly adapter as a fallback and explain that QPDF is implemented in C++ before adopting it. QPDF's documented native/JSON interfaces establish semantic inspection capability, not a ready browser build or exact source-span API. JSON alone is insufficient evidence for faithful byte mapping.
+Evaluate the parser before polishing the interface. Start with an established JavaScript/TypeScript-compatible engine, such as a PDF.js-based inspection adapter or a maintained alternative. If these cannot meet the provenance contract, evaluate a QPDF WebAssembly adapter as a fallback and explain that QPDF is implemented in C++ before adopting it. QPDF's documented native/JSON interfaces support semantic inspection. They do not establish a ready browser build or exact source-span API. JSON alone is insufficient evidence for faithful byte mapping.
 
 Prove in the browser:
+
 - Enumerating ordinary and compressed objects using original object IDs.
 - Resolving current cross-reference entries across updates and hybrid structures.
 - Retrieving unmodified stream dictionaries and verified original object/stream boundaries.
@@ -158,15 +160,15 @@ Prove in the browser:
 - Reporting recovery and unsupported capabilities without silently normalizing away relevant structure.
 - Packaging, licensing, bundle size, memory use, cancellation, and browser compatibility.
 
-Produce a short capability matrix, pinned dependency choice, fixture results, and any needed adapter instrumentation. A custom full PDF parser is not the default plan. If no engine can meet the provenance contract within a reasonable spike, report the limitation and revisit scope or platform before committing to the UI architecture.
+Produce a short capability matrix, pinned dependency choice, fixture results, and any needed adapter instrumentation. Prefer adapting an established engine to writing a full PDF parser. If no engine can meet the provenance contract within a reasonable spike, report the limitation and revisit scope or platform before committing to the UI architecture.
 
 ## Delivery sequence and acceptance
 
-1. **Parser proof:** pass the capability checkpoint on simple, object-stream, hybrid, and incrementally updated fixtures. Record unsupported cases.
-2. **Core vertical slice:** local file -> object list -> readable dictionary -> reference navigation -> original hex range. Validate back/forward and document replacement.
-3. **Exploration:** catalog/pages/resources, overview, inherited resources, incoming links, key explanations, stream decoding, and bundled samples.
-4. **Search and resilience:** scoped search, limits, cancellation, partial states, encrypted-file state, and malformed-input handling.
-5. **Release:** keyboard and responsive checks, browser compatibility, documentation, deployment, and a short observed usability session.
+1. Parser proof: pass the capability checkpoint on simple, object-stream, hybrid, and incrementally updated fixtures. Record unsupported cases.
+2. Core vertical slice: local file -> object list -> readable dictionary -> reference navigation -> original hex range. Validate back/forward and document replacement.
+3. Exploration: catalog/pages/resources, overview, inherited resources, incoming links, key explanations, stream decoding, and bundled samples.
+4. Search and resilience: scoped search, limits, cancellation, partial states, encrypted-file state, and malformed-input handling.
+5. Release: keyboard and responsive checks, browser compatibility, documentation, deployment, and a short observed usability session.
 
 Optional page preview follows the core inspection release. Image/font previews, operator explanations, visual click-to-object mapping, graph visualization, password entry, persistent bookmarks, editing, repair, AI explanations, and comparisons remain later work.
 
@@ -176,7 +178,7 @@ Optional page preview follows the core inspection release. Image/font previews, 
 - Check parsed object identities and relationships against a trusted native tool. Check source spans independently against fixture byte ranges, including binary data containing misleading `obj` or `endstream` text.
 - UI integration checks cover selection synchronization, reference navigation/history, search scopes, document replacement, decoding errors, and source-versus-decoded offsets.
 - Browser end-to-end checks cover local opening, sample exploration, keyboard use, cancellation, and absence of document-content network traffic.
-- Starting performance targets: on a recorded desktop/browser baseline, a representative 10 MiB fixture becomes navigable within 3 seconds; cached object navigation within 100 ms; parsing produces no main-thread stall over 100 ms. Measure and record the baseline during the spike. These are targets, not current measurements.
+- Starting performance targets: on a recorded desktop/browser baseline, a representative 10 MiB fixture becomes navigable within 3 seconds; cached object navigation within 100 ms; parsing produces no main-thread stall over 100 ms. Measure and record the baseline during the spike. These were planning targets, with measurements still pending at the time.
 - Compatibility target: current stable Chrome, Firefox, and Safari at release time; verify in CI where practical and perform a Safari smoke test.
 - A developer unfamiliar with a sample can find a page's content stream, follow a resource reference, and distinguish original from decoded bytes within five minutes without coaching.
 
@@ -214,4 +216,4 @@ Collect the minimal, compressed-object, and resource-rich sample PDFs with redis
 
 ## Independent plan review
 
-One review round covered completeness, consistency, clarity, scope, and feasibility. Result: PASS, 9/10, with no material revisions requested. The reviewer identified browser parsing with trustworthy source locations as the principal risk and confirmed that the early capability checkpoint addresses it. This is a document review; implementation feasibility and performance have not yet been tested. The subsequent clarifications of the user's TypeScript/React/Node.js and shadcn/ui + Base UI Vite SPA preferences have not undergone another independent review.
+One review round covered completeness, consistency, clarity, scope, and feasibility. The review passed at 9/10, with no material revisions requested. The reviewer identified browser parsing with trustworthy source locations as the principal risk and confirmed that the early capability checkpoint addresses it. At the time of this document review, implementation feasibility and performance had not been tested. The subsequent clarifications of the user's TypeScript/React/Node.js and shadcn/ui + Base UI Vite SPA preferences have not undergone another independent review.

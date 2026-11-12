@@ -10,7 +10,7 @@ EmbedPDF 3.1.0 requires Zod 3.25.76. There is no compatible upstream Zod 3 relea
 - Sets with `.max()` or `.size()` reject excessive size before iterating elements or scheduling async validation.
 - Valid collections and ordinary validation failures within the bound retain their previous behavior.
 
-The behavior intentionally changes oversized invalid collections from collecting an error for every element to returning the existing size error immediately. Zod 3 maps have no corresponding maximum-size API, so this is not a map-schema migration.
+For oversized invalid collections, validation now returns the existing size error immediately, without collecting an error for every element. Zod 3 maps have no corresponding maximum-size API, so this is not a map-schema migration.
 
 ## All shipped copies are covered
 
@@ -28,17 +28,19 @@ The distribution chunks contain JavaScript string literals with raw tab characte
 
 The Node transport wrapper is checked by its exact hash and contains imports rather than another vendored validator. The engine-resolved module patch covers those imports. The encoder worker does not contain Zod.
 
-The script requires EmbedPDF/core 3.1.0 and Zod 3.25.76. It resolves the actual installed engine first, resolves core through that engine, and resolves Zod through that core, leaving unrelated hoisted or tooling copies unchanged. Original and patched SHA-256 hashes are explicit for every modified artifact. All candidates are validated before any write, unexpected input fails closed, and repeat runs are idempotent. The escaped worker must decode to the exact pinned standalone original before its patch is generated.
+The script requires EmbedPDF/core 3.1.0 and Zod 3.25.76. It resolves the installed engine, then that engine's core dependency, then that core's Zod dependency. Unrelated hoisted or tooling copies stay unchanged.
 
-Unlike the inspection adapter generator, this preparation step **does modify installed dependency files**. Use the project pnpm installation, development, test, and build scripts so it runs reproducibly. Dependency upgrades must review the hashes, minified anchors, regression evidence, and upstream support before changing these pins. The pnpm configuration copies installed files and disables side-effects caching so this patch cannot alter shared store contents. It is a maintained local patch, not an upstream release.
+Every modified artifact has recorded original and patched SHA-256 hashes. The script validates all candidates before writing and rejects unexpected input. Repeating it makes no further changes. Before patching the escaped worker, the script verifies that its decoded content matches the exact pinned standalone original.
+
+This preparation step modifies installed dependency files; the inspection adapter generator leaves them unchanged. Use the project pnpm installation, development, test, and build scripts so it runs reproducibly. Dependency upgrades must review the hashes, minified anchors, regression evidence, and upstream support before changing these pins. The pnpm configuration copies installed files and disables side-effects caching so this patch cannot alter shared store contents. The project maintains this patch locally; it has not been released upstream.
 
 ## Modified-file notices
 
-Every modified EmbedPDF worker, inline transport, and embedded-source module begins with a prominent `/*! Modified by PDF Internals Viewer: ... */` notice naming the validation-bound backport. Each decoded worker string also begins with the notice, so a Blob fallback executes a payload that carries its own modification notice rather than relying on an outer wrapper. Existing upstream wrapper text, exports, and notices are preserved.
+Every modified EmbedPDF worker, inline transport, and embedded-source module begins with a prominent `/*! Modified by PDF Internals Viewer: ... */` notice naming the validation-bound backport. Each decoded worker string also begins with the notice, so a Blob fallback carries its own modification notice inside the executable payload. Existing upstream wrapper text, exports, and notices are preserved.
 
 The banner uses a legal-comment form intended to survive bundling/minification. Check the emitted production workers and fallback payloads after building; static installation coverage alone does not establish notice retention in deployed files. Third-party license and notice distribution is handled separately from this change notice.
 
-The script accepts only the exact original hashes, the exact current banner-bearing patched hashes, or the explicitly recorded previous backport hashes that lacked banners. This narrow legacy migration restores the previous payload to the original by undoing only the two known guards and verifying its complete original hash, then reapplies the guards and notices. Unknown bytes remain an error. Both fresh upstream installation and known previous installations therefore produce the same pinned banner-bearing artifacts, while an already current installation performs no writes.
+The script accepts only the exact original hashes, the exact current banner-bearing patched hashes, or the explicitly recorded previous backport hashes that lacked banners. This narrow legacy migration restores the previous payload to the original by undoing only the two known guards and verifying its complete original hash, then reapplies the guards and notices. Unknown bytes remain an error. Fresh upstream installations and known previous installations produce the same pinned artifacts with banners. An installation that already matches requires no writes.
 
 ## Verification
 
@@ -46,16 +48,16 @@ The script accepts only the exact original hashes, the exact current banner-bear
 
 For each bundled representation, the test asserts that both its installed file and executable payload carry the exact modification banner. The baseline removes only that known banner and reverses the two guards, then verifies that the complete executable asset's original hash is restored. The original code visits all 20,000 invalid elements and emits 20,001 issues for an array capped at two items. Patched versions visit zero elements and emit one size issue. Valid transformations and ordinary within-bound failures are also tested.
 
-At this change, all **54 validation tests pass**. Browser preview checks and a production rebuild remain required after install-script changes, because testing external Zod modules alone would miss an unpatched bundled worker.
+All 54 validation tests passed for this change. Browser preview checks and a production rebuild remain required after install-script changes, because testing external Zod modules alone would miss an unpatched bundled worker.
 
 ## Scope and remaining audit state
 
-This is a targeted mitigation for oversized **constrained** collections. It does not impose a universal size limit on unbounded schemas, prove every engine operation safe, cap overall browser memory, or replace worker/file/resource limits.
+This is a targeted mitigation for oversized constrained collections. It does not impose a universal size limit on unbounded schemas, prove every engine operation safe, cap overall browser memory, or replace worker/file/resource limits.
 
-`pnpm audit` remains version-based: the installed dependency still reports Zod 3.25.76 and the report contains one high-severity advisory. The previous npm audit counted five propagated affected package entries for this same Zod advisory. No advisory is suppressed, package version is falsified, or audit result presented as clean. The local mitigation and regression tests are evidence separate from the registry's version assessment. Replace this backport with a compatible upstream fix when available; do not retain it indefinitely merely because its tests pass.
+`pnpm audit` remains version-based: the installed dependency still reports Zod 3.25.76 and the report contains one high-severity advisory. The previous npm audit counted five propagated affected package entries for this same Zod advisory. The project does not suppress the advisory, falsify the package version, or report a clean audit. The local mitigation and regression tests are evidence separate from the registry's version assessment. Replace this backport with a compatible upstream fix when available; do not retain it indefinitely merely because its tests pass.
 
 ## Production preservation
 
 Vite 8 normally strips legal comments while minifying, so a banner in an installed dependency is insufficient evidence. `vite.config.ts` explicitly preserves Rolldown legal comments before chunk hashing. The `postbuild` hook runs `scripts/check-preview-notices.mjs`, which reads emitted assets, lexes outer comments and parses the embedded worker string to verify that both module and executable Blob payload retain their modification notices. It never modifies hashed output.
 
-Dependency resolution follows the installed `@embedpdf/engine` → its `@embedpdf/engine-core` → its Zod dependency chain, rather than assuming an application-root hoisted core is the one actually used. A mixed pnpm installation reproduced why that distinction matters.
+Dependency resolution follows the installed `@embedpdf/engine` → its `@embedpdf/engine-core` → its Zod dependency chain. A core package hoisted to the application root may be a different copy. A mixed pnpm installation reproduced why that distinction matters.

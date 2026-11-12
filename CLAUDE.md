@@ -1,6 +1,6 @@
 # Project operations
 
-## Deploy Configuration
+## Deploy configuration
 
 - Platform: Cloudflare Workers Static Assets, assets-only Vite/React app.
 - Configuration: `wrangler.jsonc`; Worker name `pdf-internals-viewer`; uploaded directory `dist/` only.
@@ -13,7 +13,7 @@
 - Deploy trigger: `pnpm run deploy` builds and publishes to the authenticated Cloudflare account.
 - Local platform preview: `pnpm run preview:cloudflare` serves built assets on `http://127.0.0.1:8787`.
 - Health check: HTTP GET `/`, verify JS/worker/WASM MIME types and missing-asset 404s, then `PLAYWRIGHT_BASE_URL=<deployed URL> pnpm run test:e2e --browser=all`.
-- Release status: native notices are a reviewed conservative exact-source/toolchain inventory; `predeploy` and production `postbuild` verify its hashes and exact WASM match. See `docs/NOTICES.md`. A dry run is not a publication.
+- Release status: the reviewed native notice inventory conservatively covers the exact sources and toolchain; `predeploy` and production `postbuild` verify its hashes and exact WASM match. See `docs/NOTICES.md`. A dry run does not publish the app.
 - Keep credentials out of tracked files. Use Wrangler login or deployment environment credentials. Verify account and existing Worker ownership before publishing.
 
-Latest verified Cloudflare version: `bc262a96-3a5e-488c-a0df-f02188f6ea67` (2026-11-12). Live `/`, asset MIME/caching, exact WASM, all 64 native notice hashes and all 27 browser tests passed.
+Latest verified Cloudflare version: `bc262a96-3a5e-488c-a0df-f02188f6ea67` (2026-11-12). Live checks passed for `/`, asset MIME types and caching, the exact WASM binary, all 64 native notice hashes, and all 27 browser tests.

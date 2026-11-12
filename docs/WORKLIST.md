@@ -1,13 +1,13 @@
 # Public release work list
 
-Updated 2026-11-12. This is the shared source of truth for the next release batch. Owner labels describe independent work lanes; a single coordinating agent integrates the results.
+Updated 2026-11-12. Use this list to coordinate the next release batch. Owners work on separate files, and one coordinating agent integrates their results.
 
 ## Working rules
 
 - Up to three specialist agents run alongside the coordinator.
 - Each agent owns named files. Only the coordinator changes application code, dependencies, lockfiles, shared production builds, or CI during this batch.
 - Build once, then test the same production artifacts. Do not rewrite generated files or install dependencies during browser measurements.
-- Findings include reproduction/evidence and acceptance criteria. A passing prior run does not establish the current install is correct.
+- Record reproduction steps, evidence, and acceptance criteria for each finding. Repeat checks on the current installation even if an earlier run passed.
 - Existing uncommitted changes are preserved. Commit/release actions remain separate from this task.
 
 ## Current batch
@@ -22,7 +22,7 @@ Updated 2026-11-12. This is the shared source of truth for the next release batc
 | L2 | P1 | Inventory and publish verified third-party notices | Notices agent: `public/THIRD-PARTY-NOTICES.txt`, `public/licenses/`, `docs/NOTICES.md` | JS, fonts, PDFium/WASM and vendored CSS notices traced to actual distribution; gaps explicit | Done: exact-source native inventory independently reviewed; 64 native public hashes and original 43 source hashes verified |
 | H1 | P2 | Compare static hosting options | Coordinator: `docs/HOSTING.md` | Concrete provider choices, build/output/base-path settings, worker/WASM requirements and release checks | Done: Cloudflare selected; configuration and local runtime verified |
 
-## Release gate
+## Release checks
 
 | ID | Priority | Work | Owner | Done when | Dependencies |
 | --- | --- | --- | --- | --- | --- |
@@ -57,33 +57,28 @@ Updated 2026-11-12. This is the shared source of truth for the next release batc
 - [Notice inventory](NOTICES.md): verified JS/font/CSS notices prepared; the native gap is closed with an independently reviewed conservative exact-source/toolchain inventory. The [historical supplier request draft](PDFIUM-NOTICE-REQUEST.md) was not sent.
 - [Hosting options](HOSTING.md): Netlify, Cloudflare Workers Static Assets, and GitHub Pages compared with concrete build/path requirements. Cloudflare is selected and the app is live at https://pdf-internals-viewer.pricepaiddata.workers.dev.
 
-The coordinator validated an isolated npm-lock candidate without deleting the root pnpm installation: clean install, 82 unit tests, lint, type checking and production build passed. This is evidence for that candidate, not a claim that the current mixed root installation is reconciled. No file/object limits were raised.
+The coordinator validated an isolated npm-lock candidate without deleting the root pnpm installation: clean install, 82 unit tests, lint, type checking and production build passed. That run verified only the isolated candidate; the mixed root installation was still unreconciled at that point. No file/object limits were raised.
 
-The modification-banner gate is verified in the isolated npm build: `postbuild` checks emitted preview workers/inline/fallback payloads read-only, with legal comments preserved before hashing.
+The isolated npm build passed the modification-banner check: `postbuild` checks emitted preview workers/inline/fallback payloads read-only, with legal comments preserved before hashing.
 
-
-## Clean pnpm verification — 2026-11-12
+## Clean pnpm verification: 2026-11-12
 
 R3, V1 and V2 are complete for this batch. A fresh pinned-pnpm frozen install ran both preparation hooks. The root tree passed 82 unit tests, 15 corpus tests, lint, type checking, production build and emitted-notice checks. The same production artifacts passed all 27 browser checks (9 each in Chromium, Firefox and WebKit). All 43 recorded dependency notice-source hashes matched. No conflicting npm lockfile remains.
 
-The earlier performance observations remain labeled as historical npm-candidate measurements; a pnpm performance baseline is still separate follow-up work. Actual Safari testing, the native PDFium notice gap and public deployment remain open.
+At this stage, a pnpm performance baseline was still pending; the earlier observations measure the historical npm candidate. Actual Safari testing, the native PDFium notice gap, and public deployment were also still open.
 
+## Cloudflare setup: 2026-11-12
 
-## Cloudflare setup — 2026-11-12
-
-H2 configuration and local verification are complete: pinned Wrangler, assets-only configuration, explicit 404 handling, caching/MIME checks, 82 unit tests and 27 browser tests against the Cloudflare local runtime pass. The existing OAuth session is authenticated. CI runs a deployment dry run; automatic publishing is not enabled. The remaining native dependency notice bundle still prevents completing L2 and the public launch gate. H3 awaits the first actual deployment URL.
-
+H2 configuration and local verification are complete: pinned Wrangler, assets-only configuration, explicit 404 handling, caching/MIME checks, 82 unit tests and 27 browser tests against the Cloudflare local runtime pass. The existing OAuth session is authenticated. CI runs a deployment dry run; automatic publishing is not enabled. At this stage, the missing native dependency notice bundle still blocked L2 and public launch. H3 was awaiting the first deployment URL.
 
 ### Preview retained for launch
 
-The user chose to keep page preview and finish the native notices before publishing. Work is reconstructing a conservative notice inventory from the pinned PDFium source/dependency revisions and Emscripten 3.1.72, with independent review of nested license exceptions and required acknowledgments. A new `check:native-notices` pre-deploy gate rejects incomplete inventories or a changed WASM hash. Cloudflare's API confirms the proposed `pdf-internals-viewer` Worker does not exist, so the first deployment will create it rather than replace an unrelated app.
-
+The user chose to keep page preview and finish the native notices before publishing. The team is reconstructing a conservative notice inventory from the pinned PDFium source/dependency revisions and Emscripten 3.1.72, with independent review of nested license exceptions and required acknowledgments. A new `check:native-notices` pre-deploy gate rejects incomplete inventories or a changed WASM hash. At that point, Cloudflare's API confirmed that the proposed `pdf-internals-viewer` Worker did not exist. The first deployment would create it without replacing another app.
 
 ### Native notice preparation completed
 
-The reconstructed source-matched inventory is independently reviewed: 20 component groups, 64 hashed public notice/evidence files, 148 HarfBuzz comment blocks and 1,768 Emscripten comment blocks. All external archive object names map to exact dependency sources; component review additionally covers header-only/amalgamated code and nested license exceptions. Native notices remain a conservative source superset, not a supplier-issued SBOM. The release verifier now binds the inventory to the installed and built WASM and built public notice files. L2 is complete for this stated inventory.
+The reconstructed source-matched inventory is independently reviewed: 20 component groups, 64 hashed public notice/evidence files, 148 HarfBuzz comment blocks and 1,768 Emscripten comment blocks. All external archive object names map to exact dependency sources; component review additionally covers header-only/amalgamated code and nested license exceptions. The native notices conservatively include a superset of the sources. They are not a supplier-issued SBOM. The release verifier now binds the inventory to the installed and built WASM and built public notice files. L2 is complete for this stated inventory.
 
+### Public preview deployed: 2026-11-12
 
-### Public preview deployed — 2026-11-12
-
-H2 and hosted verification in H3 are complete. URL: **https://pdf-internals-viewer.pricepaiddata.workers.dev**; Cloudflare version `bc262a96-3a5e-488c-a0df-f02188f6ea67`. Live checks verified matching HTML, all 64 native notice/evidence file hashes, the combined bundle, exact WASM, worker/font/WASM MIME types, cache behavior and missing/private-path 404s. The live browser suite passed 27/27 in 36.7 seconds after the managed-local suite passed 27/27. Preview is retained. Native notice preparation uses the reviewed conservative source/toolchain inventory; no supplier response was required or claimed. Actual Safari testing (V3), performance follow-up and the observed developer session remain open. A custom domain is optional; automatic deployment on merge is not enabled.
+H2 and hosted verification in H3 are complete. URL: https://pdf-internals-viewer.pricepaiddata.workers.dev; Cloudflare version `bc262a96-3a5e-488c-a0df-f02188f6ea67`. Live checks verified matching HTML, all 64 native notice/evidence file hashes, the combined bundle, exact WASM, worker/font/WASM MIME types, cache behavior and missing/private-path 404s. The live browser suite passed 27/27 in 36.7 seconds after the managed-local suite passed 27/27. Page preview remains available. Native notice preparation uses the reviewed conservative source/toolchain inventory; no supplier response was required or claimed. Actual Safari testing (V3), performance follow-up and the observed developer session remain open. A custom domain is optional; automatic deployment on merge is not enabled.

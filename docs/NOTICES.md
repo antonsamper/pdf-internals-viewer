@@ -1,6 +1,6 @@
 # Third-party notices
 
-Updated 2026-11-12. **Status: prepared and independently reviewed against the pinned sources and preview binary.** Original application code is MIT licensed. Dependency licenses remain separate.
+Updated 2026-11-12. Status: prepared and independently reviewed against the pinned sources and preview binary. Original application code is MIT licensed. Dependency licenses remain separate.
 
 ## Distributed materials
 
@@ -24,17 +24,17 @@ Copied source license bytes, copyright/license comment blocks, required acknowle
 
 ## How the missing inventory was reconstructed
 
-The supplier archives supplied a top-level PDFium/Apache license but no consolidated native dependency bundle. Rather than substitute notices from a different binary, this project gathered the texts from the fork's exact vendored code, exact DEPS-pinned repositories and exact Emscripten toolchain sources.
+The supplier archives contained a top-level PDFium/Apache license but no consolidated native dependency notice bundle. The project gathered the missing texts from the fork's vendored code, DEPS-pinned repositories, and Emscripten toolchain sources, using the exact revisions for this binary.
 
 The PDFium library contains 1,198 archive objects. Of these, 556 map to fork sources; all 597 distinct external object names among the remaining objects map to the pinned dependency trees. Basename collisions remain recorded as multiple candidates. Archive membership is not final linkage, and this mapping does not alone cover headers or amalgamated code.
 
-The review therefore also checked the component metadata and nested exceptions: FreeType's delegated BDF/PCF/fthash, gzip and copied HarfBuzz notices; HarfBuzz's Microsoft USE-shaper license and per-source copyrights; the entire ICU data/dictionary notice; JPEG attribution; and Skia path-processing and conservative nested licenses. Disabling the Skia renderer does not remove the path-processing code found in the archive.
+The review also checked component metadata and nested license exceptions: FreeType's delegated BDF/PCF/fthash, gzip and copied HarfBuzz notices; HarfBuzz's Microsoft USE-shaper license and per-source copyrights; the entire ICU data/dictionary notice; JPEG attribution; and Skia path-processing and conservative nested licenses. Disabling the Skia renderer does not remove the path-processing code found in the archive.
 
 The HarfBuzz supplement preserves 148 unique comment blocks from all 493 source/header/Ragel files in the pinned source scope. The Emscripten supplement preserves 1,768 unique blocks across system libraries, headers and JS glue, with 4,358 source occurrences checked against hashes, exact bytes and inclusive line spans. Its nine standalone license/authors files are also included.
 
-This is a **conservative exact-source and toolchain notice inventory**, including optional or unlinked components. It is not a supplier-issued SBOM, a minimal list of linked code, or a claim that every included component runs in this app. This scope avoids inferring exclusion from an absent object name or a disabled renderer flag. Source downloads remain in ignored `.context/`; only notices and provenance are distributed.
+This conservative notice inventory covers the exact sources and toolchain, including optional or unlinked components. It is not a supplier-issued SBOM, a minimal list of linked code, or a claim that every included component runs in this app. An absent object name or disabled renderer flag is insufficient evidence to exclude a component. Source downloads remain in ignored `.context/`; only notices and provenance are distributed.
 
-Independent review verified all 64 public hashes, native source/excerpt hashes, HarfBuzz and Emscripten supplements, required acknowledgments and assembled-bundle inclusion. No concrete scope gap remained identified for this stated inventory. The earlier supplier request is retained as historical draft; no message was sent or reply claimed.
+Independent review verified all 64 public hashes, native source/excerpt hashes, HarfBuzz and Emscripten supplements, required acknowledgments and assembled-bundle inclusion. The review found no remaining concrete gap within this inventory's stated scope. The earlier supplier request is retained as historical draft; no message was sent or reply claimed.
 
 ## Build and release checks
 
@@ -42,4 +42,4 @@ Independent review verified all 64 public hashes, native source/excerpt hashes, 
 
 The separate preview-notice check verifies that prominent modification banners survive minification in the standalone worker, inline transport and embedded-source wrapper/payload. Hashed assets are never rewritten after building. The original 43 JS/font/CSS texts were verified in both clean npm and pnpm layouts before this native reconstruction.
 
-Upgrading EmbedPDF, its PDFium fork, its toolchain or the WASM deliberately requires renewed provenance, dependency-scope, license and behavior review. A compatible supplier-issued notice bundle could replace this reconstructed inventory after its source/build match is checked. A successful notice check does not suppress the separately documented Zod advisory or replace behavioral browser testing.
+Any upgrade to EmbedPDF, its PDFium fork, its toolchain, or the WASM requires another review of provenance, dependency scope, licenses, and behavior. A compatible supplier-issued notice bundle could replace this reconstructed inventory after its source/build match is checked. A successful notice check does not suppress the separately documented Zod advisory or replace behavioral browser testing.
