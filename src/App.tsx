@@ -1260,10 +1260,7 @@ export default function App() {
         ) : (
           <main className="empty-workspace">
             <div className="empty-introduction">
-              <span className="empty-file">
-                <FileCode2 size={30} strokeWidth={1.25} />
-              </span>
-              <h1>Look inside a PDF.</h1>
+              <h1>Look inside<br />a <em>PDF.</em></h1>
               <p>
                 Explore objects, follow references, and connect
                 <br className="desktop-break" /> the structure to the original
@@ -1288,8 +1285,11 @@ export default function App() {
                 Early version · View limitations
               </button>
             </div>
-            <section className="samples">
-              <h2>Or explore a sample</h2>
+            <section className="samples" aria-label="Sample documents">
+              <div className="sample-heading">
+                <h2>Or explore a sample</h2>
+                <Files size={20} strokeWidth={1.5} />
+              </div>
               {SAMPLES.map(({ file, name, detail, icon: Icon }) => (
                 <button
                   className="sample-row"
@@ -1302,11 +1302,23 @@ export default function App() {
                   <span>
                     <strong>{name}</strong>
                     <span>{detail}</span>
+                    <code className="sample-filename">{file}</code>
                   </span>
                   <ArrowUpRight size={15} />
                 </button>
               ))}
+              <div className="sample-footer">
+                <Braces size={15} />
+                <span>Real PDFs. Ready to take apart.</span>
+              </div>
             </section>
+            <div className="exploration-guide" aria-label="Inspection workflow">
+              <span><ListTree size={18} /> Explore objects</span>
+              <ArrowRight size={16} aria-hidden="true" />
+              <span><Braces size={18} /> Follow references</span>
+              <ArrowRight size={16} aria-hidden="true" />
+              <span><Binary size={18} /> Find the original bytes</span>
+            </div>
           </main>
         )}
         <footer className="status-bar">

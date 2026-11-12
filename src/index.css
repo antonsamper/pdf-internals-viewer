@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "./styles/shadcn.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/bodoni-moda";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -49,38 +50,38 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --background: #f5f1e8;
+  --foreground: #282d28;
+  --card: #faf7ef;
+  --card-foreground: #282d28;
+  --popover: #faf7ef;
+  --popover-foreground: #282d28;
+  --primary: #b63e26;
+  --primary-foreground: #fffaf2;
+  --secondary: #e8e3d7;
+  --secondary-foreground: #353d33;
+  --muted: #ece7dc;
+  --muted-foreground: #6b6c60;
+  --accent: #e7dfce;
+  --accent-foreground: #282d28;
+  --destructive: #ad3028;
+  --border: #d5cebf;
+  --input: #c9c1b1;
+  --ring: #b63e26;
+  --chart-1: #b63e26;
+  --chart-2: #466353;
+  --chart-3: #9a743c;
+  --chart-4: #65746c;
+  --chart-5: #353d33;
+  --radius: 0.25rem;
+  --sidebar: #252e29;
+  --sidebar-foreground: #f5f1e8;
+  --sidebar-primary: #e4a28a;
+  --sidebar-primary-foreground: #252e29;
+  --sidebar-accent: #39453b;
+  --sidebar-accent-foreground: #fffaf2;
+  --sidebar-border: #465046;
+  --sidebar-ring: #e4a28a;
 }
 
 .dark {
