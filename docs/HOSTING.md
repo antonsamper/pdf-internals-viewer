@@ -18,7 +18,20 @@ pnpm run deploy
 
 `wrangler.jsonc` declares `pages_build_output_dir: "./dist"`. `deploy:check` builds, checks the preview modification notices and exact native WASM/notice inventory, then validates the static Pages upload. The upload checker requires `index.html` and `404.html`, rejects symlinks/hidden files/server-side entry points, and checks Pages' 20,000-file/25-MiB-per-file limits. It does not publish or need credentials.
 
-`deploy` publishes `dist/` to the existing Pages project with `--branch main`, its production branch. The app currently uses **Direct Upload**, not Git integration. Publishing is manual; a local checkout can publish without merging a branch. A Direct Upload project cannot later be switched to Git integration in place; future automatic publishing can instead use a CI upload or a newly created Git-integrated Pages project.
+`deploy` publishes `dist/` to the existing Pages project with `--branch main`, its production branch. The app uses **Direct Upload**, not Cloudflare Git integration. GitHub Actions automates the upload as described below. Manual publishing remains available; a local checkout can publish without merging a branch. A Direct Upload project cannot later be switched to Cloudflare Git integration in place.
+
+## Automatic deployment from main
+
+The `deploy` job in `.github/workflows/ci.yml` publishes production after a push to `main`, including a merged pull request. It waits for the full secret-history scan, type checking, lint, unit tests, build/upload validation, and Chromium, Firefox and WebKit tests to pass. Pull requests and other branches run checks but do not deploy. Runs are serialized per event/branch to prevent overlapping production uploads; GitHub may replace a pending run with the latest push. Rerunning an old main workflow can republish that old commit, so use the latest main run for routine deployment retries.
+
+One-time setup is required in [repository Settings → Secrets and variables → Actions](https://github.com/antonsamper/pdf-internals-viewer/settings/secrets/actions):
+
+- `CLOUDFLARE_API_TOKEN`: create a custom token with **Account → Cloudflare Pages → Edit**, restricted to the account hosting `pdf-internals-viewer`.
+- `CLOUDFLARE_ACCOUNT_ID`: the ID of that Cloudflare account, available in its dashboard.
+
+Keep both values outside Git and chat. See [Cloudflare's CI upload instructions](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/) for credential setup. Deployment fails with an explicit setup error if either secret is missing. Credentials are supplied only to the credential check and publishing steps in the main-only deploy job.
+
+Once these secrets exist and this workflow is merged to `main`, the merge itself triggers the first automatic deployment. Check the **Checks → Deploy production** job in the repository's Actions tab for its result. After publication, the job checks that the production homepage returns a successful HTTP response; this is an availability check, not a complete live browser or asset verification. If publishing fails, fix the cause and rerun the failed jobs in that workflow run. The last successful deployment continues to serve until another upload succeeds.
 
 Check/login using `pnpm exec wrangler whoami` / `pnpm exec wrangler login`. If more than one account is available, set `CLOUDFLARE_ACCOUNT_ID` to the intended account. Never commit tokens or local credentials. To inspect deployments:
 
