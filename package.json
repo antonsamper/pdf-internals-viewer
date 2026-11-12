@@ -24,11 +24,12 @@
     "pretest:corpus": "pnpm run prepare:deps",
     "check:preview-notices": "node scripts/check-preview-notices.mjs dist",
     "postbuild": "pnpm run check:preview-notices && pnpm run check:native-notices --dist",
-    "deploy:check": "pnpm run build && wrangler deploy --dry-run",
-    "deploy": "pnpm run build && wrangler deploy",
-    "preview:cloudflare": "wrangler dev --ip 127.0.0.1 --port 8787",
+    "deploy:check": "pnpm run build && pnpm run check:pages-assets",
+    "deploy": "pnpm run deploy:check && wrangler pages deploy dist --project-name pdf-internals-viewer --branch main",
+    "preview:cloudflare": "wrangler pages dev dist --ip 127.0.0.1 --port 8787",
     "check:native-notices": "node scripts/check-native-notices.mjs",
-    "predeploy": "pnpm run check:native-notices"
+    "predeploy": "pnpm run check:native-notices",
+    "check:pages-assets": "node scripts/check-pages-assets.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

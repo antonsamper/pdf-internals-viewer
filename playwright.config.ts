@@ -21,7 +21,7 @@ export default defineConfig({
   },
   webServer: externalBaseURL ? undefined : {
     command: cloudflarePreview
-      ? 'pnpm exec wrangler dev --ip 127.0.0.1 --port 8787'
+      ? 'pnpm exec wrangler pages dev dist --ip 127.0.0.1 --port 8787'
       : process.env.PLAYWRIGHT_PREVIEW
       ? 'pnpm run preview --host 127.0.0.1 --port 5173 --strictPort'
       : 'pnpm run dev --host 127.0.0.1 --port 5173 --strictPort',

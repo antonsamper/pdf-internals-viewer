@@ -46,7 +46,7 @@ Updated 2026-11-12. Use this list to coordinate the next release batch. Owners w
 ## Decisions
 
 - Project source license: MIT, selected by the user.
-- Hosting: Cloudflare Workers Static Assets selected by the user; the verified public app is at https://pdf-internals-viewer.pricepaiddata.workers.dev.
+- Hosting: independent Cloudflare Pages project, live at https://pdf-internals-viewer.pages.dev; previous Worker endpoints disabled.
 - Package manager: pnpm 10.33.4, authorized by the user; `pnpm-lock.yaml` is the only lockfile. CI uses frozen installs and caches the pnpm store.
 - Public PDF assets: keep only original bundled samples; the third-party corpus stays in ignored local cache.
 
@@ -55,7 +55,7 @@ Updated 2026-11-12. Use this list to coordinate the next release batch. Owners w
 - [Release review](RELEASE-REVIEW.md): actual preview dependency-chain bug fixed, with regression evidence; clean pnpm installation now passes the reviewed consumer and validator regressions.
 - [Performance report](PERFORMANCE.md): large-file median opening ~2.03 seconds; cached navigation below 43 ms; maximum measured main-thread long task 388 ms. Heap figures are snapshots, not peak or total memory.
 - [Notice inventory](NOTICES.md): verified JS/font/CSS notices prepared; the native gap is closed with an independently reviewed conservative exact-source/toolchain inventory. The [historical supplier request draft](PDFIUM-NOTICE-REQUEST.md) was not sent.
-- [Hosting options](HOSTING.md): Netlify, Cloudflare Workers Static Assets, and GitHub Pages compared with concrete build/path requirements. Cloudflare is selected and the app is live at https://pdf-internals-viewer.pricepaiddata.workers.dev.
+- [Hosting options](HOSTING.md): Netlify, Cloudflare Workers Static Assets, and GitHub Pages compared with concrete build/path requirements. Cloudflare Pages is selected and the app is live at https://pdf-internals-viewer.pages.dev.
 
 The coordinator validated an isolated npm-lock candidate without deleting the root pnpm installation: clean install, 82 unit tests, lint, type checking and production build passed. That run verified only the isolated candidate; the mixed root installation was still unreconciled at that point. No file/object limits were raised.
 
@@ -81,4 +81,9 @@ The reconstructed source-matched inventory is independently reviewed: 20 compone
 
 ### Public preview deployed: 2026-11-12
 
-H2 and hosted verification in H3 are complete. URL: https://pdf-internals-viewer.pricepaiddata.workers.dev; Cloudflare version `bc262a96-3a5e-488c-a0df-f02188f6ea67`. Live checks verified matching HTML, all 64 native notice/evidence file hashes, the combined bundle, exact WASM, worker/font/WASM MIME types, cache behavior and missing/private-path 404s. The live browser suite passed 27/27 in 36.7 seconds after the managed-local suite passed 27/27. Page preview remains available. Native notice preparation uses the reviewed conservative source/toolchain inventory; no supplier response was required or claimed. Actual Safari testing (V3), performance follow-up and the observed developer session remain open. A custom domain is optional; automatic deployment on merge is not enabled.
+H2 and hosted verification in H3 are complete. Initial deployment: the now-retired Workers endpoint; Cloudflare version `bc262a96-3a5e-488c-a0df-f02188f6ea67`. Live checks verified matching HTML, all 64 native notice/evidence file hashes, the combined bundle, exact WASM, worker/font/WASM MIME types, cache behavior and missing/private-path 404s. The live browser suite passed 27/27 in 36.7 seconds after the managed-local suite passed 27/27. Page preview remains available. Native notice preparation uses the reviewed conservative source/toolchain inventory; no supplier response was required or claimed. Actual Safari testing (V3), performance follow-up and the observed developer session remain open. A custom domain is optional; automatic deployment on merge is not enabled.
+
+
+### Independent Pages project — 2026-11-12
+
+User selected Pages to avoid the shared account hostname. App is now at **https://pdf-internals-viewer.pages.dev** in its own Pages project, deployment `5660f026`, production branch `main`. The 27 local Pages checks and 27 live checks pass; asset MIME/cache/404, exact WASM and 64 native notice/evidence hashes pass. The former Worker's production and preview subdomains are both disabled, and its old production/version-preview addresses return 404. Other account projects and the shared namespace were not changed. Current scripts/config/CI/docs target Pages; no account-wide hostname is used by the app.

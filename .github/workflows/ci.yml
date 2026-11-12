@@ -20,7 +20,7 @@ jobs:
       - run: pnpm run lint
       - run: pnpm test
       - run: pnpm run build
-      - run: pnpm exec wrangler deploy --dry-run
+      - run: pnpm run check:pages-assets
   browsers:
     needs: check
     runs-on: ubuntu-latest

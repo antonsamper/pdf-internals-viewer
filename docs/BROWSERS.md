@@ -38,4 +38,9 @@ After the pnpm migration, `PLAYWRIGHT_PREVIEW=1 pnpm run test:e2e --browser=all`
 
 ## Live Cloudflare verification: 2026-11-12
 
-`PLAYWRIGHT_BASE_URL=https://pdf-internals-viewer.pricepaiddata.workers.dev pnpm run test:e2e --browser=all` passed 27/27 in 36.7 seconds against the public deployment: 9 each in Chromium, Firefox and WebKit. This includes preview rendering without external requests, document writes/uploads or runtime errors in the tested flow. The managed local Cloudflare run also passed 27/27 in 32.6 seconds. The earlier stopped-server failure required no application changes. Actual Safari application testing remains separate.
+The initial, now-retired Workers deployment passed 27/27 in 36.7 seconds against the public deployment: 9 each in Chromium, Firefox and WebKit. This includes preview rendering without external requests, document writes/uploads or runtime errors in the tested flow. The managed local Cloudflare run also passed 27/27 in 32.6 seconds. The earlier stopped-server failure required no application changes. Actual Safari application testing remains separate.
+
+
+## Cloudflare Pages migration — 2026-11-12
+
+The managed Cloudflare mode now runs `wrangler pages dev dist`. All 27 local checks passed in 29.9 seconds. The same 27 checks passed against https://pdf-internals-viewer.pages.dev in 36.7 seconds, across Chromium, Firefox and WebKit. Pages' explicit `404.html` prevents missing worker/WASM files receiving an HTML shell. Hosted HTML, worker/WASM/font MIME and caching, all 64 native notice/evidence hashes, combined notice inclusion and exact WASM passed HTTP checks. The previous Worker production and preview addresses were disabled after the Pages deployment passed. Actual Safari testing remains open.

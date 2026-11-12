@@ -1,19 +1,20 @@
 # Project operations
 
-## Deploy configuration
+## Deploy Configuration
 
-- Platform: Cloudflare Workers Static Assets, assets-only Vite/React app.
-- Configuration: `wrangler.jsonc`; Worker name `pdf-internals-viewer`; uploaded directory `dist/` only.
-- Production URL: https://pdf-internals-viewer.pricepaiddata.workers.dev
-- Project type: static web app. PDF inspection and preview run locally in the browser.
-- Deploy workflow: manual CLI; CI validates the build and Wrangler dry run only.
-- Deploy status command: `pnpm exec wrangler deployments list` after initial deployment.
-- Merge method: follow repository settings; no automatic merge/deploy configured.
-- Pre-deploy checks: `pnpm run typecheck`, `pnpm run lint`, `pnpm test`, `pnpm run deploy:check`.
-- Deploy trigger: `pnpm run deploy` builds and publishes to the authenticated Cloudflare account.
-- Local platform preview: `pnpm run preview:cloudflare` serves built assets on `http://127.0.0.1:8787`.
-- Health check: HTTP GET `/`, verify JS/worker/WASM MIME types and missing-asset 404s, then `PLAYWRIGHT_BASE_URL=<deployed URL> pnpm run test:e2e --browser=all`.
-- Release status: the reviewed native notice inventory conservatively covers the exact sources and toolchain; `predeploy` and production `postbuild` verify its hashes and exact WASM match. See `docs/NOTICES.md`. A dry run does not publish the app.
-- Keep credentials out of tracked files. Use Wrangler login or deployment environment credentials. Verify account and existing Worker ownership before publishing.
+- Platform: Cloudflare Pages, static-only Vite/React app; no backend/functions.
+- Config: `wrangler.jsonc`; `pages_build_output_dir` is `./dist`; project `pdf-internals-viewer`.
+- Production URL: https://pdf-internals-viewer.pages.dev
+- Production branch: `main`; Direct Upload via CLI, not automatic Git integration.
+- Deploy trigger: `pnpm run deploy`; native notice predeploy check, build/postbuild verification and static upload validation run before `wrangler pages deploy dist --project-name pdf-internals-viewer --branch main`.
+- Dry verification: `pnpm run deploy:check` builds and validates assets without publication or credentials. Do not use `wrangler deploy` (Workers) for this Pages project.
+- Deploy status: `pnpm exec wrangler pages deployment list --project-name pdf-internals-viewer`.
+- Local platform preview: `pnpm run preview:cloudflare` serves built `dist/` using Pages on port 8787.
+- Browser checks: `PLAYWRIGHT_CLOUDFLARE=1 pnpm run test:e2e --browser=all` owns local Pages server lifecycle; `PLAYWRIGHT_BASE_URL=https://pdf-internals-viewer.pages.dev pnpm run test:e2e --browser=all` checks production.
+- Health: GET `/`; verify workers/WASM/fonts MIME/caching, missing/private-path 404s, exact native WASM and notice hashes.
+- Keep `public/404.html`: it prevents missing assets receiving Pages' SPA HTML fallback.
+- Native notices: independently reviewed exact-source/toolchain superset; predeploy/postbuild checks pin the WASM and source text hashes. See `docs/NOTICES.md`.
+- Account: existing Cloudflare account; public hostname is project-specific. Do not re-enable the retired Worker's production or preview subdomains or change the account-wide Workers namespace.
+- Credentials remain outside Git. Verify the account/project before publication.
 
-Latest verified Cloudflare version: `bc262a96-3a5e-488c-a0df-f02188f6ea67` (2026-11-12). Live checks passed for `/`, asset MIME types and caching, the exact WASM binary, all 64 native notice hashes, and all 27 browser tests.
+Verified deployment `5660f026` on 2026-11-12: 27/27 local Pages tests, 27/27 live tests, hosted asset/WASM/native-notice hashes and 404 checks passed. Former Worker subdomains are disabled. See `docs/HOSTING.md`.
