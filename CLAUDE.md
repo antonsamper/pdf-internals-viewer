@@ -5,8 +5,12 @@
 - Platform: Cloudflare Pages, static-only Vite/React app; no backend/functions.
 - Config: `wrangler.jsonc`; `pages_build_output_dir` is `./dist`; project `pdf-internals-viewer`.
 - Production URL: https://pdf-internals-viewer.pages.dev
-- Production branch: `main`; Direct Upload via CLI, not automatic Git integration.
-- Deploy trigger: `pnpm run deploy`; native notice predeploy check, build/postbuild verification and static upload validation run before `wrangler pages deploy dist --project-name pdf-internals-viewer --branch main`.
+- Production branch: `main`; Direct Upload automated by GitHub Actions, not Cloudflare Git integration.
+- Deploy workflow: `.github/workflows/ci.yml`, job `deploy`; only pushes to `main`, after `secrets`, `check`, and all `browsers` jobs succeed. Pull requests and other branches never deploy. Workflow runs are serialized per event/branch.
+- Credentials: repository Actions secrets `CLOUDFLARE_API_TOKEN` (Account / Cloudflare Pages / Edit, scoped to the hosting account) and `CLOUDFLARE_ACCOUNT_ID`. Missing secrets fail the deploy job explicitly. See `docs/HOSTING.md` for setup.
+- Deploy trigger: automatic after successful main checks, using `pnpm run deploy`; native notice predeploy check, build/postbuild verification and static upload validation run before `wrangler pages deploy dist --project-name pdf-internals-viewer --branch main`. This command is also available for manual publication from a local checkout.
+- CI deploy status: `gh run list --workflow ci.yml --branch main --event push --limit 5`; inspect a run with `gh run view <run-id>`.
+- Post-deploy check: CI requests the production homepage with retries. This checks availability; live browser/asset verification remains separate.
 - Dry verification: `pnpm run deploy:check` builds and validates assets without publication or credentials. Do not use `wrangler deploy` (Workers) for this Pages project.
 - Deploy status: `pnpm exec wrangler pages deployment list --project-name pdf-internals-viewer`.
 - Local platform preview: `pnpm run preview:cloudflare` serves built `dist/` using Pages on port 8787.
