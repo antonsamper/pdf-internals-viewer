@@ -1,0 +1,590 @@
+{
+  "recordedAt": "2026-11-12",
+  "status": "prepared-source-matched-notices",
+  "scope": "Installed production runtime graph, excluding @tailwindcss/vite build integration; optional native targets excluded; WASM target included",
+  "packages": [
+    {
+      "key": "@base-ui/react@1.9.0",
+      "name": "@base-ui/react",
+      "version": "1.9.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "@babel/runtime@8.1.0",
+      "name": "@babel/runtime",
+      "version": "8.1.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "@base-ui/utils@0.5.0",
+      "name": "@base-ui/utils",
+      "version": "0.5.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "@floating-ui/utils@0.2.12",
+      "name": "@floating-ui/utils",
+      "version": "0.2.12",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "reselect@5.3.0",
+      "name": "reselect",
+      "version": "5.3.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "use-sync-external-store@1.7.0",
+      "name": "use-sync-external-store",
+      "version": "1.7.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "@floating-ui/react-dom@2.1.9",
+      "name": "@floating-ui/react-dom",
+      "version": "2.1.9",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "@floating-ui/dom@1.8.0",
+      "name": "@floating-ui/dom",
+      "version": "1.8.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "@floating-ui/core@1.8.0",
+      "name": "@floating-ui/core",
+      "version": "1.8.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "@embedpdf/engine@3.1.0",
+      "name": "@embedpdf/engine",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0"
+    },
+    {
+      "key": "@embedpdf/core-fonts@3.1.0",
+      "name": "@embedpdf/core-fonts",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0"
+    },
+    {
+      "key": "@embedpdf/engine-core@3.1.0",
+      "name": "@embedpdf/engine-core",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0"
+    },
+    {
+      "key": "zod@3.25.76",
+      "name": "zod",
+      "version": "3.25.76",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "@embedpdf/default-fallback-fonts@1.0.0",
+      "name": "@embedpdf/default-fallback-fonts",
+      "version": "1.0.0",
+      "declaredLicense": "Apache-2.0"
+    },
+    {
+      "key": "@embedpdf/engine-runtime@3.1.0",
+      "name": "@embedpdf/engine-runtime",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0"
+    },
+    {
+      "key": "detect-libc@2.1.2",
+      "name": "detect-libc",
+      "version": "2.1.2",
+      "declaredLicense": "Apache-2.0"
+    },
+    {
+      "key": "@embedpdf/engine-runtime-wasm32@3.1.0",
+      "name": "@embedpdf/engine-runtime-wasm32",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0"
+    },
+    {
+      "key": "@embedpdf/engine-services@3.1.0",
+      "name": "@embedpdf/engine-services",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0"
+    },
+    {
+      "key": "@fontsource-variable/geist@5.3.0",
+      "name": "@fontsource-variable/geist",
+      "version": "5.3.0",
+      "declaredLicense": "OFL-1.1"
+    },
+    {
+      "key": "@libpdf/core@0.5.3",
+      "name": "@libpdf/core",
+      "version": "0.5.3",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "@noble/ciphers@2.4.0",
+      "name": "@noble/ciphers",
+      "version": "2.4.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "@noble/hashes@2.4.0",
+      "name": "@noble/hashes",
+      "version": "2.4.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "@scure/base@2.4.0",
+      "name": "@scure/base",
+      "version": "2.4.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "asn1js@3.1.0",
+      "name": "asn1js",
+      "version": "3.1.0",
+      "declaredLicense": "BSD-3-Clause"
+    },
+    {
+      "key": "pvtsutils@1.3.6",
+      "name": "pvtsutils",
+      "version": "1.3.6",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "tslib@2.9.1",
+      "name": "tslib",
+      "version": "2.9.1",
+      "declaredLicense": "0BSD"
+    },
+    {
+      "key": "pvutils@1.2.0",
+      "name": "pvutils",
+      "version": "1.2.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "lru-cache@11.5.3",
+      "name": "lru-cache",
+      "version": "11.5.3",
+      "declaredLicense": "BlueOak-1.0.0"
+    },
+    {
+      "key": "pako@2.2.0",
+      "name": "pako",
+      "version": "2.2.0",
+      "declaredLicense": "(MIT AND Zlib)"
+    },
+    {
+      "key": "pkijs@3.4.3",
+      "name": "pkijs",
+      "version": "3.4.3",
+      "declaredLicense": "BSD-3-Clause"
+    },
+    {
+      "key": "@noble/hashes@1.8.0",
+      "name": "@noble/hashes",
+      "version": "1.8.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "bytestreamjs@2.0.1",
+      "name": "bytestreamjs",
+      "version": "2.0.1",
+      "declaredLicense": "BSD-3-Clause"
+    },
+    {
+      "key": "class-variance-authority@0.7.1",
+      "name": "class-variance-authority",
+      "version": "0.7.1",
+      "declaredLicense": "Apache-2.0"
+    },
+    {
+      "key": "clsx@2.1.1",
+      "name": "clsx",
+      "version": "2.1.1",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "cn@0.5.2",
+      "name": "cn",
+      "version": "0.5.2",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "lucide-react@1.72.0",
+      "name": "lucide-react",
+      "version": "1.72.0",
+      "declaredLicense": "ISC"
+    },
+    {
+      "key": "react@19.3.1",
+      "name": "react",
+      "version": "19.3.1",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "react-dom@19.3.1",
+      "name": "react-dom",
+      "version": "19.3.1",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "scheduler@0.28.0",
+      "name": "scheduler",
+      "version": "0.28.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "react-resizable-panels@4.21.0",
+      "name": "react-resizable-panels",
+      "version": "4.21.0",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "tailwindcss@4.3.5",
+      "name": "tailwindcss",
+      "version": "4.3.5",
+      "declaredLicense": "MIT"
+    },
+    {
+      "key": "tw-animate-css@1.4.0",
+      "name": "tw-animate-css",
+      "version": "1.4.0",
+      "declaredLicense": "MIT"
+    }
+  ],
+  "texts": [
+    {
+      "package": "@babel/runtime",
+      "version": "8.1.0",
+      "declaredLicense": "MIT",
+      "source": "@babel/runtime/LICENSE",
+      "sha256": "117da2af0d4ce0fe1c8e19b5cff9dcd806adf973d328d27b11d4448c4ff24f76"
+    },
+    {
+      "package": "@base-ui/react",
+      "version": "1.9.0",
+      "declaredLicense": "MIT",
+      "source": "@base-ui/react/LICENSE",
+      "sha256": "07fc1b39d69d14bc7d40482a628f47226258eb01265db68ae684944b916beb2a"
+    },
+    {
+      "package": "@base-ui/utils",
+      "version": "0.5.0",
+      "declaredLicense": "MIT",
+      "source": "@base-ui/utils/LICENSE",
+      "sha256": "07fc1b39d69d14bc7d40482a628f47226258eb01265db68ae684944b916beb2a"
+    },
+    {
+      "package": "@embedpdf/core-fonts",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0",
+      "source": "@embedpdf/core-fonts/LICENSE",
+      "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
+    },
+    {
+      "package": "@embedpdf/core-fonts",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0",
+      "source": "@embedpdf/core-fonts/THIRD_PARTY_NOTICES",
+      "sha256": "bf3009e0652bf67f05e4082167f0a5ec27e506c717d982722eac877a9a925def"
+    },
+    {
+      "package": "@embedpdf/default-fallback-fonts",
+      "version": "1.0.0",
+      "declaredLicense": "Apache-2.0",
+      "source": "@embedpdf/default-fallback-fonts/licenses/Noto-Apache-2.0.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "package": "@embedpdf/engine-core",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0",
+      "source": "@embedpdf/engine-core/LICENSE",
+      "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
+    },
+    {
+      "package": "@embedpdf/engine-runtime-wasm32",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0",
+      "source": "@embedpdf/engine-runtime-wasm32/LICENSE",
+      "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
+    },
+    {
+      "package": "@embedpdf/engine-runtime",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0",
+      "source": "@embedpdf/engine-runtime/LICENSE",
+      "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
+    },
+    {
+      "package": "@embedpdf/engine-services",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0",
+      "source": "@embedpdf/engine-services/LICENSE",
+      "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
+    },
+    {
+      "package": "@embedpdf/engine",
+      "version": "3.1.0",
+      "declaredLicense": "Apache-2.0",
+      "source": "@embedpdf/engine/LICENSE",
+      "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
+    },
+    {
+      "package": "@floating-ui/core",
+      "version": "1.8.0",
+      "declaredLicense": "MIT",
+      "source": "@floating-ui/core/LICENSE",
+      "sha256": "0e4c9a9b6c71019cbbea3bdc20b01223110a9035700f9c960c8fcbf78c2325ce"
+    },
+    {
+      "package": "@floating-ui/dom",
+      "version": "1.8.0",
+      "declaredLicense": "MIT",
+      "source": "@floating-ui/dom/LICENSE",
+      "sha256": "0e4c9a9b6c71019cbbea3bdc20b01223110a9035700f9c960c8fcbf78c2325ce"
+    },
+    {
+      "package": "@floating-ui/react-dom",
+      "version": "2.1.9",
+      "declaredLicense": "MIT",
+      "source": "@floating-ui/react-dom/LICENSE",
+      "sha256": "0e4c9a9b6c71019cbbea3bdc20b01223110a9035700f9c960c8fcbf78c2325ce"
+    },
+    {
+      "package": "@floating-ui/utils",
+      "version": "0.2.12",
+      "declaredLicense": "MIT",
+      "source": "@floating-ui/utils/LICENSE",
+      "sha256": "0e4c9a9b6c71019cbbea3bdc20b01223110a9035700f9c960c8fcbf78c2325ce"
+    },
+    {
+      "package": "@fontsource-variable/geist",
+      "version": "5.3.0",
+      "declaredLicense": "OFL-1.1",
+      "source": "@fontsource-variable/geist/LICENSE",
+      "sha256": "71609cbb5c78b5870d712eab73a31d76622635c6ed034ab5cee3b9ecbda8685f"
+    },
+    {
+      "package": "@libpdf/core",
+      "version": "0.5.3",
+      "declaredLicense": "MIT",
+      "source": "@libpdf/core/LICENSE.md",
+      "sha256": "780f927ddc7dd12f9f2906d0edd26f0474f71d7602d5704c13f1e482b7702821"
+    },
+    {
+      "package": "@noble/ciphers",
+      "version": "2.4.0",
+      "declaredLicense": "MIT",
+      "source": "@noble/ciphers/LICENSE",
+      "sha256": "f36671a5487c9c5050efacb58011c37c24c55a889803cb036cf9d9a6347c1e2d"
+    },
+    {
+      "package": "@noble/hashes",
+      "version": "1.8.0",
+      "declaredLicense": "MIT",
+      "source": "@noble/hashes/LICENSE",
+      "sha256": "4f221aee6e072336700c408c68ab3b96a3fc09f6aebe6f48f1bd99e5ef13faec"
+    },
+    {
+      "package": "@noble/hashes",
+      "version": "2.4.0",
+      "declaredLicense": "MIT",
+      "source": "@noble/hashes/LICENSE",
+      "sha256": "4f221aee6e072336700c408c68ab3b96a3fc09f6aebe6f48f1bd99e5ef13faec"
+    },
+    {
+      "package": "@scure/base",
+      "version": "2.4.0",
+      "declaredLicense": "MIT",
+      "source": "@scure/base/LICENSE",
+      "sha256": "3239e134eb6e6d64538ca76498c7fcb08a395249dd9d4af9927bf6d0169ee429"
+    },
+    {
+      "package": "asn1js",
+      "version": "3.1.0",
+      "declaredLicense": "BSD-3-Clause",
+      "source": "asn1js/LICENSE",
+      "sha256": "ebe5d98519d0dfcbcb80e20b22a56e7321e8557cd14355760434bbd4c1f4f683"
+    },
+    {
+      "package": "bytestreamjs",
+      "version": "2.0.1",
+      "declaredLicense": "BSD-3-Clause",
+      "source": "bytestreamjs/LICENSE",
+      "sha256": "f0fd6a4bf9bf46cfcea2005f800305fbb72cd0152b3c269cf496388258ee08f9"
+    },
+    {
+      "package": "class-variance-authority",
+      "version": "0.7.1",
+      "declaredLicense": "Apache-2.0",
+      "source": "class-variance-authority/LICENSE",
+      "sha256": "0ccbf956cffc8dcf515809433cb5242ee67c94513d46e48c261d68d0880de406"
+    },
+    {
+      "package": "clsx",
+      "version": "2.1.1",
+      "declaredLicense": "MIT",
+      "source": "clsx/license",
+      "sha256": "9a9edad7baae52622bddf3c15b2ef8a33d2c89f2d25408ad13e8a7481c6b0c97"
+    },
+    {
+      "package": "cn",
+      "version": "0.5.2",
+      "declaredLicense": "MIT",
+      "source": "cn/LICENSE",
+      "sha256": "00ff8408e93e2ecc4d90c0edeabdf434100c3aff50acc5d330e17eccd4a3faa5"
+    },
+    {
+      "package": "detect-libc",
+      "version": "2.1.2",
+      "declaredLicense": "Apache-2.0",
+      "source": "detect-libc/LICENSE",
+      "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1"
+    },
+    {
+      "package": "lru-cache",
+      "version": "11.5.3",
+      "declaredLicense": "BlueOak-1.0.0",
+      "source": "lru-cache/LICENSE.md",
+      "sha256": "8a1af140fdfbf5afd3df27f7e662f989c5b963a300020dfafce42033cae9e004"
+    },
+    {
+      "package": "lucide-react",
+      "version": "1.72.0",
+      "declaredLicense": "ISC",
+      "source": "lucide-react/LICENSE",
+      "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
+    },
+    {
+      "package": "pako",
+      "version": "2.2.0",
+      "declaredLicense": "(MIT AND Zlib)",
+      "source": "pako/LICENSE",
+      "sha256": "a04665b3b2de56c66730c1f720f528175739e4104f79073614aa611da1e85539"
+    },
+    {
+      "package": "pkijs",
+      "version": "3.4.3",
+      "declaredLicense": "BSD-3-Clause",
+      "source": "pkijs/LICENSE",
+      "sha256": "d27a2aa238102924ea75da808f79253484347d824b9b7b077837e4232f9493f5"
+    },
+    {
+      "package": "pvtsutils",
+      "version": "1.3.6",
+      "declaredLicense": "MIT",
+      "source": "pvtsutils/LICENSE",
+      "sha256": "c620c1d08a47c93ce242914a4269b86e41df5a97845325725a5f83d5d6f9d7fd"
+    },
+    {
+      "package": "pvutils",
+      "version": "1.2.0",
+      "declaredLicense": "MIT",
+      "source": "pvutils/LICENSE",
+      "sha256": "15c88630f1e778db64a446cb31b67362cc9eb7a048fdf5ac7ab51905b74464cd"
+    },
+    {
+      "package": "react-dom",
+      "version": "19.3.1",
+      "declaredLicense": "MIT",
+      "source": "react-dom/LICENSE",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "package": "react-resizable-panels",
+      "version": "4.21.0",
+      "declaredLicense": "MIT",
+      "source": "react-resizable-panels/LICENSE.md",
+      "sha256": "a8f1e0280bf14adcf5d017547db85eb5c3bac0feb1690ca98650874002eaa8ea"
+    },
+    {
+      "package": "react",
+      "version": "19.3.1",
+      "declaredLicense": "MIT",
+      "source": "react/LICENSE",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "package": "reselect",
+      "version": "5.3.0",
+      "declaredLicense": "MIT",
+      "source": "reselect/LICENSE",
+      "sha256": "e98047a5dee068b33f82e8c4b7a63037b5108c93393198efd4097753004af5dd"
+    },
+    {
+      "package": "scheduler",
+      "version": "0.28.0",
+      "declaredLicense": "MIT",
+      "source": "scheduler/LICENSE",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "package": "tailwindcss",
+      "version": "4.3.5",
+      "declaredLicense": "MIT",
+      "source": "tailwindcss/LICENSE",
+      "sha256": "60e0b68c0f35c078eef3a5d29419d0b03ff84ec1df9c3f9d6e39a519a5ae7985"
+    },
+    {
+      "package": "tslib",
+      "version": "2.9.1",
+      "declaredLicense": "0BSD",
+      "source": "tslib/LICENSE.txt",
+      "sha256": "210b19e543130388c68654b7497e967119ce17145f66ab7d85688fbd70f08751"
+    },
+    {
+      "package": "tw-animate-css",
+      "version": "1.4.0",
+      "declaredLicense": "MIT",
+      "source": "tw-animate-css/LICENSE",
+      "sha256": "039184dfa0a822397b3f45a435b5b1e538721587fbade96b9fa80f86cb354109"
+    },
+    {
+      "package": "use-sync-external-store",
+      "version": "1.7.0",
+      "declaredLicense": "MIT",
+      "source": "use-sync-external-store/LICENSE",
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    {
+      "package": "zod",
+      "version": "3.25.76",
+      "declaredLicense": "MIT",
+      "source": "zod/LICENSE",
+      "sha256": "3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8"
+    }
+  ],
+  "shadcn": {
+    "version": "4.23.0",
+    "source": "public/licenses/shadcn.txt",
+    "sha256": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f"
+  },
+  "nativeRuntime": {
+    "status": "verified-source-superset",
+    "provenanceFile": "public/licenses/embedpdf-runtime-provenance.json",
+    "notices": [
+      {
+        "file": "public/licenses/embedpdf-runtime-pdfium-license.txt",
+        "source": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/LICENSE",
+        "sha256": "1fe9dea718fbd75cf149adaf4d8a22a4335604d964ddb76d1b45383dec8668c9"
+      },
+      {
+        "file": "public/licenses/embedpdf-runtime-NOTICE.txt",
+        "source": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/NOTICE",
+        "sha256": "1d03c44d3af36ccffe2586e0bb0f8471223b71ce2e38069725d1da7859fc5b5d"
+      },
+      {
+        "file": "public/licenses/embedpdf-NOTICE.txt",
+        "source": "https://github.com/embedpdf/embed-pdf-viewer/blob/37273d7d149f893255344f0f8e9ff7b2dfbc8057/NOTICE",
+        "sha256": "6c08af23e1951b7058957cafd600a21d9d50a020c600c3276df69ba0b89631cf"
+      }
+    ],
+    "manifest": "public/licenses/native-notice-manifest.json",
+    "bundle": "public/licenses/embedpdf-native-notices.txt"
+  }
+}

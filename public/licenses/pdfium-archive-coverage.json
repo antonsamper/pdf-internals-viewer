@@ -1,0 +1,4348 @@
+{
+  "archiveObjects": 1198,
+  "internalMapped": 556,
+  "externalDistinctMapped": 597,
+  "externalMatches": {
+    "SkAddIntersections.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkAddIntersections.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkArenaAlloc.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkArenaAlloc.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkBezierCurves.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkBezierCurves.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkBuffer.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkBuffer.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkContainers.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkContainers.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkContourMeasure.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkContourMeasure.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkCpu.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkCpu.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkCubicClipper.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkCubicClipper.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkCubics.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkCubics.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkDConicLineIntersection.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkDConicLineIntersection.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkDCubicLineIntersection.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkDCubicLineIntersection.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkDCubicToQuads.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkDCubicToQuads.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkDLineIntersection.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkDLineIntersection.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkDQuadLineIntersection.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkDQuadLineIntersection.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkDashPath.o": [
+      {
+        "component": "skia",
+        "path": "src/utils/SkDashPath.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkEdgeClipper.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkEdgeClipper.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkFloatingPoint.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkFloatingPoint.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkGeometry.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkGeometry.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkIDChangeListener.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkIDChangeListener.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkIntersections.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkIntersections.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkLineClipper.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkLineClipper.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkLog.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkLog.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkLogHandler.o": [
+      {
+        "component": "skia",
+        "path": "src/utils/SkLogHandler.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkLog_stdio.o": [
+      {
+        "component": "skia",
+        "path": "src/ports/SkLog_stdio.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkM44.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkM44.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkMalloc.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkMalloc.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkMatrix.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkMatrix.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkMatrixInvert.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkMatrixInvert.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkMemory_malloc.o": [
+      {
+        "component": "skia",
+        "path": "src/ports/SkMemory_malloc.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkOpAngle.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkOpAngle.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkOpBuilder.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkOpBuilder.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkOpCoincidence.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkOpCoincidence.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkOpContour.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkOpContour.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkOpCubicHull.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkOpCubicHull.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkOpEdgeBuilder.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkOpEdgeBuilder.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkOpSegment.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkOpSegment.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkOpSpan.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkOpSpan.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkOpts.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkOpts.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPath.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkPath.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathBuilder.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkPathBuilder.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathData.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkPathData.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathDump.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkPathDump.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathIter.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkPathIter.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathMeasure.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkPathMeasure.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsAsWinding.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsAsWinding.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsCommon.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsCommon.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsConic.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsConic.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsCubic.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsCubic.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsCurve.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsCurve.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsDebug.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsDebug.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsLine.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsLine.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsOp.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsOp.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsQuad.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsQuad.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsRect.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsRect.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsSimplify.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsSimplify.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsTSect.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsTSect.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsTightBounds.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsTightBounds.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsTypes.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsTypes.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathOpsWinding.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathOpsWinding.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathPriv.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkPathPriv.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathRaw.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkPathRaw.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathRawShapes.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkPathRawShapes.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPathWriter.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkPathWriter.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkPoint.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkPoint.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkQuads.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkQuads.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkRRect.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkRRect.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkRect.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkRect.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkReduceOrder.o": [
+      {
+        "component": "skia",
+        "path": "src/pathops/SkReduceOrder.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkSafeMath.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkSafeMath.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkSemaphore.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkSemaphore.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkString.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkString.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkStringUtils.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkStringUtils.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkStroke.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkStroke.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkStrokeRec.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkStrokeRec.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkStrokerPriv.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkStrokerPriv.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkTDArray.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkTDArray.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkThreadID.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkThreadID.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkUTF.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkUTF.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "SkUtils.o": [
+      {
+        "component": "skia",
+        "path": "src/core/SkUtils.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "VARC.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/OT/Var/VARC/VARC.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "abort.o": [
+      {
+        "component": "highway",
+        "path": "hwy/abort.cc",
+        "revision": "2607d3b5b0113992fe84d3848859eae13b3b52c1"
+      },
+      {
+        "component": "llvm-libc",
+        "path": "src/stdlib/abort.cpp",
+        "revision": "d8f2045008e230f3c5f50095d918c11f1997e477"
+      }
+    ],
+    "address_is_readable.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/internal/address_is_readable.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "adler32.o": [
+      {
+        "component": "zlib",
+        "path": "adler32.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      },
+      {
+        "component": "freetype",
+        "path": "src/gzip/adler32.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "aligned_allocator.o": [
+      {
+        "component": "highway",
+        "path": "hwy/aligned_allocator.cc",
+        "revision": "2607d3b5b0113992fe84d3848859eae13b3b52c1"
+      }
+    ],
+    "appendable.o": [
+      {
+        "component": "icu",
+        "path": "source/common/appendable.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "arg.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/str_format/arg.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "ascii.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/ascii.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "barrier.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/barrier.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      },
+      {
+        "component": "llvm-libc",
+        "path": "src/__support/threads/linux/barrier.cpp",
+        "revision": "d8f2045008e230f3c5f50095d918c11f1997e477"
+      }
+    ],
+    "bind.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/str_format/bind.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      },
+      {
+        "component": "llvm-libc",
+        "path": "src/sys/socket/linux/bind.cpp",
+        "revision": "d8f2045008e230f3c5f50095d918c11f1997e477"
+      }
+    ],
+    "blocking_counter.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/blocking_counter.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "bmpset.o": [
+      {
+        "component": "icu",
+        "path": "source/common/bmpset.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "brkeng.o": [
+      {
+        "component": "icu",
+        "path": "source/common/brkeng.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "brkiter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/brkiter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "bytesinkutil.o": [
+      {
+        "component": "icu",
+        "path": "source/common/bytesinkutil.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "bytestream.o": [
+      {
+        "component": "icu",
+        "path": "source/common/bytestream.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "bytestrie.o": [
+      {
+        "component": "icu",
+        "path": "source/common/bytestrie.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "bytestriebuilder.o": [
+      {
+        "component": "icu",
+        "path": "source/common/bytestriebuilder.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "bytestrieiterator.o": [
+      {
+        "component": "icu",
+        "path": "source/common/bytestrieiterator.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "caniter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/caniter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "casts.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/casts.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cff.o": [
+      {
+        "component": "freetype",
+        "path": "src/cff/cff.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "characterproperties.o": [
+      {
+        "component": "icu",
+        "path": "source/common/characterproperties.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "charconv.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/charconv.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "charconv_bigint.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/charconv_bigint.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "charconv_parse.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/charconv_parse.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "chariter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/chariter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "charstr.o": [
+      {
+        "component": "icu",
+        "path": "source/common/charstr.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "check_op.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/internal/check_op.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "city.o": [
+      {
+        "component": "abseil",
+        "path": "absl/hash/internal/city.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "civil_time.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/civil_time.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "civil_time_detail.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/internal/cctz/src/civil_time_detail.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "clock.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/clock.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      },
+      {
+        "component": "llvm-libc",
+        "path": "src/time/baremetal/clock.cpp",
+        "revision": "d8f2045008e230f3c5f50095d918c11f1997e477"
+      },
+      {
+        "component": "llvm-libc",
+        "path": "src/time/gpu/clock.cpp",
+        "revision": "d8f2045008e230f3c5f50095d918c11f1997e477"
+      },
+      {
+        "component": "llvm-libc",
+        "path": "src/time/linux/clock.cpp",
+        "revision": "d8f2045008e230f3c5f50095d918c11f1997e477"
+      }
+    ],
+    "clock_interface.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/clock_interface.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cmemory.o": [
+      {
+        "component": "icu",
+        "path": "source/common/cmemory.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "compress.o": [
+      {
+        "component": "zlib",
+        "path": "compress.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      }
+    ],
+    "conditions.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/internal/conditions.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cord.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/cord.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cord_analysis.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/cord_analysis.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cord_internal.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/cord_internal.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cord_rep_btree.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/cord_rep_btree.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cord_rep_btree_navigator.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/cord_rep_btree_navigator.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cord_rep_btree_reader.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/cord_rep_btree_reader.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cord_rep_consume.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/cord_rep_consume.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cord_rep_crc.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/cord_rep_crc.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cordz_functions.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/cordz_functions.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cordz_handle.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/cordz_handle.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cordz_info.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/cordz_info.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cpu_detect.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/internal/cpu_detect.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cpu_features.o": [
+      {
+        "component": "zlib",
+        "path": "cpu_features.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      }
+    ],
+    "crc.o": [
+      {
+        "component": "abseil",
+        "path": "absl/crc/internal/crc.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "crc32.o": [
+      {
+        "component": "zlib",
+        "path": "crc32.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      },
+      {
+        "component": "freetype",
+        "path": "src/gzip/crc32.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "crc32c.o": [
+      {
+        "component": "abseil",
+        "path": "absl/crc/crc32c.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "crc_cord_state.o": [
+      {
+        "component": "abseil",
+        "path": "absl/crc/internal/crc_cord_state.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "crc_memcpy_fallback.o": [
+      {
+        "component": "abseil",
+        "path": "absl/crc/internal/crc_memcpy_fallback.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "crc_memcpy_x86_arm_combined.o": [
+      {
+        "component": "abseil",
+        "path": "absl/crc/internal/crc_memcpy_x86_arm_combined.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "crc_non_temporal_memcpy.o": [
+      {
+        "component": "abseil",
+        "path": "absl/crc/internal/crc_non_temporal_memcpy.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "crc_x86_arm_combined.o": [
+      {
+        "component": "abseil",
+        "path": "absl/crc/internal/crc_x86_arm_combined.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "create_thread_identity.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/internal/create_thread_identity.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "cstr.o": [
+      {
+        "component": "icu",
+        "path": "source/common/cstr.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "cstring.o": [
+      {
+        "component": "icu",
+        "path": "source/common/cstring.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "cwchar.o": [
+      {
+        "component": "icu",
+        "path": "source/common/cwchar.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "cycleclock.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/internal/cycleclock.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "damerau_levenshtein_distance.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/damerau_levenshtein_distance.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "decode_rust_punycode.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/internal/decode_rust_punycode.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "deflate.o": [
+      {
+        "component": "zlib",
+        "path": "deflate.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      }
+    ],
+    "demangle.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/internal/demangle.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "demangle_rust.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/internal/demangle_rust.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "dictbe.o": [
+      {
+        "component": "icu",
+        "path": "source/common/dictbe.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "dictionarydata.o": [
+      {
+        "component": "icu",
+        "path": "source/common/dictionarydata.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "die_if_null.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/die_if_null.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "discrete_distribution.o": [
+      {
+        "component": "abseil",
+        "path": "absl/random/discrete_distribution.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "dtintrv.o": [
+      {
+        "component": "icu",
+        "path": "source/common/dtintrv.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "duration.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/duration.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "edits.o": [
+      {
+        "component": "icu",
+        "path": "source/common/edits.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "elf_mem_image.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/internal/elf_mem_image.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "emojiprops.o": [
+      {
+        "component": "icu",
+        "path": "source/common/emojiprops.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "entropy_pool.o": [
+      {
+        "component": "abseil",
+        "path": "absl/random/internal/entropy_pool.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "errorcode.o": [
+      {
+        "component": "icu",
+        "path": "source/common/errorcode.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "escaping.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/escaping.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      },
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/escaping.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "examine_stack.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/internal/examine_stack.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "exponential_biased.o": [
+      {
+        "component": "abseil",
+        "path": "absl/profiling/internal/exponential_biased.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "extension.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/str_format/extension.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      },
+      {
+        "component": "skia",
+        "path": "experimental/tskit/bindings/extension.cpp",
+        "revision": "607de4b035dcf7fdbaafb66c6cc04f22009ff4d4"
+      }
+    ],
+    "failure_signal_handler.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/failure_signal_handler.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "filteredbrk.o": [
+      {
+        "component": "icu",
+        "path": "source/common/filteredbrk.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "filterednormalizer2.o": [
+      {
+        "component": "icu",
+        "path": "source/common/filterednormalizer2.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "fixedstring.o": [
+      {
+        "component": "icu",
+        "path": "source/common/fixedstring.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "float_conversion.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/str_format/float_conversion.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "fnmatch.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/internal/fnmatch.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      },
+      {
+        "component": "llvm-libc",
+        "path": "src/fnmatch/fnmatch.cpp",
+        "revision": "d8f2045008e230f3c5f50095d918c11f1997e477"
+      }
+    ],
+    "format.o": [
+      {
+        "component": "icu",
+        "path": "source/i18n/format.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      },
+      {
+        "component": "abseil",
+        "path": "absl/time/format.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "ftbase.o": [
+      {
+        "component": "freetype",
+        "path": "src/base/ftbase.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "ftbitmap.o": [
+      {
+        "component": "freetype",
+        "path": "src/base/ftbitmap.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "ftcid.o": [
+      {
+        "component": "freetype",
+        "path": "src/base/ftcid.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "ftdebug.o": [
+      {
+        "component": "freetype",
+        "path": "builds/amiga/src/base/ftdebug.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      },
+      {
+        "component": "freetype",
+        "path": "builds/wince/ftdebug.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      },
+      {
+        "component": "freetype",
+        "path": "builds/windows/ftdebug.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      },
+      {
+        "component": "freetype",
+        "path": "src/base/ftdebug.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "ftfstype.o": [
+      {
+        "component": "freetype",
+        "path": "src/base/ftfstype.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "ftglyph.o": [
+      {
+        "component": "freetype",
+        "path": "src/base/ftglyph.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "ftinit.o": [
+      {
+        "component": "freetype",
+        "path": "src/base/ftinit.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "ftmm.o": [
+      {
+        "component": "freetype",
+        "path": "src/base/ftmm.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "ftsystem.o": [
+      {
+        "component": "freetype",
+        "path": "builds/amiga/src/base/ftsystem.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      },
+      {
+        "component": "freetype",
+        "path": "builds/unix/ftsystem.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      },
+      {
+        "component": "freetype",
+        "path": "builds/vms/ftsystem.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      },
+      {
+        "component": "freetype",
+        "path": "builds/windows/ftsystem.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      },
+      {
+        "component": "freetype",
+        "path": "src/base/ftsystem.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "futex_waiter.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/internal/futex_waiter.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "gaussian_distribution.o": [
+      {
+        "component": "abseil",
+        "path": "absl/random/gaussian_distribution.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "globals.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/globals.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      },
+      {
+        "component": "abseil",
+        "path": "absl/log/internal/globals.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "graphcycles.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/internal/graphcycles.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "gsubgpos-context.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/graph/gsubgpos-context.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "gzclose.o": [
+      {
+        "component": "zlib",
+        "path": "gzclose.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      }
+    ],
+    "gzlib.o": [
+      {
+        "component": "zlib",
+        "path": "gzlib.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      }
+    ],
+    "gzread.o": [
+      {
+        "component": "zlib",
+        "path": "gzread.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      }
+    ],
+    "gzwrite.o": [
+      {
+        "component": "zlib",
+        "path": "gzwrite.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      }
+    ],
+    "hashtablez_sampler.o": [
+      {
+        "component": "abseil",
+        "path": "absl/container/internal/hashtablez_sampler.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "hashtablez_sampler_force_weak_definition.o": [
+      {
+        "component": "abseil",
+        "path": "absl/container/internal/hashtablez_sampler_force_weak_definition.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "hb-aat-layout.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-aat-layout.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-aat-map.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-aat-map.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-blob.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-blob.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-buffer-serialize.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-buffer-serialize.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-buffer-verify.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-buffer-verify.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-buffer.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-buffer.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-common.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-common.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-draw.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-draw.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-face-builder.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-face-builder.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-face.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-face.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-font.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-font.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-harfrust.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-harfrust.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-icu.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-icu.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-kbts.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-kbts.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-map.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-map.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-number.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-number.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-cff1-table.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-cff1-table.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-cff2-table.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-cff2-table.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-color.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-color.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-face.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-face.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-font.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-font.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-layout.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-layout.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-map.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-map.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-math.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-math.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-meta.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-meta.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-metrics.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-metrics.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-name.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-name.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shape-fallback.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shape-fallback.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shape-normalize.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shape-normalize.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shape.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shape.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-arabic.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-arabic.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-default.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-default.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-hangul.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-hangul.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-hebrew.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-hebrew.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-indic-table.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-indic-table.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-indic.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-indic.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-khmer.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-khmer.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-myanmar.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-myanmar.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-syllabic.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-syllabic.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-thai.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-thai.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-use.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-use.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-shaper-vowel-constraints.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-shaper-vowel-constraints.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-tag.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-tag.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ot-var.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ot-var.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-set.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-set.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-shape-plan.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-shape-plan.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-shape.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-shape.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      },
+      {
+        "component": "harfbuzz",
+        "path": "util/hb-shape.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-shaper.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-shaper.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-static.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-static.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-cff-common.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-cff-common.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-cff1.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-cff1.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-cff2.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-cff2.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-input.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-input.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-instancer-iup.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-instancer-iup.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-instancer-solver.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-instancer-solver.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-plan-layout.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-plan-layout.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-plan-var.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-plan-var.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-plan.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-plan.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-serialize.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-serialize.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-table-cff.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-table-cff.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-table-color.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-table-color.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-table-layout.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-table-layout.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-table-other.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-table-other.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset-table-var.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset-table-var.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-subset.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-subset.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      },
+      {
+        "component": "harfbuzz",
+        "path": "util/hb-subset.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-ucd.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-ucd.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "hb-unicode.o": [
+      {
+        "component": "harfbuzz",
+        "path": "src/hb-unicode.cc",
+        "revision": "ff36703b95013ec1d437e6038e1aa7c881275f4e"
+      }
+    ],
+    "icudataver.o": [
+      {
+        "component": "icu",
+        "path": "source/common/icudataver.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "icuplug.o": [
+      {
+        "component": "icu",
+        "path": "source/common/icuplug.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "infback.o": [
+      {
+        "component": "zlib",
+        "path": "infback.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      }
+    ],
+    "inffast.o": [
+      {
+        "component": "zlib",
+        "path": "inffast.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      },
+      {
+        "component": "freetype",
+        "path": "src/gzip/inffast.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "inflate.o": [
+      {
+        "component": "zlib",
+        "path": "contrib/optimizations/inflate.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      },
+      {
+        "component": "zlib",
+        "path": "inflate.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      },
+      {
+        "component": "freetype",
+        "path": "src/gzip/inflate.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "inftrees.o": [
+      {
+        "component": "zlib",
+        "path": "inftrees.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      },
+      {
+        "component": "freetype",
+        "path": "src/gzip/inftrees.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "initialize.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/initialize.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "int128.o": [
+      {
+        "component": "abseil",
+        "path": "absl/numeric/int128.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "jcapimin.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcapimin.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcapistd.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcapistd.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jccoefct.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jccoefct.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jccolor.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jccolor.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcdctmgr.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcdctmgr.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcdiffct.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcdiffct.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jchuff.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jchuff.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcicc.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcicc.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcinit.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcinit.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jclhuff.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jclhuff.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jclossls.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jclossls.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcmainct.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcmainct.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcmarker.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcmarker.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcmaster.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcmaster.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcomapi.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcomapi.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcparam.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcparam.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcphuff.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcphuff.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcprepct.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcprepct.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jcsample.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jcsample.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jctrans.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jctrans.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdapimin.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdapimin.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdapistd.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdapistd.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdatadst.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdatadst.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdatasrc.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdatasrc.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdcoefct.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdcoefct.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdcolor.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdcolor.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jddctmgr.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jddctmgr.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jddiffct.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jddiffct.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdhuff.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdhuff.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdicc.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdicc.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdinput.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdinput.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdlhuff.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdlhuff.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdlossls.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdlossls.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdmainct.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdmainct.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdmarker.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdmarker.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdmaster.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdmaster.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdmerge.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdmerge.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdphuff.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdphuff.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdpostct.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdpostct.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdsample.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdsample.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jdtrans.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jdtrans.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jerror.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jerror.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jfdctflt.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jfdctflt.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jfdctfst.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jfdctfst.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jfdctint.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jfdctint.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jidctflt.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jidctflt.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jidctfst.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jidctfst.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jidctint.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jidctint.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jidctred.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jidctred.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jmemmgr.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jmemmgr.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jmemnobs.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jmemnobs.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jpeg_nbits.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jpeg_nbits.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jquant1.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jquant1.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jquant2.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jquant2.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "jutils.o": [
+      {
+        "component": "libjpeg_turbo",
+        "path": "src/jutils.c",
+        "revision": "640f254ad0fa03f6b1f29f89b7dd9366f2f6e533"
+      }
+    ],
+    "kernel_timeout.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/internal/kernel_timeout.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "leak_check.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/leak_check.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "loadednormalizer2impl.o": [
+      {
+        "component": "icu",
+        "path": "source/common/loadednormalizer2impl.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "localebuilder.o": [
+      {
+        "component": "icu",
+        "path": "source/common/localebuilder.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "localematcher.o": [
+      {
+        "component": "icu",
+        "path": "source/common/localematcher.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "localeprioritylist.o": [
+      {
+        "component": "icu",
+        "path": "source/common/localeprioritylist.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "locavailable.o": [
+      {
+        "component": "icu",
+        "path": "source/common/locavailable.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "locbased.o": [
+      {
+        "component": "icu",
+        "path": "source/common/locbased.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "locdispnames.o": [
+      {
+        "component": "icu",
+        "path": "source/common/locdispnames.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "locdistance.o": [
+      {
+        "component": "icu",
+        "path": "source/common/locdistance.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "locdspnm.o": [
+      {
+        "component": "icu",
+        "path": "source/common/locdspnm.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "locid.o": [
+      {
+        "component": "icu",
+        "path": "source/common/locid.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "loclikely.o": [
+      {
+        "component": "icu",
+        "path": "source/common/loclikely.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "loclikelysubtags.o": [
+      {
+        "component": "icu",
+        "path": "source/common/loclikelysubtags.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "locmap.o": [
+      {
+        "component": "icu",
+        "path": "source/common/locmap.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "locresdata.o": [
+      {
+        "component": "icu",
+        "path": "source/common/locresdata.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "locutil.o": [
+      {
+        "component": "icu",
+        "path": "source/common/locutil.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "log_entry.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/log_entry.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "log_format.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/internal/log_format.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "log_message.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/internal/log_message.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "log_severity.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/log_severity.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "log_sink.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/log_sink.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "log_sink_set.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/internal/log_sink_set.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "low_level_alloc.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/internal/low_level_alloc.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "lsr.o": [
+      {
+        "component": "icu",
+        "path": "source/common/lsr.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "lstmbe.o": [
+      {
+        "component": "icu",
+        "path": "source/common/lstmbe.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "match.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/match.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      },
+      {
+        "component": "llvm-libc",
+        "path": "test/integration/src/__support/GPU/match.cpp",
+        "revision": "d8f2045008e230f3c5f50095d918c11f1997e477"
+      }
+    ],
+    "memutil.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/memutil.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "messagepattern.o": [
+      {
+        "component": "icu",
+        "path": "source/common/messagepattern.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "mlbe.o": [
+      {
+        "component": "icu",
+        "path": "source/common/mlbe.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "mutex.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/mutex.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "normalizer2.o": [
+      {
+        "component": "icu",
+        "path": "source/common/normalizer2.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "normalizer2impl.o": [
+      {
+        "component": "icu",
+        "path": "source/common/normalizer2impl.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "normlzr.o": [
+      {
+        "component": "icu",
+        "path": "source/common/normlzr.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "notification.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/notification.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "nullguard.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/internal/nullguard.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "numbers.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/numbers.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "ostringstream.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/ostringstream.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "output.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/str_format/output.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "parsepos.o": [
+      {
+        "component": "icu",
+        "path": "source/common/parsepos.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "parser.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/str_format/parser.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "patternprops.o": [
+      {
+        "component": "icu",
+        "path": "source/common/patternprops.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "per_target.o": [
+      {
+        "component": "highway",
+        "path": "hwy/per_target.cc",
+        "revision": "2607d3b5b0113992fe84d3848859eae13b3b52c1"
+      }
+    ],
+    "per_thread_sem.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/internal/per_thread_sem.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "pluralmap.o": [
+      {
+        "component": "icu",
+        "path": "source/common/pluralmap.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "png.o": [
+      {
+        "component": "libpng",
+        "path": "png.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngerror.o": [
+      {
+        "component": "libpng",
+        "path": "pngerror.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngget.o": [
+      {
+        "component": "libpng",
+        "path": "pngget.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngmem.o": [
+      {
+        "component": "libpng",
+        "path": "pngmem.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngpread.o": [
+      {
+        "component": "libpng",
+        "path": "pngpread.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngread.o": [
+      {
+        "component": "libpng",
+        "path": "pngread.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngrio.o": [
+      {
+        "component": "libpng",
+        "path": "pngrio.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngrtran.o": [
+      {
+        "component": "libpng",
+        "path": "pngrtran.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngrutil.o": [
+      {
+        "component": "libpng",
+        "path": "pngrutil.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngset.o": [
+      {
+        "component": "libpng",
+        "path": "pngset.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngtrans.o": [
+      {
+        "component": "libpng",
+        "path": "pngtrans.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngwio.o": [
+      {
+        "component": "libpng",
+        "path": "pngwio.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngwrite.o": [
+      {
+        "component": "libpng",
+        "path": "pngwrite.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngwtran.o": [
+      {
+        "component": "libpng",
+        "path": "pngwtran.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "pngwutil.o": [
+      {
+        "component": "libpng",
+        "path": "pngwutil.c",
+        "revision": "0179a807421cf96731cdfa10008bba04fda243c1"
+      }
+    ],
+    "print.o": [
+      {
+        "component": "highway",
+        "path": "hwy/print.cc",
+        "revision": "2607d3b5b0113992fe84d3848859eae13b3b52c1"
+      }
+    ],
+    "propname.o": [
+      {
+        "component": "icu",
+        "path": "source/common/propname.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "propsvec.o": [
+      {
+        "component": "icu",
+        "path": "source/common/propsvec.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "proto.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/internal/proto.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "psaux.o": [
+      {
+        "component": "freetype",
+        "path": "src/psaux/psaux.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "pshinter.o": [
+      {
+        "component": "freetype",
+        "path": "src/pshinter/pshinter.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "psmodule.o": [
+      {
+        "component": "freetype",
+        "path": "src/psnames/psmodule.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "pthread_waiter.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/internal/pthread_waiter.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "punycode.o": [
+      {
+        "component": "icu",
+        "path": "source/common/punycode.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "putil.o": [
+      {
+        "component": "icu",
+        "path": "source/common/putil.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "randen.o": [
+      {
+        "component": "abseil",
+        "path": "absl/random/internal/randen.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "randen_detect.o": [
+      {
+        "component": "abseil",
+        "path": "absl/random/internal/randen_detect.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "randen_hwaes.o": [
+      {
+        "component": "abseil",
+        "path": "absl/random/internal/randen_hwaes.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "randen_round_keys.o": [
+      {
+        "component": "abseil",
+        "path": "absl/random/internal/randen_round_keys.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "randen_slow.o": [
+      {
+        "component": "abseil",
+        "path": "absl/random/internal/randen_slow.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "raster.o": [
+      {
+        "component": "freetype",
+        "path": "src/raster/raster.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "raw_hash_set.o": [
+      {
+        "component": "abseil",
+        "path": "absl/container/internal/raw_hash_set.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "raw_logging.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/internal/raw_logging.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "rbbi.o": [
+      {
+        "component": "icu",
+        "path": "source/common/rbbi.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "rbbi_cache.o": [
+      {
+        "component": "icu",
+        "path": "source/common/rbbi_cache.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "rbbidata.o": [
+      {
+        "component": "icu",
+        "path": "source/common/rbbidata.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "rbbinode.o": [
+      {
+        "component": "icu",
+        "path": "source/common/rbbinode.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "rbbirb.o": [
+      {
+        "component": "icu",
+        "path": "source/common/rbbirb.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "rbbiscan.o": [
+      {
+        "component": "icu",
+        "path": "source/common/rbbiscan.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "rbbisetb.o": [
+      {
+        "component": "icu",
+        "path": "source/common/rbbisetb.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "rbbistbl.o": [
+      {
+        "component": "icu",
+        "path": "source/common/rbbistbl.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "rbbitblb.o": [
+      {
+        "component": "icu",
+        "path": "source/common/rbbitblb.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "resbund.o": [
+      {
+        "component": "icu",
+        "path": "source/common/resbund.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "resbund_cnv.o": [
+      {
+        "component": "icu",
+        "path": "source/common/resbund_cnv.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "resource.o": [
+      {
+        "component": "icu",
+        "path": "source/common/resource.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "restrace.o": [
+      {
+        "component": "icu",
+        "path": "source/common/restrace.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ruleiter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ruleiter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "schriter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/schriter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "seed_gen_exception.o": [
+      {
+        "component": "abseil",
+        "path": "absl/random/seed_gen_exception.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "seed_material.o": [
+      {
+        "component": "abseil",
+        "path": "absl/random/internal/seed_material.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "seed_sequences.o": [
+      {
+        "component": "abseil",
+        "path": "absl/random/seed_sequences.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "sem_waiter.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/internal/sem_waiter.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "serv.o": [
+      {
+        "component": "icu",
+        "path": "source/common/serv.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "servlk.o": [
+      {
+        "component": "icu",
+        "path": "source/common/servlk.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "servlkf.o": [
+      {
+        "component": "icu",
+        "path": "source/common/servlkf.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "servls.o": [
+      {
+        "component": "icu",
+        "path": "source/common/servls.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "servnotf.o": [
+      {
+        "component": "icu",
+        "path": "source/common/servnotf.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "servrbf.o": [
+      {
+        "component": "icu",
+        "path": "source/common/servrbf.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "servslkf.o": [
+      {
+        "component": "icu",
+        "path": "source/common/servslkf.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "sfnt.o": [
+      {
+        "component": "freetype",
+        "path": "src/sfnt/sfnt.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "sharedobject.o": [
+      {
+        "component": "icu",
+        "path": "source/common/sharedobject.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "simpleformatter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/simpleformatter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "smooth.o": [
+      {
+        "component": "freetype",
+        "path": "src/smooth/smooth.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "source_location.o": [
+      {
+        "component": "abseil",
+        "path": "absl/types/source_location.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "spinlock.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/internal/spinlock.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "spinlock_wait.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/internal/spinlock_wait.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "stacktrace.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/stacktrace.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "static_unicode_sets.o": [
+      {
+        "component": "icu",
+        "path": "source/common/static_unicode_sets.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "stats.o": [
+      {
+        "component": "highway",
+        "path": "hwy/stats.cc",
+        "revision": "2607d3b5b0113992fe84d3848859eae13b3b52c1"
+      }
+    ],
+    "status.o": [
+      {
+        "component": "abseil",
+        "path": "absl/status/status.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "status_builder.o": [
+      {
+        "component": "abseil",
+        "path": "absl/status/status_builder.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "status_internal.o": [
+      {
+        "component": "abseil",
+        "path": "absl/status/internal/status_internal.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "status_payload_printer.o": [
+      {
+        "component": "abseil",
+        "path": "absl/status/status_payload_printer.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "statusor.o": [
+      {
+        "component": "abseil",
+        "path": "absl/status/statusor.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "stdcpp_waiter.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/internal/stdcpp_waiter.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "str_cat.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/str_cat.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "str_replace.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/str_replace.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "str_split.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/str_split.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "strerror.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/internal/strerror.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      },
+      {
+        "component": "llvm-libc",
+        "path": "src/string/strerror.cpp",
+        "revision": "d8f2045008e230f3c5f50095d918c11f1997e477"
+      }
+    ],
+    "stringify_sink.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/stringify_sink.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "stringpiece.o": [
+      {
+        "component": "icu",
+        "path": "source/common/stringpiece.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "stringtriebuilder.o": [
+      {
+        "component": "icu",
+        "path": "source/common/stringtriebuilder.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "structured_proto.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/internal/structured_proto.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "stubdata.o": [
+      {
+        "component": "icu",
+        "path": "source/stubdata/stubdata.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "substitute.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/substitute.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "symbolize.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/symbolize.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "sysinfo.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/internal/sysinfo.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      },
+      {
+        "component": "llvm-libc",
+        "path": "src/sys/sysinfo/linux/sysinfo.cpp",
+        "revision": "d8f2045008e230f3c5f50095d918c11f1997e477"
+      }
+    ],
+    "targets.o": [
+      {
+        "component": "highway",
+        "path": "hwy/targets.cc",
+        "revision": "2607d3b5b0113992fe84d3848859eae13b3b52c1"
+      }
+    ],
+    "thread_identity.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/internal/thread_identity.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "throw_delegate.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/throw_delegate.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "time.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/time.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      },
+      {
+        "component": "llvm-libc",
+        "path": "src/time/time.cpp",
+        "revision": "d8f2045008e230f3c5f50095d918c11f1997e477"
+      }
+    ],
+    "time_zone_fixed.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/internal/cctz/src/time_zone_fixed.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "time_zone_format.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/internal/cctz/src/time_zone_format.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "time_zone_if.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/internal/cctz/src/time_zone_if.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "time_zone_impl.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/internal/cctz/src/time_zone_impl.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "time_zone_info.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/internal/cctz/src/time_zone_info.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "time_zone_libc.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/internal/cctz/src/time_zone_libc.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "time_zone_lookup.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/internal/cctz/src/time_zone_lookup.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "time_zone_posix.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/internal/cctz/src/time_zone_posix.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "timer.o": [
+      {
+        "component": "highway",
+        "path": "hwy/timer.cc",
+        "revision": "2607d3b5b0113992fe84d3848859eae13b3b52c1"
+      }
+    ],
+    "tracing.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/internal/tracing.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "trees.o": [
+      {
+        "component": "zlib",
+        "path": "trees.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      }
+    ],
+    "truetype.o": [
+      {
+        "component": "freetype",
+        "path": "src/truetype/truetype.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "type1.o": [
+      {
+        "component": "freetype",
+        "path": "src/type1/type1.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "type1cid.o": [
+      {
+        "component": "freetype",
+        "path": "src/cid/type1cid.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ],
+    "uarrsort.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uarrsort.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ubidi.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ubidi.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ubidi_props.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ubidi_props.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ubidiln.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ubidiln.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ubiditransform.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ubiditransform.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ubidiwrt.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ubidiwrt.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ubrk.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ubrk.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucase.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucase.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucasemap.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucasemap.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucasemap_titlecase_brkiter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucasemap_titlecase_brkiter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucat.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucat.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uchar.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uchar.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucharstrie.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucharstrie.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucharstriebuilder.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucharstriebuilder.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucharstrieiterator.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucharstrieiterator.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uchriter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uchriter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucln_cmn.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucln_cmn.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucmndata.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucmndata.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv2022.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv2022.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_bld.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_bld.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_cb.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_cb.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_cnv.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_cnv.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_ct.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_ct.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_err.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_err.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_ext.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_ext.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_io.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_io.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_lmb.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_lmb.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_set.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_set.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_u16.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_u16.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_u32.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_u32.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_u7.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_u7.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnv_u8.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnv_u8.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnvbocu.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnvbocu.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnvdisp.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnvdisp.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnvhz.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnvhz.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnvisci.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnvisci.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnvlat1.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnvlat1.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnvmbcs.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnvmbcs.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnvscsu.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnvscsu.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucnvsel.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucnvsel.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucol_swp.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucol_swp.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucptrie.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucptrie.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ucurr.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ucurr.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "udata.o": [
+      {
+        "component": "icu",
+        "path": "source/common/udata.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "udatamem.o": [
+      {
+        "component": "icu",
+        "path": "source/common/udatamem.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "udataswp.o": [
+      {
+        "component": "icu",
+        "path": "source/common/udataswp.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uenum.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uenum.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uhash.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uhash.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uhash_us.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uhash_us.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uidna.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uidna.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uinit.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uinit.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uinvchar.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uinvchar.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uiter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uiter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ulist.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ulist.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uloc.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uloc.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uloc_keytype.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uloc_keytype.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uloc_tag.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uloc_tag.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ulocale.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ulocale.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ulocbuilder.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ulocbuilder.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "umapfile.o": [
+      {
+        "component": "icu",
+        "path": "source/common/umapfile.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "umath.o": [
+      {
+        "component": "icu",
+        "path": "source/common/umath.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "umutablecptrie.o": [
+      {
+        "component": "icu",
+        "path": "source/common/umutablecptrie.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "umutex.o": [
+      {
+        "component": "icu",
+        "path": "source/common/umutex.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unames.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unames.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uncompr.o": [
+      {
+        "component": "zlib",
+        "path": "uncompr.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      }
+    ],
+    "unifiedcache.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unifiedcache.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unifilt.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unifilt.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unifunct.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unifunct.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uniset.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uniset.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uniset_closure.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uniset_closure.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uniset_props.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uniset_props.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unisetspan.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unisetspan.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unistr.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unistr.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unistr_case.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unistr_case.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unistr_case_locale.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unistr_case_locale.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unistr_cnv.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unistr_cnv.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unistr_props.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unistr_props.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unistr_titlecase_brkiter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unistr_titlecase_brkiter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unorm.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unorm.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unormcmp.o": [
+      {
+        "component": "icu",
+        "path": "source/common/unormcmp.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "unscaledcycleclock.o": [
+      {
+        "component": "abseil",
+        "path": "absl/base/internal/unscaledcycleclock.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "uobject.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uobject.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uprops.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uprops.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ures_cnv.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ures_cnv.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uresbund.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uresbund.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uresdata.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uresdata.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "usc_impl.o": [
+      {
+        "component": "icu",
+        "path": "source/common/usc_impl.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uscript.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uscript.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uscript_props.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uscript_props.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uset.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uset.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uset_props.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uset_props.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "usetiter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/usetiter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ushape.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ushape.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "usprep.o": [
+      {
+        "component": "icu",
+        "path": "source/common/usprep.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ustack.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ustack.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ustr_cnv.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ustr_cnv.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ustr_titlecase_brkiter.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ustr_titlecase_brkiter.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ustr_wcs.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ustr_wcs.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ustrcase.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ustrcase.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ustrcase_locale.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ustrcase_locale.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ustrenum.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ustrenum.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ustrfmt.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ustrfmt.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ustring.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ustring.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "ustrtrns.o": [
+      {
+        "component": "icu",
+        "path": "source/common/ustrtrns.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "utext.o": [
+      {
+        "component": "icu",
+        "path": "source/common/utext.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "utf8.o": [
+      {
+        "component": "abseil",
+        "path": "absl/strings/internal/utf8.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "utf8_for_code_point.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/internal/utf8_for_code_point.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "utf_impl.o": [
+      {
+        "component": "icu",
+        "path": "source/common/utf_impl.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "util.o": [
+      {
+        "component": "icu",
+        "path": "source/common/util.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      },
+      {
+        "component": "icu",
+        "path": "source/samples/translit/util.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "util_props.o": [
+      {
+        "component": "icu",
+        "path": "source/common/util_props.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "utrace.o": [
+      {
+        "component": "icu",
+        "path": "source/common/utrace.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "utrie.o": [
+      {
+        "component": "icu",
+        "path": "source/common/utrie.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "utrie2.o": [
+      {
+        "component": "icu",
+        "path": "source/common/utrie2.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "utrie2_builder.o": [
+      {
+        "component": "icu",
+        "path": "source/common/utrie2_builder.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "utrie_swap.o": [
+      {
+        "component": "icu",
+        "path": "source/common/utrie_swap.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uts46.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uts46.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "utypes.o": [
+      {
+        "component": "icu",
+        "path": "source/common/utypes.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uvector.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uvector.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uvectr32.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uvectr32.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "uvectr64.o": [
+      {
+        "component": "icu",
+        "path": "source/common/uvectr64.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "vdso_support.o": [
+      {
+        "component": "abseil",
+        "path": "absl/debugging/internal/vdso_support.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "vlog_config.o": [
+      {
+        "component": "abseil",
+        "path": "absl/log/internal/vlog_config.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "waiter_base.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/internal/waiter_base.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "win32_waiter.o": [
+      {
+        "component": "abseil",
+        "path": "absl/synchronization/internal/win32_waiter.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "wintz.o": [
+      {
+        "component": "icu",
+        "path": "source/common/wintz.cpp",
+        "revision": "a0ea93436c528ca316a6e698e483e258839101a5"
+      }
+    ],
+    "zone_info_source.o": [
+      {
+        "component": "abseil",
+        "path": "absl/time/internal/cctz/src/zone_info_source.cc",
+        "revision": "56722f9eb6f40fb1a140caffd36e8f1f61b57aaf"
+      }
+    ],
+    "zutil.o": [
+      {
+        "component": "zlib",
+        "path": "zutil.c",
+        "revision": "9f9f52c60a14e8e772fb561029ae0a121fef7609"
+      },
+      {
+        "component": "freetype",
+        "path": "src/gzip/zutil.c",
+        "revision": "25167984d2435930f9178e8d9d2ca3bdfa71a4e7"
+      }
+    ]
+  },
+  "unmapped": [],
+  "caveat": "Archive membership is not final linkage. Header-only and amalgamated dependencies require component/nested-license review separately."
+}

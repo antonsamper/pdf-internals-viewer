@@ -1,0 +1,20 @@
+minimumReleaseAgeExclude:
+  - lucide-react@1.72.0
+
+# Keep the project's preparation hooks enabled, independently of user settings.
+ignoreScripts: false
+enablePrePostScripts: true
+strictDepBuilds: true
+# Wrangler's platform-binary verification hooks, reviewed at these exact versions.
+allowBuilds:
+  'esbuild@0.28.2': true
+  'workerd@1.20261110.1': true
+
+# The preview backport modifies installed files; isolate them from the pnpm store.
+packageImportMethod: copy
+sideEffectsCache: false
+
+overrides:
+  'eslint>minimatch': 11.0.7
+  '@eslint/config-array>minimatch': 11.0.7
+  '@typescript-eslint/typescript-estree>minimatch': 11.0.7
