@@ -61,6 +61,12 @@ export class PdfInspector {
         const generation = entry.type === 'uncompressed' ? entry.generation : 0;
         const id = `${number} ${generation}`;
         try {
+          // A malformed in-use xref at offset zero may resolve to the engine's
+          // synthetic null placeholder. It is not an indexed source object.
+          if (entry.type === 'uncompressed' && (!Number.isSafeInteger(entry.offset) || entry.offset <= 0 || entry.offset >= bytes.length)) {
+            warnings.push(`Object ${id} is unavailable: invalid cross-reference offset ${entry.offset}.`);
+            continue;
+          }
           const object = parsed.getObject(PdfRef.of(number, generation));
           if (!object) { warnings.push(`Object ${id} could not be resolved.`); continue; }
           this.objects.set(id, object);

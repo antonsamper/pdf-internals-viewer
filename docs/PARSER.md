@@ -27,7 +27,7 @@ The preparation script:
 4. Captures original object boundaries using the engine's parsed token locations and stream parser, not a regex scan for `obj`/`endobj` text.
 5. Uses object-stream index entries and parsed tokens for decoded source coordinates. A compressed object points to its containing original stream rather than claiming a direct file range.
 6. Bounds Flate decoding and decoded stream storage as described below.
-7. Resolves the engine's `lru-cache` dependency to its browser ESM entry relative to the engine package, preventing accidental resolution of incompatible tooling dependencies or Node-only diagnostics after relocating the bundle.
+7. Resolves all static external imports through the engine package's own dependency chain before relocating the bundle, supporting pnpm's isolated dependency layout. Its `lru-cache` import specifically uses the browser ESM entry to avoid Node-only diagnostics.
 8. Replaces two unused optional Google Cloud signing imports with explicit unsupported-operation rejections. These signing operations are outside the read-only adapter. Vite development import analysis otherwise attempts to resolve the optional SDKs even though production tree-shaking removes them. No cloud SDK is installed or used.
 
 Nothing in `node_modules` is changed. Upgrading the engine intentionally fails the preparation step until the instrumentation and fixture results have been reviewed. The generated module retains the upstream license; the engine dependency and lockfile remain the source of truth. A future upstream low-level export would remove much of this instrumentation.
@@ -74,7 +74,7 @@ One `PdfWorkerClient` per open document is the intended lifecycle. Its worker ow
 
 - Object enumeration, value-tree serialization, and reference indexing are **eager** once opening begins. They run in a worker, but the inspector does not yet stream indexing progress or lazily fetch each object. Very large object graphs can hit the time/object limits.
 - Values are the engine's semantic interpretation. Duplicate dictionary keys are collapsed by the engine, lexical number spellings and name escapes are normalized, and raw PDF string bytes are not separately returned in the serialized value tree. Original source is retained separately wherever provenance is verified. These gaps must not be presented as byte-exact semantic roundtripping.
-- Objects without a verified terminator, or with a mismatching xref target, have **unknown** provenance and a warning. The source view for these uses reconstructed readable values. Recovered files are visibly marked at document level.
+- Malformed zero/out-of-range in-use xref targets are omitted with an unavailable-object warning, rather than exposed as synthetic null source objects. Explicitly defined null objects are preserved. Objects without a verified terminator, or with a mismatching xref target, have **unknown** provenance and a warning. The source view for these uses reconstructed readable values. Recovered files are visibly marked at document level.
 - Recovery is provided by the engine and may infer objects from damaged files. A recovered view is an interpretation, not a repaired PDF or a conformance verdict.
 - Only the current effective object set is indexed. Older revisions remain in the immutable original bytes; historical object-version browsing is not implemented.
 - Page resources can be inherited through `/Parent`; the raw dictionary tree does not synthesize inherited entries. The UI must label any derived inherited-resource convenience view as such.
@@ -83,7 +83,7 @@ One `PdfWorkerClient` per open document is the intended lifecycle. Its worker ow
 - JPEG, JPEG2000, JBIG2, CCITT, LZW, and RunLength decoding are not enabled for inspection. Raw bytes remain available. Page preview may render images through a separate engine without changing this inspection capability list.
 - Password entry is not implemented. All encrypted documents are locked for inspection in this version, including owner-password-only files. Raw file bytes remain accessible.
 - Stream dictionaries and raw byte payloads are retained; arbitrary embedded document actions are not executed.
-- No Safari/Firefox compatibility matrix, broad external-file corpus, exact bundle/memory performance measurements, or five-minute observed usability test has yet been completed by this parser task.
+- An opt-in 15-file independent corpus now checks pages, object identities, sampled offsets, immutability, recovery, and encryption; see [CORPUS.md](CORPUS.md). Actual Safari testing, broader current-producer coverage, browser memory/performance measurements, and the observed usability session remain pending.
 
 ## Release readiness
 

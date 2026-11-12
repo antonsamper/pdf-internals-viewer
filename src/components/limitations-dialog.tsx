@@ -1,3 +1,4 @@
+import type { RefObject } from "react"
 import { ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,13 +14,19 @@ import {
 export function LimitationsDialog({
   open,
   onOpenChange,
+  returnFocusRef,
 }: {
   open: boolean
+  returnFocusRef: RefObject<HTMLElement | null>
   onOpenChange: (open: boolean) => void
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent id="limitations-dialog" className="limitations-dialog">
+      <DialogContent
+        id="limitations-dialog"
+        className="limitations-dialog"
+        finalFocus={returnFocusRef}
+      >
         <DialogHeader className="limitations-heading">
           <DialogTitle>About & limitations</DialogTitle>
           <DialogDescription>
@@ -55,8 +62,9 @@ export function LimitationsDialog({
                 and may display content that the inspector cannot decode.
               </li>
               <li>
-                <strong>Browser coverage:</strong> automated checks currently
-                cover Chromium. Firefox and Safari have not been fully verified.
+                <strong>Browser coverage:</strong> automated coverage targets
+                Chromium, Firefox, and WebKit. The Safari application itself still
+                needs verification.
               </li>
             </ul>
           </section>

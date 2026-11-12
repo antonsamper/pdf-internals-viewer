@@ -113,6 +113,7 @@ function useNarrow() {
 
 export default function App() {
   const [limitationsOpen, setLimitationsOpen] = useState(false)
+  const limitationsOpener = useRef<HTMLElement | null>(null)
   const input = useRef<HTMLInputElement>(null)
   const searchInput = useRef<HTMLInputElement>(null)
   const client = useRef<PdfWorkerClient | null>(null)
@@ -1072,7 +1073,10 @@ export default function App() {
                 className="empty-limitations-link"
                 aria-haspopup="dialog"
                 aria-controls="limitations-dialog"
-                onClick={() => setLimitationsOpen(true)}
+                onClick={(event) => {
+                  limitationsOpener.current = event.currentTarget
+                  setLimitationsOpen(true)
+                }}
               >
                 Early version · View limitations
               </button>
@@ -1107,7 +1111,10 @@ export default function App() {
               className="status-limitations-link"
               aria-haspopup="dialog"
               aria-controls="limitations-dialog"
-              onClick={() => setLimitationsOpen(true)}
+              onClick={(event) => {
+                limitationsOpener.current = event.currentTarget
+                setLimitationsOpen(true)
+              }}
             >
               About & limitations
             </button>
@@ -1134,6 +1141,7 @@ export default function App() {
           </span>
         </footer>
         <LimitationsDialog
+          returnFocusRef={limitationsOpener}
           open={limitationsOpen}
           onOpenChange={setLimitationsOpen}
         />

@@ -112,18 +112,24 @@ function inspectionCompressedLocation(stream, index, objectNumber) {
 export { Scanner as InspectionScanner, DocumentParser as InspectionDocumentParser,
   XRefParser as InspectionXRefParser, inspectionReadIndirect, inspectionCompressedLocation, inspectionResetDecodedCache };
 `;
-const lruEntry = createRequire(sourceFile).resolve('lru-cache');
+const fromEngine = createRequire(sourceFile);
+const lruEntry = fromEngine.resolve('lru-cache');
 const lruRoot = lruEntry.slice(0, lruEntry.lastIndexOf('/dist/'));
 const lruBrowser = join(lruRoot, 'dist/esm/browser/index.min.js');
 await readFile(lruBrowser, 'utf8'); // Fail closed if the pinned dependency layout changes.
-const lruImport = relative(fileURLToPath(out), lruBrowser).split('\\').join('/');
 let browserSource = source;
 for (const optional of ['@google-cloud/kms', '@google-cloud/secret-manager']) {
   const expression = `import(${JSON.stringify(optional)})`;
   if (browserSource.split(expression).length !== 2) throw new Error(`Unexpected optional cloud import shape: ${optional}`);
   browserSource = browserSource.replace(expression, `Promise.reject(new Error(${JSON.stringify('Cloud signing is excluded from this read-only browser inspection adapter.')}))`);
 }
-const relocated = browserSource.replace('from \"lru-cache\"', `from ${JSON.stringify(lruImport.startsWith('.') ? lruImport : './' + lruImport)}`);
+// Relocating the bundle must preserve every dependency's engine-local resolution.
+// The complete upstream source is hash-pinned above; only static bare imports move.
+const relocated = browserSource.replace(/^(import .+? from )"([^".][^"]*)";/gm, (_, prefix, specifier) => {
+  const target = specifier === 'lru-cache' ? lruBrowser : fromEngine.resolve(specifier);
+  const path = relative(fileURLToPath(out), target).split('\\').join('/');
+  return `${prefix}${JSON.stringify(path.startsWith('.') ? path : './' + path)};`;
+});
 await writeFile(new URL('libpdf-inspection.mjs', out), relocated.replace(/\/\/# sourceMappingURL=.*$/m, '') + adapter);
 await writeFile(new URL('libpdf-inspection.d.mts', out), `
 import type { PdfDict, PdfObject, PdfRef, PdfStream } from '@libpdf/core';

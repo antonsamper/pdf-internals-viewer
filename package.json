@@ -11,12 +11,19 @@
     "typecheck": "tsc -b --pretty false",
     "preview": "vite preview",
     "prepare:parser": "node scripts/prepare-parser.mjs",
-    "postinstall": "npm run prepare:parser",
-    "predev": "npm run prepare:parser",
-    "prebuild": "npm run prepare:parser",
+    "postinstall": "pnpm run prepare:deps",
+    "predev": "pnpm run prepare:deps",
+    "prebuild": "pnpm run prepare:deps",
     "test": "vitest run",
-    "pretest": "npm run prepare:parser",
-    "test:e2e": "playwright test"
+    "pretest": "pnpm run prepare:deps",
+    "test:e2e": "playwright test",
+    "prepare:deps": "pnpm run prepare:preview && pnpm run prepare:parser",
+    "prepare:preview": "node scripts/prepare-preview.mjs",
+    "corpus:fetch": "node scripts/corpus/fetch.mjs",
+    "test:corpus": "vitest run --config scripts/corpus/vitest.config.ts",
+    "pretest:corpus": "pnpm run prepare:deps",
+    "check:preview-notices": "node scripts/check-preview-notices.mjs dist",
+    "postbuild": "pnpm run check:preview-notices"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -49,7 +56,11 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8",
     "vite": "^8",
-    "vitest": "^5.1.0",
-    "shadcn": "^4.23.0"
-  }
+    "vitest": "^5.1.0"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "license": "MIT",
+  "packageManager": "pnpm@10.33.4"
 }
