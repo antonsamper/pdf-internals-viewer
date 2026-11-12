@@ -1,0 +1,60 @@
+{
+  "recordedAt": "2026-11-12",
+  "status": "partial-native-notices-source-and-binary-matched",
+  "package": "@embedpdf/engine-runtime-wasm32",
+  "version": "3.1.0",
+  "wasm": {
+    "path": "lib/embedpdf.wasm",
+    "size": 7880343,
+    "sha256": "7195838021c8318416117611b961614ab52eedcad585db5945681f86164e40f9"
+  },
+  "viewerSource": {
+    "tag": "v3.1.0",
+    "commit": "37273d7d149f893255344f0f8e9ff7b2dfbc8057",
+    "manifestUrl": "https://github.com/embedpdf/embed-pdf-viewer/blob/37273d7d149f893255344f0f8e9ff7b2dfbc8057/packages/engine/runtime/engine-runtime-build.json",
+    "manifestSha256": "865f15b21df5b8e58b44a032dc3c6b789b874f2393809020fc0c3257c97d63e3"
+  },
+  "runtimeSource": {
+    "repository": "https://github.com/embedpdf/runtime",
+    "commit": "aa59ce554aab55879b728dbb86714e13e5cb327f",
+    "pdfiumUpstreamCommit": "6688c576fd851f4159c6fae39396da50939de110"
+  },
+  "staticLibraryArchive": {
+    "url": "https://github.com/embedpdf/runtime/releases/download/runtime-aa59ce554aab55879b728dbb86714e13e5cb327f/libembedpdf-runtime-wasm32-aa59ce554.tar.gz",
+    "sha256": "0a4c947c05ae314414fb772d0fdf20a6ffbdc412194ba6ed3c49abd42170eb5c",
+    "contents": "libembedpdf.a, public headers, args.gn, BUILD-METADATA.json and only LICENSES/PDFIUM_LICENSE"
+  },
+  "finishedPayload": {
+    "url": "https://github.com/embedpdf/runtime-payloads/releases/download/runtime-payloads-d7fb709a6427d8d9/engine-runtime-payload-wasm32.tar.gz",
+    "payloadKey": "d7fb709a6427d8d9",
+    "sha256": "e138fe89189f7e58656ee9cdb266b963ea27a00e224ec5ac90857af1134e0890",
+    "wasmByteMatch": true,
+    "hashDerivationSource": "https://github.com/embedpdf/embed-pdf-viewer/blob/37273d7d149f893255344f0f8e9ff7b2dfbc8057/packages/engine/runtime/scripts/runtime-payload-hash.sh"
+  },
+  "gnArgs": "is_debug=false\ntreat_warnings_as_errors=false\npdf_use_skia=false\npdf_enable_xfa=false\npdf_enable_v8=false\nis_component_build=false\nclang_use_chrome_plugins=false\npdf_is_standalone=true\nuse_debug_fission=false\npdf_is_complete_lib=true\npdf_use_partition_alloc=false\npdf_enable_brotli=false\nembedpdf_thread_local_globals=false\nsymbol_level=0\ntarget_os=\"emscripten\"\ntarget_cpu=\"wasm\"\nis_clang=false\nuse_custom_libcxx=false\npdf_use_libyuv=false\n",
+  "emscriptenVersion": "3.1.72",
+  "notices": [
+    {
+      "file": "public/licenses/embedpdf-runtime-pdfium-license.txt",
+      "source": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/LICENSE",
+      "sha256": "1fe9dea718fbd75cf149adaf4d8a22a4335604d964ddb76d1b45383dec8668c9"
+    },
+    {
+      "file": "public/licenses/embedpdf-runtime-NOTICE.txt",
+      "source": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/NOTICE",
+      "sha256": "1d03c44d3af36ccffe2586e0bb0f8471223b71ce2e38069725d1da7859fc5b5d"
+    },
+    {
+      "file": "public/licenses/embedpdf-NOTICE.txt",
+      "source": "https://github.com/embedpdf/embed-pdf-viewer/blob/37273d7d149f893255344f0f8e9ff7b2dfbc8057/NOTICE",
+      "sha256": "6c08af23e1951b7058957cafd600a21d9d50a020c600c3276df69ba0b89631cf"
+    }
+  ],
+  "noticeInventory": {
+    "status": "verified-source-superset",
+    "manifest": "public/licenses/native-notice-manifest.json",
+    "bundle": "public/licenses/embedpdf-native-notices.txt",
+    "scope": "Conservative reconstructed inventory of the exact pinned PDFium dependency and Emscripten toolchain sources, including optional/unlinked components; not a supplier-issued or minimal binary SBOM.",
+    "review": "Independent text/hash/scope review completed; exact WASM and built notice checks enforced by scripts/check-native-notices.mjs."
+  }
+}

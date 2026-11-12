@@ -23,7 +23,12 @@
     "test:corpus": "vitest run --config scripts/corpus/vitest.config.ts",
     "pretest:corpus": "pnpm run prepare:deps",
     "check:preview-notices": "node scripts/check-preview-notices.mjs dist",
-    "postbuild": "pnpm run check:preview-notices"
+    "postbuild": "pnpm run check:preview-notices && pnpm run check:native-notices --dist",
+    "deploy:check": "pnpm run build && wrangler deploy --dry-run",
+    "deploy": "pnpm run build && wrangler deploy",
+    "preview:cloudflare": "wrangler dev --ip 127.0.0.1 --port 8787",
+    "check:native-notices": "node scripts/check-native-notices.mjs",
+    "predeploy": "pnpm run check:native-notices"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -56,7 +61,8 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8",
     "vite": "^8",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "wrangler": "4.160.1"
   },
   "engines": {
     "node": ">=22.18.0"

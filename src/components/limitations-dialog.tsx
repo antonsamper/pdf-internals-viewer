@@ -114,6 +114,16 @@ export function LimitationsDialog({
               Closing or replacing a document resets its workspace.
             </p>
           </section>
+          <section>
+            <h2>Credits & licenses</h2>
+            <p>
+              Original application code is MIT licensed. See the{" "}
+              <a href={`${import.meta.env.BASE_URL}THIRD-PARTY-NOTICES.txt`} target="_blank" rel="noreferrer">
+                third-party notices
+              </a>{" "}
+              for dependency and font licenses.
+            </p>
+          </section>
           <p className="limitations-privacy">
             <ShieldCheck size={15} aria-hidden="true" />
             Your PDF is processed on this device. The app does not upload or

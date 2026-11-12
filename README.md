@@ -2,6 +2,8 @@
 
 A read-only PDF explorer built with TypeScript, React, Vite, and shadcn/ui using Base UI. Open a local PDF, follow object references, inspect raw/decoded streams, and view original bytes alongside the structure. EmbedPDF provides an optional local page preview.
 
+**[Open the app](https://pdf-internals-viewer.pricepaiddata.workers.dev)**
+
 ## Run locally
 
 Requires Node.js 22.18+ (or a compatible newer release) and pnpm 10.33.4 (pinned in `packageManager`). Install that version with `npm install --global pnpm@10.33.4` if needed.
@@ -42,7 +44,7 @@ pnpm run test:e2e
 
 The tests cover preview-validation backports, scoped tooling compatibility, and classic/stream/hybrid xrefs, compressed objects, incremental updates and free entries, exact object boundaries, deceptive binary markers, required decoding filters, encryption, recovery, references, and bounded decompression. Browser tests cover the integrated exploration flow and local rendering. CI runs these against production builds in Chromium, Firefox, and WebKit. WebKit automation is not a full test of the Safari application. See [browser evidence and reproduction](docs/BROWSERS.md).
 
-`pnpm run build` produces the static site in `dist/`. `pnpm run preview` serves the built site locally. No hosting provider or public deployment is configured yet.
+`pnpm run build` produces the static site in `dist/`. `pnpm run preview` serves the built site locally. Cloudflare Workers Static Assets is configured in `wrangler.jsonc`; the public app is available at the link above. See [Cloudflare setup and release steps](docs/HOSTING.md).
 
 ## Independent PDF corpus
 

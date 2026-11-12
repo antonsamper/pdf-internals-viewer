@@ -1,0 +1,815 @@
+{
+  "recordedAt": "2026-11-12",
+  "status": "verified-source-superset",
+  "scope": "Conservative exact-source and toolchain notice superset, not a supplier-issued binary SBOM",
+  "wasmSha256": "7195838021c8318416117611b961614ab52eedcad585db5945681f86164e40f9",
+  "runtimeCommit": "aa59ce554aab55879b728dbb86714e13e5cb327f",
+  "emscriptenCommit": "437140d149d9c977ffc8b09dbaf9b0f5a02db190",
+  "components": [
+    "abseil",
+    "agg",
+    "bigint",
+    "dragonbox",
+    "emscripten-runtime",
+    "fast_float",
+    "fp16",
+    "freetype",
+    "harfbuzz",
+    "highway",
+    "icu",
+    "lcms",
+    "libjpeg_turbo",
+    "libpng",
+    "libtiff",
+    "llvm-libc",
+    "openjpeg",
+    "pdfium",
+    "skia",
+    "zlib"
+  ],
+  "acknowledgments": [
+    "This software is based in part on the work of the Independent JPEG Group.",
+    "Portions of this software are copyright © 1996-2026 The FreeType Project (https://freetype.org). All rights reserved."
+  ],
+  "files": [
+    {
+      "file": "public/licenses/native/pdfium-runtime-top-level-1.txt",
+      "component": "pdfium",
+      "sha256": "1fe9dea718fbd75cf149adaf4d8a22a4335604d964ddb76d1b45383dec8668c9",
+      "source": {
+        "url": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/LICENSE",
+        "sha256": "1fe9dea718fbd75cf149adaf4d8a22a4335604d964ddb76d1b45383dec8668c9",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/pdfium-runtime-top-level-2.txt",
+      "component": "pdfium",
+      "sha256": "1d03c44d3af36ccffe2586e0bb0f8471223b71ce2e38069725d1da7859fc5b5d",
+      "source": {
+        "url": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/NOTICE",
+        "sha256": "1d03c44d3af36ccffe2586e0bb0f8471223b71ce2e38069725d1da7859fc5b5d",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/pdfium-runtime-top-level-3.txt",
+      "component": "pdfium",
+      "sha256": "6c08af23e1951b7058957cafd600a21d9d50a020c600c3276df69ba0b89631cf",
+      "source": {
+        "url": "https://github.com/embedpdf/embed-pdf-viewer/blob/37273d7d149f893255344f0f8e9ff7b2dfbc8057/NOTICE",
+        "sha256": "6c08af23e1951b7058957cafd600a21d9d50a020c600c3276df69ba0b89631cf",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/harfbuzz-COPYING.txt",
+      "component": "harfbuzz",
+      "sha256": "ba8f810f2455c2f08e2d56bb49b72f37fcf68f1f4fade38977cfd7372050ad64",
+      "source": {
+        "url": "https://chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz.git/+/ff36703b95013ec1d437e6038e1aa7c881275f4e/COPYING?format=TEXT",
+        "encoding": "base64",
+        "sha256": "ba8f810f2455c2f08e2d56bb49b72f37fcf68f1f4fade38977cfd7372050ad64",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "MIT and MicrosoftMIT",
+        "coverageEvidence": "DEPS harfbuzz_revision; archive hb-ot-shaper-use.o invokes nested MicrosoftMIT"
+      }
+    },
+    {
+      "file": "public/licenses/native/dragonbox-LICENSE-Boost.txt",
+      "component": "dragonbox",
+      "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566",
+      "source": {
+        "url": "https://chromium.googlesource.com/external/github.com/jk-jeon/dragonbox.git/+/beeeef91cf6fef89a4d4ba5e95d47ca64ccb3a44/LICENSE-Boost?format=TEXT",
+        "encoding": "base64",
+        "sha256": "c9bff75738922193e67fa726fa225535870d2aa1059f91452c411736284ad566",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "Apache-2.0 WITH LLVM-exception OR BSL-1.0",
+        "coverageEvidence": "DEPS dragonbox_revision; PDFium third_party/dragonbox/README.pdfium"
+      }
+    },
+    {
+      "file": "public/licenses/native/dragonbox-LICENSE-Apache2-LLVM.txt",
+      "component": "dragonbox",
+      "sha256": "9e45e856bedccee9f67254082ca11851d954de2fed7448c4bed19ad9aab99a91",
+      "source": {
+        "url": "https://chromium.googlesource.com/external/github.com/jk-jeon/dragonbox.git/+/beeeef91cf6fef89a4d4ba5e95d47ca64ccb3a44/LICENSE-Apache2-LLVM?format=TEXT",
+        "encoding": "base64",
+        "sha256": "9e45e856bedccee9f67254082ca11851d954de2fed7448c4bed19ad9aab99a91",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "Apache-2.0 WITH LLVM-exception OR BSL-1.0",
+        "coverageEvidence": "DEPS dragonbox_revision; PDFium third_party/dragonbox/README.pdfium"
+      }
+    },
+    {
+      "file": "public/licenses/native/libjpeg_turbo-LICENSE.md.txt",
+      "component": "libjpeg_turbo",
+      "sha256": "96f5b328adbb78eeaaec6980d73fd558cb1e4d62560ed615646bc3cf5e532430",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git/+/640f254ad0fa03f6b1f29f89b7dd9366f2f6e533/LICENSE.md?format=TEXT",
+        "encoding": "base64",
+        "sha256": "96f5b328adbb78eeaaec6980d73fd558cb1e4d62560ed615646bc3cf5e532430",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "IJG/BSD-3-Clause/Zlib",
+        "coverageEvidence": "DEPS jpeg_turbo_revision; archive jpeg objects; requiredIJGacknowledgment separately"
+      }
+    },
+    {
+      "file": "public/licenses/native/icu-LICENSE.txt",
+      "component": "icu",
+      "sha256": "e55522d81edc687a341a4411e0776e54ca654e90147f354a90458aaced4116af",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/deps/icu.git/+/a0ea93436c528ca316a6e698e483e258839101a5/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "e55522d81edc687a341a4411e0776e54ca654e90147f354a90458aaced4116af",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "Unicode/ICU consolidated licenses",
+        "coverageEvidence": "DEPS icu_revision; preserve complete consolidated ICU data/Unicode/ICUlicense bundle"
+      }
+    },
+    {
+      "file": "public/licenses/native/libjpeg_turbo-README.ijg.txt",
+      "component": "libjpeg_turbo",
+      "sha256": "75815e3bf6484201a3c3d17a1bbf10f2e8e3237f84df10a2357ea896db2a81d6",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git/+/640f254ad0fa03f6b1f29f89b7dd9366f2f6e533/README.ijg?format=TEXT",
+        "encoding": "base64",
+        "sha256": "75815e3bf6484201a3c3d17a1bbf10f2e8e3237f84df10a2357ea896db2a81d6",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "IJG/BSD-3-Clause/Zlib",
+        "coverageEvidence": "DEPS jpeg_turbo_revision; archive jpeg objects; requiredIJGacknowledgment separately"
+      }
+    },
+    {
+      "file": "public/licenses/native/zlib-LICENSE.txt",
+      "component": "zlib",
+      "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/zlib.git/+/9f9f52c60a14e8e772fb561029ae0a121fef7609/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "Zlib",
+        "coverageEvidence": "DEPS zlib_revision; archive inflate/deflate objects; preserveheadercopyright"
+      }
+    },
+    {
+      "file": "public/licenses/native/llvm-libc-LICENSE.TXT.txt",
+      "component": "llvm-libc",
+      "sha256": "ebcd9bbf783a73d05c53ba4d586b8d5813dcdf3bbec50265860ccc885e606f47",
+      "source": {
+        "url": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/libc.git/+/d8f2045008e230f3c5f50095d918c11f1997e477/LICENSE.TXT?format=TEXT",
+        "encoding": "base64",
+        "sha256": "ebcd9bbf783a73d05c53ba4d586b8d5813dcdf3bbec50265860ccc885e606f47",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "Apache-2.0 WITH LLVM-exception and NCSA",
+        "coverageEvidence": "DEPS llvm_libc_revision; conservative header/source coverage"
+      }
+    },
+    {
+      "file": "public/licenses/native/abseil-LICENSE.txt",
+      "component": "abseil",
+      "sha256": "c79a7fea0e3cac04cd43f20e7b648e5a0ff8fa5344e644b0ee09ca1162b62747",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/abseil-cpp.git/+/56722f9eb6f40fb1a140caffd36e8f1f61b57aaf/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "c79a7fea0e3cac04cd43f20e7b648e5a0ff8fa5344e644b0ee09ca1162b62747",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "Apache-2.0",
+        "coverageEvidence": "DEPS abseil_revision; Abseil archive/header dependencies"
+      }
+    },
+    {
+      "file": "public/licenses/native/libpng-LICENSE.txt",
+      "component": "libpng",
+      "sha256": "bdb0a645ea18c60507d0368379b1ac5474b92255fcc2d115e07486a7672ba526",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/libpng.git/+/0179a807421cf96731cdfa10008bba04fda243c1/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "bdb0a645ea18c60507d0368379b1ac5474b92255fcc2d115e07486a7672ba526",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "Libpng-2.0",
+        "coverageEvidence": "DEPS libpng_revision; archive png objects"
+      }
+    },
+    {
+      "file": "public/licenses/native/zlib-zlib.h.txt",
+      "component": "zlib",
+      "sha256": "33fd641c9f3b0e0be64bc78fea9e94807674cdd70c48477599226cb8956565fe",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/zlib.git/+/9f9f52c60a14e8e772fb561029ae0a121fef7609/zlib.h?format=TEXT",
+        "encoding": "base64",
+        "sha256": "0ff41598d145693759a8322bb90bc4f2c57dcdcb3635fdf5b2195bf13df15b54",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "Zlib",
+        "coverageEvidence": "DEPS zlib_revision; archive inflate/deflate objects; preserveheadercopyright"
+      }
+    },
+    {
+      "file": "public/licenses/native/abseil-AUTHORS.txt",
+      "component": "abseil",
+      "sha256": "1fd39030c119b4c97014f59e0ad0ed65f23475bbdf55a52740f31eb82b34b4ee",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/abseil-cpp.git/+/56722f9eb6f40fb1a140caffd36e8f1f61b57aaf/AUTHORS?format=TEXT",
+        "encoding": "base64",
+        "sha256": "1fd39030c119b4c97014f59e0ad0ed65f23475bbdf55a52740f31eb82b34b4ee",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "Apache-2.0",
+        "coverageEvidence": "DEPS abseil_revision; Abseil archive/header dependencies"
+      }
+    },
+    {
+      "file": "public/licenses/native/fast_float-LICENSE-MIT.txt",
+      "component": "fast_float",
+      "sha256": "e562f3f974ced7e69dd1db77b820b36bcf8f30377f1aa105723fba449c53c4e6",
+      "source": {
+        "url": "https://chromium.googlesource.com/external/github.com/fastfloat/fast_float.git/+/42f254836ee416ffcf2f4e6576260003ac33d48c/LICENSE-MIT?format=TEXT",
+        "encoding": "base64",
+        "sha256": "e562f3f974ced7e69dd1db77b820b36bcf8f30377f1aa105723fba449c53c4e6",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "MIT",
+        "coverageEvidence": "DEPS fast_float_revision; PDFium third_party/fast_float/README.pdfium"
+      }
+    },
+    {
+      "file": "public/licenses/native/fast_float-AUTHORS.txt",
+      "component": "fast_float",
+      "sha256": "ed249424bce4e318fa190dd6d8becf60cfc37287132ad3f89e16e0f28d878dcf",
+      "source": {
+        "url": "https://chromium.googlesource.com/external/github.com/fastfloat/fast_float.git/+/42f254836ee416ffcf2f4e6576260003ac33d48c/AUTHORS?format=TEXT",
+        "encoding": "base64",
+        "sha256": "ed249424bce4e318fa190dd6d8becf60cfc37287132ad3f89e16e0f28d878dcf",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "MIT",
+        "coverageEvidence": "DEPS fast_float_revision; PDFium third_party/fast_float/README.pdfium"
+      }
+    },
+    {
+      "file": "public/licenses/native/skia-LICENSE.txt",
+      "component": "skia",
+      "sha256": "5f787c1dee3c56547f09ccc2906ab5f5293c4d8dd6c8654e573216c38e908dbd",
+      "source": {
+        "url": "https://skia.googlesource.com/skia.git/+/607de4b035dcf7fdbaafb66c6cc04f22009ff4d4/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "5f787c1dee3c56547f09ccc2906ab5f5293c4d8dd6c8654e573216c38e908dbd",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "BSD-3-Clause",
+        "coverageEvidence": "DEPS skia_revision; archive SkPathOps and Sk*.o despite rendererskiaflagfalse"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-src_autofit_ft-hb.c.txt",
+      "component": "freetype",
+      "sha256": "09e4a05cd6a32658e605bfb1fa98474bfde8a614470f7fbdf32d191ec918093b",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb.c?format=TEXT",
+        "encoding": "base64",
+        "sha256": "b6fbcc6a2a7b6c291326b24de313ad21edf2c7bbfd82e6844f0c90b20802040a",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "FTL plus delegated module licenses",
+        "coverageEvidence": "DEPS freetype_revision; FTL selected; root LICENSE.TXT delegates BDF/PCF/hash/gzip/HarfBuzz terms; retain source copyright headers"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-include_freetype_internal_fthash.h.txt",
+      "component": "freetype",
+      "sha256": "5285d96f6aa3188193d5fbefd8710ed6a46af185e0a43817c17acee5f4b1ab3d",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/include/freetype/internal/fthash.h?format=TEXT",
+        "encoding": "base64",
+        "sha256": "023d88d49d29ecf3833db7717a3f7ae223c17ec2012bdb5bf33bb67abaf616c4",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "FTL plus delegated module licenses",
+        "coverageEvidence": "DEPS freetype_revision; FTL selected; root LICENSE.TXT delegates BDF/PCF/hash/gzip/HarfBuzz terms; retain source copyright headers"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-docs_FTL.TXT.txt",
+      "component": "freetype",
+      "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/docs/FTL.TXT?format=TEXT",
+        "encoding": "base64",
+        "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "FTL plus delegated module licenses",
+        "coverageEvidence": "DEPS freetype_revision; FTL selected; root LICENSE.TXT delegates BDF/PCF/hash/gzip/HarfBuzz terms; retain source copyright headers"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-LICENSE.TXT.txt",
+      "component": "freetype",
+      "sha256": "bd36c8b474855fa294c2ec5c184544478ef3720aad37d65a6296a4f264fd2d3b",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/LICENSE.TXT?format=TEXT",
+        "encoding": "base64",
+        "sha256": "bd36c8b474855fa294c2ec5c184544478ef3720aad37d65a6296a4f264fd2d3b",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "FTL plus delegated module licenses",
+        "coverageEvidence": "DEPS freetype_revision; FTL selected; root LICENSE.TXT delegates BDF/PCF/hash/gzip/HarfBuzz terms; retain source copyright headers"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-src_gzip_zlib.h.txt",
+      "component": "freetype",
+      "sha256": "02421fcfbfb1d656ef0b6ff4cd3c39f2946f08c3219fa42db482add7ce1f53ea",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/gzip/zlib.h?format=TEXT",
+        "encoding": "base64",
+        "sha256": "5d2ff8b7083eec4ffc13d7c542b53f9771060449973d55d347f044fb2c45dfb8",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "FTL plus delegated module licenses",
+        "coverageEvidence": "DEPS freetype_revision; FTL selected; root LICENSE.TXT delegates BDF/PCF/hash/gzip/HarfBuzz terms; retain source copyright headers"
+      }
+    },
+    {
+      "file": "public/licenses/native/agg-third_party_agg23_agg_array.h.txt",
+      "component": "agg",
+      "sha256": "c5663042e0adaa89a68897599f93350e606bd51cfdf5be15d8825d15aeb964eb",
+      "source": {
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/agg23/agg_array.h",
+        "encoding": "raw",
+        "sha256": "05f7077b756f2c4f515245566bf84c1215552e633848fe3c4de3535a9c1d07f2",
+        "extraction": "Original leading // copyright/license comment header before first #ifndef, unchanged bytes",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Archiveaggobjects; preserveoriginalauthorsheader"
+      }
+    },
+    {
+      "file": "public/licenses/native/bigint-third_party_bigint_LICENSE.txt",
+      "component": "bigint",
+      "sha256": "32759d1397d8f7b9e15ece146e4038b22b90e93b4935b5a840bcef4d2ba5ea55",
+      "source": {
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/bigint/LICENSE",
+        "encoding": "raw",
+        "sha256": "32759d1397d8f7b9e15ece146e4038b22b90e93b4935b5a840bcef4d2ba5ea55",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "ConservativevendoredXFAdependency notice; XFAoff"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-src_pcf_README.txt",
+      "component": "freetype",
+      "sha256": "18d9782898d9eac04476e2f744678137b2a889689ed3e923e052fc396a86f86b",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/pcf/README?format=TEXT",
+        "encoding": "base64",
+        "sha256": "18d9782898d9eac04476e2f744678137b2a889689ed3e923e052fc396a86f86b",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "FTL plus delegated module licenses",
+        "coverageEvidence": "DEPS freetype_revision; FTL selected; root LICENSE.TXT delegates BDF/PCF/hash/gzip/HarfBuzz terms; retain source copyright headers"
+      }
+    },
+    {
+      "file": "public/licenses/native/lcms-third_party_lcms_src_LICENSE.txt",
+      "component": "lcms",
+      "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+      "source": {
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/lcms/src/LICENSE",
+        "encoding": "raw",
+        "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Archivecmsobjects; preserveoriginalcopyrightheader"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-src_bdf_README.txt",
+      "component": "freetype",
+      "sha256": "7984455e7e5a9faba3797c8bf095fbe10cc846316b7320aff8c58402e22b82fe",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/bdf/README?format=TEXT",
+        "encoding": "base64",
+        "sha256": "7984455e7e5a9faba3797c8bf095fbe10cc846316b7320aff8c58402e22b82fe",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "FTL plus delegated module licenses",
+        "coverageEvidence": "DEPS freetype_revision; FTL selected; root LICENSE.TXT delegates BDF/PCF/hash/gzip/HarfBuzz terms; retain source copyright headers"
+      }
+    },
+    {
+      "file": "public/licenses/native/openjpeg-third_party_libopenjpeg_src_LICENSE.txt",
+      "component": "openjpeg",
+      "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+      "source": {
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libopenjpeg/src/LICENSE",
+        "encoding": "raw",
+        "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Archivej2k/opjobjects; preserveoriginalcopyrightheader"
+      }
+    },
+    {
+      "file": "public/licenses/native/libtiff-third_party_libtiff_src_t4.h.txt",
+      "component": "libtiff",
+      "sha256": "91a66ab36f6b9dd3db1b0984f5e17c4c8fc079d79ec7ac13e38e4f25997b440a",
+      "source": {
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libtiff/src/t4.h",
+        "encoding": "raw",
+        "sha256": "68fea8b3e6ac6f9c02395de1ac7759686d82c773024caa9c112784dfa967cae5",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "ConservativevendoredXFAdependency notice; sourcepresentbutXFAoff"
+      }
+    },
+    {
+      "file": "public/licenses/native/fp16-third_party_fp16_LICENSE.txt",
+      "component": "fp16",
+      "sha256": "c91377adafa2f498211a4fe017788e20c38892124673860f068f2919c289193d",
+      "source": {
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/fp16/LICENSE",
+        "encoding": "raw",
+        "sha256": "c91377adafa2f498211a4fe017788e20c38892124673860f068f2919c289193d",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Conservativevendoredheaderdependency"
+      }
+    },
+    {
+      "file": "public/licenses/native/agg-third_party_agg23_copying.txt",
+      "component": "agg",
+      "sha256": "0e16f9c2285583269242e94c6f502de0c9910dfcbbc7b386e236cdf29ecd4333",
+      "source": {
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/agg23/copying",
+        "encoding": "raw",
+        "sha256": "0e16f9c2285583269242e94c6f502de0c9910dfcbbc7b386e236cdf29ecd4333",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Archiveaggobjects; preserveoriginalauthorsheader"
+      }
+    },
+    {
+      "file": "public/licenses/native/openjpeg-third_party_libopenjpeg_src_openjpeg.c.txt",
+      "component": "openjpeg",
+      "sha256": "c5ab0890a737c2dfa7ba675036554f6d17741d98629b0c2a145354d00617e6b2",
+      "source": {
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libopenjpeg/src/openjpeg.c",
+        "encoding": "raw",
+        "sha256": "688b555f028531033d7cdc500dffe981cd0c826fc07833b1980a64bbde175250",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Archivej2k/opjobjects; preserveoriginalcopyrightheader"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-src_autofit_ft-hb.h.txt",
+      "component": "freetype",
+      "sha256": "5387adeb738c74170f75d0bf42cdbcc43ee0d2c72bf803fd38e6e709d2895cf3",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb.h?format=TEXT",
+        "encoding": "base64",
+        "sha256": "e1ca76cbe0df2850f38b974dbff58f0322d19bafecc4125f52077f0c82411534",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "FTL plus delegated module licenses",
+        "coverageEvidence": "DEPS freetype_revision; FTL selected; root LICENSE.TXT delegates BDF/PCF/hash/gzip/HarfBuzz terms; retain source copyright headers"
+      }
+    },
+    {
+      "file": "public/licenses/native/lcms-third_party_lcms_src_include_lcms2.h.txt",
+      "component": "lcms",
+      "sha256": "f212299301e36d2373a1d7e835432ca34dca80cc9cfce3fed08aeb6c8c8738d9",
+      "source": {
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/lcms/src/include/lcms2.h",
+        "encoding": "raw",
+        "sha256": "fca5c8c6c65f51b64478bbcf52aff5c9757b6f8c3fa2a872751e8833a8978434",
+        "extraction": "Original leading // copyright/license comment header before first #ifndef, unchanged bytes",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Archivecmsobjects; preserveoriginalcopyrightheader"
+      }
+    },
+    {
+      "file": "public/licenses/native/libtiff-third_party_libtiff_src_LICENSE.md.txt",
+      "component": "libtiff",
+      "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+      "source": {
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libtiff/src/LICENSE.md",
+        "encoding": "raw",
+        "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "ConservativevendoredXFAdependency notice; sourcepresentbutXFAoff"
+      }
+    },
+    {
+      "file": "public/licenses/native/highway-LICENSE.txt",
+      "component": "highway",
+      "sha256": "e340270d4f64384569a91d546acb5b094d69ce47f0c015db77abb74dc6f815af",
+      "source": {
+        "url": "https://chromium.googlesource.com/external/github.com/google/highway.git/+/2607d3b5b0113992fe84d3848859eae13b3b52c1/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "e340270d4f64384569a91d546acb5b094d69ce47f0c015db77abb74dc6f815af",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "Apache-2.0",
+        "coverageEvidence": "DEPS highway_revision; archive Highway members"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-src_base_fthash.c.txt",
+      "component": "freetype",
+      "sha256": "5285d96f6aa3188193d5fbefd8710ed6a46af185e0a43817c17acee5f4b1ab3d",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/base/fthash.c?format=TEXT",
+        "encoding": "base64",
+        "sha256": "693e5a54b3ce30140975a94a3369dbe706eb1f280c69e80da426d39cc45b94ef",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "FTL plus delegated module licenses",
+        "coverageEvidence": "DEPS freetype_revision; FTL selected; root LICENSE.TXT delegates BDF/PCF/hash/gzip/HarfBuzz terms; retain source copyright headers"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-src_autofit_hb-script-list.h.txt",
+      "component": "freetype",
+      "sha256": "260cfd522bf354ed9c2666777db248c0608e8c7a4110c672f16100aca98c772d",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/hb-script-list.h?format=TEXT",
+        "encoding": "base64",
+        "sha256": "898de25adaf9253471d9f1351a6c90e3547e1470dd2f468ab19a86561868182b",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "FTL plus delegated module licenses",
+        "coverageEvidence": "DEPS freetype_revision; FTL selected; root LICENSE.TXT delegates BDF/PCF/hash/gzip/HarfBuzz terms; retain source copyright headers"
+      }
+    },
+    {
+      "file": "public/licenses/native/harfbuzz-src_ms-use_COPYING.txt",
+      "component": "harfbuzz",
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "source": {
+        "url": "https://chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz.git/+/ff36703b95013ec1d437e6038e1aa7c881275f4e/src/ms-use/COPYING?format=TEXT",
+        "encoding": "base64",
+        "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "MIT and MicrosoftMIT",
+        "coverageEvidence": "DEPS harfbuzz_revision; archive hb-ot-shaper-use.o invokes nested MicrosoftMIT"
+      }
+    },
+    {
+      "file": "public/licenses/native/skia-third_party_harfbuzz_LICENSE.txt",
+      "component": "skia",
+      "sha256": "cca48bacd6e7ed63f00b42a346bcc8549a460b41efe75d93db350fc882f54dca",
+      "source": {
+        "url": "https://skia.googlesource.com/skia.git/+/607de4b035dcf7fdbaafb66c6cc04f22009ff4d4/third_party/harfbuzz/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "cca48bacd6e7ed63f00b42a346bcc8549a460b41efe75d93db350fc882f54dca",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Conservativeallnon-toolingSkianestedlicensecoverage; notclaimingallthesecomponentscompiled"
+      }
+    },
+    {
+      "file": "public/licenses/native/icu-license.html.txt",
+      "component": "icu",
+      "sha256": "c62d7697c03979f5056d28b338fafc7a1152820f7b379adf4a9d88cd37160f96",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/deps/icu.git/+/a0ea93436c528ca316a6e698e483e258839101a5/license.html?format=TEXT",
+        "encoding": "base64",
+        "sha256": "c62d7697c03979f5056d28b338fafc7a1152820f7b379adf4a9d88cd37160f96",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "AdditionalICUlicenseinfo linkedfromprojectroot"
+      }
+    },
+    {
+      "file": "public/licenses/native/skia-third_party_etc1_LICENSE.txt",
+      "component": "skia",
+      "sha256": "5366e97b4478f15a1e2fd7e6094337426597df28de50cd9fed3f2e7e87f1229e",
+      "source": {
+        "url": "https://skia.googlesource.com/skia.git/+/607de4b035dcf7fdbaafb66c6cc04f22009ff4d4/third_party/etc1/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "5366e97b4478f15a1e2fd7e6094337426597df28de50cd9fed3f2e7e87f1229e",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Conservativeallnon-toolingSkianestedlicensecoverage; notclaimingallthesecomponentscompiled"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-src_autofit_ft-hb-decls.h.txt",
+      "component": "freetype",
+      "sha256": "9eb9395c70e884f61081775892fae5949ad7762461bea5753dc5478b0c080302",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb-decls.h?format=TEXT",
+        "encoding": "base64",
+        "sha256": "ed05eec3b5657f98a0c106fa4aa2e5a4bc7f0864e5d34bd5989eee6d8b718bcf",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "ExplicitdelegationinFreeTyperootLICENSE.TXT"
+      }
+    },
+    {
+      "file": "public/licenses/native/skia-third_party_expat_LICENSE.txt",
+      "component": "skia",
+      "sha256": "cca48bacd6e7ed63f00b42a346bcc8549a460b41efe75d93db350fc882f54dca",
+      "source": {
+        "url": "https://skia.googlesource.com/skia.git/+/607de4b035dcf7fdbaafb66c6cc04f22009ff4d4/third_party/expat/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "cca48bacd6e7ed63f00b42a346bcc8549a460b41efe75d93db350fc882f54dca",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Conservativeallnon-toolingSkianestedlicensecoverage; notclaimingallthesecomponentscompiled"
+      }
+    },
+    {
+      "file": "public/licenses/native/skia-third_party_wuffs_LICENSE.txt",
+      "component": "skia",
+      "sha256": "e59bb5c5c6ba426a9ac4ba9fe667ad14c5166b12aa25be8af1d122b14fbe2e36",
+      "source": {
+        "url": "https://skia.googlesource.com/skia.git/+/607de4b035dcf7fdbaafb66c6cc04f22009ff4d4/third_party/wuffs/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "e59bb5c5c6ba426a9ac4ba9fe667ad14c5166b12aa25be8af1d122b14fbe2e36",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Conservativeallnon-toolingSkianestedlicensecoverage; notclaimingallthesecomponentscompiled"
+      }
+    },
+    {
+      "file": "public/licenses/native/skia-modules_skcms_LICENSE.txt",
+      "component": "skia",
+      "sha256": "e59bb5c5c6ba426a9ac4ba9fe667ad14c5166b12aa25be8af1d122b14fbe2e36",
+      "source": {
+        "url": "https://skia.googlesource.com/skia.git/+/607de4b035dcf7fdbaafb66c6cc04f22009ff4d4/modules/skcms/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "e59bb5c5c6ba426a9ac4ba9fe667ad14c5166b12aa25be8af1d122b14fbe2e36",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Conservativeallnon-toolingSkianestedlicensecoverage; notclaimingallthesecomponentscompiled"
+      }
+    },
+    {
+      "file": "public/licenses/native/skia-include_third_party_vulkan_LICENSE.txt",
+      "component": "skia",
+      "sha256": "e59bb5c5c6ba426a9ac4ba9fe667ad14c5166b12aa25be8af1d122b14fbe2e36",
+      "source": {
+        "url": "https://skia.googlesource.com/skia.git/+/607de4b035dcf7fdbaafb66c6cc04f22009ff4d4/include/third_party/vulkan/LICENSE?format=TEXT",
+        "encoding": "base64",
+        "sha256": "e59bb5c5c6ba426a9ac4ba9fe667ad14c5166b12aa25be8af1d122b14fbe2e36",
+        "extraction": "Complete supplied text",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "Conservativeallnon-toolingSkianestedlicensecoverage; notclaimingallthesecomponentscompiled"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-src_autofit_ft-hb-ft.c.txt",
+      "component": "freetype",
+      "sha256": "9eb9395c70e884f61081775892fae5949ad7762461bea5753dc5478b0c080302",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb-ft.c?format=TEXT",
+        "encoding": "base64",
+        "sha256": "84dd5ddff1cec222e1755b4962faf45836238dfa3a46854dabd969eb4e50f8be",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "ExplicitdelegationinFreeTyperootLICENSE.TXT"
+      }
+    },
+    {
+      "file": "public/licenses/native/freetype-src_autofit_ft-hb-types.h.txt",
+      "component": "freetype",
+      "sha256": "9eb9395c70e884f61081775892fae5949ad7762461bea5753dc5478b0c080302",
+      "source": {
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb-types.h?format=TEXT",
+        "encoding": "base64",
+        "sha256": "f106bf7cc41f52cd70907266a74a293c57bc5f71285b01c36bf198ad8b1c6234",
+        "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
+        "licenseChoice": "upstream supplied terms",
+        "coverageEvidence": "ExplicitdelegationinFreeTyperootLICENSE.TXT"
+      }
+    },
+    {
+      "file": "public/licenses/native/harfbuzz-src___original_copyright_license_comment_blocks.txt",
+      "component": "harfbuzz",
+      "sha256": "4e539bf5fa61ee63778ccc167bb5ef4ec986ff5f6ce0b4f6766c8df3ec2a67a5",
+      "source": {
+        "url": "https://codeload.github.com/harfbuzz/harfbuzz/tar.gz/ff36703b95013ec1d437e6038e1aa7c881275f4e",
+        "extraction": "Original source copyright/license comment supplement; each source and exact comment block is indexed in harfbuzz-source-provenance.json",
+        "licenseChoice": "Preserved individual upstream copyright/license terms",
+        "coverageEvidence": "COPYING delegates full copyright notices to individual source files. Supplement scans all src/*.c,cc,cpp,h,hh,hpp,inc,rl at exact revision, including optional backends conservatively. Only unchanged comment text is reproduced; index records each source file hash and block hash.",
+        "archiveSha256": "995536e62f16e301cdba29710143764f8181f8d35e0479edbf547958fb4a6769",
+        "sourceCommentIndex": "public/licenses/harfbuzz-source-provenance.json"
+      }
+    },
+    {
+      "file": "public/licenses/native/emscripten-LICENSE.txt",
+      "component": "emscripten-runtime",
+      "sha256": "620a78084fc7ca97c0b5dea9abf891f3ffcadfdbf305276f099c9c4e12fc1d86",
+      "source": {
+        "url": "https://raw.githubusercontent.com/emscripten-core/emscripten/437140d149d9c977ffc8b09dbaf9b0f5a02db190/LICENSE",
+        "sha256": "620a78084fc7ca97c0b5dea9abf891f3ffcadfdbf305276f099c9c4e12fc1d86",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/emscripten-AUTHORS.txt",
+      "component": "emscripten-runtime",
+      "sha256": "56f7df65203d4858dac19cafe3a84a8c49abaff56b67d32d2d463d5fef6e440b",
+      "source": {
+        "url": "https://raw.githubusercontent.com/emscripten-core/emscripten/437140d149d9c977ffc8b09dbaf9b0f5a02db190/AUTHORS",
+        "sha256": "56f7df65203d4858dac19cafe3a84a8c49abaff56b67d32d2d463d5fef6e440b",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/emscripten-system_lib_compiler-rt_LICENSE.TXT.txt",
+      "component": "emscripten-runtime",
+      "sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d",
+      "source": {
+        "url": "https://raw.githubusercontent.com/emscripten-core/emscripten/437140d149d9c977ffc8b09dbaf9b0f5a02db190/system/lib/compiler-rt/LICENSE.TXT",
+        "sha256": "1a8f1058753f1ba890de984e48f0242a3a5c29a6a8f2ed9fd813f36985387e8d",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/emscripten-system_lib_libc_musl_COPYRIGHT.txt",
+      "component": "emscripten-runtime",
+      "sha256": "f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af",
+      "source": {
+        "url": "https://raw.githubusercontent.com/emscripten-core/emscripten/437140d149d9c977ffc8b09dbaf9b0f5a02db190/system/lib/libc/musl/COPYRIGHT",
+        "sha256": "f9bc4423732350eb0b3f7ed7e91d530298476f8fec0c6c427a1c04ade22655af",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/emscripten-system_lib_libcxx_LICENSE.TXT.txt",
+      "component": "emscripten-runtime",
+      "sha256": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b",
+      "source": {
+        "url": "https://raw.githubusercontent.com/emscripten-core/emscripten/437140d149d9c977ffc8b09dbaf9b0f5a02db190/system/lib/libcxx/LICENSE.TXT",
+        "sha256": "539dd7aed86e8a4f12cbdd0e6c50c189c7d74847e4fecc64ce2c6ee3a01da38b",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/emscripten-system_lib_libcxxabi_LICENSE.TXT.txt",
+      "component": "emscripten-runtime",
+      "sha256": "e2b35be49f7284a45b7baca8fc7b3ab7440e7902392b2528a457816b5bb2a15c",
+      "source": {
+        "url": "https://raw.githubusercontent.com/emscripten-core/emscripten/437140d149d9c977ffc8b09dbaf9b0f5a02db190/system/lib/libcxxabi/LICENSE.TXT",
+        "sha256": "e2b35be49f7284a45b7baca8fc7b3ab7440e7902392b2528a457816b5bb2a15c",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/emscripten-system_lib_libunwind_LICENSE.TXT.txt",
+      "component": "emscripten-runtime",
+      "sha256": "b5efebcaca80879234098e52d1725e6d9eb8fb96a19fce625d39184b705f7b6d",
+      "source": {
+        "url": "https://raw.githubusercontent.com/emscripten-core/emscripten/437140d149d9c977ffc8b09dbaf9b0f5a02db190/system/lib/libunwind/LICENSE.TXT",
+        "sha256": "b5efebcaca80879234098e52d1725e6d9eb8fb96a19fce625d39184b705f7b6d",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/emscripten-system_include_SDL_COPYING.txt",
+      "component": "emscripten-runtime",
+      "sha256": "c0340bf02391530fb13cf4170c31253ecd09868fa483553652699584eb4db6ae",
+      "source": {
+        "url": "https://raw.githubusercontent.com/emscripten-core/emscripten/437140d149d9c977ffc8b09dbaf9b0f5a02db190/system/include/SDL/COPYING",
+        "sha256": "c0340bf02391530fb13cf4170c31253ecd09868fa483553652699584eb4db6ae",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/emscripten-system_lib_mimalloc_LICENSE.txt",
+      "component": "emscripten-runtime",
+      "sha256": "19c99805e7a44a34b297a75d1edea9985e300066dfc024d5c99d4236d4573b5d",
+      "source": {
+        "url": "https://raw.githubusercontent.com/emscripten-core/emscripten/437140d149d9c977ffc8b09dbaf9b0f5a02db190/system/lib/mimalloc/LICENSE",
+        "sha256": "19c99805e7a44a34b297a75d1edea9985e300066dfc024d5c99d4236d4573b5d",
+        "extraction": "Complete supplied text"
+      }
+    },
+    {
+      "file": "public/licenses/native/emscripten-source-notices.txt",
+      "component": "emscripten-runtime",
+      "sha256": "b7bd2dd3b95fd3e3b863254b4cbfbe943c9e01f03b64becc0dbee49030a54447",
+      "source": {
+        "url": "https://github.com/emscripten-core/emscripten/tree/437140d149d9c977ffc8b09dbaf9b0f5a02db190",
+        "description": "Conservative system library/header and generated JS source comment supplement",
+        "extraction": "Exact original comment blocks with per-source SHA-256 and line spans in emscripten-source-provenance.json"
+      }
+    },
+    {
+      "file": "public/licenses/emscripten-source-provenance.json",
+      "component": "emscripten-runtime",
+      "sha256": "030f6920719025caf0632470b28665b15d5b4e5af828e8e329145ed2884a14a6",
+      "source": {
+        "description": "Per-source hashes, immutable URLs, inclusive comment line spans and comment hashes"
+      }
+    },
+    {
+      "file": "public/licenses/harfbuzz-source-provenance.json",
+      "component": "harfbuzz",
+      "sha256": "b03dbc86af25bc2afa9064331d1f662959187b51597d2e4660875f713f89ddbd",
+      "source": {
+        "description": "Per-source and comment hashes for the exact HarfBuzz source supplement"
+      }
+    },
+    {
+      "file": "public/licenses/pdfium-archive-coverage.json",
+      "component": "pdfium",
+      "sha256": "62b0a8687f9af112585b0c0e6f08168ee0d1b6810496d8913cf1adc672898acf",
+      "source": {
+        "description": "All 597 distinct external archive object names mapped to exact DEPS-pinned source trees; not proof of final linkage or header-only coverage"
+      }
+    }
+  ],
+  "bundleSha256": "ec5dc138a4da89655d2d32929b38a7727066fb5305026044d19bab6a85355dda"
+}

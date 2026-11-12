@@ -20,6 +20,7 @@ jobs:
       - run: pnpm run lint
       - run: pnpm test
       - run: pnpm run build
+      - run: pnpm exec wrangler deploy --dry-run
   browsers:
     needs: check
     runs-on: ubuntu-latest
@@ -42,4 +43,4 @@ jobs:
       - run: pnpm run build
       - run: pnpm run test:e2e --browser=${{ matrix.browser }}
         env:
-          PLAYWRIGHT_PREVIEW: '1'
+          PLAYWRIGHT_CLOUDFLARE: '1'

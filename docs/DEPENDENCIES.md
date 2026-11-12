@@ -40,7 +40,7 @@ Use **pnpm 10.33.4**, pinned in `package.json`, with `pnpm-lock.yaml` as the sol
 
 `pnpm-workspace.yaml` carries the three parent-scoped minimatch overrides. Consumer regression tests follow the actual ESLint/typescript-eslint dependency chains rather than relying on hoisted packages. The generated parser resolves every external import through LibPDF's own dependencies, including its browser-specific lru-cache entry.
 
-Project-local `ignoreScripts: false` and `enablePrePostScripts: true` preserve installation and pre/post command hooks. No dependency installation scripts are currently needed: `allowBuilds: {}` and `strictDepBuilds: true` make new dependency build hooks fail for explicit review instead of silently skipping them. The application's own preparation scripts still run.
+Project-local `ignoreScripts: false` and `enablePrePostScripts: true` preserve installation and pre/post command hooks. Wrangler's exact esbuild 0.28.2 and workerd 1.20261110.1 platform-binary verification hooks are allowed. `strictDepBuilds: true` makes any new dependency build hook fail for explicit review instead of silently skipping it. The application's own preparation scripts still run.
 
 Because the preview preparation script modifies installed dependency files, `packageImportMethod: copy` and `sideEffectsCache: false` keep those modifications out of the shared content-addressed store. This deliberately trades hard-link speed for isolated, reproducible patching. The existing lucide-react release-age exception is preserved.
 

@@ -1,6 +1,6 @@
 # Draft request for build-matched native notices
 
-Draft only. Nothing has been sent or posted.
+Historical draft only. Nothing has been sent or posted. The project reconstructed and reviewed a conservative exact-source/toolchain notice inventory; see [NOTICES.md](NOTICES.md). This request is retained for a future supplier-issued bundle, not as an open launch prerequisite.
 
 ## Artifact
 
@@ -13,15 +13,16 @@ Draft only. Nothing has been sent or posted.
 
 We are preparing a public, browser-based PDF inspection application using EmbedPDF's local 3.1.0 engine. We want to distribute the correct third-party notices with the exact WebAssembly artifact above.
 
-The installed runtime-wasm32 package includes an Apache 2.0 license, but we have not found a build-matched PDFium/native third-party notice bundle or an exact PDFium revision/build manifest. The core-fonts package has its own PDFium notice, which we are preserving for those fonts; we have not assumed it covers the entire WASM runtime.
+We have now traced the exact binary to your public finished runtime payload `runtime-payloads-d7fb709a6427d8d9`. The viewer v3.1.0 manifest pins runtime fork `aa59ce554aab55879b728dbb86714e13e5cb327f`, based on PDFium `6688c576fd851f4159c6fae39396da50939de110`. Its wasm32 static-library archive matches SHA-256 `0a4c947c05ae314414fb772d0fdf20a6ffbdc412194ba6ed3c49abd42170eb5c`, and the finished payload's WASM is byte-identical to the npm binary above.
+
+We have preserved the archive's `LICENSES/PDFIUM_LICENSE` and both matching CloudPDF NOTICE files. The archive contains `args.gn` and build metadata, so we no longer need the PDFium revision or configuration identified. The remaining question is the complete third-party native notice bundle: the archive only contains that top-level license, and the finished payload contains JS/WASM files without a separate notice bundle.
 
 Could you point us to:
 
-1. The exact source/PDFium revision and build configuration used for this artifact.
-2. The complete third-party license and notice bundle corresponding to the native dependencies actually compiled into it.
-3. Any additional attribution/distribution instructions for this build, and where the matching notice bundle will be published for future package versions.
+1. The complete license and attribution texts for the native third-party components included in this wasm32 build, including applicable linked Emscripten 3.1.72 runtime notices.
+2. Any additional attribution/distribution instructions for this artifact, and where the matching notice bundle will be published for future package versions.
 
-A link to a versioned source/build manifest and its generated notices would be ideal. We are keeping the application source MIT licensed while preserving the licenses and notices applicable to dependencies.
+A generated native notice bundle tied to these verified build IDs would be ideal. We are keeping the application source MIT licensed while preserving the licenses and notices applicable to dependencies.
 
 Thank you.
 
