@@ -87,3 +87,7 @@ H2 and hosted verification in H3 are complete. Initial deployment: the now-retir
 ### Independent Pages project — 2026-11-12
 
 User selected Pages to avoid the shared account hostname. App is now at **https://pdf-internals-viewer.pages.dev** in its own Pages project, deployment `5660f026`, production branch `main`. The 27 local Pages checks and 27 live checks pass; asset MIME/cache/404, exact WASM and 64 native notice/evidence hashes pass. The former Worker's production and preview subdomains are both disabled, and its old production/version-preview addresses return 404. Other account projects and the shared namespace were not changed. Current scripts/config/CI/docs target Pages; no account-wide hostname is used by the app.
+
+### Feature follow-up — navigation context
+
+Back/Forward now records document sections and explicit original-byte ranges alongside objects and inspector tabs. Cross-reference jumps, original-byte search results, and unknown-byte selections can be retraced; unknown-byte messages are restored with their selections. New navigation after Back discards the abandoned forward branch, and document replacement clears history. Inspector and byte-pane scroll-position restoration remains open from the original feature plan.

@@ -44,3 +44,7 @@ The initial, now-retired Workers deployment passed 27/27 in 36.7 seconds against
 ## Cloudflare Pages migration — 2026-11-12
 
 The managed Cloudflare mode now runs `wrangler pages dev dist`. All 27 local checks passed in 29.9 seconds. The same 27 checks passed against https://pdf-internals-viewer.pages.dev in 36.7 seconds, across Chromium, Firefox and WebKit. Pages' explicit `404.html` prevents missing worker/WASM files receiving an HTML shell. Hosted HTML, worker/WASM/font MIME and caching, all 64 native notice/evidence hashes, combined notice inclusion and exact WASM passed HTTP checks. The previous Worker production and preview addresses were disabled after the Pages deployment passed. Actual Safari testing remains open.
+
+## Navigation context follow-up — 2026-11-12
+
+The production-preview suite now contains 12 scenarios per engine, including section and exact-byte-range history, unknown-byte messages, forward-branch replacement, and returning from a deeply scrolled object list to a smaller section. `CI=1 PLAYWRIGHT_PREVIEW=1 pnpm exec playwright test --browser=all` passed 36/36 checks across Chromium, Firefox and WebKit. This is local production-build evidence; the published deployment was not changed. Inspector and byte-pane scroll-position restoration remains deferred.

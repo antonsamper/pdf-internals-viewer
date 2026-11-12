@@ -1,6 +1,8 @@
 import { test, expect, type Page } from '@playwright/test'
 import { resolve } from 'node:path'
 import { mkdir } from 'node:fs/promises'
+// @ts-expect-error local JavaScript fixture helpers have no declaration file
+import { classicPdf } from '../scripts/fixtures/pdf-fixtures.mjs'
 
 const samplePath = (name: string) => resolve('public/samples', name)
 const screenshotPath = (name: string) => resolve('.context', name)
@@ -131,6 +133,86 @@ test('searches keys and original hex bytes with distinct navigation', async ({ p
   await expect(results).toContainText('1 match')
   await results.getByRole('button', { name: /0x0/ }).click()
   await expect(page.locator('.hex-status')).toContainText('4 bytes selected')
+})
+
+test('restores sections and exact byte selections through history', async ({ page }) => {
+  await openMinimal(page)
+  const back = page.getByRole('button', { name: 'Back', exact: true })
+  const forward = page.getByRole('button', { name: 'Forward', exact: true })
+  const sections = page.getByRole('navigation', { name: 'Document sections' })
+  await sections.getByRole('button', { name: 'File structure', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Cross-reference entry point' })).toBeVisible()
+  await page.getByRole('button', { name: /startxref →/ }).click()
+  const xrefSelection = await page.locator('.hex-status').innerText()
+  expect(xrefSelection).toContain('32 bytes selected')
+
+  await sections.getByRole('button', { name: 'Document catalog', exact: true }).click()
+  await expect(page.getByRole('heading', { name: /1 0\s+obj/ })).toBeVisible()
+  await back.click()
+  await expect(page.getByRole('heading', { name: 'Cross-reference entry point' })).toBeVisible()
+  await expect(page.locator('.hex-status')).toHaveText(xrefSelection)
+  await back.click()
+  await expect(page.locator('.hex-status')).toContainText('offsets are zero-based')
+  await back.click()
+  await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Cross-reference entry point' })).toHaveCount(0)
+  await forward.click()
+  await expect(page.getByRole('heading', { name: 'Cross-reference entry point' })).toBeVisible()
+  await forward.click()
+  await expect(page.locator('.hex-status')).toHaveText(xrefSelection)
+
+  // A new visit from the middle replaces the abandoned forward branch.
+  await sections.getByRole('button', { name: 'Overview', exact: true }).click()
+  await expect(forward).toBeDisabled()
+})
+
+test('restores byte-search results and unknown-byte selections', async ({ page }) => {
+  await openMinimal(page)
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  const back = page.getByRole('button', { name: 'Back', exact: true })
+  const forward = page.getByRole('button', { name: 'Forward', exact: true })
+  await page.getByRole('combobox', { name: 'Search scope', exact: true }).selectOption('hex')
+  await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('25 50 44 46')
+  await page.getByRole('button', { name: 'Run search', exact: true }).click()
+  await page.getByRole('region', { name: 'Search results', exact: true }).getByRole('button', { name: /0x0/ }).click()
+  await expect(page.locator('.hex-status')).toContainText('4 bytes selected')
+  await back.click()
+  await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
+  await expect(page.locator('.hex-status')).not.toContainText('4 bytes selected')
+  await forward.click()
+  await expect(page.locator('.hex-status')).toContainText('4 bytes selected')
+  await page.getByRole('button', { name: 'Offset 0, byte 25', exact: true }).click()
+  await expect(page.locator('.hex-status')).toContainText('1 bytes selected')
+  await expect(page.getByRole('status').filter({ hasText: 'no known containing object' })).toBeVisible()
+  await back.click()
+  await expect(page.locator('.hex-status')).toContainText('4 bytes selected')
+  await expect(page.getByRole('status').filter({ hasText: 'no known containing object' })).toHaveCount(0)
+  await forward.click()
+  await expect(page.getByRole('status').filter({ hasText: 'no known containing object' })).toBeVisible()
+})
+
+test('keeps smaller object lists visible when history changes sections', async ({ page }) => {
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+    [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>'],
+    ...Array.from({ length: 200 }, (_, index) => [index + 4, 'null']),
+  ])
+  await page.getByLabel('Open local PDF').setInputFiles({
+    name: 'many-objects.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes),
+  })
+  await expect(page.locator('.status-bar')).toContainText('203 objects indexed')
+  const sections = page.getByRole('navigation', { name: 'Document sections' })
+  await sections.getByRole('button', { name: /^Pages/ }).click()
+  await expect(page.locator('.object-row')).toHaveCount(1)
+  await sections.getByRole('button', { name: 'All objects', exact: true }).click()
+  await page.locator('.object-list').evaluate(element => { element.scrollTop = 3000 })
+  await expect(page.locator('.object-row').first()).not.toContainText('1 0')
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await expect(page.locator('.object-row')).toHaveCount(1)
+  await expect(page.locator('.object-row').first()).toContainText('3 0')
+  await page.getByRole('button', { name: 'Forward', exact: true }).click()
+  await expect(page.locator('.object-row').first()).toContainText('1 0')
 })
 
 test('renders a local EmbedPDF preview without external requests or runtime errors', async ({ page }) => {
