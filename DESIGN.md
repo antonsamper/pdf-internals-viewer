@@ -148,6 +148,10 @@ The interface uses:
 
 The light interface is implemented in `src/index.css`, `src/app.css`, `src/components/hex-view.css`, and the existing UI components. The source also contains dark theme mappings, which have not had a separate visual review. The design uses neutral defaults without a creative metaphor.
 
+## Brand artwork
+
+Use the supplied full-color PDF Internals illustration from `public/brand/pdf-internals-logo.png` on the welcome screen and About page. Keep its full aspect ratio and original colors, with responsive sizing on white. The compact workspace header frames the detective mascot from the same artwork as its brand mark. Inspection controls retain their neutral treatment so the artwork does not compete with document data.
+
 ## Colors
 
 The palette is primarily achromatic. Color identifies navigation and syntax. Use the values in the frontmatter as the specification.
@@ -200,7 +204,7 @@ On desktop, three horizontally resizable panes divide the workspace: explorer (2
 
 At 900px and below, Explorer, Inspector, and Bytes buttons switch between panes. Search takes the toolbar's full width, header spacing tightens, and fewer secondary status details appear. At 480px and below, header decorations and the secondary status group disappear, and the inspector uses the mobile content padding. Hex columns tighten further at 400px.
 
-The empty workspace places the introduction and sample list side by side within a 920px measure on desktop, stacking them within 440px on narrow screens. Its headline and top padding are responsive. Loaded inspector content uses the recorded inspector-content inset; pane headings and hex controls use the pane-heading inset. PDF dictionaries align keys and values in a two-column grid with a minimum key track (90px), proportion (32%), and gap (12px).
+The empty workspace places the logo by itself on the left and stacks the introduction and sample list on the right within a 1040px measure on desktop. On narrow screens, the logo appears above the content within 440px. Its headline and top padding are responsive. Loaded inspector content uses the recorded inspector-content inset; pane headings and hex controls use the pane-heading inset. PDF dictionaries align keys and values in a two-column grid with a minimum key track (90px), proportion (32%), and gap (12px).
 
 ## Elevation and depth
 
