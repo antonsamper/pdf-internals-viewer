@@ -22,6 +22,7 @@ const EMPTY_PAGES: PreviewPages = []
 export interface PdfPreviewProps {
   bytes: Uint8Array
   fileName: string
+  password?: string
   /** One-based page number, independently controlled from object selection. */
   pageNumber?: number
   onPageChange?: (pageNumber: number) => void
@@ -32,7 +33,7 @@ function errorMessage(error: unknown): string {
 }
 
 /** Read-only local rendering. Never save/rewrite these bytes for the inspector. */
-export function PdfPreview({ bytes, fileName, pageNumber, onPageChange }: PdfPreviewProps) {
+export function PdfPreview({ bytes, fileName, password, pageNumber, onPageChange }: PdfPreviewProps) {
   const [openedPreview, setOpenedPreview] = useState<OpenedPreview | null>(null)
   const [renderedPreview, setRenderedPreview] = useState<RenderedPreview | null>(null)
   const [localPage, setLocalPage] = useState(1)
@@ -56,7 +57,7 @@ export function PdfPreview({ bytes, fileName, pageNumber, onPageChange }: PdfPre
 
     // Always copy: an engine may transfer its input to its worker. The hex
     // inspector must retain its own original, non-detached byte buffer.
-    const request = engine.open({ kind: 'bytes', bytes: bytes.slice().buffer })
+    const request = engine.open({ kind: 'bytes', bytes: bytes.slice().buffer }, { password })
     void request
       .then(async (opened) => {
         openedDocument = opened
@@ -84,7 +85,7 @@ export function PdfPreview({ bytes, fileName, pageNumber, onPageChange }: PdfPre
       if (openedDocument) void openedDocument.close().catch(() => undefined)
       void engine.destroy().catch(() => undefined)
     }
-  }, [bytes])
+  }, [bytes, password])
 
   useEffect(() => {
     if (!document || !pages[currentPage - 1]) return

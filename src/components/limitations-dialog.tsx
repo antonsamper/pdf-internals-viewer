@@ -52,8 +52,11 @@ export function LimitationsDialog({
             <ul>
               <li>
                 <strong>Encrypted PDFs:</strong> original bytes remain
-                available, but password entry and structure inspection are not
-                supported.
+                available. Files that open without a password unlock
+                automatically; otherwise enter an opening or owner password.
+                Unsupported encryption remains unavailable. Decrypted values and
+                decoded streams are separate from original encrypted source
+                bytes.
               </li>
               <li>
                 <strong>Stream decoding:</strong> Flate, ASCIIHex, ASCII85, and
@@ -63,8 +66,8 @@ export function LimitationsDialog({
               </li>
               <li>
                 <strong>Browser coverage:</strong> automated coverage targets
-                Chromium, Firefox, and WebKit. The Safari application itself still
-                needs verification.
+                Chromium, Firefox, and WebKit. The Safari application itself
+                still needs verification.
               </li>
             </ul>
           </section>
@@ -118,7 +121,11 @@ export function LimitationsDialog({
             <h2>Credits & licenses</h2>
             <p>
               Original application code is MIT licensed. See the{" "}
-              <a href={`${import.meta.env.BASE_URL}THIRD-PARTY-NOTICES.txt`} target="_blank" rel="noreferrer">
+              <a
+                href={`${import.meta.env.BASE_URL}THIRD-PARTY-NOTICES.txt`}
+                target="_blank"
+                rel="noreferrer"
+              >
                 third-party notices
               </a>{" "}
               for dependency and font licenses.
