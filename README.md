@@ -31,6 +31,14 @@ Keyboard: Ctrl/Cmd+O opens a file; Ctrl/Cmd+K focuses search. The hex viewer sup
 
 At narrower widths, use Explorer / Inspector / Original bytes tabs. Desktop panes can be resized with the separators, including via keyboard.
 
+## Investigation tools
+
+- Follow the clickable exploration trail to revisit the objects and dictionary keys used along your route. Expand references inline to inspect a dictionary without leaving its surrounding object; cycles and unavailable references are labelled.
+- Use **Pin to compare**, then select another object to compare typed dictionary values and highlight added, removed, or changed keys. Stream payloads are not compared.
+- In a content stream's **Decoded** tab, switch between **Readable instructions** and **Decoded byte text**. Instruction explanations and resource links use page/form resource context; ambiguous contexts require an explicit choice. These explanations do not extract text or establish rendered positions.
+- Open **Resources** for font details, image/form objects, and links to pages exposing those resources. Image thumbnails are generated locally on request for supported bounded images; unsupported formats retain dictionary and byte inspection.
+- **Bookmark** objects or explicit byte ranges and add notes in the explorer. Bookmarks, notes, and pinned comparisons stay in memory for the current document and clear when it is closed or replaced.
+
 ## Verify
 
 ```sh

@@ -1,5 +1,5 @@
 import type { PdfDict, PdfObject, PdfRef as EngineRef, PdfStream } from '@libpdf/core';
-import { InspectionDocumentParser, InspectionScanner, InspectionXRefParser, PdfRef, inspectionCompressedLocation, inspectionReadIndirect, inspectionResetDecodedCache, type XRefEntry } from '../../generated/libpdf-inspection.mjs';
+import { InspectionDocumentParser, InspectionScanner, InspectionXRefParser, PdfRef, inspectionCompressedLocation, inspectionReadIndirect, inspectionResetDecodedCache, type XRefEntry } from 'pdf-internals-viewer/inspection';
 import type { ByteRange, PdfDocumentInfo, PdfObjectRecord, PdfValue, Provenance, StreamResult } from './types';
 
 export const MAX_INPUT_BYTES = 64 * 1024 * 1024;

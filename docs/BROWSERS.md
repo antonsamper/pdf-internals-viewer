@@ -48,3 +48,9 @@ The managed Cloudflare mode now runs `wrangler pages dev dist`. All 27 local che
 ## Navigation context follow-up — 2026-11-12
 
 The production-preview suite now contains 12 scenarios per engine, including section and exact-byte-range history, unknown-byte messages, forward-branch replacement, and returning from a deeply scrolled object list to a smaller section. `CI=1 PLAYWRIGHT_PREVIEW=1 pnpm exec playwright test --browser=all` passed 36/36 checks across Chromium, Firefox and WebKit. This is local production-build evidence; the published deployment was not changed. Inspector and byte-pane scroll-position restoration remains deferred.
+
+## Exploration features — 2026-11-12
+
+The integrated production-preview suite passed 51/51 checks in 45.9 seconds, with 17 scenarios each in Chromium, Firefox, and WebKit. Five new scenarios cover clickable trails and cyclic inline expansion; bookmark notes, byte-range restoration, and replacement cleanup; pinned typed dictionary comparisons at desktop/mobile widths; readable instructions with inherited font-resource navigation; and local image thumbnail generation with font details and page links. Desktop/mobile screenshots were inspected in ignored `.context/`.
+
+Reproduction used a separately running local Vite production-preview server: `PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 pnpm exec playwright test --browser=all`. The initial bookmark test attempted to click an unmounted byte in the virtualized grid; the test now jumps to offset zero before selecting it. No application change was needed for that test setup issue. The final production build also passed type checking and emitted preview/native notice checks; all 98 unit tests and lint pass. These checks do not change the published site or establish actual Safari application coverage.

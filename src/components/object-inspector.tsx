@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ValueView } from "@/components/value-view"
+import { ContentStreamView } from "@/components/content-stream-view"
 import type { PdfObjectRecord, PdfValue, StreamResult } from "@/lib/pdf/types"
 
 export type InspectorTab = "properties" | "source" | "raw" | "decoded"
@@ -14,12 +15,18 @@ export function ObjectInspector({
   onNavigate,
   readStream,
   resources,
+  objects,
+  pages = [],
+  contextPageId,
 }: {
   object: PdfObjectRecord
   resources?: { value: PdfValue; inheritedFrom?: string }
+  objects?: Map<string, PdfObjectRecord>
+  pages?: string[]
+  contextPageId?: string
   tab: InspectorTab
   onTabChange: (tab: InspectorTab) => void
-  onNavigate: (id: string) => void
+  onNavigate: (id: string, path?: string[]) => void
   readStream: (id: string, mode: "raw" | "decoded") => Promise<StreamResult>
 }) {
   const [state, setState] = useState<{
@@ -119,7 +126,13 @@ export function ObjectInspector({
           )}
         </TabsList>
         <TabsContent value="properties" className="inspector-scroll">
-          <ValueView value={object.value} onNavigate={onNavigate} />
+          <ValueView
+            key={object.id}
+            value={object.value}
+            onNavigate={onNavigate}
+            objects={objects}
+            ancestors={[object.id]}
+          />
           <section className="relationship-section">
             {resources && (
               <>
@@ -138,7 +151,18 @@ export function ObjectInspector({
                 ) : (
                   <p className="representation-note">Defined on this page.</p>
                 )}
-                <ValueView value={resources.value} onNavigate={onNavigate} />
+                <ValueView
+                  key={`${object.id}-resources`}
+                  value={resources.value}
+                  onNavigate={
+                    resources.inheritedFrom
+                      ? (id) => onNavigate(id)
+                      : onNavigate
+                  }
+                  objects={objects}
+                  ancestors={[object.id]}
+                  path={["/Resources"]}
+                />
               </>
             )}
             <h2>
@@ -230,7 +254,19 @@ export function ObjectInspector({
                       {stream.bytes.length.toLocaleString()} bytes
                       {stream.truncated ? " · display truncated" : ""}
                     </p>
-                    <pre className="source-code">{stream.text}</pre>
+                    {mode === "decoded" && objects && !stream.error ? (
+                      <ContentStreamView
+                        key={object.id}
+                        object={object}
+                        stream={stream}
+                        objects={objects}
+                        pages={pages}
+                        contextPageId={contextPageId}
+                        onNavigate={onNavigate}
+                      />
+                    ) : (
+                      <pre className="source-code">{stream.text}</pre>
+                    )}
                   </>
                 ) : (
                   <p className="loading-inline">

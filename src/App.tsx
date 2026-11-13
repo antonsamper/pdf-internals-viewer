@@ -11,6 +11,8 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpRight,
+  BookmarkPlus,
+  Pin,
   Binary,
   Braces,
   Check,
@@ -46,6 +48,18 @@ import {
   type InspectorTab,
 } from "@/components/object-inspector"
 import { ValueView } from "@/components/value-view"
+import { InspectionUnavailable } from "@/components/inspection-unavailable"
+import {
+  SessionBookmarks,
+  type SessionBookmark,
+} from "@/components/session-bookmarks"
+import { ObjectComparison } from "@/components/object-comparison"
+import { ResourceBrowser } from "@/components/resource-browser"
+import {
+  extendExplorationTrail,
+  referencePathOwners,
+  type ExplorationStep,
+} from "@/lib/pdf/exploration-trail"
 import { PdfWorkerClient } from "@/lib/pdf/client"
 import { effectiveResources, hasSubtype } from "@/lib/pdf/navigation"
 import type {
@@ -88,6 +102,7 @@ type Selection = {
   section: Section
   range?: ByteRange
   notice?: string
+  trail?: ExplorationStep[]
 }
 type Section =
   "overview" | "catalog" | "pages" | "resources" | "objects" | "structure"
@@ -130,11 +145,15 @@ export default function App() {
   const [document, setDocument] = useState<PdfDocumentInfo | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [inspectionError, setInspectionError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [history, setHistory] = useState<Selection[]>([
     { id: null, tab: "properties", section: "overview" },
   ])
   const [historyIndex, setHistoryIndex] = useState(0)
+  const [bookmarks, setBookmarks] = useState<SessionBookmark<Selection>[]>([])
+  const bookmarkKey = useRef(0)
+  const [pinnedId, setPinnedId] = useState<string | null>(null)
   const [preview, setPreview] = useState(false)
   const [previewPage, setPreviewPage] = useState(1)
   const [dragging, setDragging] = useState(false)
@@ -165,6 +184,50 @@ export default function App() {
         ? selected.provenance.containerRange
         : undefined)
 
+  function objectStep(id: string): ExplorationStep {
+    const pageIndex = document?.pages.indexOf(id) ?? -1
+    return { id, label: pageIndex >= 0 ? `Page ${pageIndex + 1}` : `${id} obj` }
+  }
+  function followReference(id: string, path?: string[]) {
+    if (!objectMap.has(id)) {
+      setNotice(
+        `Reference ${id} R has no available object in the current object set.`
+      )
+      return
+    }
+    const source = selected
+      ? objectStep(selected.id)
+      : { id: null, label: section === "structure" ? "Trailer" : "Document" }
+    const trail = extendExplorationTrail(
+      selection.trail ?? [],
+      source,
+      objectStep(id),
+      path,
+      referencePathOwners(
+        selected?.value ?? document!.trailer,
+        path ?? [],
+        objectMap,
+        source.id
+      )
+    )
+    visit({ id, tab: "properties", section, trail })
+    setMobilePane("inspector")
+  }
+  function addBookmark() {
+    if (!selection.id && !selection.range) return
+    const rangeLabel = selection.range
+      ? `Bytes 0x${selection.range.start.toString(16).toUpperCase()}–0x${(selection.range.end - 1).toString(16).toUpperCase()}`
+      : ""
+    const label = rangeLabel || `${selection.id} obj · ${selection.tab}`
+    setBookmarks((current) =>
+      current.concat({
+        key: ++bookmarkKey.current,
+        label,
+        selection: { ...selection },
+        note: "",
+      })
+    )
+  }
   function visit(next: Selection) {
     if (next.section !== section) setObjectScroll(0)
     setNotice(next.notice ?? null)
@@ -176,7 +239,8 @@ export default function App() {
       selection.tab === next.tab &&
       selection.section === next.section &&
       selection.range?.start === next.range?.start &&
-      selection.range?.end === next.range?.end
+      selection.range?.end === next.range?.end &&
+      JSON.stringify(selection.trail) === JSON.stringify(next.trail)
     )
       return
     setHistory(history.slice(0, historyIndex + 1).concat(next))
@@ -193,7 +257,16 @@ export default function App() {
       )
       return
     }
-    visit({ id, tab, section: nextSection })
+    visit({
+      id,
+      tab,
+      section: nextSection,
+      trail: id
+        ? id === selected?.id
+          ? (selection.trail ?? [objectStep(id)])
+          : [objectStep(id)]
+        : undefined,
+    })
     setMobilePane("inspector")
   }
   function selectRange(range: ByteRange, message?: string) {
@@ -225,6 +298,7 @@ export default function App() {
     setDocument(null)
     setBusy(false)
     setError(null)
+    setInspectionError(null)
     setNotice(null)
     setPreview(false)
     setSearchResults(null)
@@ -234,6 +308,8 @@ export default function App() {
     setHistoryIndex(0)
     setObjectScroll(0)
     setPreviewPage(1)
+    setBookmarks([])
+    setPinnedId(null)
   }, [])
   useEffect(
     () => () => {
@@ -283,11 +359,12 @@ export default function App() {
       setBusy(false)
     } catch (reason) {
       if (token !== requestId.current) return
-      setError(
+      const message =
         reason instanceof Error
           ? reason.message
           : "Could not inspect this file. Choose another PDF."
-      )
+      setError(message)
+      setInspectionError(message)
       setBusy(false)
     }
   }
@@ -454,7 +531,7 @@ export default function App() {
   }
   function chooseSection(next: Section) {
     setSearchResults(null)
-    if (next === "overview" || next === "structure")
+    if (next === "overview" || next === "structure" || next === "resources")
       navigate(null, "properties", next)
     else if (next === "catalog" && document?.catalogId)
       navigate(document.catalogId, "properties", next)
@@ -552,6 +629,25 @@ export default function App() {
           </p>
         )}
       </div>
+      <SessionBookmarks
+        bookmarks={bookmarks}
+        onVisit={(saved) => {
+          visit(saved)
+          setMobilePane(saved.range ? "bytes" : "inspector")
+        }}
+        onNote={(key, note) =>
+          setBookmarks((current) =>
+            current.map((bookmark) =>
+              bookmark.key === key ? { ...bookmark, note } : bookmark
+            )
+          )
+        }
+        onRemove={(key) =>
+          setBookmarks((current) =>
+            current.filter((bookmark) => bookmark.key !== key)
+          )
+        }
+      />
     </aside>
   )
 
@@ -601,8 +697,12 @@ export default function App() {
             <div className="warning-inline">
               <LockKeyhole size={16} />
               <p>
-                Encrypted PDF. Password-based inspection is not supported yet.
-                Original bytes remain available.
+                This PDF is encrypted. Structure inspection is locked because
+                password entry is not supported yet. An encrypted PDF may have
+                an opening password or permissions restrictions; this viewer
+                does not distinguish between them. Try an unencrypted copy
+                exported from the source application. Original bytes remain
+                available.
               </p>
             </div>
           )}
@@ -629,7 +729,10 @@ export default function App() {
                 </p>
               )}
               <h2>Trailer dictionary</h2>
-              <ValueView value={document.trailer} onNavigate={navigate} />
+              <ValueView
+                value={document.trailer}
+                onNavigate={followReference}
+              />
             </>
           ) : (
             <>
@@ -704,28 +807,67 @@ export default function App() {
           )}
         </>
       ) : (
-        <p className="muted">
-          {busy
-            ? "Inspecting document structure…"
-            : "Structure unavailable. You can still inspect the original bytes."}
-        </p>
+        <InspectionUnavailable
+          reason={inspectionError ?? undefined}
+          onOpenFile={() => input.current?.click()}
+          onShowBytes={() => {
+            selectRange({ start: 0, end: Math.min(bytes.length, 1) })
+            setMobilePane("bytes")
+          }}
+        />
       )}
     </div>
   )
 
   const inspector = (
-    <main className="main-inspector" aria-label="Document inspection">
+    <main
+      className="main-inspector"
+      aria-label="Document inspection"
+      aria-busy={busy}
+    >
       <div className="pane-heading">
         <span>
-          {preview
-            ? "Page preview"
-            : selected
-              ? "Object inspector"
-              : section === "structure"
-                ? "File structure"
-                : "Overview"}
+          {busy
+            ? "Opening PDF"
+            : preview
+              ? "Page preview"
+              : selected
+                ? "Object inspector"
+                : section === "structure"
+                  ? "File structure"
+                  : section === "resources"
+                    ? "Resource browser"
+                    : "Overview"}
         </span>
         <div className="pane-actions">
+          {section === "resources" && selected && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(null, "properties", "resources")}
+            >
+              Browse resources
+            </Button>
+          )}
+          {(selected || selection.range) && (
+            <Button variant="ghost" size="sm" onClick={addBookmark}>
+              <BookmarkPlus size={14} />
+              Bookmark
+            </Button>
+          )}
+          {selected && (
+            <Button
+              variant={pinnedId === selected.id ? "secondary" : "ghost"}
+              size="sm"
+              onClick={() =>
+                setPinnedId(pinnedId === selected.id ? null : selected.id)
+              }
+              aria-pressed={pinnedId === selected.id}
+            >
+              <Pin size={14} />
+              {pinnedId === selected.id ? "Unpin" : "Pin to compare"}
+            </Button>
+          )}
           <Button
             variant={preview ? "secondary" : "ghost"}
             size="sm"
@@ -745,7 +887,24 @@ export default function App() {
           </button>
         </div>
       )}
-      {preview && bytes.length ? (
+      {busy ? (
+        <section
+          className="document-loading"
+          role="status"
+          aria-label="Opening PDF"
+        >
+          <LoaderCircle
+            size={32}
+            className="animate-spin motion-reduce:animate-none"
+            aria-hidden="true"
+          />
+          <h1>Opening PDF…</h1>
+          <p>
+            Reading objects and building the document structure. Larger
+            documents can take a few seconds.
+          </p>
+        </section>
+      ) : preview && bytes.length ? (
         <Suspense
           fallback={<p className="loading-inline">Loading EmbedPDF…</p>}
         >
@@ -757,17 +916,44 @@ export default function App() {
           />
         </Suspense>
       ) : selected ? (
-        <ObjectInspector
-          object={selected}
-          tab={selection.tab}
-          resources={
-            selected.kind === "Page"
-              ? effectiveResources(selected, objectMap)
-              : undefined
-          }
-          onTabChange={(tab) => navigate(selected.id, tab)}
-          onNavigate={navigate}
+        <div className="inspection-detail-stack min-h-0 flex-1 overflow-auto">
+          {pinnedId && objectMap.has(pinnedId) && (
+            <ObjectComparison
+              pinned={objectMap.get(pinnedId)!}
+              current={selected}
+              onUnpin={() => setPinnedId(null)}
+              onNavigate={(id) => navigate(id)}
+            />
+          )}
+          <ObjectInspector
+            object={selected}
+            tab={selection.tab}
+            resources={
+              selected.kind === "Page"
+                ? effectiveResources(selected, objectMap)
+                : undefined
+            }
+            onTabChange={(tab) => navigate(selected.id, tab)}
+            onNavigate={followReference}
+            objects={objectMap}
+            pages={document?.pages}
+            contextPageId={
+              [...(selection.trail ?? [])]
+                .reverse()
+                .find(
+                  (step) =>
+                    step.id !== null && document?.pages.includes(step.id)
+                )?.id ?? undefined
+            }
+            readStream={readStream}
+          />
+        </div>
+      ) : section === "resources" && document ? (
+        <ResourceBrowser
+          document={document}
+          objectMap={objectMap}
           readStream={readStream}
+          onNavigate={(id) => navigate(id)}
         />
       ) : (
         overview
@@ -889,19 +1075,52 @@ export default function App() {
                 >
                   <ArrowRight size={15} />
                 </Button>
-                <span className="breadcrumb">
-                  {busy ? (
-                    "Inspecting…"
-                  ) : selected ? (
-                    <>
-                      <span>Objects</span>
-                      <ChevronRight size={13} />
-                      <code>{selected.id} obj</code>
-                    </>
-                  ) : (
-                    "Document overview"
-                  )}
-                </span>
+                <nav
+                  className="exploration-trail flex min-w-0 items-center gap-1 overflow-x-auto text-xs"
+                  aria-label="Exploration trail"
+                >
+                  {busy
+                    ? "Inspecting…"
+                    : selection.trail?.length
+                      ? selection.trail.map((step, index) => (
+                          <span
+                            className="flex shrink-0 items-center gap-1"
+                            key={`${index}-${step.id}`}
+                          >
+                            {index > 0 && (
+                              <ChevronRight size={12} aria-hidden="true" />
+                            )}
+                            {index === selection.trail!.length - 1 ? (
+                              <span
+                                aria-current="location"
+                                className="font-mono"
+                              >
+                                {step.label}
+                              </span>
+                            ) : (
+                              <button
+                                className="reference whitespace-nowrap"
+                                onClick={() => {
+                                  visit({
+                                    id: step.id,
+                                    tab: "properties",
+                                    section,
+                                    trail: selection.trail!.slice(0, index + 1),
+                                  })
+                                  setMobilePane("inspector")
+                                }}
+                              >
+                                {step.label}
+                              </button>
+                            )}
+                          </span>
+                        ))
+                      : section === "resources"
+                        ? "Resources"
+                        : section === "structure"
+                          ? "File structure"
+                          : "Document overview"}
+                </nav>
               </div>
               <form
                 className="search-form"
@@ -1009,9 +1228,8 @@ export default function App() {
               </section>
             )}
             {busy && (
-              <div className="progress-line" role="status">
-                <LoaderCircle size={14} className="animate-spin" />
-                Reading objects in a background worker.{" "}
+              <div className="progress-line">
+                Opening PDF…{" "}
                 <Button variant="ghost" size="xs" onClick={close}>
                   Cancel
                 </Button>
