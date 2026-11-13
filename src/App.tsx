@@ -95,18 +95,21 @@ const SAMPLES = [
     name: "A simple page",
     detail: "Catalog, page tree, font, and drawing instructions",
     icon: FileCode2,
+    tone: "purple",
   },
   {
     file: "resources.pdf",
     name: "Fonts & resources",
     detail: "Explore page resources and their references",
     icon: Layers,
+    tone: "red",
   },
   {
     file: "compressed.pdf",
     name: "Compressed objects",
     detail: "See how objects live inside decoded streams",
     icon: Braces,
+    tone: "orange",
   },
 ]
 type Selection = BookmarkSelection
@@ -1514,7 +1517,12 @@ export default function App() {
               <BrandArtwork className="welcome-artwork" />
               <div className="welcome-content">
                 <div className="empty-introduction">
-                  <h1>Look inside a PDF.</h1>
+                  <span className="welcome-eyebrow">
+                    Structure & byte explorer
+                  </span>
+                  <h1>
+                    Look <span>inside</span> a PDF.
+                  </h1>
                   <p>
                     A browser workspace for developers to explore PDF objects,
                     follow references, and inspect the original bytes.
@@ -1547,9 +1555,10 @@ export default function App() {
                   <p className="samples-description">
                     No file handy? Explore a PDF made for learning.
                   </p>
-                  {SAMPLES.map(({ file, name, detail, icon: Icon }) => (
+                  {SAMPLES.map(({ file, name, detail, icon: Icon, tone }) => (
                     <button
                       className="sample-row"
+                      data-tone={tone}
                       key={file}
                       onClick={() => void sample(file)}
                     >

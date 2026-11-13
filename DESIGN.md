@@ -1,26 +1,30 @@
 ---
 name: PDF Internals Viewer
-description: A neutral, read-only workspace for navigating PDF objects and original bytes.
+description: A logo-inspired, read-only workspace for navigating PDF objects and original bytes.
 colors:
-  background: "oklch(1 0 0)"
-  foreground: "oklch(0.145 0 0)"
-  primary: "oklch(0.205 0 0)"
-  primary-foreground: "oklch(0.985 0 0)"
-  secondary: "oklch(0.97 0 0)"
-  secondary-foreground: "oklch(0.205 0 0)"
-  muted: "oklch(0.97 0 0)"
-  muted-foreground: "oklch(0.556 0 0)"
-  accent: "oklch(0.97 0 0)"
-  accent-foreground: "oklch(0.205 0 0)"
-  border: "oklch(0.922 0 0)"
-  input: "oklch(0.922 0 0)"
-  ring: "oklch(0.708 0 0)"
-  sidebar: "oklch(0.985 0 0)"
-  destructive: "oklch(0.577 0.245 27.325)"
-  reference: "#215bc2"
+  background: "#ffffff"
+  foreground: "#281a3c"
+  primary: "#cc1746"
+  primary-foreground: "#ffffff"
+  secondary: "#f0e8fa"
+  secondary-foreground: "#54268e"
+  muted: "#f7f3fa"
+  muted-foreground: "#74667f"
+  accent: "#f0e8fa"
+  accent-foreground: "#54268e"
+  border: "#e7deed"
+  input: "#d7c9e3"
+  ring: "#6935ac"
+  sidebar: "#faf7fd"
+  destructive: "#ba2532"
+  reference: "#6935ac"
+  brand-orange: "#e97820"
+  brand-orange-ink: "#a24b12"
+  byte-selection: "#ffead1"
+  byte-selection-foreground: "#62300f"
   pdf-string: "#386644"
-  selection-background: "#c9dcff"
-  selection-foreground: "#172b4d"
+  selection-background: "#e9dafa"
+  selection-foreground: "#391d59"
 typography:
   headline:
     fontFamily: '"Geist Variable", sans-serif'
@@ -123,8 +127,8 @@ components:
     textColor: "{colors.reference}"
     typography: "{typography.code}"
   hex-byte-selected:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.primary-foreground}"
+    backgroundColor: "{colors.byte-selection}"
+    textColor: "{colors.byte-selection-foreground}"
     typography: "{typography.hex}"
     rounded: "{rounded.byte}"
     width: "23px"
@@ -135,49 +139,40 @@ components:
 
 ## Overview
 
-The interface uses the shadcn neutral defaults and Base UI controls chosen by the user. Inspection surfaces are white, with a lightly tinted explorer, thin dividers, and compact type to leave room for PDF structure and original bytes. Theme and brand exploration are low priority.
+The interface brings the logo's dark purple ink, goggle red, violet layers, and warm orange into a compact developer workspace. A deep plum header anchors the application. White inspection surfaces, a pale lilac explorer, fine borders, and compact type leave room for PDF structure and original bytes.
 
-The workspace is designed for dense data on desktop, with compact controls. Geist supports navigation and explanations; system monospace distinguishes PDF syntax, object identifiers, offsets, and bytes. Blue references provide the clearest navigational color cue.
+Geist supports navigation and explanations; system monospace distinguishes PDF syntax, object identifiers, offsets, and bytes. Color has a role: red actions, violet navigation, orange source and byte highlights. The existing pane layout, typefaces, and control sizes remain the foundation.
 
-The interface uses:
-
-- Neutral light surfaces with thin structural borders.
-- Compact controls and dense, independently scrolling data panes.
-- System monospace for syntax and original-byte inspection.
-- Blue object references; dark neutral byte selection.
-
-The light interface is implemented in `src/index.css`, `src/app.css`, `src/components/hex-view.css`, and the existing UI components. The source also contains dark theme mappings, which have not had a separate visual review. The design uses neutral defaults without a creative metaphor.
+The theme is implemented in `src/index.css`, `src/app.css`, `src/components/hex-view.css`, and the shared controls. Dark token mappings retain the same roles on plum surfaces; light mode is the public default.
 
 ## Brand artwork
 
-Use the supplied full-color PDF Internals illustration from `public/brand/pdf-internals-logo.png` on the welcome screen and About page. Keep its full aspect ratio and original colors, with responsive sizing on white. The compact workspace header frames the detective mascot from the same artwork as its brand mark. Inspection controls retain their neutral treatment so the artwork does not compete with document data.
+Use the supplied full-color PDF Internals illustration from `public/brand/pdf-internals-logo.png` on the welcome screen and About page. Keep its full aspect ratio and original colors, with responsive sizing on white. The compact workspace header frames the detective mascot from the same artwork as its brand mark.
 
 ## Colors
 
-The palette is primarily achromatic. Color identifies navigation and syntax. Use the values in the frontmatter as the specification.
+Use the values in the frontmatter as the specification. Brand colors should communicate hierarchy and selection while keeping dense data readable.
 
 ### Primary
 
-- Dark neutral: primary actions and selected byte ranges, paired with near-white text.
-- Reference blue: navigable PDF object references, with an underline on hover.
+- Plum ink `#281a3c`: typography and the solid header. The header uses warm white text, lilac metadata, and a thin red lower edge.
+- Goggle red `#cc1746`: primary actions and the welcome heading's emphasis. Buttons darken to `#ad1039` on hover, with white labels. Avoid gradient buttons.
+- Violet `#6935ac`: navigable PDF references, keyboard focus, active navigation, and the simple-page sample. Lilac washes support selections and secondary controls. Active inspector tabs use violet labels with a red underline.
 
 ### Secondary
 
-- String green: PDF string values, distinct from object references and neutral syntax.
-- Destructive red: invalid-control treatments available in the shared primitives; ordinary warning surfaces remain neutral in the current UI.
+- Orange `#e97820`: small graphic accents. Use the darker `#a24b12` for source icons and the compressed-stream sample icon. Use peach `#ffead1` with dark brown `#62300f` for selected original bytes and matching ASCII, distinguishing byte selection from violet navigation.
+- Rose: the fonts-and-resources sample uses red ink on a pale rose tile.
+- String green `#386644`: preserve PDF string syntax independently of the brand palette.
+- Destructive red `#ba2532`: invalid-control treatments remain distinct from normal action styling through icons, labels, and their tinted treatment.
 
-### Neutral
+### Surfaces and contrast
 
-- White workspace: the app background and inspection surfaces.
-- Near-white explorer: navigation and bottom status surfaces.
-- Soft gray: selected navigation, control hover, search result surrounds, and notices.
-- Dark ink: primary text and object names.
-- Muted gray: metadata, offsets, labels, secondary explanations, and zero bytes.
-- Light gray border: pane dividers, row separators, fields, and selection outlines.
-- Mid gray ring: keyboard focus and byte cursor outlines.
-- Pale blue selection / dark blue selection ink: native text selection only.
-
-Use reference blue for navigable object relationships; selected original bytes use the primary neutral pair.
+- Keep document and public reading surfaces white. The original logo has a white background.
+- Use near-white lilac `#faf7fd` for the explorer/status surfaces; `#f7f3fa` for muted areas; `#e7deed` for structural borders.
+- Use muted plum `#74667f` for metadata and supporting text. Bright orange is decorative; orange text uses the darker ink token.
+- Native text selection stays lilac with dark purple text. Original-byte selection has its own peach tokens and must not inherit the action red.
+- Dark mappings use plum backgrounds, lighter violet links, pale rose text accents, and deeper peach byte selections. The header retains its dark plum identity.
 
 ## Typography
 
@@ -220,9 +215,9 @@ Workspace panes have square shared boundaries. Compact data controls use small c
 
 ### Buttons
 
-Buttons use shadcn controls implemented with Base UI. The default variant is dark neutral; outline, secondary, and ghost variants support navigation and secondary actions. Default height is recorded above; extra-small, small, and large sizes are (24px), (28px), and (36px). Icon sizes follow the same height scale. Open PDF in the header uses the small size; the empty-state action has a local height override (37px).
+Buttons use shadcn controls implemented with Base UI. The default variant is solid goggle red with white text and a darker red hover; outline, secondary, and ghost variants support navigation and secondary actions. Default height is recorded above; extra-small, small, and large sizes are (24px), (28px), and (36px). Icon sizes follow the same height scale. Open PDF in the header uses the small size; the empty-state action has a local height override (40px).
 
-Primary hover reduces the background opacity to (80%). Outline and ghost hover use muted surfaces; secondary hover mixes a small amount of foreground into its background. Keyboard focus uses the ring token. Active non-popup buttons move down (1px); disabled controls reduce opacity to (50%) and stop pointer interaction. Destructive and link variants exist in the shared library but do not establish additional workspace actions.
+Primary hover uses solid darker red `#ad1039`. Outline and ghost hover use muted surfaces; secondary hover mixes a small amount of foreground into its background. Keyboard focus uses the ring token. Active non-popup buttons move down (1px); disabled controls reduce opacity to (50%) and stop pointer interaction. Destructive and link variants exist in the shared library but do not establish additional workspace actions.
 
 ### Inputs and fields
 
@@ -230,9 +225,9 @@ The shared Base UI input provides a bordered, rounded field with placeholder-mut
 
 ### Navigation
 
-Explorer rows sit on the near-white sidebar. Default labels are muted; hover and active states use the soft-gray accent surface and foreground text. Active rows gain medium weight. Object rows use the same selection colors with an inset border. They are 42px tall and truncate secondary labels. Mobile pane buttons use secondary for the current pane and ghost for others.
+Explorer rows sit on the near-white lilac sidebar. Default labels are muted; hover and active states use the lilac accent surface and purple text. Active rows gain medium weight. Object rows use the same selection colors with an inset border. They are 42px tall and truncate secondary labels. Mobile pane buttons use secondary for the current pane and ghost for others.
 
-Pages uses an indented list of expandable connections. Separate native buttons expand a branch and select its object. Rows wrap friendly labels and exact keys above monospace object IDs; inherited, shared, cyclic and unavailable connections use muted supporting text. Selected rows retain the explorer’s neutral inset border. Other sections keep the flat object index.
+Pages uses an indented list of expandable connections. Separate native buttons expand a branch and select its object. Rows wrap friendly labels and exact keys above monospace object IDs; inherited, shared, cyclic and unavailable connections use muted supporting text. Selected rows retain the explorer’s lilac inset border. Other sections keep the flat object index.
 
 Object headings include a short role explanation. Incoming and outgoing relationships use wrapping rows with dictionary/index paths and linked object IDs, preserving the existing reference color and global keyboard focus treatment.
 
@@ -240,7 +235,7 @@ Comparison and object inspection use independently scrolling panels separated by
 
 ### Tabs
 
-Base UI tabs organize Properties, Source, Raw stream, and Decoded. The inspector uses a full-width transparent line list with a lower divider. An active tab uses foreground text and a narrow underline; inactive text is subdued. Compact text and horizontal gaps preserve inspector density.
+Base UI tabs organize Properties, Source, Raw stream, and Decoded. The inspector uses a full-width transparent line list with a lower divider. An active tab uses violet text and a narrow red underline; inactive text is subdued. Compact text and horizontal gaps preserve inspector density.
 
 ### Badges
 
@@ -248,15 +243,15 @@ Object-kind badges use the secondary variant; count and stream metadata badges u
 
 ### PDF values and references
 
-Dictionary entries use thin row dividers, muted monospace keys, and wrapping values. Names remain foreground, strings use string green, and indirect references use blue. Reference buttons stay on a transparent background and underline on hover. Arrays and reference lists wrap with small gaps.
+Dictionary entries use thin row dividers, muted monospace keys, and wrapping values. Names remain foreground, strings use string green, and indirect references use violet. Reference buttons stay on a transparent background and underline on hover. Arrays and reference lists wrap with small gaps.
 
 ### Original-byte grid
 
-Offsets, hex cells, and ASCII align in fixed-width columns. Hex cells are (23px) wide and ASCII positions (8px); narrow layouts reduce them to (22px) and (7px). Zero bytes and offsets are muted. Hover adds an inset border; the byte cursor has a ring outline. Selected bytes and corresponding ASCII use the dark primary background and near-white foreground. Horizontal scrolling preserves byte alignment.
+Offsets, hex cells, and ASCII align in fixed-width columns. Hex cells are (23px) wide and ASCII positions (8px); narrow layouts reduce them to (22px) and (7px). Zero bytes and offsets are muted. Hover adds an inset border; the byte cursor has a ring outline. Selected bytes and corresponding ASCII use the peach selection background and dark brown foreground. Horizontal scrolling preserves byte alignment.
 
 ### Notices, samples, and preview
 
-Notices and warnings use neutral surfaces, small explanatory type, icons, and borders. The empty state's sample choices are divider-separated rows with small muted icon tiles; their trailing arrow moves slightly on hover (150ms, ease-out). Rendered preview has a compact toolbar and a muted canvas, keeping the document image visually distinct from the original-byte grid. Tooltips use inverse foreground/background colors, compact padding, and the shared medium radius.
+Notices and warnings use neutral surfaces, small explanatory type, icons, and borders. The empty state's sample choices are divider-separated rows with small violet, rose, and orange icon tiles; their trailing arrow moves slightly on hover (150ms, ease-out). Rendered preview has a compact toolbar and a muted canvas, keeping the document image visually distinct from the original-byte grid. Tooltips use inverse foreground/background colors, compact padding, and the shared medium radius.
 
 The application honors reduced-motion preferences by shortening transitions and animations; the preview loading icon also disables spinning under reduced motion.
 
@@ -264,21 +259,21 @@ The application honors reduced-motion preferences by shortening transitions and 
 
 ### Recommended
 
-- Use the existing semantic neutral tokens and shadcn Base UI controls.
+- Use the existing semantic theme tokens and shadcn Base UI controls.
 - Use monospace for object syntax, offsets, bytes, and references.
-- Preserve the blue reference affordance and visible keyboard focus.
+- Preserve the violet reference affordance and visible keyboard focus.
 - Keep pane content independently scrollable and use the existing mobile pane switcher.
 - Distinguish original file bytes from decoded data and rendered preview.
 
 ### Restrictions
 
-- Do not introduce a new brand theme or decorative typeface without a user request.
+- Keep saturated color tied to actions, navigation, or source/selection cues; avoid broad colored document surfaces.
 - Do not replace the workspace panes with a dashboard of cards.
-- Do not use reference blue as a general decorative surface or byte selection color.
+- Do not use reference violet as a general decorative surface or byte selection color.
 - Do not remove focus indicators or force desktop panes side by side on mobile.
 
 ## Public pages
 
-The homepage remains the tool entry point. Its introductory heading uses 32–48px Geist, with 15px supporting copy. At widths above 760px, the introduction and three sample rows share a two-column layout; below that, they stack in reading order. A quiet footer provides About, Feedback, and GitHub links, and disappears while inspecting a document.
+The homepage remains the tool entry point. Its introductory heading uses 32–48px Geist, with 15px supporting copy. At widths above 760px, the logo occupies the left column while the introduction and sample rows stack on the right; below that, the logo appears above the content. A quiet footer provides About, Feedback, and GitHub links, and disappears while inspecting a document.
 
-About is a reading surface at `/about`, using a 640px article measure, a 30–40px heading, 18px introductory copy, 16px section headings, and 14px body copy. It shares the workspace header, neutral surfaces, and existing limitations dialog. Navigating between public pages keeps the document state in memory; refreshing resets the open document and navigation; bookmarks and notes restore from browser storage when the same PDF is reopened.
+About is a reading surface at `/about`, using a 640px article measure, a 30–40px heading, 18px introductory copy, 16px section headings, and 14px body copy. It shares the plum workspace header, white reading surfaces, and existing limitations dialog. Navigating between public pages keeps the document state in memory; refreshing resets the open document and navigation; bookmarks and notes restore from browser storage when the same PDF is reopened.
