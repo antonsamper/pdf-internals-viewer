@@ -30,7 +30,7 @@
 .hex-byte:hover { background: var(--accent); color: var(--accent-foreground); box-shadow: inset 0 0 0 1px var(--border); }
 .hex-byte.hex-zero { color: var(--muted-foreground); }
 .hex-byte.hex-cursor { outline: 1px solid var(--ring); outline-offset: -1px; }
-.hex-selected, .hex-byte.hex-selected, .hex-byte.hex-selected.hex-zero { background: var(--primary); color: var(--primary-foreground); }
+.hex-selected, .hex-byte.hex-selected, .hex-byte.hex-selected.hex-zero { background: var(--byte-selection); color: var(--byte-selection-foreground); }
 .hex-ascii { display: flex; color: var(--muted-foreground); }
 .hex-ascii span { display: inline-block; width: 8px; text-align: center; padding: 3px 0; }
 .hex-empty { height: 100%; min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 25px; color: var(--muted-foreground); text-align: center; font-size: 12px; }

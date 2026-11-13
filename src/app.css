@@ -1,9 +1,3 @@
-:root {
-  --reference: #215bc2;
-}
-.dark {
-  --reference: #91b8ff;
-}
 * {
   box-sizing: border-box;
 }
@@ -18,8 +12,8 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 ::selection {
-  background: #c9dcff;
-  color: #172b4d;
+  background: var(--selection-background);
+  color: var(--selection-foreground);
 }
 button,
 input,
@@ -57,6 +51,15 @@ pre,
   color: var(--foreground);
 }
 .app-header {
+  --background: #281a3c;
+  --foreground: #fff8ff;
+  --muted-foreground: #d3c2e1;
+  --muted: #412b59;
+  --border: #584366;
+  --ring: #c5a0f5;
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: inset 0 -2px var(--brand-red);
   height: 58px;
   min-height: 58px;
   display: flex;
@@ -77,12 +80,21 @@ pre,
   white-space: nowrap;
 }
 .app-mark {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--border);
+  position: relative;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+  background: #fff;
   border-radius: 6px;
+}
+/* Frame the detective from the original artwork without duplicating the asset. */
+.app-mark .brand-artwork {
+  position: absolute;
+  width: 340%;
+  max-width: none;
+  left: -16%;
+  top: -12%;
 }
 .header-divider {
   height: 19px;
@@ -146,20 +158,42 @@ pre,
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: clamp(40px, 12vh, 140px) 40px 32px;
+  padding: clamp(32px, 6vh, 72px) 40px 32px;
 }
 .welcome-layout {
-  width: min(100%, 920px);
+  width: min(100%, 1040px);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: 80px;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 64px;
   align-items: center;
+}
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  min-width: 0;
 }
 .empty-introduction {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+.welcome-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 18px;
+  color: var(--brand-purple);
+  font: 500 10px "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.welcome-eyebrow::before {
+  content: "";
+  width: 17px;
+  height: 3px;
+  background: var(--brand-orange);
 }
 .empty-introduction h1 {
   font-size: clamp(32px, 3.8vw, 48px);
@@ -168,6 +202,9 @@ pre,
   line-height: 1.15;
   text-wrap: balance;
   margin: 0 0 20px;
+}
+.empty-introduction h1 > span {
+  color: var(--brand-red-ink);
 }
 .empty-introduction p {
   font-size: 15px;
@@ -183,12 +220,15 @@ pre,
 .shortcut {
   margin-left: 20px;
   font-size: 11px;
-  opacity: 0.65;
+  opacity: 0.9;
 }
 .drop-hint {
   margin-top: 12px;
   color: var(--muted-foreground);
   font-size: 11px;
+}
+.welcome-privacy > svg {
+  color: var(--brand-purple);
 }
 .welcome-privacy {
   display: flex;
@@ -200,6 +240,19 @@ pre,
 }
 .samples {
   min-width: 0;
+}
+.brand-artwork {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.welcome-artwork {
+  width: 100%;
+  margin: 0 auto;
+}
+.about-artwork {
+  width: 360px;
+  margin: 0 0 32px;
 }
 .samples h2 {
   font-size: 14px;
@@ -213,7 +266,7 @@ pre,
   margin: 0 0 22px;
 }
 .welcome-note {
-  width: min(100%, 920px);
+  width: min(100%, 1040px);
   margin: 64px auto 0;
   padding-top: 22px;
   border-top: 1px solid var(--border);
@@ -230,6 +283,23 @@ pre,
   padding: 14px 2px;
   border-top: 1px solid var(--border);
   background: none;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.sample-row[data-tone="purple"] {
+  --sample-ink: var(--brand-purple);
+  --sample-wash: var(--brand-purple-soft);
+}
+.sample-row[data-tone="red"] {
+  --sample-ink: var(--brand-red-ink);
+  --sample-wash: var(--brand-red-soft);
+}
+.sample-row[data-tone="orange"] {
+  --sample-ink: var(--brand-orange-ink);
+  --sample-wash: var(--brand-orange-soft);
+}
+.sample-row:hover {
+  background: color-mix(in srgb, var(--sample-wash), var(--background) 60%);
+  border-top-color: var(--sample-ink);
 }
 .sample-row > span:nth-child(2) {
   flex: 1;
@@ -248,11 +318,12 @@ pre,
 .sample-icon {
   width: 34px;
   height: 34px;
-  background: var(--muted);
+  background: var(--sample-wash);
+  border: 1px solid color-mix(in srgb, var(--sample-ink) 18%, transparent);
   border-radius: 6px;
   display: grid;
   place-items: center;
-  color: var(--muted-foreground);
+  color: var(--sample-ink);
 }
 .sample-row > svg {
   color: var(--muted-foreground);
@@ -260,7 +331,7 @@ pre,
 }
 .sample-row:hover > svg {
   transform: translate(2px, -2px);
-  color: var(--foreground);
+  color: var(--sample-ink);
 }
 .workspace-toolbar {
   min-height: 45px;
@@ -405,7 +476,8 @@ pre,
 }
 .nav-item.active {
   background: var(--accent);
-  color: var(--foreground);
+  color: var(--accent-foreground);
+  box-shadow: inset 3px 0 var(--brand-purple);
   font-weight: 500;
 }
 .nav-item:hover,
@@ -466,7 +538,7 @@ pre,
 }
 .object-row.selected {
   background: var(--accent);
-  color: var(--foreground);
+  color: var(--accent-foreground);
   outline: 1px solid var(--border);
   outline-offset: -1px;
 }
@@ -531,6 +603,7 @@ pre,
   line-height: 1.7;
 }
 .provenance > svg {
+  color: var(--brand-orange-ink);
   margin-top: 2px;
   flex-shrink: 0;
 }
@@ -556,6 +629,12 @@ pre,
   font-size: 11px;
   padding: 0 3px;
   height: 32px;
+}
+.inspector-tab-list > button[data-active] {
+  color: var(--brand-purple);
+}
+.inspector-tab-list > button[data-active]::after {
+  background: var(--brand-red);
 }
 .inspector-scroll {
   overflow: auto;
@@ -623,10 +702,7 @@ pre,
   color: var(--foreground);
 }
 .pdf-string {
-  color: #386644;
-}
-.dark .pdf-string {
-  color: #b2d9b7;
+  color: var(--pdf-string);
 }
 .reference {
   display: inline-flex;
@@ -843,7 +919,7 @@ h2 {
 }
 .overview-heading > svg {
   margin-bottom: 16px;
-  color: var(--muted-foreground);
+  color: var(--brand-purple);
 }
 .overview-heading h1 {
   font-size: 21px;
@@ -1367,6 +1443,9 @@ h2 {
 }
 
 /* Public pages share the workspace's neutral typography and navigation. */
+.status-bar > span:first-child > svg {
+  color: var(--brand-purple);
+}
 .site-links {
   display: flex;
   flex-shrink: 0;
