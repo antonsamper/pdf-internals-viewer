@@ -51,7 +51,7 @@ The fixtures verify the following behaviors. Other PDFs may exercise cases they 
 | Incremental updates | Updated object wins; object freed in the latest xref is absent |
 | Reference graph | Outgoing/incoming links, cycles, and dangling references are retained |
 | Stream decoding | Flate, PNG predictor, ASCIIHex -> Flate chain, and ASCII85 verified |
-| Encryption state | Encrypted fixture returns locked state rather than unreadable semantic objects |
+| Encryption state | Independent pypdf fixtures verify RC4-40/128, AES-128/256, empty/user/owner passwords, retries, decrypted strings/streams, and original-byte preservation |
 | Invalid xref recovery | Truncated xref recovers objects with an explicit recovered warning |
 | Input immutability | Original bytes unchanged after parsing/decoding |
 | Decompression bound | 33 MiB decoded Flate fixture is refused while raw stream access remains available |
@@ -83,7 +83,9 @@ One `PdfWorkerClient` per open document is the intended lifecycle. Its worker ow
 - Decoded text uses a byte-preserving Latin-1-style inspection string. It does not extract rendered page text, and the stream may not use a human text encoding.
 - Any decoded-stream search that consumes `readStream()` results is limited to the first 256 KiB per stream and must report that incompleteness. Full bounded decoded searching needs a separate worker search operation before claiming complete decoded results.
 - JPEG, JPEG2000, JBIG2, CCITT, LZW, and RunLength decoding are not enabled for inspection. Raw bytes remain available. Page preview may render images through a separate engine without changing this inspection capability list.
-- Password entry is not implemented. All encrypted documents are locked for inspection in this version, including owner-password-only files. Raw file bytes remain accessible.
+- Empty-password encrypted files unlock automatically. Other standard encrypted files accept an opening or owner password through the worker. Passwords are not persisted. Unsupported security handlers remain unavailable. Source and raw stream views retain the original encrypted bytes; properties and decoded streams use decrypted data. The encryption dictionary itself is never decrypted.
+- The pinned adapter normalizes both R6 permission values to signed int32 when verifying /Perms, accepting producers that write an unsigned /P. It also turns the engine's silent ciphertext fallback on decryption failure into an object warning/unavailable result. Hash and replacement-shape guards cover both patches.
+- Encryption fixtures under `tests/fixtures/encryption/` are original project content encrypted independently with pypdf 6.14.2. Regenerate with `python3 scripts/fixtures/generate-encrypted.py` (requires pypdf[crypto]); Python is not an app dependency.
 - Stream dictionaries and raw byte payloads are retained; arbitrary embedded document actions are not executed.
 - An opt-in 15-file independent corpus now checks pages, object identities, sampled offsets, immutability, recovery, and encryption; see [CORPUS.md](CORPUS.md). Actual Safari testing, broader current-producer coverage, browser memory/performance measurements, and the observed usability session remain pending.
 
