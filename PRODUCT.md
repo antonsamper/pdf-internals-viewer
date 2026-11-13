@@ -1,5 +1,4 @@
 # PDF Internals Viewer
-<!-- impeccable:product-schema 1 -->
 
 ## Platform
 web

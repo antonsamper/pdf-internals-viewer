@@ -27,7 +27,6 @@ dist-ssr
 src/generated/
 playwright-report/
 test-results/
-.impeccable/review/
 
 # Cloudflare local state and credentials
 .wrangler/
