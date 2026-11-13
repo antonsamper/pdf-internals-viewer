@@ -15,7 +15,7 @@ pnpm run dev
 
 `pnpm-lock.yaml` is the sole dependency lockfile. CI uses a frozen install and caches the pnpm store. Project settings enable preparation hooks and copy installed packages so the preview backport cannot modify the shared store. See [dependency setup](docs/DEPENDENCIES.md).
 
-Open the URL printed by Vite. The app opens to an empty workspace with a file picker and three original sample PDFs. You can also drop a PDF anywhere in the app. The app processes files in memory on your device. It does not upload or save them.
+Open the URL printed by Vite. The homepage opens directly to the workspace with a file picker and three original sample PDFs. The footer links to `/about`, project feedback, and the source on GitHub. Visiting About within the app preserves the current document in memory. You can also drop a PDF anywhere in the app. The app processes files in memory on your device. It does not upload or save them.
 
 ## Explore a PDF
 

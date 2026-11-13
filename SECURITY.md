@@ -12,7 +12,7 @@ Security fixes target the current `main` branch and its latest deployment. Older
 
 ## Data and credentials
 
-PDF inspection and preview run locally in the browser. Documents are not uploaded or persisted by the application. Deployment is manual; Cloudflare credentials must stay outside Git and pull request workflows.
+PDF inspection and preview run locally in the browser. Documents are not uploaded or persisted by the application. Production deployment runs after successful checks on pushes to `main`; manual deployment is also available. Cloudflare credentials must stay outside Git and pull request workflows.
 
 CI scans Git history with Gitleaks, with secret values redacted. A clean scan does not guarantee the absence of custom or encoded credentials. If a credential leaks, revoke and rotate it immediately, review provider logs for misuse, and assess whether history/log cleanup is needed.
 

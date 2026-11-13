@@ -45,7 +45,7 @@ Wrangler in this environment automatically delegates creation of new Pages proje
 
 Only `dist/` is uploaded. No document upload endpoint, database, server-side functions or Worker script is used. User PDFs remain local to the visitor's browser.
 
-`public/404.html` deliberately disables Pages' default SPA fallback: nonexistent workers/WASM/private-source paths return 404 instead of receiving HTML. The app has one entry URL and does not need client-route fallback rewrites. `public/_headers` sets HTML revalidation, immutable caching for hashed assets, `nosniff` and referrer policy. JavaScript workers, WASM, fonts, samples and notices are all served from this app's own origin. A custom domain is optional.
+`public/404.html` deliberately disables Pages' default SPA fallback: nonexistent workers/WASM/private-source paths return 404 instead of receiving HTML. Vite builds explicit `index.html` and `about.html` entries. Pages serves them at `/` and `/about` without client-route fallback rewrites; direct visits and refreshes work while missing assets still return 404. `public/_headers` sets HTML revalidation, immutable caching for hashed assets, `nosniff` and referrer policy. JavaScript workers, WASM, fonts, samples and notices are all served from this app's own origin. A custom domain is optional.
 
 ## Verification
 

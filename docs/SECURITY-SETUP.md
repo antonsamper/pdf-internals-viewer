@@ -14,6 +14,8 @@ Dependabot checks npm/pnpm dependencies and GitHub Actions weekly after `.github
 
 ## GitHub settings
 
+As of 2026-11-13, the repository is public. The active [Protect main ruleset](https://github.com/antonsamper/pdf-internals-viewer/rules/27212164) requires pull requests and successful up-to-date `secrets`, `check`, and all three browser checks. It blocks force pushes and deletion, has no bypass actors, and requires zero reviewer approvals so the sole maintainer can merge their own PRs. The legacy branch-protection API example below is a setup reference; inspect the active ruleset before adding overlapping protection.
+
 On 2026-11-12, Dependabot alerts and automated security update PRs were enabled. The repository remained private. GitHub rejected the following settings under the current private repository/plan: private vulnerability reporting (404), secret scanning/push protection (unavailable), branch protection (403 requiring Pro or public visibility), and external fork workflow approval (422 requiring public visibility).
 
 After these workflow changes reach `main` and the repository becomes public, run the following with an administrator's authenticated GitHub CLI. These commands do not change visibility or deploy the application.
@@ -67,7 +69,7 @@ Verify the resulting settings in GitHub's repository Settings and Security pages
 
 Making the repository public exposes branch history, PR discussions, and existing Actions logs. Scan those surfaces before changing visibility. Keep `.context/`, local credentials, generated artifacts and downloaded private PDFs out of Git.
 
-Publication remains a manual Cloudflare Pages upload. PR workflows must not receive Cloudflare credentials. If deployment automation is added, isolate it from untrusted PR code and restrict it to reviewed changes on the protected production branch.
+The Checks workflow publishes to Cloudflare Pages only after successful checks on pushes to `main`; pull request runs do not deploy. Cloudflare credentials are supplied only to the production deployment steps. Manual publication is also available. See [hosting](HOSTING.md) for the deployment flow.
 
 ## References
 
