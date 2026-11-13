@@ -37,10 +37,12 @@ At narrower widths, use Explorer / Inspector / Original bytes tabs. Desktop pane
 - Read the explanation beneath an object heading for its identified role. Known pages, content streams, fonts, images, forms, and page-tree objects have specific explanations; uncertain roles remain explicit. Resource availability does not establish that a resource is drawn.
 - Follow **References** and **Referenced by** links labelled with their dictionary keys and array indexes. Incoming links open the actual referring object; outgoing links preserve the key route in the exploration trail. Relationship details are bounded and incomplete results are labelled.
 - Follow the clickable exploration trail to revisit the objects and dictionary keys used along your route. Expand references inline to inspect a dictionary without leaving its surrounding object; cycles and unavailable references are labelled.
-- Use **Pin to compare**, then select another object to compare typed dictionary values and highlight added, removed, or changed keys. Stream payloads are not compared.
+- Use **Pin to compare**, then select another object to compare typed dictionary values and highlight added, removed, or changed keys. Stream payloads are not compared. Drag the horizontal divider between comparison and inspection to resize either section, or focus it and use the arrow keys. Each section scrolls independently.
 - In a content stream's **Decoded** tab, switch between **Readable instructions** and **Decoded byte text**. Instruction explanations and resource links use page/form resource context; ambiguous contexts require an explicit choice. These explanations do not extract text or establish rendered positions.
 - Open **Resources** for font details, image/form objects, and links to pages exposing those resources. Image thumbnails are generated locally on request for supported bounded images; unsupported formats retain dictionary and byte inspection.
-- **Bookmark** objects or explicit byte ranges and add notes in the explorer. Bookmarks, notes, and pinned comparisons stay in memory for the current document and clear when it is closed or replaced.
+- **Bookmark** objects or explicit byte ranges and add notes in the explorer. Bookmarks and notes are saved in browser local storage using a SHA-256 hash of the PDF contents. Reopening the same PDF restores them, even under a different filename; different file contents have separate bookmarks. Clearing site data removes saved bookmarks. If browser storage is unavailable, bookmarks remain usable for the current open file and a status message explains that they are not saved. PDF files and passwords are not saved; bookmark notes from encrypted PDFs remain readable in browser storage. Pinned comparisons clear when the file is closed or replaced.
+
+Open **User guide** in the header for a short explanation of the workspace sections, bookmarks, and pinning to compare.
 
 ## Verify
 
@@ -86,7 +88,7 @@ Some features in [the plan](docs/PLAN.md) remain unimplemented.
 - Encrypted PDFs with an empty opening password unlock automatically. Otherwise enter an opening or owner password for local structure inspection and preview. Original source and raw stream bytes stay encrypted; properties and decoded streams are decrypted. Unsupported encryption remains unavailable. Passwords stay in memory only until the document is closed or replaced.
 - Decoded inspection supports Flate (including tested PNG predictors), ASCIIHex, ASCII85, and chains of those filters. Unsupported filters keep raw inspection available.
 - Recovered structure and unknown positions are labeled. Decoded positions are never presented as original file offsets. Dictionary order/duplicates and exact string spellings are not guaranteed by the semantic inspector; original bytes remain authoritative.
-- Historical object revisions, precise rendered-content-to-byte mapping, extracted text search, editing, repair, persistence, and comparison are deferred.
+- Historical object revisions, precise rendered-content-to-byte mapping, extracted text search, editing, repair, saving PDF files, and comparing stream payloads are deferred.
 - Tooling advisories have been removed from this lockfile. One high-severity advisory remains tied to EmbedPDF's upstream Zod version, despite the tested local backport. The audit report is not suppressed. See [dependency remediation and remaining obligations](docs/DEPENDENCIES.md) before release.
 - Automated browser checks target Chromium, Firefox, and WebKit; actual Safari and broader PDF/browser coverage still need validation. Node corpus measurements are not the planned browser performance baseline.
 
