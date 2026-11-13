@@ -742,10 +742,23 @@ pre,
 .inspection-detail-stack > .inspector {
   flex: 1;
 }
-.inspection-detail-stack > :not(.inspector) {
-  max-height: 42%;
-  flex-shrink: 0;
+.object-comparison {
+  height: 100%;
   overflow: auto;
+}
+.comparison-divider[aria-orientation="horizontal"] {
+  height: 12px;
+  flex-shrink: 0;
+  border-block: 1px solid var(--border);
+  background: var(--muted);
+  cursor: row-resize;
+}
+.comparison-divider:hover,
+.comparison-divider:focus-visible {
+  background: var(--accent);
+}
+.comparison-divider > div {
+  background: var(--muted-foreground);
 }
 .session-bookmarks {
   flex-shrink: 0;

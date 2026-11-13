@@ -10,10 +10,12 @@ export interface SessionBookmark<T> {
 
 export function SessionBookmarks<T>({
   bookmarks,
+  saved,
   onVisit,
   onNote,
   onRemove,
 }: {
+  saved: boolean
   bookmarks: SessionBookmark<T>[]
   onVisit: (selection: T) => void
   onNote: (key: number, note: string) => void
@@ -22,17 +24,25 @@ export function SessionBookmarks<T>({
   return (
     <section
       className="session-bookmarks border-t px-3 py-3"
-      aria-label="Session bookmarks"
+      aria-label="Bookmarks"
     >
       <h2 className="mb-2 flex items-center gap-2 text-xs font-medium">
         <Bookmark size={13} />
         Bookmarks{" "}
         <span className="text-muted-foreground">{bookmarks.length}</span>
       </h2>
+      <p
+        className="mb-2 text-xs leading-relaxed text-muted-foreground"
+        role="status"
+      >
+        {saved
+          ? "Saved in this browser for this PDF."
+          : "Browser storage unavailable. Bookmarks are kept only while this file is open."}
+      </p>
       {!bookmarks.length && (
         <p className="text-xs leading-relaxed text-muted-foreground">
-          Bookmark an object or byte range to keep it here while this file is
-          open.
+          Bookmark an object or byte range to return to it later. Add a note to
+          record what you find.
         </p>
       )}
       <ul className="space-y-3">
