@@ -54,6 +54,7 @@ import {
   type SessionBookmark,
 } from "@/components/session-bookmarks"
 import { ObjectComparison } from "@/components/object-comparison"
+import { PageTree, type PageTreeState } from "@/components/page-tree"
 import { ResourceBrowser } from "@/components/resource-browser"
 import {
   extendExplorationTrail,
@@ -75,6 +76,7 @@ const PdfPreview = lazy(() =>
     default: module.PdfPreview,
   }))
 )
+const emptyPageTree = (): PageTreeState => ({ expanded: new Set(), limits: {} })
 const EMPTY = new Uint8Array()
 const SAMPLES = [
   {
@@ -166,6 +168,7 @@ export default function App() {
   const [resultsScope, setResultsScope] = useState("objects")
   const [searchMessage, setSearchMessage] = useState("")
   const [mobilePane, setMobilePane] = useState("inspector")
+  const [pageTreeState, setPageTreeState] = useState(emptyPageTree)
   const [objectScroll, setObjectScroll] = useState(0)
   const narrow = useNarrow()
   const selection = history[historyIndex]
@@ -308,6 +311,7 @@ export default function App() {
     setHistoryIndex(0)
     setObjectScroll(0)
     setPreviewPage(1)
+    setPageTreeState(emptyPageTree())
     setBookmarks([])
     setPinnedId(null)
   }, [])
@@ -587,48 +591,66 @@ export default function App() {
       </nav>
       <div className="object-list-heading">
         {section === "pages"
-          ? "PAGE OBJECTS"
+          ? "PAGE CONNECTIONS"
           : section === "resources"
             ? "RESOURCE OBJECTS"
             : "INDIRECT OBJECTS"}
-        <span>{listedObjects.length}</span>
+        <span>
+          {section === "pages"
+            ? (document?.pages.length ?? 0)
+            : listedObjects.length}
+        </span>
       </div>
-      <div
-        className="object-list"
-        key={section}
-        onScroll={(event) => setObjectScroll(event.currentTarget.scrollTop)}
-      >
+      {section === "pages" && document ? (
+        <PageTree
+          document={document}
+          objects={objectMap}
+          selectedId={selection.id}
+          state={pageTreeState}
+          onStateChange={setPageTreeState}
+          onNavigate={(id, trail) => {
+            visit({ id, tab: "properties", section: "pages", trail })
+            setMobilePane("inspector")
+          }}
+        />
+      ) : (
         <div
-          style={{ height: listedObjects.length * 42, position: "relative" }}
+          className="object-list"
+          key={section}
+          onScroll={(event) => setObjectScroll(event.currentTarget.scrollTop)}
         >
-          {visibleObjects.map((object, index) => (
-            <button
-              key={object.id}
-              className={`object-row ${selection.id === object.id ? "selected" : ""}`}
-              style={{ position: "absolute", top: (listStart + index) * 42 }}
-              onClick={() => navigate(object.id)}
-            >
-              <Braces size={14} />
-              <span>
-                <code>{object.id}</code>
-                <span className="object-label">{object.kind}</span>
-              </span>
-              {object.provenance.type === "decoded" ? (
-                <Layers size={12} aria-label="Inside object stream" />
-              ) : (
-                <ChevronRight size={12} />
-              )}
-            </button>
-          ))}
+          <div
+            style={{ height: listedObjects.length * 42, position: "relative" }}
+          >
+            {visibleObjects.map((object, index) => (
+              <button
+                key={object.id}
+                className={`object-row ${selection.id === object.id ? "selected" : ""}`}
+                style={{ position: "absolute", top: (listStart + index) * 42 }}
+                onClick={() => navigate(object.id)}
+              >
+                <Braces size={14} />
+                <span>
+                  <code>{object.id}</code>
+                  <span className="object-label">{object.kind}</span>
+                </span>
+                {object.provenance.type === "decoded" ? (
+                  <Layers size={12} aria-label="Inside object stream" />
+                ) : (
+                  <ChevronRight size={12} />
+                )}
+              </button>
+            ))}
+          </div>
+          {!listedObjects.length && (
+            <p className="list-empty">
+              {document?.locked
+                ? "Object inspection is locked."
+                : "No objects in this section."}
+            </p>
+          )}
         </div>
-        {!listedObjects.length && (
-          <p className="list-empty">
-            {document?.locked
-              ? "Object inspection is locked."
-              : "No objects in this section."}
-          </p>
-        )}
-      </div>
+      )}
       <SessionBookmarks
         bookmarks={bookmarks}
         onVisit={(saved) => {
@@ -935,6 +957,7 @@ export default function App() {
             }
             onTabChange={(tab) => navigate(selected.id, tab)}
             onNavigate={followReference}
+            onInspect={(id) => navigate(id)}
             objects={objectMap}
             pages={document?.pages}
             contextPageId={

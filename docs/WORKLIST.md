@@ -110,3 +110,16 @@ User selected Pages to avoid the shared account hostname. App is now at **https:
 ### Feature follow-up — navigation context
 
 Back/Forward now records document sections and explicit original-byte ranges alongside objects and inspector tabs. Cross-reference jumps, original-byte search results, and unknown-byte selections can be retraced; unknown-byte messages are restored with their selections. New navigation after Back discards the abandoned forward branch, and document replacement clears history. Inspector and byte-pane scroll-position restoration remains open from the original feature plan.
+
+
+### Page exploration and object explanations — 2026-11-13
+
+Implemented locally; not published:
+
+- Pages now expands content streams, resources, and annotations. Inherited resources identify their actual ancestor, and shared, cyclic, and unavailable references are explicit. Selecting a reference opens the existing inspector/bytes and records its route. Expansion and pagination survive history, section changes, and mobile pane switches; document replacement clears them.
+- Object headings explain known page, catalog, page-tree, font, image, form and content-stream roles, with a fallback when a role cannot be established. Resource explanations distinguish availability from actual drawing.
+- Incoming and outgoing relationships show exact dictionary keys and array indexes. Reverse links open the actual referring object without inventing a forward traversal. Relationship detail is capped at 200 paths per direction, 200 incoming objects, 5,000 inspected values per object and 32 nested levels, with incomplete results labelled.
+
+The tree is a page-focused route through the object graph, not a unique ownership hierarchy. Branches expand on demand, lists paginate in batches of 50, and tree expansion stops after six levels while retaining full object navigation. A raw catalog tree, physical file map and rendered-content mapping remain outside this batch.
+
+Validation: 107 unit tests, lint, production type checking/build and emitted notice checks pass. All 72 production-preview browser checks pass (24 each in Chromium, Firefox and WebKit), including inherited-resource trail ownership, forward/reverse relationship navigation, cyclic/shared/missing references, large page-list pagination, mobile expansion retention and replacement reset. Desktop and mobile screenshots were inspected under `.context/`. The public deployment was not changed.
