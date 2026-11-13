@@ -1,5 +1,5 @@
 import type { PdfDict, PdfObject, PdfRef as EngineRef, PdfStream } from '@libpdf/core';
-import { InspectionDocumentParser, InspectionScanner, InspectionXRefParser, PdfRef, inspectionCompressedLocation, inspectionReadIndirect, inspectionResetDecodedCache, type XRefEntry } from '../../generated/libpdf-inspection.mjs';
+import { InspectionDocumentParser, InspectionScanner, InspectionXRefParser, PdfRef, inspectionCompressedLocation, inspectionReadIndirect, inspectionResetDecodedCache, type XRefEntry } from 'pdf-internals-viewer/inspection';
 import type { ByteRange, PdfDocumentInfo, PdfObjectRecord, PdfValue, Provenance, StreamResult } from './types';
 
 export const MAX_INPUT_BYTES = 64 * 1024 * 1024;
@@ -38,21 +38,27 @@ function streamFilters(stream: PdfStream): string[] {
 
 /** Read-only adapter around a pinned established parser; no PDF writing occurs. */
 export class PdfInspector {
+  private encrypted = false;
   private objects = new Map<string, PdfObject>();
+  private rawStreams = new Map<string, Uint8Array>();
   private records = new Map<string, PdfObjectRecord>();
 
-  async open(bytes: Uint8Array, filename = 'document.pdf'): Promise<PdfDocumentInfo> {
+  async open(bytes: Uint8Array, filename = 'document.pdf', password?: string): Promise<PdfDocumentInfo> {
     if (bytes.length > MAX_INPUT_BYTES) throw new Error('This file exceeds the 64 MiB inspection limit.');
     if (!bytes.length) throw new Error('This file is empty. Choose a PDF document.');
-    this.objects.clear(); this.records.clear();
+    this.objects.clear(); this.records.clear(); this.rawStreams.clear();
     inspectionResetDecodedCache();
-    const parsed = new InspectionDocumentParser(new InspectionScanner(bytes), { lenient: true }).parse();
+    const parsed = new InspectionDocumentParser(new InspectionScanner(bytes), { lenient: true, credentials: password }).parse();
+    this.encrypted = parsed.isEncrypted;
     const warnings = parsed.warnings.slice();
     let startXref: number | undefined;
     try { startXref = new InspectionXRefParser(new InspectionScanner(bytes)).findStartXRef(); } catch { /* recovery can still expose objects */ }
     const xrefFormat = startXref === undefined ? 'unknown' : byteText(bytes.subarray(startXref, startXref + 4)) === 'xref' ? parsed.trailer.has('XRefStm') ? 'hybrid' : 'table' : 'stream';
-    const locked = parsed.isEncrypted;
-    if (locked) warnings.push('Encrypted document: semantic inspection is locked in this version. Original file bytes remain available.');
+    const locked = parsed.isEncrypted && !parsed.isAuthenticated;
+    const encryptionError = locked && !parsed.securityHandler ? 'The encryption information is invalid or unsupported. Try an unencrypted copy.' : undefined;
+    const encryptRef = parsed.trailer.getRef('Encrypt');
+    if (locked) warnings.push(encryptionError ?? 'Encrypted document: a password is required for structure inspection. Original file bytes remain available.');
+    if (parsed.isEncrypted && !locked) warnings.push('Encrypted document unlocked locally. Properties and decoded streams are decrypted; source, raw streams, and file offsets refer to the original encrypted bytes.');
     if (parsed.recoveredViaBruteForce) warnings.push('Recovered structure: cross-reference information was invalid. Object locations and relationships may be incomplete.');
     const entries = Array.from(parsed.xref).filter(([num, entry]) => num > 0 && entry.type !== 'free').sort(([a], [b]) => a - b);
     if (entries.length > MAX_OBJECTS) throw new Error('This PDF exceeds the 100,000 object inspection limit.');
@@ -67,7 +73,10 @@ export class PdfInspector {
             warnings.push(`Object ${id} is unavailable: invalid cross-reference offset ${entry.offset}.`);
             continue;
           }
-          const object = parsed.getObject(PdfRef.of(number, generation));
+          // The encryption dictionary itself is never encrypted.
+          const object = encryptRef?.objectNumber === number && encryptRef.generation === generation && entry.type === 'uncompressed'
+            ? inspectionReadIndirect(bytes, entry.offset).value
+            : parsed.getObject(PdfRef.of(number, generation));
           if (!object) { warnings.push(`Object ${id} could not be resolved.`); continue; }
           this.objects.set(id, object);
         } catch (error) { warnings.push(`Object ${id}: ${message(error)}`); }
@@ -86,6 +95,7 @@ export class PdfInspector {
           if (entry.type === 'uncompressed') {
             const result = inspectionReadIndirect(bytes, entry.offset, ref => { const obj = parsed.getObject(ref); return obj?.type === 'number' ? obj.value : null; });
             if (result.objNum !== number || result.genNum !== generation) throw new Error('Cross-reference target has a different object identity.');
+            if (isStream(result.value)) this.rawStreams.set(id, result.value.data);
             if (result.end !== undefined && result.end > entry.offset && result.end <= bytes.length) {
               provenance = { type: 'file', range: { start: entry.offset, end: result.end } };
               source = byteText(bytes.subarray(entry.offset, Math.min(result.end, entry.offset + MAX_DISPLAY_BYTES)));
@@ -104,8 +114,9 @@ export class PdfInspector {
         const dictionary = object.type === 'dict' || object.type === 'stream' ? object : undefined;
         const kind = dictionary?.getName('Type')?.value ?? (object.type === 'stream' ? 'Stream' : object.type);
         const subtype = dictionary?.getName('Subtype')?.value;
-        const streamRange = isStream(object) && object.data.buffer === bytes.buffer ? { start: object.data.byteOffset - bytes.byteOffset, end: object.data.byteOffset - bytes.byteOffset + object.data.byteLength } : undefined;
-        this.records.set(id, { id, objectNumber: number, generation, kind, label: subtype ? `${kind} · ${subtype}` : kind, value, source, provenance, references: [...references], referencedBy: [], ...(isStream(object) ? { stream: { length: object.data.length, filters: streamFilters(object), range: streamRange } } : {}), warnings: recordWarnings });
+        const originalStream = this.rawStreams.get(id);
+        const streamRange = originalStream?.buffer === bytes.buffer ? { start: originalStream.byteOffset - bytes.byteOffset, end: originalStream.byteOffset - bytes.byteOffset + originalStream.byteLength } : undefined;
+        this.records.set(id, { id, objectNumber: number, generation, kind, label: subtype ? `${kind} · ${subtype}` : kind, value, source, provenance, references: [...references], referencedBy: [], ...(isStream(object) ? { stream: { length: originalStream?.length ?? object.data.length, filters: streamFilters(object), range: streamRange } } : {}), warnings: recordWarnings });
       }
     }
     for (const record of this.records.values()) {
@@ -123,7 +134,7 @@ export class PdfInspector {
     if (!locked) { try { pages = parsed.getPages().map(refId); } catch (error) { warnings.push(`Page tree: ${message(error)}`); } }
     const root = parsed.trailer.getRef('Root');
     const catalog = !locked ? parsed.getCatalog() : null;
-    return { filename, size: bytes.length, version: parsed.version, catalogVersion: catalog?.getName('Version')?.value, encrypted: parsed.isEncrypted, locked, recovered: parsed.recoveredViaBruteForce, catalogId: root ? refId(root) : undefined, pages, objects: [...this.records.values()], trailer: valueTree(parsed.trailer, new Set()), warnings: [...new Set([...warnings, ...parsed.warnings])], xrefFormat, startXref };
+    return { filename, size: bytes.length, version: parsed.version, catalogVersion: catalog?.getName('Version')?.value, encrypted: parsed.isEncrypted, locked, encryptionError, recovered: parsed.recoveredViaBruteForce, catalogId: root ? refId(root) : undefined, pages, objects: [...this.records.values()], trailer: valueTree(parsed.trailer, new Set()), warnings: [...new Set([...warnings, ...parsed.warnings])], xrefFormat, startXref };
   }
 
   readStream(objectId: string, mode: 'raw' | 'decoded'): StreamResult {
@@ -137,7 +148,8 @@ export class PdfInspector {
         const unsupported = streamFilters(object).find(filter => !supported.has(filter));
         if (unsupported) throw new Error(`Decoded inspection does not support /${unsupported}. Raw stream bytes remain available.`);
       }
-      const data = mode === 'raw' ? object.data : object.getDecodedData();
+      if (mode === 'raw' && this.encrypted && !this.rawStreams.has(objectId)) throw new Error('Original encrypted stream bytes could not be located. Inspect the original file bytes.');
+      const data = mode === 'raw' ? this.rawStreams.get(objectId) ?? object.data : object.getDecodedData();
       if (data.length > MAX_DECODED_BYTES && mode === 'decoded') throw new Error('Decoded stream exceeds the 32 MiB inspection limit.');
       const bytes = data.slice(0, MAX_DISPLAY_BYTES);
       return { ...result, bytes, text: byteText(bytes), truncated: data.length > bytes.length };

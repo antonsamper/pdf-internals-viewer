@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
+  "exports": {
+    "./inspection": "./src/generated/libpdf-inspection.mjs"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

@@ -43,6 +43,25 @@ Updated 2026-11-12. Use this list to coordinate the next release batch. Owners w
 | F4 | Upstream-supported inspection API | Evaluate retiring pinned LibPDF internals, or extending EmbedPDF upstream, with the same object/stream/source-range contract. This is separate research, not a release dependency. |
 | F5 | Upstream preview validation fix | Retire the local backport only after a compatible upstream version passes its existing behavior tests, including bundled copies. |
 
+## UI/UX feature backlog
+
+All six features below were requested for the worklist on 2026-11-12 and implemented locally by three parallel agents, with coordinator integration. State: implemented; not published. They are independent of completing the performance and hardening follow-ups above.
+
+| ID | Feature | Scope / acceptance |
+| --- | --- | --- |
+| UX1 | Clickable exploration trail | Show the actual navigation path, such as `Page 3 → /Resources → /Font → /F1 → 18 0 obj`, with clickable earlier steps. Preserve the relationship/key used to reach each object rather than inventing a unique hierarchy for the PDF graph. Keep the trail consistent with Back/Forward and clear it on document replacement. |
+| UX2 | Inline reference expansion | Expand referenced dictionaries beneath their keys without leaving the surrounding object; retain an explicit action to navigate to the full object inspector. Support collapse, keyboard operation, and bounded nesting. Mark cycles as already in the current path and show dangling/unavailable references explicitly. |
+| UX3 | Pin and compare objects | Pin one object beside the current selection so users can compare page resources, font dictionaries, or image properties. Offer highlighting for added, removed, and changed keys while preserving PDF value types and provenance. Support unpinning, a usable narrow-screen layout, and clearing the comparison on document replacement. |
+| UX4 | Readable content streams | Add syntax highlighting and operator explanations to decoded page/form content streams. Resolve clickable resource names in the correct page/form resource context, including inherited resources; for example, explain `/F1 12 Tf` and link `/F1` to its font. Keep original decoded bytes accessible, preserve decoded-offset labeling, and expose unsupported or ambiguous interpretation. Start with highlighting/explanations; visual click-to-object mapping is separate later work. |
+| UX5 | Visual resource browser | Provide image thumbnails and useful font details, with links to their underlying objects and the pages using them. Distinguish image XObjects from form XObjects and surface unsupported previews explicitly. Generate previews locally on demand within resource limits and retain direct access to dictionaries and original bytes. |
+| UX6 | Session bookmarks and notes | Star objects or original-byte ranges, optionally add short notes, and revisit them from a sidebar list. Restore the bookmarked object/range and relevant inspector representation; support editing notes and removing bookmarks. Keep the first version in memory for the current open document and clear it on close/replacement. |
+
+These features retain local, read-only document handling and the distinction between original bytes, decoded data, and rendered previews. Existing inspector/byte-pane scroll restoration remains open as documented below.
+
+Implementation scope: inline expansion is lazy and bounded to four reference levels; cycles and unavailable references remain navigable through explicit full-object actions. Comparison highlights typed dictionary/value differences, not stream payloads. Readable content instructions are bounded to 1,500 rows and 5,000 tokens; inline images stop interpretation, and malformed/truncated content is labelled incomplete. Shared streams expose page resource contexts; forms without their own resources leave invocation context unresolved. Image thumbnails currently support only bounded 8-bit DeviceRGB/DeviceGray decoded samples, with explicit unsupported/truncation messages. Page links mean resource availability, not proof of a drawing operation. Bookmarks and notes are in-memory for the current document.
+
+Validation: 98 unit tests, lint, type checking through the production build, emitted preview/native notice checks, and 51 production-preview browser checks passed (17 each in Chromium, Firefox, and WebKit). Browser scenarios cover trail/history, lazy cyclic expansion, bookmark notes/ranges/replacement, comparison including narrow layouts, instruction/resource navigation, and local image thumbnail generation. Desktop and mobile screenshots were inspected under ignored `.context/`. This is local verification; the public deployment was not changed.
+
 ## Decisions
 
 - Project source license: MIT, selected by the user.
@@ -91,3 +110,16 @@ User selected Pages to avoid the shared account hostname. App is now at **https:
 ### Feature follow-up — navigation context
 
 Back/Forward now records document sections and explicit original-byte ranges alongside objects and inspector tabs. Cross-reference jumps, original-byte search results, and unknown-byte selections can be retraced; unknown-byte messages are restored with their selections. New navigation after Back discards the abandoned forward branch, and document replacement clears history. Inspector and byte-pane scroll-position restoration remains open from the original feature plan.
+
+
+### Page exploration and object explanations — 2026-11-13
+
+Implemented locally; not published:
+
+- Pages now expands content streams, resources, and annotations. Inherited resources identify their actual ancestor, and shared, cyclic, and unavailable references are explicit. Selecting a reference opens the existing inspector/bytes and records its route. Expansion and pagination survive history, section changes, and mobile pane switches; document replacement clears them.
+- Object headings explain known page, catalog, page-tree, font, image, form and content-stream roles, with a fallback when a role cannot be established. Resource explanations distinguish availability from actual drawing.
+- Incoming and outgoing relationships show exact dictionary keys and array indexes. Reverse links open the actual referring object without inventing a forward traversal. Relationship detail is capped at 200 paths per direction, 200 incoming objects, 5,000 inspected values per object and 32 nested levels, with incomplete results labelled.
+
+The tree is a page-focused route through the object graph, not a unique ownership hierarchy. Branches expand on demand, lists paginate in batches of 50, and tree expansion stops after six levels while retaining full object navigation. A raw catalog tree, physical file map and rendered-content mapping remain outside this batch.
+
+Validation: 107 unit tests, lint, production type checking/build and emitted notice checks pass. All 72 production-preview browser checks pass (24 each in Chromium, Firefox and WebKit), including inherited-resource trail ownership, forward/reverse relationship navigation, cyclic/shared/missing references, large page-list pagination, mobile expansion retention and replacement reset. Desktop and mobile screenshots were inspected under `.context/`. The public deployment was not changed.

@@ -31,6 +31,17 @@ Keyboard: Ctrl/Cmd+O opens a file; Ctrl/Cmd+K focuses search. The hex viewer sup
 
 At narrower widths, use Explorer / Inspector / Original bytes tabs. Desktop panes can be resized with the separators, including via keyboard.
 
+## Investigation tools
+
+- Open **Pages** in the explorer to expand a page’s content streams, resources, and annotations. Select an object to inspect it alongside its original bytes. Inherited resources identify their actual source; shared, cyclic, and unavailable references are labelled. Expansion stays open across history, section changes, and mobile pane switches, and clears on document replacement. Large lists show 50 entries at a time; expansion stops after six levels, with full object inspection still available.
+- Read the explanation beneath an object heading for its identified role. Known pages, content streams, fonts, images, forms, and page-tree objects have specific explanations; uncertain roles remain explicit. Resource availability does not establish that a resource is drawn.
+- Follow **References** and **Referenced by** links labelled with their dictionary keys and array indexes. Incoming links open the actual referring object; outgoing links preserve the key route in the exploration trail. Relationship details are bounded and incomplete results are labelled.
+- Follow the clickable exploration trail to revisit the objects and dictionary keys used along your route. Expand references inline to inspect a dictionary without leaving its surrounding object; cycles and unavailable references are labelled.
+- Use **Pin to compare**, then select another object to compare typed dictionary values and highlight added, removed, or changed keys. Stream payloads are not compared.
+- In a content stream's **Decoded** tab, switch between **Readable instructions** and **Decoded byte text**. Instruction explanations and resource links use page/form resource context; ambiguous contexts require an explicit choice. These explanations do not extract text or establish rendered positions.
+- Open **Resources** for font details, image/form objects, and links to pages exposing those resources. Image thumbnails are generated locally on request for supported bounded images; unsupported formats retain dictionary and byte inspection.
+- **Bookmark** objects or explicit byte ranges and add notes in the explorer. Bookmarks, notes, and pinned comparisons stay in memory for the current document and clear when it is closed or replaced.
+
 ## Verify
 
 ```sh
@@ -72,7 +83,7 @@ Some features in [the plan](docs/PLAN.md) remain unimplemented.
 - 64 MiB input limit, 100,000 indirect-object limit, 15-second worker-operation timeout.
 - 32 MiB decoded stream limit and 128 MiB total decoded allocation budget; displayed source/stream previews are capped at 256 KiB.
 - Object indexing is currently eager within the worker, not incremental/lazy. Very large graphs can still consume substantial memory beyond the decoded-data budget.
-- Encrypted PDFs expose original bytes and a locked state. Password entry is not implemented.
+- Encrypted PDFs with an empty opening password unlock automatically. Otherwise enter an opening or owner password for local structure inspection and preview. Original source and raw stream bytes stay encrypted; properties and decoded streams are decrypted. Unsupported encryption remains unavailable. Passwords stay in memory only until the document is closed or replaced.
 - Decoded inspection supports Flate (including tested PNG predictors), ASCIIHex, ASCII85, and chains of those filters. Unsupported filters keep raw inspection available.
 - Recovered structure and unknown positions are labeled. Decoded positions are never presented as original file offsets. Dictionary order/duplicates and exact string spellings are not guaranteed by the semantic inspector; original bytes remain authoritative.
 - Historical object revisions, precise rendered-content-to-byte mapping, extracted text search, editing, repair, persistence, and comparison are deferred.
