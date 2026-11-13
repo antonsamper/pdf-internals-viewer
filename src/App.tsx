@@ -48,6 +48,7 @@ import {
   type InspectorTab,
 } from "@/components/object-inspector"
 import { ValueView } from "@/components/value-view"
+import { InspectionUnavailable } from "@/components/inspection-unavailable"
 import {
   SessionBookmarks,
   type SessionBookmark,
@@ -144,6 +145,7 @@ export default function App() {
   const [document, setDocument] = useState<PdfDocumentInfo | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [inspectionError, setInspectionError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [history, setHistory] = useState<Selection[]>([
     { id: null, tab: "properties", section: "overview" },
@@ -296,6 +298,7 @@ export default function App() {
     setDocument(null)
     setBusy(false)
     setError(null)
+    setInspectionError(null)
     setNotice(null)
     setPreview(false)
     setSearchResults(null)
@@ -356,11 +359,12 @@ export default function App() {
       setBusy(false)
     } catch (reason) {
       if (token !== requestId.current) return
-      setError(
+      const message =
         reason instanceof Error
           ? reason.message
           : "Could not inspect this file. Choose another PDF."
-      )
+      setError(message)
+      setInspectionError(message)
       setBusy(false)
     }
   }
@@ -693,8 +697,12 @@ export default function App() {
             <div className="warning-inline">
               <LockKeyhole size={16} />
               <p>
-                Encrypted PDF. Password-based inspection is not supported yet.
-                Original bytes remain available.
+                This PDF is encrypted. Structure inspection is locked because
+                password entry is not supported yet. An encrypted PDF may have
+                an opening password or permissions restrictions; this viewer
+                does not distinguish between them. Try an unencrypted copy
+                exported from the source application. Original bytes remain
+                available.
               </p>
             </div>
           )}
@@ -799,28 +807,37 @@ export default function App() {
           )}
         </>
       ) : (
-        <p className="muted">
-          {busy
-            ? "Inspecting document structure…"
-            : "Structure unavailable. You can still inspect the original bytes."}
-        </p>
+        <InspectionUnavailable
+          reason={inspectionError ?? undefined}
+          onOpenFile={() => input.current?.click()}
+          onShowBytes={() => {
+            selectRange({ start: 0, end: Math.min(bytes.length, 1) })
+            setMobilePane("bytes")
+          }}
+        />
       )}
     </div>
   )
 
   const inspector = (
-    <main className="main-inspector" aria-label="Document inspection">
+    <main
+      className="main-inspector"
+      aria-label="Document inspection"
+      aria-busy={busy}
+    >
       <div className="pane-heading">
         <span>
-          {preview
-            ? "Page preview"
-            : selected
-              ? "Object inspector"
-              : section === "structure"
-                ? "File structure"
-                : section === "resources"
-                  ? "Resource browser"
-                  : "Overview"}
+          {busy
+            ? "Opening PDF"
+            : preview
+              ? "Page preview"
+              : selected
+                ? "Object inspector"
+                : section === "structure"
+                  ? "File structure"
+                  : section === "resources"
+                    ? "Resource browser"
+                    : "Overview"}
         </span>
         <div className="pane-actions">
           {section === "resources" && selected && (
@@ -870,7 +887,24 @@ export default function App() {
           </button>
         </div>
       )}
-      {preview && bytes.length ? (
+      {busy ? (
+        <section
+          className="document-loading"
+          role="status"
+          aria-label="Opening PDF"
+        >
+          <LoaderCircle
+            size={32}
+            className="animate-spin motion-reduce:animate-none"
+            aria-hidden="true"
+          />
+          <h1>Opening PDF…</h1>
+          <p>
+            Reading objects and building the document structure. Larger
+            documents can take a few seconds.
+          </p>
+        </section>
+      ) : preview && bytes.length ? (
         <Suspense
           fallback={<p className="loading-inline">Loading EmbedPDF…</p>}
         >
@@ -1194,9 +1228,8 @@ export default function App() {
               </section>
             )}
             {busy && (
-              <div className="progress-line" role="status">
-                <LoaderCircle size={14} className="animate-spin" />
-                Reading objects in a background worker.{" "}
+              <div className="progress-line">
+                Opening PDF…{" "}
                 <Button variant="ghost" size="xs" onClick={close}>
                   Cancel
                 </Button>
@@ -1260,7 +1293,10 @@ export default function App() {
         ) : (
           <main className="empty-workspace">
             <div className="empty-introduction">
-              <h1>Look inside<br />a <em>PDF.</em></h1>
+              <span className="empty-file">
+                <FileCode2 size={30} strokeWidth={1.25} />
+              </span>
+              <h1>Look inside a PDF.</h1>
               <p>
                 Explore objects, follow references, and connect
                 <br className="desktop-break" /> the structure to the original
@@ -1285,11 +1321,8 @@ export default function App() {
                 Early version · View limitations
               </button>
             </div>
-            <section className="samples" aria-label="Sample documents">
-              <div className="sample-heading">
-                <h2>Or explore a sample</h2>
-                <Files size={20} strokeWidth={1.5} />
-              </div>
+            <section className="samples">
+              <h2>Or explore a sample</h2>
               {SAMPLES.map(({ file, name, detail, icon: Icon }) => (
                 <button
                   className="sample-row"
@@ -1302,23 +1335,11 @@ export default function App() {
                   <span>
                     <strong>{name}</strong>
                     <span>{detail}</span>
-                    <code className="sample-filename">{file}</code>
                   </span>
                   <ArrowUpRight size={15} />
                 </button>
               ))}
-              <div className="sample-footer">
-                <Braces size={15} />
-                <span>Real PDFs. Ready to take apart.</span>
-              </div>
             </section>
-            <div className="exploration-guide" aria-label="Inspection workflow">
-              <span><ListTree size={18} /> Explore objects</span>
-              <ArrowRight size={16} aria-hidden="true" />
-              <span><Braces size={18} /> Follow references</span>
-              <ArrowRight size={16} aria-hidden="true" />
-              <span><Binary size={18} /> Find the original bytes</span>
-            </div>
           </main>
         )}
         <footer className="status-bar">
