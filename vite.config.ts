@@ -13,6 +13,10 @@ export default defineConfig({
   },
   build: {
     rolldownOptions: {
+      input: {
+        main: resolve(import.meta.dirname, "index.html"),
+        about: resolve(import.meta.dirname, "about.html"),
+      },
       output: {
         // Preserve dependency licenses and our modified-file notices before
         // chunk hashing. Vite otherwise drops legal comments when minifying.
