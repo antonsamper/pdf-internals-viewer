@@ -33,6 +33,7 @@ export interface PdfDocumentInfo {
   catalogVersion?: string;
   encrypted: boolean;
   locked: boolean;
+  encryptionError?: string;
   recovered: boolean;
   catalogId?: string;
   pages: string[];
@@ -51,7 +52,7 @@ export interface StreamResult {
   error?: string;
 }
 export type ParserRequest =
-  | { requestId: number; type: 'open'; bytes: Uint8Array; filename: string }
+  | { requestId: number; type: 'open'; password?: string; bytes: Uint8Array; filename: string }
   | { requestId: number; type: 'stream'; objectId: string; mode: 'raw' | 'decoded' };
 export type ParserResponse =
   | { requestId: number; type: 'opened'; document: PdfDocumentInfo }
