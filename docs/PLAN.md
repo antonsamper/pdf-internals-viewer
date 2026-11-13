@@ -121,7 +121,7 @@ Objects in object streams link to their container's original bytes and their own
 
 ### Partial states and limits
 
-- Encrypted files initially expose original bytes and a locked state; password-based semantic inspection is deferred and must not appear as an empty document.
+- Encrypted files expose original bytes while locked. Files with an empty opening password now unlock automatically; others accept an opening or owner password for local semantic inspection and preview. Unsupported encryption remains explicit rather than appearing as an empty document.
 - Malformed files show parser diagnostics and any trustworthy partial results. Parser-recovered values are labeled; never present rewritten output as the input file.
 - Starting guardrails: 64 MiB input limit, 32 MiB decoded output per stream, and 128 MiB total decoded cache. These are proposed limits to validate in the spike, displayed before a limit blocks work.
 - Run parsing and decoding outside the UI thread. Support cancellation and terminate/restart the worker after a nonresponsive operation. Keep raw-byte inspection available after parser failure where memory permits.
@@ -170,7 +170,7 @@ Produce a short capability matrix, pinned dependency choice, fixture results, an
 4. Search and resilience: scoped search, limits, cancellation, partial states, encrypted-file state, and malformed-input handling.
 5. Release: keyboard and responsive checks, browser compatibility, documentation, deployment, and a short observed usability session.
 
-Optional page preview follows the core inspection release. Image/font previews, operator explanations, visual click-to-object mapping, graph visualization, password entry, persistent bookmarks, editing, repair, AI explanations, and comparisons remain later work.
+Optional page preview follows the core inspection release. Image/font previews, operator explanations, visual click-to-object mapping, graph visualization, persistent bookmarks, editing, repair, AI explanations, and comparisons remain later work.
 
 ## Verification and success criteria
 
