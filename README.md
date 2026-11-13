@@ -33,6 +33,9 @@ At narrower widths, use Explorer / Inspector / Original bytes tabs. Desktop pane
 
 ## Investigation tools
 
+- Open **Pages** in the explorer to expand a page’s content streams, resources, and annotations. Select an object to inspect it alongside its original bytes. Inherited resources identify their actual source; shared, cyclic, and unavailable references are labelled. Expansion stays open across history, section changes, and mobile pane switches, and clears on document replacement. Large lists show 50 entries at a time; expansion stops after six levels, with full object inspection still available.
+- Read the explanation beneath an object heading for its identified role. Known pages, content streams, fonts, images, forms, and page-tree objects have specific explanations; uncertain roles remain explicit. Resource availability does not establish that a resource is drawn.
+- Follow **References** and **Referenced by** links labelled with their dictionary keys and array indexes. Incoming links open the actual referring object; outgoing links preserve the key route in the exploration trail. Relationship details are bounded and incomplete results are labelled.
 - Follow the clickable exploration trail to revisit the objects and dictionary keys used along your route. Expand references inline to inspect a dictionary without leaving its surrounding object; cycles and unavailable references are labelled.
 - Use **Pin to compare**, then select another object to compare typed dictionary values and highlight added, removed, or changed keys. Stream payloads are not compared.
 - In a content stream's **Decoded** tab, switch between **Readable instructions** and **Decoded byte text**. Instruction explanations and resource links use page/form resource context; ambiguous contexts require an explicit choice. These explanations do not extract text or establish rendered positions.
