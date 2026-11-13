@@ -195,11 +195,11 @@ test('keeps exploration paths and expands cyclic references without leaving the 
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
 })
 
-test('bookmarks objects and byte ranges with session notes and clears them on replacement', async ({ page }) => {
+test('bookmarks objects and byte ranges with notes and restores them for the same PDF', async ({ page }) => {
   await openMinimal(page)
   await page.getByRole('button', { name: 'First page', exact: true }).click()
   await page.getByRole('button', { name: 'Bookmark', exact: true }).click()
-  const bookmarks = page.getByRole('region', { name: 'Session bookmarks' })
+  const bookmarks = page.getByRole('region', { name: 'Bookmarks' })
   await bookmarks.getByRole('textbox', { name: 'Note for 3 0 obj · properties' }).fill('Check inherited fonts')
   await page.getByRole('button', { name: '4 0 R', exact: true }).first().click()
   await bookmarks.getByRole('button', { name: '3 0 obj · properties', exact: true }).click()
@@ -214,6 +214,21 @@ test('bookmarks objects and byte ranges with session notes and clears them on re
   await expect(page.locator('.hex-status')).toContainText('1 bytes selected')
   await upload(page, 'resources.pdf')
   await expect(bookmarks.getByRole('textbox')).toHaveCount(0)
+  await page.reload()
+  const data = await (await import('node:fs/promises')).readFile(samplePath('minimal.pdf'))
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'renamed.pdf', mimeType: 'application/pdf', buffer: data })
+  await expect(bookmarks.getByRole('textbox', { name: 'Note for 3 0 obj · properties' })).toHaveValue('Check inherited fonts')
+  await bookmarks.getByRole('button', { name: /^Bytes 0x0/ }).click()
+  await expect(page.locator('.hex-status')).toContainText('1 bytes selected')
+  await bookmarks.getByRole('button', { name: 'Remove bookmark 3 0 obj · properties' }).click()
+  await expect(bookmarks.getByRole('textbox')).toHaveCount(1)
+  await page.reload()
+  await upload(page, 'minimal.pdf')
+  await expect(bookmarks.getByRole('textbox')).toHaveCount(1)
+  // A different PDF with an identical filename must not inherit the bookmarks.
+  const other = await (await import('node:fs/promises')).readFile(samplePath('resources.pdf'))
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'minimal.pdf', mimeType: 'application/pdf', buffer: other })
+  await expect(bookmarks.getByRole('textbox')).toHaveCount(0)
 })
 
 test('pins an object and compares typed dictionary differences', async ({ page }) => {
@@ -226,6 +241,18 @@ test('pins an object and compares typed dictionary differences', async ({ page }
   await expect(comparison).toContainText('4 0')
   await expect(comparison).toContainText('removed')
   await expect(comparison).toContainText('added')
+  const divider = page.getByRole('separator', { name: 'Resize comparison and inspector' })
+  const initial = await comparison.boundingBox()
+  await divider.focus()
+  await page.keyboard.press('ArrowDown')
+  await expect.poll(async () => (await comparison.boundingBox())!.height).toBeGreaterThan(initial!.height)
+  const handle = (await divider.boundingBox())!
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2 + 60, { steps: 8 })
+  await page.mouse.up()
+  await expect.poll(async () => (await comparison.boundingBox())!.height).toBeGreaterThan(initial!.height + 40)
+  expect(await comparison.evaluate(el => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === 'auto')).toBe(true)
   await comparison.getByRole('checkbox', { name: 'Show differences only' }).check()
   await page.screenshot({ path: screenshotPath('object-comparison.png'), fullPage: true, animations: 'disabled' })
   await page.setViewportSize({ width: 390, height: 844 })
@@ -647,4 +674,61 @@ test('navigates About with browser history and retains the local document', asyn
   await expect(page).toHaveURL(/\/$/)
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible()
   await expect(page.locator('.filename')).toContainText('resources.pdf')
+})
+
+
+test('opens a short user guide and returns focus to its launcher', async ({ page }) => {
+  const opener = page.getByRole('button', { name: 'User guide', exact: true })
+  await opener.click()
+  const guide = page.getByRole('dialog', { name: 'User guide' })
+  await expect(guide.getByRole('heading', { name: 'Bookmark a finding' })).toBeVisible()
+  await expect(guide.getByRole('heading', { name: 'Pin to compare' })).toBeVisible()
+  await page.screenshot({ path: screenshotPath('user-guide.png'), fullPage: true, animations: 'disabled' })
+  await page.keyboard.press('Escape')
+  await expect(guide).toHaveCount(0)
+  await expect(opener).toBeFocused()
+})
+
+
+test('keeps bookmarks usable when browser storage is blocked', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', { get() { throw new Error('Storage blocked') } })
+  })
+  await page.reload()
+  await openMinimal(page)
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  await page.getByRole('button', { name: 'Bookmark', exact: true }).click()
+  const bookmarks = page.getByRole('region', { name: 'Bookmarks' })
+  await expect(bookmarks).toContainText('Browser storage unavailable')
+  await bookmarks.getByRole('textbox').fill('Temporary note')
+  await expect(bookmarks.getByRole('textbox')).toHaveValue('Temporary note')
+})
+
+
+test('synchronizes bookmarks and notes across tabs without overwriting additions', async ({ page, context }) => {
+  await openMinimal(page)
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  const other = await context.newPage()
+  await other.goto('/')
+  await openMinimal(other)
+  await other.getByRole('button', { name: 'First page', exact: true }).click()
+  const first = page.getByRole('region', { name: 'Bookmarks' })
+  const second = other.getByRole('region', { name: 'Bookmarks' })
+  await Promise.all([
+    page.getByRole('button', { name: 'Bookmark', exact: true }).click(),
+    other.getByRole('button', { name: 'Bookmark', exact: true }).click(),
+  ])
+  await expect(first.getByRole('textbox')).toHaveCount(2)
+  await expect(second.getByRole('textbox')).toHaveCount(2)
+  await first.getByRole('textbox').first().fill('Shared finding')
+  await expect(second.getByRole('textbox').first()).toHaveValue('Shared finding')
+  await second.getByRole('textbox').last().fill('Second finding')
+  await expect(first.getByRole('textbox').last()).toHaveValue('Second finding')
+  await other.reload()
+  await upload(other, 'minimal.pdf')
+  await expect(second.getByRole('textbox').first()).toHaveValue('Shared finding')
+  await expect(second.getByRole('textbox').last()).toHaveValue('Second finding')
+  await second.getByRole('button', { name: /^Remove bookmark/ }).first().click()
+  await expect(first.getByRole('textbox')).toHaveCount(1)
+  await other.close()
 })

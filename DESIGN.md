@@ -232,6 +232,8 @@ Pages uses an indented list of expandable connections. Separate native buttons e
 
 Object headings include a short role explanation. Incoming and outgoing relationships use wrapping rows with dictionary/index paths and linked object IDs, preserving the existing reference color and global keyboard focus treatment.
 
+Comparison and object inspection use independently scrolling panels separated by a 12px neutral horizontal divider with a visible grip. Dragging or focusing the divider and using arrow keys resizes the panels. The header’s User guide opens a scrollable reading surface using the existing dialog typography and spacing.
+
 ### Tabs
 
 Base UI tabs organize Properties, Source, Raw stream, and Decoded. The inspector uses a full-width transparent line list with a lower divider. An active tab uses foreground text and a narrow underline; inactive text is subdued. Compact text and horizontal gaps preserve inspector density.
@@ -275,4 +277,4 @@ The application honors reduced-motion preferences by shortening transitions and 
 
 The homepage remains the tool entry point. Its introductory heading uses 32–48px Geist, with 15px supporting copy. At widths above 760px, the introduction and three sample rows share a two-column layout; below that, they stack in reading order. A quiet footer provides About, Feedback, and GitHub links, and disappears while inspecting a document.
 
-About is a reading surface at `/about`, using a 640px article measure, a 30–40px heading, 18px introductory copy, 16px section headings, and 14px body copy. It shares the workspace header, neutral surfaces, and existing limitations dialog. Navigating between public pages keeps the document state in memory; refreshing still resets the session.
+About is a reading surface at `/about`, using a 640px article measure, a 30–40px heading, 18px introductory copy, 16px section headings, and 14px body copy. It shares the workspace header, neutral surfaces, and existing limitations dialog. Navigating between public pages keeps the document state in memory; refreshing resets the open document and navigation; bookmarks and notes restore from browser storage when the same PDF is reopened.
