@@ -4,6 +4,10 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ValueView } from "@/components/value-view"
 import { ContentStreamView } from "@/components/content-stream-view"
+import { EmbeddedDownloads } from "@/components/embedded-downloads"
+import { ImageDownload } from "@/components/image-download"
+import { hasSubtype } from "@/lib/pdf/navigation"
+import { embeddedDownloads } from "@/lib/pdf/downloads"
 import {
   objectName,
   objectRelationships,
@@ -19,6 +23,8 @@ export function ObjectInspector({
   onNavigate,
   onInspect,
   readStream,
+  extractStream,
+  extractImage,
   resources,
   objects,
   pages = [],
@@ -34,7 +40,14 @@ export function ObjectInspector({
   onNavigate: (id: string, path?: string[]) => void
   onInspect: (id: string) => void
   readStream: (id: string, mode: "raw" | "decoded") => Promise<StreamResult>
+  extractStream: (id: string, purpose?: "download" | "size") => Promise<StreamResult>
+  extractImage: (id: string) => Promise<StreamResult>
 }) {
+  const downloads = useMemo(
+    () => embeddedDownloads(objects ?? new Map()),
+    [objects]
+  )
+  const assets = downloads.get(object.id) ?? []
   const relationships = useMemo(
     () => objectRelationships(object, objects ?? new Map()),
     [object, objects]
@@ -92,6 +105,23 @@ export function ObjectInspector({
         <p>{object.label}</p>
         <p className="object-explanation">{summary}</p>
       </header>
+      {object.stream && hasSubtype(object, "Image") && (
+        <div className="inspector-image-download">
+          <ImageDownload
+            key={object.id}
+            object={object}
+            extractImage={extractImage}
+          />
+        </div>
+      )}
+      {assets.length > 0 && (
+        <EmbeddedDownloads
+          key={object.id}
+          object={object}
+          assets={assets}
+          extractStream={extractStream}
+        />
+      )}
       <div className="provenance">
         <FileCode2 size={14} />
         {object.provenance.type === "file" ? (
