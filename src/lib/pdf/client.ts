@@ -30,8 +30,8 @@ export class PdfWorkerClient {
     if (response.type !== 'opened') throw new Error('Unexpected parser response.');
     return response.document;
   }
-  async readStream(objectId: string, mode: 'raw' | 'decoded'): Promise<StreamResult> {
-    const response = await this.request({ requestId: ++this.requestId, type: 'stream', objectId, mode });
+  async readStream(objectId: string, mode: 'raw' | 'decoded', purpose: 'preview' | 'download' | 'image' | 'size' = 'preview'): Promise<StreamResult> {
+    const response = await this.request({ requestId: ++this.requestId, type: 'stream', objectId, mode, purpose });
     if (response.type !== 'stream') throw new Error('Unexpected parser response.');
     return response.result;
   }

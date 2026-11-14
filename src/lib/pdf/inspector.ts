@@ -137,22 +137,27 @@ export class PdfInspector {
     return { filename, size: bytes.length, version: parsed.version, catalogVersion: catalog?.getName('Version')?.value, encrypted: parsed.isEncrypted, locked, encryptionError, recovered: parsed.recoveredViaBruteForce, catalogId: root ? refId(root) : undefined, pages, objects: [...this.records.values()], trailer: valueTree(parsed.trailer, new Set()), warnings: [...new Set([...warnings, ...parsed.warnings])], xrefFormat, startXref };
   }
 
-  readStream(objectId: string, mode: 'raw' | 'decoded'): StreamResult {
+  readStream(objectId: string, mode: 'raw' | 'decoded', purpose: 'preview' | 'download' | 'image' | 'size' = 'preview'): StreamResult {
     const object = this.objects.get(objectId);
     const result: StreamResult = { objectId, mode, bytes: new Uint8Array(), text: '', truncated: false };
     if (!isStream(object)) return { ...result, error: 'This object is not an available stream.' };
     try {
+      const filters = streamFilters(object);
+      const subtype = object.get('Subtype');
+      if (purpose === 'image' && (subtype?.type !== 'name' || subtype.value !== 'Image')) throw new Error('This object is not an image stream.');
+      const nativeJpeg = purpose === 'image' && mode === 'decoded' && filters.length === 1 && ['DCTDecode', 'DCT'].includes(filters[0]);
       // Image codecs can be passthrough in the underlying engine; never label their data decoded.
-      if (mode === 'decoded') {
+      if (mode === 'decoded' && !nativeJpeg) {
         const supported = new Set(['FlateDecode', 'Fl', 'ASCIIHexDecode', 'AHx', 'ASCII85Decode', 'A85']);
-        const unsupported = streamFilters(object).find(filter => !supported.has(filter));
+        const unsupported = filters.find(filter => !supported.has(filter));
         if (unsupported) throw new Error(`Decoded inspection does not support /${unsupported}. Raw stream bytes remain available.`);
       }
       if (mode === 'raw' && this.encrypted && !this.rawStreams.has(objectId)) throw new Error('Original encrypted stream bytes could not be located. Inspect the original file bytes.');
-      const data = mode === 'raw' ? this.rawStreams.get(objectId) ?? object.data : object.getDecodedData();
+      const data = nativeJpeg ? object.data : mode === 'raw' ? this.rawStreams.get(objectId) ?? object.data : object.getDecodedData();
       if (data.length > MAX_DECODED_BYTES && mode === 'decoded') throw new Error('Decoded stream exceeds the 32 MiB inspection limit.');
-      const bytes = data.slice(0, MAX_DISPLAY_BYTES);
-      return { ...result, bytes, text: byteText(bytes), truncated: data.length > bytes.length };
+      if (purpose !== 'preview' && mode !== 'decoded') throw new Error('Downloads require decoded stream bytes.');
+      const bytes = purpose === 'size' ? new Uint8Array() : purpose !== 'preview' ? data.slice() : data.slice(0, MAX_DISPLAY_BYTES);
+      return { ...result, bytes, text: purpose !== 'preview' ? '' : byteText(bytes), byteLength: data.length, truncated: purpose !== 'size' && data.length > bytes.length, ...(nativeJpeg ? { encoding: 'jpeg' as const } : {}) };
     } catch (error) { return { ...result, error: message(error) }; }
   }
 }
