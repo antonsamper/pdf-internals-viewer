@@ -439,9 +439,13 @@ pre,
   flex-direction: column;
   background: var(--sidebar);
 }
-.pane-heading {
+.pane-heading,
+.hex-toolbar {
   min-height: 42px;
   height: 42px;
+  flex-shrink: 0;
+}
+.pane-heading {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -1458,9 +1462,12 @@ h2 {
 }
 .site-links > div {
   display: flex;
+  align-items: center;
   gap: 24px;
 }
 .site-links a {
+  display: inline-flex;
+  align-items: center;
   color: inherit;
   text-decoration: none;
 }
@@ -1559,4 +1566,262 @@ h2 {
   .about-page {
     padding-top: 32px;
   }
+}
+
+/* The guide mirrors the workspace, with recipes opened as needed. */
+.user-guide-dialog {
+  max-width: 720px;
+}
+.guide-map {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr) 16px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 5px;
+}
+.guide-map > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: linear-gradient(150deg, var(--sidebar), var(--background) 70%);
+}
+.guide-step-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.guide-map .guide-step-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--brand-purple-soft);
+}
+.guide-map .guide-step-number {
+  color: var(--muted-foreground);
+  font: 10px "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.06em;
+}
+.guide-map strong {
+  font-size: 13px;
+  letter-spacing: -0.015em;
+}
+.guide-map svg {
+  width: 18px;
+  height: 18px;
+  color: var(--brand-purple);
+}
+.guide-map svg.guide-map-arrow {
+  align-self: center;
+  width: 16px;
+  height: 16px;
+  color: var(--muted-foreground);
+}
+.guide-map span {
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.guide-tools {
+  display: grid;
+  gap: 16px;
+  margin-top: 22px;
+}
+.guide-tools > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.guide-tools > div > svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  color: var(--brand-purple);
+}
+.user-guide-body .guide-tools h2 {
+  margin: 0 0 3px;
+}
+.user-guide-body p {
+  line-height: 1.6;
+}
+.guide-examples > p {
+  margin-bottom: 12px;
+}
+.guide-examples details {
+  border-bottom: 1px solid var(--border);
+}
+.user-guide-body summary {
+  cursor: pointer;
+  font-weight: 500;
+  padding: 12px 0;
+}
+.user-guide-body summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.guide-examples summary svg {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 8px 2px 4px;
+  width: 16px;
+  height: 16px;
+  color: var(--brand-purple);
+}
+.guide-examples details > div {
+  padding: 0 0 14px 29px;
+}
+.guide-details {
+  margin-top: 16px;
+}
+.guide-details summary {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+@media (max-width: 600px) {
+  .app-header {
+    height: auto;
+    flex-wrap: wrap;
+    padding-block: 10px;
+    row-gap: 8px;
+  }
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .guide-map {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .guide-map > div {
+    position: relative;
+    padding: 12px 42px 12px 60px;
+    gap: 3px;
+  }
+  .guide-step-heading {
+    margin: 0;
+  }
+  .guide-step-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .guide-step-number {
+    position: absolute;
+    right: 14px;
+    top: 14px;
+  }
+  .guide-map-arrow {
+    display: none;
+  }
+}
+
+.embedded-downloads {
+  margin: 0 22px 16px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--sidebar);
+}
+.embedded-download-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.embedded-download-row + .embedded-download-row {
+  margin-top: 12px;
+}
+.embedded-download-row > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.embedded-download-row strong {
+  font-size: 12px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.embedded-download-row span {
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+.embedded-downloads .representation-note {
+  margin: 10px 0 0;
+  font-size: 11px;
+}
+
+.resource-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 18px 0 14px;
+}
+.resource-category-count {
+  padding: 0 5px;
+  border-radius: 4px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.resource-browser .embedded-downloads {
+  margin: 12px 0;
+}
+
+.inspector-image-download {
+  margin: 0 22px 16px;
+}
+.image-download p {
+  max-width: 54ch;
+  line-height: 1.6;
+}
+
+.download-size,
+.image-file-size {
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6;
+}
+.image-file-size {
+  margin: 10px 0;
+}
+.resource-image-preview {
+  display: block;
+  width: 160px;
+  height: 160px;
+  max-width: 100%;
+  margin: 12px 0;
+  padding: 8px;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+}
+.resource-image-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+  padding: 14px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--sidebar);
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.resource-image-placeholder > svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
 }

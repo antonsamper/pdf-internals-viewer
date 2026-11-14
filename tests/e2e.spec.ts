@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 import { resolve } from 'node:path'
 import { mkdir } from 'node:fs/promises'
 // @ts-expect-error local JavaScript fixture helpers have no declaration file
-import { classicPdf, encryptedPdf } from '../scripts/fixtures/pdf-fixtures.mjs'
+import { classicPdf, encryptedPdf, embeddedFilesPdf, imageExportPdf } from '../scripts/fixtures/pdf-fixtures.mjs'
 
 const samplePath = (name: string) => resolve('public/samples', name)
 const screenshotPath = (name: string) => resolve('.context', name)
@@ -288,7 +288,7 @@ test('browses font details, generates local image thumbnails and follows using p
   await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Resources', exact: true }).click()
   const browser = page.getByRole('region', { name: 'Visual resource browser' })
   await expect(browser).toContainText('Helvetica')
-  await browser.getByRole('button', { name: 'Preview image 6 0', exact: true }).click()
+  await expect(browser.getByRole('button', { name: 'Preview image 6 0', exact: true })).toHaveCount(0)
   const image = browser.getByRole('img', { name: 'Image object 6 0', exact: true })
   await expect(image).toBeVisible()
   expect(await image.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBeGreaterThan(0)
@@ -307,7 +307,7 @@ test('uploads and replaces local PDFs while clearing stale navigation', async ({
   await expect(page.locator('.status-bar')).toContainText('10 objects indexed')
   await expect(page.getByRole('button', { name: 'Back', exact: true })).toBeDisabled()
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toHaveCount(0)
-  await page.getByRole('button', { name: 'Close document', exact: true }).click()
+  await page.getByRole('button', { name: 'Close PDF', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Look inside a PDF.' })).toBeVisible()
   await page.getByLabel('Open local PDF').setInputFiles({ name: 'empty.pdf', mimeType: 'application/pdf', buffer: Buffer.alloc(0) })
   await expect(page.getByRole('alert')).toContainText('This file is empty.')
@@ -731,4 +731,189 @@ test('synchronizes bookmarks and notes across tabs without overwriting additions
   await second.getByRole('button', { name: /^Remove bookmark/ }).first().click()
   await expect(first.getByRole('textbox')).toHaveCount(1)
   await other.close()
+})
+
+
+test('downloads complete attachments and embedded subset fonts', async ({ page }) => {
+  const fixture = embeddedFilesPdf()
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'embedded.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await expect(page.getByRole('heading', { name: 'Document overview', exact: true })).toBeVisible()
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Document catalog', exact: true }).click()
+  await page.getByRole('button', { name: '5 0 R', exact: true }).first().click()
+  await page.getByRole('button', { name: '6 0 R', exact: true }).first().click()
+  const [attachment] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: 'Download attachment', exact: true }).click(),
+  ])
+  expect(attachment.suggestedFilename()).toBe('report.txt')
+  await expect(page.getByRole('region', { name: 'Embedded file downloads' })).toContainText('Download: 293.0 KiB')
+  const attachmentStream = await attachment.createReadStream()
+  const attachmentChunks: Buffer[] = []
+  for await (const chunk of attachmentStream!) attachmentChunks.push(Buffer.from(chunk))
+  expect(Buffer.concat(attachmentChunks)).toEqual(fixture.attachment)
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Resources', exact: true }).click()
+  await page.getByRole('button', { name: '8 0 obj', exact: true }).click()
+  await expect(page.getByRole('region', { name: 'Embedded file downloads' })).toContainText('Fonts may be partial')
+  await expect(page.getByRole('region', { name: 'Embedded file downloads' })).toContainText('subset indicated')
+  const [font] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: 'Download font', exact: true }).click(),
+  ])
+  expect(font.suggestedFilename()).toBe('ABCDEF+Example.ttf')
+  await expect(page.getByRole('region', { name: 'Embedded file downloads' })).toContainText('Download: 8 B')
+  const fontStream = await font.createReadStream()
+  const fontChunks: Buffer[] = []
+  for await (const chunk of fontStream!) fontChunks.push(Buffer.from(chunk))
+  expect(Buffer.concat(fontChunks)).toEqual(fixture.font)
+  await page.screenshot({ path: screenshotPath('font-download.png'), fullPage: true, animations: 'disabled' })
+})
+
+
+test('finds attachments and fonts through resource categories with direct downloads', async ({ page }) => {
+  const fixture = embeddedFilesPdf()
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'embedded.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await expect(page.getByRole('heading', { name: 'Document overview', exact: true })).toBeVisible()
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Resources', exact: true }).click()
+  const resources = page.getByRole('region', { name: 'Visual resource browser' })
+  await resources.getByRole('button', { name: /^Attachments 1$/ }).click()
+  await expect(resources.getByRole('article')).toHaveCount(1)
+  await expect(resources.getByRole('article')).toContainText('report.txt')
+  await resources.getByLabel('Filter resources').fill('report.txt')
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    resources.getByRole('button', { name: 'Download attachment', exact: true }).click(),
+  ])
+  expect(download.suggestedFilename()).toBe('report.txt')
+  await page.screenshot({ path: screenshotPath('resource-attachments.png'), fullPage: true, animations: 'disabled' })
+  await resources.getByRole('button', { name: '6 0 obj', exact: true }).click()
+  await page.getByRole('button', { name: 'Browse resources', exact: true }).click()
+  await expect(resources.getByRole('button', { name: /^Attachments 1$/ })).toHaveAttribute('aria-pressed', 'true')
+  await expect(resources.getByLabel('Filter resources')).toHaveValue('report.txt')
+  await resources.getByRole('button', { name: 'Clear search', exact: true }).click()
+  await resources.getByRole('button', { name: /^Fonts 2$/ }).click()
+  await expect(resources.getByRole('article')).toHaveCount(2)
+  await expect(resources.getByRole('button', { name: 'Download font', exact: true })).toHaveCount(2)
+  await resources.getByLabel('Filter resources').fill('ABCDEF')
+  await expect(resources.getByRole('article')).toHaveCount(2)
+  const [font] = await Promise.all([
+    page.waitForEvent('download'),
+    resources.getByRole('button', { name: 'Download font', exact: true }).first().click(),
+  ])
+  expect(font.suggestedFilename()).toBe('ABCDEF+Example.ttf')
+  await resources.getByRole('button', { name: /^Images 0$/ }).click()
+  await expect(resources).toContainText('No resources match this filter.')
+  await resources.getByRole('button', { name: 'Clear filters', exact: true }).click()
+  await expect(resources.getByRole('article')).toHaveCount(3)
+  await page.getByRole('button', { name: 'Close PDF', exact: true }).click()
+  await openMinimal(page)
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Resources', exact: true }).click()
+  await expect(resources.getByLabel('Filter resources')).toHaveValue('')
+  await expect(resources.getByRole('button', { name: /^All 1$/ })).toHaveAttribute('aria-pressed', 'true')
+  await expect(resources).toContainText('No embedded font file available to download.')
+})
+
+
+test('downloads full-size PNG images from Resources and the object inspector', async ({ page }) => {
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'images.pdf', mimeType: 'application/pdf', buffer: Buffer.from(imageExportPdf().bytes) })
+  await expect(page.getByRole('heading', { name: 'Document overview', exact: true })).toBeVisible()
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Resources', exact: true }).click()
+  const resources = page.getByRole('region', { name: 'Visual resource browser' })
+  await resources.getByRole('button', { name: /^Images 1$/ }).click()
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    resources.getByRole('button', { name: 'Download image', exact: true }).click(),
+  ])
+  expect(download.suggestedFilename()).toBe('image-6-0.png')
+  const stream = await download.createReadStream()
+  const chunks: Buffer[] = []
+  for await (const chunk of stream!) chunks.push(Buffer.from(chunk))
+  const png = Buffer.concat(chunks)
+  expect([...png.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10])
+  const exported = await page.evaluate(async base64 => {
+    const bytes = Uint8Array.from(atob(base64), char => char.charCodeAt(0))
+    const image = await createImageBitmap(new Blob([bytes], {type: 'image/png'}))
+    const canvas = document.createElement('canvas')
+    canvas.width = image.width
+    canvas.height = image.height
+    const context = canvas.getContext('2d')!
+    context.drawImage(image, 0, 0)
+    const result = {width: image.width, height: image.height, pixel: [...context.getImageData(image.width - 1, image.height - 1, 1, 1).data]}
+    image.close()
+    return result
+  }, png.toString('base64'))
+  expect(exported).toEqual({width: 400, height: 300, pixel: [32, 117, 214, 255]})
+  await expect(resources.getByRole('img', {name: 'Image object 6 0', exact: true})).toBeVisible()
+  await expect(resources.locator('.image-file-size')).toHaveAttribute('title', `${png.length.toLocaleString()} bytes`)
+  await expect(resources.locator('.image-file-size')).toContainText('In PDF:')
+  await page.screenshot({path: screenshotPath('image-download.png'), fullPage: true, animations: 'disabled'})
+  await resources.getByRole('button', {name: '6 0 obj', exact: true}).click()
+  const [inspectorDownload] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: 'Download image', exact: true }).click(),
+  ])
+  expect(inspectorDownload.suggestedFilename()).toBe('image-6-0.png')
+})
+
+test('extracts embedded JPEG bytes unchanged and explains unsupported image export', async ({ page }) => {
+  const base64 = await page.evaluate(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 2
+    canvas.height = 2
+    const context = canvas.getContext('2d')!
+    context.fillStyle = '#e97820'
+    context.fillRect(0, 0, 2, 2)
+    return canvas.toDataURL('image/jpeg').split(',')[1]
+  })
+  const jpeg = Buffer.from(base64, 'base64')
+  const fixture = imageExportPdf({data: jpeg, filter: 'DCTDecode', width: 2, height: 2})
+  await page.getByLabel('Open local PDF').setInputFiles({name:'jpeg.pdf', mimeType:'application/pdf', buffer:Buffer.from(fixture.bytes)})
+  await expect(page.getByRole('heading', { name: 'Document overview', exact: true })).toBeVisible()
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Resources', exact: true }).click()
+  const resources = page.getByRole('region', { name: 'Visual resource browser' })
+  await resources.getByRole('button', { name: /^Images 1$/ }).click()
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    resources.getByRole('button', { name: 'Download image', exact: true }).click(),
+  ])
+  expect(download.suggestedFilename()).toBe('image-6-0.jpg')
+  const stream = await download.createReadStream()
+  const chunks: Buffer[] = []
+  for await (const chunk of stream!) chunks.push(Buffer.from(chunk))
+  expect(Buffer.concat(chunks)).toEqual(jpeg)
+  await expect(resources.getByRole('img', {name: 'Image object 6 0', exact: true})).toBeVisible()
+  await expect(resources.locator('.image-file-size')).toHaveAttribute('title', `${jpeg.length.toLocaleString()} bytes`)
+  await page.getByLabel('Open local PDF').setInputFiles({name:'masked.pdf', mimeType:'application/pdf', buffer:Buffer.from(imageExportPdf({extra: '/SMask 5 0 R'}).bytes)})
+  await expect(page.getByRole('heading', { name: 'Document overview', exact: true })).toBeVisible()
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Resources', exact: true }).click()
+  await expect(resources.getByRole('button', {name:'Download image', exact:true})).toBeDisabled()
+  await expect(resources).toContainText('Image export unavailable: custom decoding or image masks')
+  await expect(resources).toContainText('Preview unavailable: custom decoding or image masks')
+  await expect(resources.getByRole('img', {name: 'Image object 6 0', exact: true})).toHaveCount(0)
+})
+
+
+test('lists and downloads inline attachment file specifications', async ({ page }) => {
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R /Names << /EmbeddedFiles << /Names [(inline.txt) << /Type /Filespec /F (inline.txt) /EF << /F 4 0 R >> >>] >> >> >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+    [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Resources << >> >>'],
+    [4, '<< /Length 3 >>\nstream\nabc\nendstream'],
+  ])
+  await page.getByLabel('Open local PDF').setInputFiles({name: 'inline-attachment.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes)})
+  await expect(page.getByRole('heading', {name: 'Document overview', exact: true})).toBeVisible()
+  await page.getByRole('navigation', {name: 'Document sections'}).getByRole('button', {name: 'Resources', exact: true}).click()
+  const resources = page.getByRole('region', {name: 'Visual resource browser'})
+  await resources.getByRole('button', {name: /^Attachments 1$/}).click()
+  await expect(resources.getByRole('article')).toHaveCount(1)
+  await expect(resources.getByRole('article')).toContainText('inline.txt')
+  await expect(resources.getByRole('article')).toContainText('Download: 3 B')
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    resources.getByRole('button', {name: 'Download attachment', exact: true}).click(),
+  ])
+  expect(download.suggestedFilename()).toBe('inline.txt')
+  const stream = await download.createReadStream()
+  const chunks: Buffer[] = []
+  for await (const chunk of stream!) chunks.push(Buffer.from(chunk))
+  expect(Buffer.concat(chunks).toString()).toBe('abc')
 })
