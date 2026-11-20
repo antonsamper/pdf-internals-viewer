@@ -1803,3 +1803,7 @@ h2 {
 }
 .public-page ol { list-style: decimal; }
 .public-page ul { list-style: disc; }
+
+.example-preview { margin: 1.5rem 0; }
+.example-preview img { display: block; width: 100%; max-width: 28rem; height: auto; border: 1px solid var(--border); border-radius: 0.5rem; }
+.example-preview figcaption { margin-top: 0.75rem; font-size: 0.875rem; color: var(--muted-foreground); }

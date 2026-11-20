@@ -4,14 +4,14 @@ PDF Internals uses React and Vite to generate a static site hosted on Cloudflare
 
 ## Rendering and maintenance
 
-`src/lib/site-content.ts` defines the public routes, site identity, metadata, structured data, privacy summary and allowed samples. `src/content/public-page.tsx` contains the guide, privacy/limitations references and three worked tutorials. Tutorial examples correspond to the original fixture definitions in `scripts/fixtures/pdf-fixtures.mjs`; regenerate PDFs using the existing fixture workflow when examples change. Update reviewed dates only after checking the content against the implementation.
+`src/lib/site-content.ts` defines the public routes, site identity, metadata, structured data, privacy summary and allowed samples. `src/content/public-page.tsx` contains the guide, privacy/limitations references and six task guides. `src/content/examples.tsx` and `src/content/more-examples.tsx` contain eight worked debugging examples and their index. Tutorial examples correspond to the original fixture definitions in `scripts/fixtures/pdf-fixtures.mjs` and `scripts/fixtures/example-fixtures.mjs`; regenerate PDFs using the existing fixture workflow when examples change. Update reviewed dates only after checking the content against the implementation.
 
 `pnpm run build` builds client assets, then `scripts/prerender.mjs` uses Vite's TSX loader and React's server APIs at build time:
 
 - `/` and `/about` contain the rendered React app. `src/main.tsx` hydrates that HTML. Initial rendering must remain independent of browser APIs; browser reads belong in effects or event handlers. Narrow-screen layout adapts after hydration.
-- `/guide`, `/privacy`, `/limitations` and the three `/guides/*` pages are static HTML with shared styles and no inspector JavaScript. Their normal links work without JavaScript.
+- `/guide`, `/privacy`, `/limitations` the six `/guides/*` pages and nine example pages at `/examples` and `/examples/*` are static HTML with shared styles and no inspector JavaScript. Their normal links work without JavaScript.
 - Client navigation from the running inspector renders the same article components without unmounting the PDF workspace. The User guide dialogue links to the full guide. Back/Forward and metadata follow the public route.
-- `/?sample=minimal`, `/?sample=resources` and `/?sample=compressed` open only allowlisted bundled samples. Unknown values are ignored. These links start a new workspace; local files, notes and passwords never go into URLs.
+- `/?sample=minimal`, `/?sample=resources` `/?sample=compressed`, `/?sample=oversized-image` and `/?sample=incorrect-unicode` open only allowlisted bundled samples. Unknown values are ignored. These links start a new workspace; local files, notes and passwords never go into URLs.
 - `dist/sitemap.xml` is generated from the route inventory. `public/robots.txt` advertises it. Existing `404.html` prevents a catch-all SPA response from masking missing content.
 
 During development, a Vite middleware serves article components directly; the homepage/About use the normal development client entry. Use the production build to check how home/About behave with JavaScript disabled. Do not directly edit generated HTML in `dist/`.
@@ -46,3 +46,13 @@ Publish original worked examples and seek relevant editorial references after th
 - [React hydration](https://react.dev/reference/react-dom/client/hydrateRoot)
 - [React static markup](https://react.dev/reference/react-dom/server/renderToStaticMarkup)
 - [OpenAI search and training crawlers](https://developers.openai.com/api/docs/bots)
+
+## Worked debugging examples
+
+`/examples` links to eight walkthroughs: file size, incorrect text, font embedding, attachments, repeated logos, rotation, inherited resources, and opening actions. Each has exact object IDs, a downloadable PDF, and an allowlisted link into the inspector. These eight samples are separate from the three starter buttons. Run `node scripts/fixtures/generate.mjs` to regenerate all eleven PDFs using Node. The large sample stores 4,320,000 bytes of raw RGB data; the text sample maps source code `<31>` to Unicode `<0039>` while rendering the digit 1.
+
+The font example uses the original geometric H glyph in `scripts/fixtures/assets/example-mark.ttf`. Its optional regeneration script, `python3 scripts/fixtures/make-example-font.py`, needs fonttools 4.63.0. The file has fixed timestamps so regeneration is deterministic; ordinary PDF regeneration reads the checked-in font without Python. No third-party font is bundled. The opening-action example uses a local `/GoTo` destination, with no JavaScript, launch action, or remote target.
+
+The checked-in previews under `public/examples/` are renders of the corresponding PDFs. After changing a fixture, refresh its preview with Poppler: `pdftoppm -scale-to 900 -singlefile -png public/samples/oversized-image.pdf public/examples/oversized-image` (repeat with the sample's filename). The rotation preview is landscape, 900 × 696; the others are 696 × 900. Render every page of the logo and rotation PDFs when reviewing them. Verify `pdftotext public/samples/incorrect-unicode.pdf -` returns `Invoice total: £9,250.00`, and visually confirm its preview shows £1,250.00.
+
+The sample tests check reproducibility and the object relationships used by the walkthroughs. Browser tests follow resource references, verify complete font and attachment downloads, and check the static pages with JavaScript disabled and at mobile widths.
