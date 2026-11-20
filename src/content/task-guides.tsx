@@ -89,6 +89,15 @@ export function SearchGuide() {
           Find dictionary keys such as <code>MediaBox</code> or{" "}
           <code>JavaScript</code>.
         </dd>
+        <dt>Page text</dt>
+        <dd>
+          Find words extracted from the page, including text split across
+          drawing instructions. Results are grouped by page. Select a text byte
+          location to highlight matching source syntax in the original or
+          decoded hex view, or open a labelled candidate stream when exact
+          mapping is unavailable. Open page preview highlights the returned
+          matches on the rendered page, even when byte mapping is unavailable.
+        </dd>
         <dt>File text</dt>
         <dd>Search the original file bytes as text.</dd>
         <dt>File hex</dt>
@@ -105,8 +114,23 @@ export function SearchGuide() {
       <p>
         The first match opens automatically. Use the result counter and
         previous/next arrows to step through matches, wrapping at either end, or
-        select a result directly. Results stop at 500; incomplete searches are
-        labelled. File text treats the original bytes as Latin-1 text.
+        select a result directly. Results appear in a popover below the search
+        field. Choosing a result reveals it in the workspace. Escape or clicking
+        outside hides the popover without clearing the query; click the Results
+        button or use Ctrl/Cmd+K to reopen it. Previous/next controls are in the
+        results popover. Changing the search type immediately searches the
+        current query again. From the search field, Down Arrow focuses the list;
+        Up/Down moves through results and Enter chooses one. Results stop at
+        500; incomplete searches are labelled. File text treats the original
+        bytes as Latin-1 text.
+      </p>
+      <p>
+        Page text source mapping currently supports common ASCII fonts and
+        fixed-width ToUnicode character and range maps in direct page content
+        streams. Source locations may differ from rendered reading order.
+        Compressed content has exact decoded ranges, with only its containing
+        stream highlighted in the original file. Scanned pages without text need
+        OCR.
       </p>
       <p>
         Decoded search checks only the first {MAX_DISPLAY_BYTES / 1024} KiB of
@@ -114,10 +138,32 @@ export function SearchGuide() {
         text shown on a rendered page. Compressed or encrypted content may not
         match a file-text search.
       </p>
+      <h2>Why can a word be found without exact byte highlights?</h2>
+      <p>
+        Page text search and source mapping are separate steps. The page search
+        engine can find words that our source mapper cannot yet trace to bytes.
+        “Exact text bytes could not be mapped” means the selected stream has no
+        mapped match. It does not mean the page search failed or the PDF is
+        damaged.
+      </p>
+      <p>
+        Common causes include unsupported font encodings, text inside Form
+        XObjects, spaces or reading order reconstructed from glyph positions,
+        and incomplete stream inspection. The message alone cannot identify
+        which cause applies. Check other source locations for Show bytes, or use
+        Open page preview to inspect the page. Inspect content stream opens a
+        candidate container; its highlight does not identify the word.
+      </p>
+      <p>
+        Compression or encryption alone does not prevent decoded byte mapping.
+        When mapping succeeds, Decoded bytes highlights the matching source
+        text, while Original bytes can highlight only its containing stream.
+      </p>
       <p>
         A visible word may be split across several strings: “lorem” can be
         stored as <code>(lor) 17 (em)</code>, where the number adjusts spacing.
-        Try a shorter fragment, then read the surrounding instruction. The{" "}
+        In File text or Decoded streams, try a shorter fragment, then read the
+        surrounding instruction. The{" "}
         <a href="/guides/decode-pdf-streams">Streams guide</a> explains how to
         read these text and spacing instructions.
       </p>

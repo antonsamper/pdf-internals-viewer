@@ -1,4 +1,11 @@
-import { Fragment, useMemo, useState, type MouseEvent } from "react"
+import {
+  Fragment,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent,
+} from "react"
 import { Button } from "@/components/ui/button"
 import {
   contentInstructions,
@@ -7,7 +14,7 @@ import {
   resourceCategory,
   resourceContexts,
 } from "@/lib/pdf/content-stream"
-import type { PdfObjectRecord, StreamResult } from "@/lib/pdf/types"
+import type { ByteRange, PdfObjectRecord, StreamResult } from "@/lib/pdf/types"
 
 export function ContentStreamView({
   object,
@@ -16,9 +23,11 @@ export function ContentStreamView({
   pages,
   contextPageId,
   onNavigate,
+  textMatchRanges,
   onFollowLink,
 }: {
   object: PdfObjectRecord
+  textMatchRanges?: ByteRange[]
   stream: StreamResult
   objects: Map<string, PdfObjectRecord>
   pages: string[]
@@ -26,6 +35,10 @@ export function ContentStreamView({
   onNavigate: (id: string, path?: string[]) => void
   onFollowLink?: (event: MouseEvent<HTMLElement>) => boolean
 }) {
+  const firstMatch = useRef<HTMLLIElement>(null)
+  useEffect(() => {
+    firstMatch.current?.scrollIntoView({ block: "nearest" })
+  }, [textMatchRanges])
   const [readable, setReadable] = useState(true)
   const [chosenContext, setChosenContext] = useState<string | null>(null)
   const contexts = useMemo(
@@ -148,7 +161,17 @@ export function ContentStreamView({
             aria-label="Content stream instructions"
           >
             {parsed.instructions.map((instruction) => (
-              <li className="content-instruction" key={instruction.start}>
+              <li
+                className={`content-instruction ${textMatchRanges?.some((range) => range.start < instruction.end && range.end > instruction.start) ? "text-match" : ""}`}
+                ref={
+                  textMatchRanges?.[0] &&
+                  textMatchRanges[0].start >= instruction.start &&
+                  textMatchRanges[0].start < instruction.end
+                    ? firstMatch
+                    : undefined
+                }
+                key={instruction.start}
+              >
                 <span className="content-offset" title="Decoded byte offset">
                   0x{instruction.start.toString(16).toUpperCase()}
                 </span>

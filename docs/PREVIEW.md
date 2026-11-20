@@ -1,32 +1,17 @@
 # Page preview
 
-EmbedPDF Engine 3.1.0 renders a small, read-only page preview. The app supplies its own React controls using shadcn/ui and Base UI, without embedding a second full viewer interface.
+`src/components/pdf-preview.tsx` renders a small, read-only page preview with EmbedPDF Engine 3.1.0, using the app's own controls: previous and next page, and zoom from 50% to 200%. The preview is an image, so it does not support text selection, annotation editing or picking rendered content to find its PDF object.
 
-## Integration
+## Privacy
 
-`src/components/pdf-preview.tsx` exports `PdfPreview` with these props:
+The engine is PDFium compiled to WebAssembly and runs in a Web Worker. Vite bundles the worker, the WASM and the fallback fonts, and the app serves them from its own origin. The preview opens a copy of the file's bytes; nothing is uploaded and no document-dependent URL is requested. The bundled workers carry a patched copy of Zod; see [PREVIEW-VALIDATION.md](PREVIEW-VALIDATION.md).
 
-- `bytes: Uint8Array`: immutable original input; the component supplies a copy to the engine so worker transfers cannot detach the inspector's buffer.
-- `fileName: string`: used for accessible image descriptions.
-- `pageNumber?: number`: optional controlled, one-based page selection.
-- `onPageChange?: (pageNumber: number) => void`: navigation callback.
+## Separate from inspection
 
-The preview opens the document locally, lists pages, and renders the selected page as an image with a resolution limit. Its controls support previous/next page and zoom from 50% to 200%. These image previews do not support text selection, annotations, editing, or selecting rendered content to find its PDF object.
+The inspector uses its own parser ([PARSER.md](PARSER.md)). A rendered page says nothing about exact object or stream spans, and preview output is never shown in place of the original bytes. Preview errors do not affect the inspector.
 
-Document replacement and component unmount abort outstanding work, revoke rendered blob URLs, close the document, and destroy the engine worker. Loading and rendering failures are shown without changing the independent structure inspector.
+Page text search highlights come from the engine's text geometry, drawn as an SVG overlay that follows zoom, rotation and pane size. They work even when the inspector cannot map a match to source bytes, and they never change the PDF. Replacing the document or closing the preview cancels outstanding work and destroys the engine worker.
 
-## Runtime assets and privacy
+## Tests
 
-The dependency's PDFium engine is compiled to WebAssembly and runs in a Web Worker. Vite bundles the engine's worker and WebAssembly from installed packages, serving them from the application itself. The component opens a copied byte buffer; no PDF upload or cloud engine is used. Default fallback fonts also come from dependency assets. They do not require remote document-dependent font URLs.
-
-The parser remains separate. Rendering a page does not establish exact original object/stream spans. Preview output is never substituted for original bytes.
-
-## Documentation checked
-
-- [EmbedPDF engine quick start](https://www.embedpdf.com/docs/engine/quick-start)
-- [Engine setup and self-hosted bundler assets](https://www.embedpdf.com/docs/engine/setup)
-- Actual npm package `@embedpdf/engine@3.1.0` and its TypeScript declarations. Version 2 documentation refers to different package names and is not used for this implementation.
-
-## Verification
-
-The consuming application should include preview opening/navigation in its browser smoke test and confirm worker/WASM requests remain same-origin. Type checking and production bundling are required integration checks. Browser behaviour requires a test run; the integration notes alone do not verify it.
+The browser tests in `tests/e2e.spec.ts` check that the preview renders without external requests or runtime errors, that search highlights follow rotation, zoom and page navigation, and that an encrypted file previews after it is unlocked.

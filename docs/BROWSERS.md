@@ -1,75 +1,72 @@
-# Browser verification
+# Browser tests
 
-Recorded on 2026-11-11 with Playwright 1.65.0, using production assets served by Vite preview on macOS/arm64.
+The browser suite is a single Playwright file, `tests/e2e.spec.ts`, configured in `playwright.config.ts`. It runs in Chromium, Firefox and WebKit; choose engines with `--browser=chromium`, `--browser=firefox`, `--browser=webkit` or `--browser=all`. Playwright's WebKit is the engine Safari is built on, not the Safari application, and nothing runs on iOS or iPadOS.
 
-| Engine | Result | Notes |
+Every engine uses Playwright's Desktop Chrome device settings with a 1440 × 1000 viewport. Many tests resize the page to phone or tablet widths, such as 390 × 844, for their mobile checks. Each test has 45 seconds, and each assertion waits up to 12 seconds.
+
+## What the suite covers
+
+- Opening documents: the empty workspace and starter samples, drag and drop, uploading and replacing files, cancelling a slow open, parse failures, and encrypted PDFs with and without a password.
+- Navigation: following references, Back and Forward history across sections and exact byte ranges, and restoring inspector tabs, hex-pane positions and list scroll positions.
+- Inspection: raw and decoded streams, `TJ` explanations, compressed-object provenance, hex offsets and keyboard controls, exploration trails, cyclic references, the page tree and the Issues panel.
+- Search: key, hex and page-text search, result stepping, preview highlights that follow rotation and zoom, and the results popover at several widths.
+- Resources: fonts, image thumbnails, PNG and JPEG export, and attachment and embedded-font downloads.
+- Bookmarks, notes and comparison, including blocked browser storage and synchronisation between two tabs.
+- The local EmbedPDF preview, which must make no external requests and raise no runtime errors.
+- Public pages: reading them with JavaScript disabled, grouped navigation, sample links, the worked examples, and keeping the open PDF while moving between content pages.
+- Appearance: the theme button, persistence, blocked storage and syncing between tabs.
+- Narrow screens: pane navigation without horizontal overflow, and compact headers.
+
+## Server modes
+
+`playwright.config.ts` picks the server from environment variables:
+
+| Mode | Server | Address |
 | --- | --- | --- |
-| Chromium | 9/9 passed | Final production build, including patched worker and fallback-source artefacts |
-| Firefox 159.0 | 9/9 passed | Production build after the focus-return fix and primary worker backport |
-| WebKit 27.2 | 9/9 passed | Production build after the focus-return fix and primary worker backport; not the actual Safari application |
+| Default | `pnpm run dev` (Vite development server) | `http://127.0.0.1:5173` |
+| `PLAYWRIGHT_PREVIEW=1` | `pnpm run preview` (Vite preview of `dist/`) | `http://127.0.0.1:5173` |
+| `PLAYWRIGHT_CLOUDFLARE=1` | `pnpm exec wrangler pages dev dist` (local Pages runtime) | `http://127.0.0.1:8787` |
+| `PLAYWRIGHT_BASE_URL=<url>` | None; tests use the given site | `<url>` |
 
-The nine tests cover the initial state; reference navigation and history; raw and decoded streams; compressed-object provenance; hex offsets and keyboard controls; file upload and replacement; search; local EmbedPDF rendering and zoom without external document requests; narrow-screen panes; and limitations-dialogue access, scrolling, dismissal, and focus.
+The preview and Cloudflare modes serve `dist/`, so run `pnpm run build` first. `PLAYWRIGHT_BASE_URL` takes precedence over the other variables and is the way to test a separately running server or production.
 
-In WebKit, closing a controlled dialogue did not return focus to the clicked opener: unlike Chromium and Firefox, clicking a native button did not reliably focus it first. The app now records the explicit opener and passes it to Base UI's `finalFocus`. The existing focus regression test then passed across all three engines.
+The test `prerenders home and About for readers without JavaScript` is skipped in the default development mode, because the development server does not serve prerendered HTML for those routes. It runs in the other three modes.
 
-Early development-server failures caused by simultaneous dependency changes and generated-module rewrites are excluded from these results. Production assets isolate browser tests from HMR. After the Firefox/WebKit runs, an additional embedded worker-source fallback was patched and verified with the bundled-validator behaviour tests; the final Chromium run used that complete build. The standard worker rendering path passed in all three engines.
-
-The limitations dialogue described in this historical run has since been replaced by the static `/limitations` page. Current browser coverage checks navigation to that page and retention of the open PDF when returning to the workspace.
-
-CI is configured to run all three engines against production builds. For local reproduction:
+## Running locally
 
 ```sh
 pnpm run build
 pnpm exec playwright install chromium firefox webkit
-PLAYWRIGHT_PREVIEW=1 pnpm run test:e2e --browser=chromium
-PLAYWRIGHT_PREVIEW=1 pnpm run test:e2e --browser=firefox
+
+# All engines against a local Pages server, as CI does
+PLAYWRIGHT_CLOUDFLARE=1 pnpm run test:e2e --browser=all
+
+# One engine against the Vite preview of dist/
 PLAYWRIGHT_PREVIEW=1 pnpm run test:e2e --browser=webkit
+
+# Production
+PLAYWRIGHT_BASE_URL=https://pdf-internals-viewer.pages.dev pnpm run test:e2e --browser=all
 ```
 
-Stop any existing server on port 5173 before using this recipe, or set `PLAYWRIGHT_BASE_URL` to a separately running production server. Detailed local logs are under ignored `.context/`.
+Stop any server already listening on port 5173 before a default or preview run. Outside CI (when `CI` is unset), Playwright reuses whatever answers on that port. A development server left running would then be tested in place of the preview build, without any warning. Cloudflare mode never reuses a server: it always starts its own Wrangler process and stops it afterwards, and it fails to start if port 8787 is already in use.
 
-Browser cases run in parallel with four workers locally and in CI. Use `--workers=1` for serial debugging or `--workers=N` to tune concurrency. Save manual screenshots under `.context/<browser>/` to avoid overwriting evidence from other engines.
+Tests run with four workers and `fullyParallel`, locally and in CI. Use `--workers=1` for serial debugging or `--workers=N` to change concurrency.
 
-These automated checks cover core flows. They do not establish complete PDF compatibility, Safari/iOS behaviour, or browser memory budgets. The independent PDF corpus runs the inspection engine in Node; broader combinations of those files with each browser remain useful follow-up coverage.
+Tests that take screenshots write them to `.context/<browser>/`, one directory per engine, so `--browser=all` runs do not overwrite each other. Playwright keeps a screenshot and trace for each failed test under `test-results/`; open a trace with `pnpm exec playwright show-trace <path-to-trace.zip>`. Both directories are gitignored.
 
-## Clean pnpm production verification: 2026-11-12
+## Continuous integration
 
-This run used pnpm 10.33.4's clean frozen-lockfile dependency tree and the complete patched preview artefact set. Actual Safari application testing remains separate.
+The `browsers` job in `.github/workflows/ci.yml` runs after the `check` job. It has one matrix entry per engine, and an engine failure does not cancel the others. Each entry:
 
-## Cloudflare runtime verification
+1. installs dependencies and that engine with `pnpm exec playwright install --with-deps <engine>`;
+2. runs `pnpm run build`;
+3. runs the whole suite for that engine with `PLAYWRIGHT_CLOUDFLARE=1`, against the built site in the local Pages runtime;
+4. runs **Verify parser in native development workers**, a subset against the Vite development server:
 
-`PLAYWRIGHT_CLOUDFLARE=1 pnpm run test:e2e --browser=all` starts and stops Wrangler locally against the built `dist/`, without relying on a previously running server. CI's browser matrix now uses this mode. Explicit `PLAYWRIGHT_BASE_URL` still targets a deployed site. An earlier attempt failed before reaching the app because the external local server had stopped. Those connection-refused results establish neither an application failure nor passing coverage.
+   ```sh
+   pnpm run test:e2e --browser=<engine> --grep 'follows page references|uploads and replaces|distinguishes compressed'
+   ```
 
-## Live Cloudflare verification: 2026-11-12
+   The development server loads the parser worker as an unbundled module worker. This step checks that the generated parser adapter and its prebundled dependencies work there as well as in the production bundle.
 
-This includes preview rendering without external requests, document writes/uploads or runtime errors in the tested flow. The managed local Cloudflare run also passed 27/27 in 32.6 seconds. The earlier stopped-server failure required no application changes. Actual Safari application testing remains separate.
-
-## Navigation context follow-up — 2026-11-12
-
-The production-preview suite now contains 12 scenarios per engine, including section and exact-byte-range history, unknown-byte messages, forward-branch replacement, and returning from a deeply scrolled object list to a smaller section. `CI=1 PLAYWRIGHT_PREVIEW=1 pnpm exec playwright test --browser=all` passed 36/36 checks across Chromium, Firefox and WebKit. This is local production-build evidence; the published deployment was not changed. Inspector and byte-pane scroll-position restoration was deferred at this stage; see the 2026-11-15 follow-up below.
-
-## Exploration features — 2026-11-12
-
-The integrated production-preview suite passed 51/51 checks in 45.9 seconds, with 17 scenarios each in Chromium, Firefox, and WebKit. Five new scenarios cover clickable trails and cyclic inline expansion; bookmark notes, byte-range restoration, and replacement cleanup; pinned typed dictionary comparisons at desktop/mobile widths; readable instructions with inherited font-resource navigation; and local image thumbnail generation with font details and page links. Desktop/mobile screenshots were inspected in ignored `.context/`.
-
-Reproduction used a separately running local Vite production-preview server: `PLAYWRIGHT_BASE_URL=http://127.0.0.1:5173 pnpm exec playwright test --browser=all`. The initial bookmark test attempted to click an unmounted byte in the virtualised grid; the test now jumps to offset zero before selecting it. No application change was needed for that test setup issue. The final production build also passed type checking and emitted preview/native notice checks; all 98 unit tests and lint pass. These checks do not change the published site or establish actual Safari application coverage.
-
-## Page connections and explanations — 2026-11-13
-
-The production-preview suite passes 72/72 checks (24 scenarios each in Chromium, Firefox and WebKit) using `PLAYWRIGHT_PREVIEW=1 pnpm exec playwright test --browser all`. The same built artefacts passed all three engines in 1.2 minutes. New coverage checks page-tree expansion with keyboard input, inherited-resource trail ownership, object explanations, labelled incoming links, mobile expansion retention, replacement cleanup, cyclic/shared/unavailable connections, and pagination beyond 50 pages. Desktop and mobile screenshots were inspected in ignored `.context/`. The build/type checks, emitted notice checks, 107 unit tests and lint also pass. These are local checks; actual Safari and the published site were not tested in this run.
-
-## Resource downloads and automatic previews — 2026-11-14
-
-The production build served by local Cloudflare Pages passed 102/102 browser checks: 34 scenarios each in Chromium, Firefox, and WebKit. Coverage now includes attachment and subset-font downloads, direct downloads through category filters, filename search and filter retention, full-size PNG dimensions/pixels, unchanged JPEG bytes, automatic previews, accurate export sizes, and explicit unsupported-image reasons. Desktop/mobile layouts were also inspected under `.context/`.
-
-Pre-landing review then found that inline file specifications could be missed when their embedded streams omitted `/Type /EmbeddedFile`. Bounded dictionary/array traversal now discovers those file specifications. Three parser-backed unit regressions cover name trees, associated files and attachment annotations; an additional browser scenario verifies filename, size and downloaded contents. After this correction, the rebuilt Pages assets passed all 18 focused resource/download checks across the three engines. The integrated suite now has 35 scenarios per engine. All 137 unit tests, typecheck, lint, production build, native/preview notices and static Pages asset validation pass. These are local checks; actual Safari and the published site were not changed or tested in this run.
-
-## Inspector and byte scroll restoration — 2026-11-15
-
-The new history-restoration regression passes against the production build in Chromium, Firefox and WebKit. It covers source/raw/decoded tab scroll positions, repeated visits and Forward-branch replacement, mobile pane unmounts, responsive transitions and document replacement. Another 15 checks across the same engines pass for byte clicks, keyboard navigation, bookmarks, comparisons and smaller object lists (18/18 combined). All 147 unit tests, lint and the production build/type and emitted-notice checks pass. These are local checks; actual Safari and publication remain separate.
-
-Pre-landing verification additionally covers the resource-browser inspector branch, including restoring a 70-font list expanded beyond the initial 50 resources. The rebuilt production assets pass 21/21 focused checks across the three engines; see `.context/ship-browsers.log`. Independent follow-up review found no remaining issues.
-
-## Batched worker delivery — 2026-11-15
-
-The production build with acknowledged object batches and shared resource/download indexes passes 144/144 checks (48 each in Chromium, Firefox and WebKit), using `PLAYWRIGHT_PREVIEW=1 pnpm run test:e2e --browser=all`. The new scenario pauses an acknowledgement after a partial document transfer, replaces the PDF and verifies that only the replacement is indexed and navigable. Existing coverage for references, provenance, search, streams, previews, comparison, downloads, history, bookmarks, encryption and scroll restoration also passes. Unit tests: 155; corpus checks: 15. Actual Safari remains unverified here. The current performance evidence is in [PERFORMANCE.md](PERFORMANCE.md).
+`CI` is set on GitHub runners, so neither step reuses an existing server. Production deploys only after all three engines pass; see [HOSTING.md](HOSTING.md).

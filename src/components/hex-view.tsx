@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react'
 import { ArrowDownToLine, Check, Copy, FileCode2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { ScrollPosition } from '@/lib/scroll-restoration'
@@ -8,6 +8,10 @@ interface HexViewProps {
   bytes: Uint8Array
   scrollPositionRef: ScrollPosition
   range?: { start: number; end: number }
+  ranges?: { start: number; end: number }[]
+  revealKey?: number
+  label?: string
+  title?: string
   onByteSelect?: (offset: number) => void
 }
 
@@ -19,7 +23,8 @@ function printable(byte: number) {
   return byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '.'
 }
 
-export function HexView({ bytes, range, onByteSelect, scrollPositionRef }: HexViewProps) {
+export function HexView({ bytes, range, ranges, revealKey, label = 'Original file bytes', title = 'Original file', onByteSelect, scrollPositionRef }: HexViewProps) {
+  const inputId = useId()
   const viewportRef = useRef<HTMLDivElement>(null)
   const [viewport, setViewport] = useState({ width: 600, height: 500, top: 0 })
   const [decimal, setDecimal] = useState(false)
@@ -30,6 +35,7 @@ export function HexView({ bytes, range, onByteSelect, scrollPositionRef }: HexVi
   const copyTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const localSelection = useRef<{ bytes: Uint8Array; offset: number } | null>(null)
   const localSelectionFrame = useRef<number | undefined>(undefined)
+  const lastReveal = useRef<number | undefined>(undefined)
   const rangeStart = range?.start
   const rangeEnd = range?.end
   const columns = viewport.width >= 650 ? 16 : 8
@@ -38,7 +44,8 @@ export function HexView({ bytes, range, onByteSelect, scrollPositionRef }: HexVi
   const lastRow = Math.min(totalRows, firstRow + Math.ceil(viewport.height / ROW_HEIGHT) + OVERSCAN * 2)
   const selectionStart = Math.max(0, Math.min(bytes.length, range?.start ?? cursor ?? 0))
   const selectionEnd = Math.max(selectionStart, Math.min(bytes.length, range?.end ?? (cursor === null ? 0 : cursor + 1)))
-  const selectedLength = selectionEnd - selectionStart
+  const selectedLength = ranges ? ranges.reduce((sum, range) => sum + range.end - range.start, 0) : selectionEnd - selectionStart
+  const isSelected = (position: number) => ranges ? ranges.some(range => position >= range.start && position < range.end) : position >= selectionStart && position < selectionEnd
   const offsetText = (offset: number) => decimal ? offset.toString().padStart(8, '0') : offset.toString(16).toUpperCase().padStart(8, '0')
 
   useEffect(() => {
@@ -56,18 +63,33 @@ export function HexView({ bytes, range, onByteSelect, scrollPositionRef }: HexVi
     const viewportElement = viewportRef.current
     if (!viewportElement) return
     const start = Math.max(0, Math.min(bytes.length - 1, rangeStart ?? 0))
+    const reveal = revealKey !== undefined && revealKey !== lastReveal.current
+    lastReveal.current = revealKey
+    const saved = scrollPositionRef.current
+    const reflow = saved?.byteColumns !== undefined && saved.byteColumns !== columns
     const local = localSelection.current
     // A byte click may select its enclosing object, whose start can be far
     // above the viewport. Preserve the clicked byte's position and cursor.
-    if (local?.bytes === bytes && rangeStart !== undefined && rangeEnd !== undefined && local.offset >= rangeStart && local.offset < rangeEnd) {
+    if (!reveal && !reflow && local?.bytes === bytes && rangeStart !== undefined && rangeEnd !== undefined && local.offset >= rangeStart && local.offset < rangeEnd) {
       localSelection.current = null
-      scrollPositionRef.current = { top: viewportElement.scrollTop, left: viewportElement.scrollLeft }
+      scrollPositionRef.current = { top: viewportElement.scrollTop, left: viewportElement.scrollLeft, byteColumns: columns }
       setMessage('')
       setCopying(false)
       return
     }
-    viewportElement.scrollTop = scrollPositionRef.current?.top ?? Math.floor(start / columns) * ROW_HEIGHT
-    viewportElement.scrollLeft = scrollPositionRef.current?.left ?? 0
+    if (reveal) {
+      localSelection.current = null
+    }
+    // Pixel positions refer to different bytes in the 8- and 16-column grids.
+    // Reflow around the previously visible byte, aligned to a complete row.
+    const restoredTop = reflow
+      ? Math.floor(saved.top / ROW_HEIGHT * saved.byteColumns! / columns) * ROW_HEIGHT
+      : saved?.top
+    viewportElement.scrollTop = reveal ? Math.floor(start / columns) * ROW_HEIGHT : restoredTop ?? Math.floor(start / columns) * ROW_HEIGHT
+    viewportElement.scrollLeft = saved?.left ?? 0
+    // Store synchronously too: Strict Mode may repeat this layout effect
+    // before the browser emits a scroll event for the explicit reveal.
+    scrollPositionRef.current = { top: viewportElement.scrollTop, left: viewportElement.scrollLeft, byteColumns: columns }
     setViewport(current => ({ ...current, top: viewportElement.scrollTop }))
     const frame = requestAnimationFrame(() => {
       setCursor(null)
@@ -75,7 +97,7 @@ export function HexView({ bytes, range, onByteSelect, scrollPositionRef }: HexVi
       setCopying(false)
     })
     return () => cancelAnimationFrame(frame)
-  }, [rangeStart, rangeEnd, columns, bytes, scrollPositionRef])
+  }, [rangeStart, rangeEnd, columns, bytes, scrollPositionRef, revealKey])
 
   useEffect(() => () => {
     clearTimeout(copyTimer.current)
@@ -147,7 +169,7 @@ export function HexView({ bytes, range, onByteSelect, scrollPositionRef }: HexVi
       return
     }
     try {
-      const value = Array.from(bytes.subarray(selectionStart, selectionEnd), byte => byte.toString(16).padStart(2, '0').toUpperCase()).join(' ')
+      const value = Array.from(ranges ? Uint8Array.from(ranges.flatMap(range => Array.from(bytes.subarray(range.start, range.end)))) : bytes.subarray(selectionStart, selectionEnd), byte => byte.toString(16).padStart(2, '0').toUpperCase()).join(' ')
       await navigator.clipboard.writeText(value)
       setCopying(true)
       setMessage(`Copied ${selectedLength.toLocaleString()} bytes as hexadecimal.`)
@@ -159,26 +181,26 @@ export function HexView({ bytes, range, onByteSelect, scrollPositionRef }: HexVi
   }
 
   return (
-    <section className="hex-view" aria-label="Original file bytes">
+    <section className="hex-view" aria-label={label}>
       <div className="hex-toolbar">
-        <div className="hex-title"><FileCode2 aria-hidden="true" size={15} /><span>Original file</span></div>
+        <div className="hex-title"><FileCode2 aria-hidden="true" size={15} /><span>{title}</span></div>
         <div className="hex-actions">
           <Button size="xs" variant="ghost" onClick={() => setDecimal(!decimal)} aria-label={`Offsets in ${decimal ? 'decimal' : 'hexadecimal'}; switch to ${decimal ? 'hexadecimal' : 'decimal'}`} title="Change offset display">{decimal ? 'DEC' : 'HEX'}</Button>
           <Button size="icon-xs" variant="ghost" onClick={copySelection} disabled={!selectedLength} aria-label="Copy selected bytes as hexadecimal" title="Copy selected bytes (up to 64 KiB)">{copying ? <Check /> : <Copy />}</Button>
         </div>
       </div>
       <form className="hex-jump" onSubmit={jumpToOffset}>
-        <label htmlFor="hex-offset">Go to offset</label>
-        <input id="hex-offset" value={jump} onChange={event => setJump(event.target.value)} placeholder="Decimal or 0x…" autoComplete="off" spellCheck={false} disabled={!bytes.length} aria-describedby="hex-jump-help" />
+        <label htmlFor={inputId}>Go to offset</label>
+        <input id={inputId} value={jump} onChange={event => setJump(event.target.value)} placeholder="Decimal or 0x…" autoComplete="off" spellCheck={false} disabled={!bytes.length} aria-describedby={`${inputId}-help`} />
         <Button size="icon-xs" variant="ghost" type="submit" disabled={!bytes.length} aria-label="Jump to offset"><ArrowDownToLine /></Button>
-        <span id="hex-jump-help" className="hex-sr-only">Enter a decimal offset or hexadecimal prefixed with 0x.</span>
+        <span id={`${inputId}-help`} className="hex-sr-only">Enter a decimal offset or hexadecimal prefixed with 0x.</span>
       </form>
       <div className="hex-column-head" style={{ '--hex-columns': columns } as CSSProperties} aria-hidden="true">
         <span>OFFSET</span><span className="hex-byte-heading">{Array.from({ length: columns }, (_, i) => <span key={i}>{i.toString(16).toUpperCase().padStart(2, '0')}</span>)}</span><span>ASCII</span>
       </div>
       <div ref={viewportRef} className="hex-viewport" tabIndex={0} role="region" aria-label="Hexadecimal bytes. Use arrow keys to move; Enter to inspect the object containing the byte." onScroll={event => {
         const top = event.currentTarget.scrollTop
-        scrollPositionRef.current = { top, left: event.currentTarget.scrollLeft }
+        scrollPositionRef.current = { top, left: event.currentTarget.scrollLeft, byteColumns: columns }
         setViewport(current => ({ ...current, top }))
       }} onKeyDown={moveCursor}>
         {bytes.length ? <div className="hex-spacer" style={{ height: totalRows * ROW_HEIGHT, '--hex-columns': columns } as CSSProperties}>
@@ -192,17 +214,17 @@ export function HexView({ bytes, range, onByteSelect, scrollPositionRef }: HexVi
                   const position = offset + column
                   const byte = bytes[position]
                   if (position >= bytes.length) return <span className="hex-byte" key={position} />
-                  const selected = position >= selectionStart && position < selectionEnd
+                  const selected = isSelected(position)
                   return <button key={position} tabIndex={-1} type="button" className={`hex-byte${selected ? ' hex-selected' : ''}${position === cursor ? ' hex-cursor' : ''}${byte === 0 ? ' hex-zero' : ''}`} onClick={() => selectByte(position)} aria-label={`Offset ${position}, byte ${byte.toString(16).toUpperCase().padStart(2, '0')}`} title={`${position} / 0x${position.toString(16).toUpperCase()}`}>{byte.toString(16).toUpperCase().padStart(2, '0')}</button>
                 })}
               </span>
-              <span className="hex-ascii" aria-hidden="true">{Array.from(bytes.subarray(offset, offset + columns), (byte, column) => <span key={offset + column} className={offset + column >= selectionStart && offset + column < selectionEnd ? 'hex-selected' : ''}>{printable(byte)}</span>)}</span>
+              <span className="hex-ascii" aria-hidden="true">{Array.from(bytes.subarray(offset, offset + columns), (byte, column) => <span key={offset + column} className={isSelected(offset + column) ? 'hex-selected' : ''}>{printable(byte)}</span>)}</span>
             </div>
           })}
         </div> : <div className="hex-empty"><FileCode2 size={24} aria-hidden="true" /><p>Open a PDF to inspect its bytes.</p></div>}
       </div>
       <div className="hex-status" aria-live="polite">
-        {message || (selectedLength ? `${selectedLength.toLocaleString()} bytes selected · ${decimal ? selectionStart : `0x${selectionStart.toString(16).toUpperCase()}`}–${decimal ? selectionEnd - 1 : `0x${(selectionEnd - 1).toString(16).toUpperCase()}`}` : `${bytes.length.toLocaleString()} bytes · offsets are zero-based`)}
+        {message || (ranges && ranges.length > 1 ? `${selectedLength.toLocaleString()} bytes selected in ${ranges.length} ranges` : selectedLength ? `${selectedLength.toLocaleString()} byte${selectedLength === 1 ? '' : 's'} selected · ${decimal ? selectionStart : `0x${selectionStart.toString(16).toUpperCase()}`}–${decimal ? selectionEnd - 1 : `0x${(selectionEnd - 1).toString(16).toUpperCase()}`}` : `${bytes.length.toLocaleString()} bytes · offsets are zero-based`)}
       </div>
     </section>
   )

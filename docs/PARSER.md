@@ -1,112 +1,56 @@
-# Parser feasibility result
+# Inspection parser
 
-Status: the prototype adapter works in the browser for the tested PDF formats. Full PDF compatibility has not been established.
+The inspector reads PDFs with @libpdf/core 0.5.3, a TypeScript library. It is separate from EmbedPDF's PDFium engine, which only renders the page preview. LibPDF was chosen because it resolves the current object set from the cross-reference data, including object streams, hybrid files and incremental updates, and gives access to exact byte positions. It is beta software, and the low-level classes the viewer needs are not public exports; see [Instrumentation](#instrumentation-and-reproducibility).
 
-## Selected engine
+Full PDF compatibility is not claimed. `tests/parser.test.ts` covers the supported structures, and an opt-in [corpus](CORPUS.md) checks the engine against independent files.
 
-The inspection engine is @libpdf/core 0.5.3, a TypeScript library. It is separate from EmbedPDF's PDFium preview engine. The application and inspection adapter both stay in TypeScript, with no native parser service.
+## Source provenance
 
-Evaluated alternatives:
+Every object record carries a `provenance` value (`src/lib/pdf/types.ts`) saying where its bytes came from:
 
-- pdf-lib 1.17.1: exposes useful low-level parser classes, but its scan of objects in the file ignores cross-reference entries marked as free. That scan alone cannot identify the current objects and their source locations as this viewer requires.
-- PDF.js public API: useful for rendering, but does not establish arbitrary indirect object enumeration and exact source spans.
-- LibPDF: has a cross-reference-driven parser, hybrid and `/Prev` resolution, lazy objects, object streams, and stream byte views. These capabilities more closely match the inspection requirements.
-- QPDF/WebAssembly: remains a future alternative if the TypeScript engine reaches a material fidelity limit. It has not been introduced.
+- `file`: an exact byte range `[start, end)` in the original input. The Source tab shows the original syntax.
+- `decoded`: an object inside an object stream, located within the container's decoded bytes. The inspector links to the container and labels the source as decoded syntax.
+- `unknown`: no exact location could be verified. The Source tab shows text rebuilt from the parsed values and says so.
 
-LibPDF is beta software. The low-level classes needed here exist in its distributed bundle but are outside its public exports. A build script exposes those internal classes from the exact pinned bundle. This process is called instrumentation below.
+The viewer never claims original bytes it cannot prove. Compressed objects link to their container's original bytes but never map one-to-one through compression, and derived views such as inherited page resources name the object they come from.
 
-## Worker delivery and shared indexes
+## Worker delivery
 
-The adapter still resolves and indexes the complete current object set. The browser worker delivers it using an acknowledged batch protocol (`document-transfer.ts`), targeting 128 items / 128 Ki characters of JSON-estimated payload size per response. Actual payloads use structured cloning, preserving source strings, value types and provenance. A single oversized record is sent alone, without truncation. This avoids one monolithic full-graph deserialisation; it is not a hard per-record latency bound or full lazy object retrieval.
-
-Resource/download discovery runs once in the worker and its indexes travel in the same batches. Resource entries refer to object IDs. The UI publishes the document after all batches arrive and shares these indexes with the inspector. Closing/replacing a document terminates its worker; abandoned partial graphs cannot become the active document. Existing per-request timeouts also apply to acknowledgements. See [performance measurements and limitations](PERFORMANCE.md).
+A dedicated worker parses the document and indexes every object, reference, resource and download up front. It sends the result to the page in acknowledged batches (`src/lib/pdf/document-transfer.ts`) so no single message has to carry the whole graph. The page only shows the document once every batch has arrived. Closing or replacing a document terminates its worker.
 
 ## Instrumentation and reproducibility
 
-`scripts/prepare-parser.mjs` reads the installed bundle and produces `src/generated/libpdf-inspection.mjs` and a small declaration file. Generated artefacts are excluded from version control and regenerated before development, tests, and builds.
+`scripts/prepare-parser.mjs` exposes LibPDF's internal document parser, scanner and xref parser in a generated module, `src/generated/libpdf-inspection.mjs`. It is not committed; `prepare:deps` regenerates it before development, tests and builds. The script:
 
-The preparation script:
+- requires LibPDF 0.5.3 exactly and checks the SHA-256 of its bundle;
+- never modifies `node_modules` or the input PDF;
+- finds object boundaries from the engine's parsed tokens, not by searching for `obj`/`endobj` text;
+- bounds Flate decoding and stubs out two optional cloud-signing imports the read-only adapter never uses.
 
-1. Requires exact version `0.5.3` and checks the unmodified bundle's SHA-256: `7b9b699034c81be2ab6af3337e0d2559df2b91b5016913b2c202cbaafc534400`.
-2. Verifies expected low-level symbols and copies the bundle's runtime helper and licence.
-3. Exposes the engine's existing document parser, scanner, xref parser, and a few provenance helper functions. It does not rewrite PDF input or change cross-reference resolution.
-4. Captures original object boundaries using the engine's parsed token locations and stream parser, not a regex scan for `obj`/`endobj` text.
-5. Uses object-stream index entries and parsed tokens to locate decoded source. A compressed object links to its containing original stream; it has no direct file range.
-6. Bounds Flate decoding and decoded stream storage as described below.
-7. Resolves all static external imports through the engine package's own dependency chain before relocating the bundle, supporting pnpm's isolated dependency layout. Its `lru-cache` import specifically uses the browser ESM entry to avoid Node-only diagnostics.
-8. Replaces two unused optional Google Cloud signing imports with explicit unsupported-operation rejections. These signing operations are outside the read-only adapter. Vite development import analysis otherwise attempts to resolve the optional SDKs even though production tree-shaking removes them. No cloud SDK is installed or used.
+Import the adapter as `pdf-internals-viewer/inspection`, which resolves in the browser build, the development server and the Node tests. The adapter relies on internal fields with no stable API, so upgrading LibPDF makes preparation fail until the adapter has been reviewed and the provenance tests pass again.
 
-The inspector imports the generated adapter through the package's `pdf-internals-viewer/inspection` self-reference. Vite explicitly prebundles this entry and its dependency graph for development workers. Direct relative imports bypassed that conversion and caused native workers to reject named CommonJS exports (for example, `asn1js`'s `Boolean`), while production bundling continued to work. The self-reference also resolves in Node parser/corpus tests. CI exercises sample opening, replacement, references, compressed objects, and stream decoding against both production assets and the development server.
+## Processing limits
 
-The script leaves `node_modules` unchanged. An engine upgrade fails preparation until the instrumentation and fixture results have been reviewed. The generated module retains the upstream licence; the engine dependency and lockfile remain the source of truth. A future upstream low-level export would remove much of this instrumentation.
+`src/lib/pdf/limits.ts` sets the main limits: 64 MiB per file, 100,000 objects, 32 MiB of decoded data per stream, 256 KiB previews and a 15-second timeout per operation. Each document also has a 128 MiB budget for all decoded data. These bound decoded data and work, not total browser memory.
 
-The generated adapter depends on internal token lookahead fields. They have no stable public API contract. Its provenance tests are mandatory when the engine changes.
+## Known limits
 
-## Verified capabilities
+- Opening indexes every object up front, with no progress reporting or lazy loading, so very large files can hit the time or object limits.
+- Values are the engine's interpretation: duplicate keys collapse and number and name spellings are normalised. The original bytes are kept separately wherever provenance is verified.
+- Only the latest version of each object is indexed. Older revisions stay in the bytes but cannot be browsed.
+- Recovery of damaged files is an interpretation, not a repair, and recovered documents are marked as such.
+- Only Flate, ASCIIHex and ASCII85 decode for inspection. JPEG, JPEG2000, JBIG2, CCITT, LZW and RunLength streams show raw bytes, though the preview can still render them.
+- Encrypted files unlock automatically with an empty password, or with an opening or owner password, which is never stored. Source and raw views keep the encrypted bytes; properties and decoded streams use decrypted data.
 
-The fixtures verify the following behaviours. Other PDFs may exercise cases they do not cover.
+## Page text source mapping
 
-| Capability | Evidence |
-| --- | --- |
-| Classic xref tables | Minimal and resource-rich samples enumerate correct objects |
-| Ordinary object ranges | Ranges match independently recorded fixture offsets, including object terminators |
-| Binary stream boundaries | Fake `endstream`, `endobj`, and object headers inside a stream do not create false objects when `/Length` is valid |
-| Cross-reference streams | Compressed sample opens through its xref stream |
-| Object streams | Four compressed objects resolve with decoded ranges and original container links |
-| Hybrid xref | Supplementary xref stream resolves compressed objects alongside a classic table |
-| Incremental updates | Updated object wins; object freed in the latest xref is absent |
-| Reference graph | Outgoing/incoming links, cycles, and dangling references are retained |
-| Stream decoding | Flate, PNG predictor, ASCIIHex -> Flate chain, and ASCII85 verified |
-| Encryption state | Independent pypdf fixtures verify RC4-40/128, AES-128/256, empty/user/owner passwords, retries, decrypted strings/streams, and original-byte preservation |
-| Invalid xref recovery | Truncated xref recovers objects with an explicit recovered warning |
-| Input immutability | Original bytes unchanged after parsing/decoding |
-| Decompression bound | 33 MiB decoded Flate fixture is refused while raw stream access remains available |
+Page text search uses the EmbedPDF engine to find words on each page (`src/lib/pdf/page-text-search.ts`). A separate mapper (`src/lib/pdf/page-text.ts`) then tries to trace each match back to the content-stream bytes that draw it. The renderer understands more encodings than the mapper, so a page can match without a mapped source; the UI labels that stream as a candidate and highlights no word bytes.
 
-`tests/parser.test.ts` currently covers these behaviours. Test count can change as cases are added.
+The mapper supports:
 
-The three bundled sample PDFs are generated by `scripts/fixtures/generate.mjs`, from original project-owned content with no external fonts or images. Their page count, page content, and compressed-object count were independently checked with pypdf 6.14.2. Poppler's `pdftotext` also extracts the compressed sample's expected text. Fixture expected offsets are recorded when constructing the bytes, not calculated by the inspection engine under test.
+- direct page `/Contents` streams, including indirect arrays and inherited font resources, but not Form XObjects;
+- character codes 32 to 126 in the standard Helvetica, Times and Courier fonts, and simple fonts using WinAnsi, MacRoman or Standard encoding without `/Differences`;
+- fixed-width `/ToUnicode` CMaps with `bfchar` and `bfrange` mappings, including multibyte codes and ligatures;
+- literal and hexadecimal strings, escapes, and strings split across `TJ` arrays, with large negative `TJ` adjustments treated as possible word spaces.
 
-## Memory and execution limits
-
-- 64 MiB input limit and 100,000 non-free cross-reference entries.
-- 32 MiB decoded limit per stream. Flate uses a streaming inflater with 64 KiB output chunks, aborting when the limit is crossed, before assembling the complete oversized result.
-- 128 MiB cumulative decoded-data budget per worker/document. The engine's stream decoder is wrapped in a shared weak cache so repeated requests and object-stream provenance do not repeatedly decompress the same stream. Once the budget is exhausted, this first version refuses new decoded streams. Evicting the cache would not reliably reclaim structural data the engine may retain internally.
-- Engine structural decoding is restricted to the same supported filters as user-facing decoding: Flate, ASCIIHex, and ASCII85, including their abbreviated names. Unsupported structural filters produce partial results/warnings.
-- Source and stream display previews are capped at 256 KiB. This limit is separate from the decoder's output limit and original-file hex access. `StreamResult.truncated` records preview truncation.
-- Asset downloads use all stream bytes that fit within the decoding limits, rather than only the display preview. Size requests return the complete decoded byte count without copying the payload to the UI. Both retain the 32 MiB stream and 128 MiB cumulative decoding limits; incomplete or unsupported data is not downloaded.
-- Image export converts supported 8-bit DeviceRGB/DeviceGray samples to PNG, limited to 4 megapixels and 4096 pixels per side. A single DCTDecode/DCT image stream can instead export its embedded JPEG bytes without re-encoding, with the encoded representation explicitly marked in the result. This does not enable JPEG decoding in the inspector. Resource previews and export-size calculation start as rows become visible; canvas work is serialised and export buffers are released afterward.
-- A 15-second worker-operation timeout terminates parsing/decoding. Closing or replacing a document disposes its worker and rejects outstanding requests.
-- Parsed object graphs, serialised value trees, original bytes, preview renderings, worker message copies, and UI strings use additional memory beyond the decoded-data budget. It is not a total browser heap limit.
-
-One `PdfWorkerClient` per open document is the intended lifecycle. Its worker owns its own engine module/cache. The direct `PdfInspector` class is used for isolated tests and should not be shared across concurrent documents.
-
-## Known fidelity and scope limits
-
-- Opening eagerly enumerates objects, serialises value trees, and indexes references. These operations run in a worker, but the inspector does not yet stream indexing progress or lazily fetch each object. Very large object graphs can hit the time/object limits.
-- Values are the engine's semantic interpretation. Duplicate dictionary keys are collapsed by the engine, lexical number spellings and name escapes are normalised, and raw PDF string bytes are not separately returned in the serialised value tree. Original source is retained separately wherever provenance is verified. Reconstructing a PDF from these parsed values is not guaranteed to reproduce the original bytes.
-- The adapter omits malformed zero/out-of-range in-use xref targets and reports an unavailable-object warning. It does not create synthetic null source objects for them. Explicitly defined null objects are preserved. Objects without a verified terminator, or with a mismatching xref target, have unknown provenance and a warning. The source view for these uses reconstructed readable values. Recovered files are visibly marked at document level.
-- Recovery is provided by the engine and may infer objects from damaged files. A recovered view interprets damaged input. It neither repairs the PDF nor establishes conformance.
-- The index includes only the object versions that apply after resolving all updates. Older revisions remain in the immutable original bytes; historical object-version browsing is not implemented.
-- Page resources can be inherited through `/Parent`; the raw dictionary tree does not synthesise inherited entries. The UI must label any derived inherited-resource convenience view as such.
-- Decoded text displays each byte as a character using a Latin-1-style mapping, preserving the byte values. It does not extract rendered page text, and the stream may not use a human text encoding.
-- Any decoded-stream search that consumes `readStream()` results is limited to the first 256 KiB per stream and must report that incompleteness. Full bounded decoded searching needs a separate worker search operation before claiming complete decoded results.
-- JPEG, JPEG2000, JBIG2, CCITT, LZW, and RunLength decoding are not enabled for inspection. Raw bytes remain available. Page preview may render images through a separate engine without changing this inspection capability list.
-- Embedded attachments are discovered from file-specification `/EF` entries and indexed `/EmbeddedFile` streams; unavailable/unparsed objects can contain additional files. Font files resolve through descriptors and composite-font descendants. Font downloads may be subsets rather than complete original fonts. PNG export rejects masks, custom decoding, unsupported colour spaces and codecs; extracted JPEGs do not apply PDF masks, colour adjustments, or page transforms.
-- Empty-password encrypted files unlock automatically. Other standard encrypted files accept an opening or owner password through the worker. Passwords are not persisted. Unsupported security handlers remain unavailable. Source and raw stream views retain the original encrypted bytes; properties and decoded streams use decrypted data. The encryption dictionary itself is never decrypted.
-- The pinned adapter normalises both R6 permission values to signed int32 when verifying /Perms, accepting producers that write an unsigned /P. It also turns the engine's silent ciphertext fallback on decryption failure into an object warning/unavailable result. Hash and replacement-shape guards cover both patches.
-- Encryption fixtures under `tests/fixtures/encryption/` are original project content encrypted independently with pypdf 6.14.2. Regenerate with `python3 scripts/fixtures/generate-encrypted.py` (requires pypdf[crypto]); Python is not an app dependency.
-- Stream dictionaries and raw byte payloads are retained; arbitrary embedded document actions are not executed.
-- An opt-in 15-file independent corpus now checks pages, object identities, sampled offsets, immutability, recovery, and encryption; see [CORPUS.md](CORPUS.md). A desktop [browser performance baseline](PERFORMANCE.md) now records opening/navigation responsiveness and separate heap snapshots. Actual Safari testing, broader current-producer coverage, representative 10 MiB files, lower-memory devices and the observed usability session remain pending.
-
-## Release readiness
-
-For the tested formats, the prototype can enumerate objects, locate original boundaries, track compressed-object provenance, resolve updates and hybrid xrefs, and decode streams through an established TypeScript engine. The app can integrate this adapter for its first end-to-end exploration flow.
-
-Before public release, verify browser behaviour and test representative external PDFs. The UI must label incomplete searches and fidelity gaps, and browser measurements must establish performance against the planned budgets. Decide whether to maintain this adapter against pinned internals or replace it with an upstream-supported low-level interface.
-
-## Primary sources
-
-- [LibPDF source and project status](https://github.com/LibPDF-js/core)
-- [LibPDF document parser](https://github.com/LibPDF-js/core/blob/main/src/parser/document-parser.ts)
-- [pdf-lib parser](https://github.com/Hopding/pdf-lib/blob/master/src/core/parser/PDFParser.ts)
-- [PDF.js document API](https://mozilla.github.io/pdf.js/api/draft/module-pdfjsLib-PDFDocumentProxy.html)
+Unfiltered, unencrypted streams highlight the exact bytes in the original file. Compressed or encrypted streams highlight decoded bytes and only the containing stream in the original file; no original offsets are invented. Search stops at 500 matches, and mapping at 100 source locations per page. There is no OCR.

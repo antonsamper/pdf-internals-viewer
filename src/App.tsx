@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useEffectEvent,
+  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -21,6 +22,7 @@ import {
   ChevronRight,
   ChevronUp,
   ChevronDown,
+  Eye,
   File as FileIcon,
   FileCode2,
   FileWarning,
@@ -47,6 +49,15 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
+import { byteSearchSnippet, type SearchSnippet } from "@/lib/pdf/search-snippet"
+import { SearchResultsPopover } from "@/components/search-results-popover"
+import { SearchScopeSelect } from "@/components/search-scope-select"
+import { TextSourceBytes } from "@/components/text-source-bytes"
+import {
+  pageTextSources,
+  type PageTextLocation,
+  type TextSource,
+} from "@/lib/pdf/page-text"
 import { HexView } from "@/components/hex-view"
 import {
   ObjectInspector,
@@ -92,6 +103,7 @@ import type {
   PdfDocumentInfo,
   PdfObjectRecord,
   PdfValue,
+  StreamResult,
 } from "@/lib/pdf/types"
 import { ContentHeaderLinks } from "@/components/content-navigation"
 import { AboutPage } from "@/components/about-page"
@@ -148,8 +160,10 @@ type Section =
 type SearchResult = {
   label: string
   detail: string
+  snippet?: SearchSnippet
   id?: string
   range?: ByteRange
+  pageText?: PageTextLocation
 }
 const size = (value: number) =>
   value < 1024
@@ -200,9 +214,12 @@ function PdfWorkspace({
   const { path, about, goHome, followLink } = useSiteRoute(initialPath)
   const input = useRef<HTMLInputElement>(null)
   const searchInput = useRef<HTMLInputElement>(null)
+  const searchForm = useRef<HTMLFormElement>(null)
+  const searchResultsId = useId()
   const client = useRef<PdfWorkerClient | null>(null)
   const requestId = useRef(0)
   const searchId = useRef(0)
+  const searchAbort = useRef<AbortController | null>(null)
   const [bytes, setBytes] = useState(EMPTY)
   const [filename, setFilename] = useState("")
   const [document, setDocument] = useState<PdfDocumentInfo | null>(null)
@@ -241,6 +258,7 @@ function PdfWorkspace({
   const [previewPage, setPreviewPage] = useState(1)
   const [dragging, setDragging] = useState(false)
   const [query, setQuery] = useState("")
+  const [searchOpen, setSearchOpen] = useState(false)
   const [scope, setScope] = useState("objects")
   const [searchResults, setSearchResults] = useState<SearchResult[] | null>(
     null
@@ -250,14 +268,61 @@ function PdfWorkspace({
   )
   const activeSearchMatch = useRef<HTMLButtonElement | null>(null)
   useEffect(() => {
-    activeSearchMatch.current?.scrollIntoView({
-      block: "nearest",
-      inline: "nearest",
-    })
-  }, [activeSearchResult, searchResults])
+    if (!searchOpen) return
+    const frame = requestAnimationFrame(() =>
+      activeSearchMatch.current
+        ?.closest(".search-result-item")
+        ?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+            .matches
+            ? "instant"
+            : "smooth",
+          block: "nearest",
+          inline: "nearest",
+        })
+    )
+    return () => cancelAnimationFrame(frame)
+  }, [activeSearchResult, searchResults, searchOpen])
   const [searching, setSearching] = useState(false)
+  const [cancelRequest, setCancelRequest] = useState(0)
+  const [cancelReady, setCancelReady] = useState(0)
+  useEffect(() => {
+    if (!searching) return
+    const timer = setTimeout(() => setCancelReady(cancelRequest), 600)
+    return () => clearTimeout(timer)
+  }, [searching, cancelRequest])
+  const [searchingScope, setSearchingScope] = useState("objects")
   const [resultsScope, setResultsScope] = useState("objects")
+  const [searchingQuery, setSearchingQuery] = useState("")
+  const [resultsQuery, setResultsQuery] = useState<string | null>(null)
+  const [searchInterrupted, setSearchInterrupted] = useState<
+    "cancelled" | "failed" | null
+  >(null)
+  const [textSource, setTextSource] = useState<TextSource | null>(null)
+  const revealSequence = useRef(0)
+  const [byteReveal, setByteReveal] = useState<number>()
+  const [sourceLocationsPage, setSourceLocationsPage] = useState<string | null>(
+    null
+  )
   const [searchMessage, setSearchMessage] = useState("")
+  const previewSearch = useMemo(
+    () =>
+      resultsScope === "pageText" && resultsQuery
+        ? {
+            query: resultsQuery,
+            matches:
+              searchResults?.flatMap(
+                (result) => result.pageText?.matches ?? []
+              ) ?? [],
+          }
+        : undefined,
+    [resultsScope, resultsQuery, searchResults]
+  )
+  const displayedSearchScope =
+    searching || searchInterrupted ? searchingScope : resultsScope
+  const showPreviousResults =
+    resultsQuery !== null &&
+    (searching || searchInterrupted !== null || query.trim() !== resultsQuery)
   const [mobilePane, setMobilePane] = useState("inspector")
   const [pageTreeState, setPageTreeState] = useState(emptyPageTree)
   const [objectScroll, setObjectScroll] = useState(0)
@@ -364,6 +429,8 @@ function PdfWorkspace({
     )
   }
   function visit(next: Selection) {
+    setByteReveal(undefined)
+    setTextSource(null)
     if (next.section !== section) setObjectScroll(0)
     setNotice(next.notice ?? null)
     setPreview(false)
@@ -412,6 +479,8 @@ function PdfWorkspace({
     setMobilePane("bytes")
   }
   function travel(direction: number) {
+    setByteReveal(undefined)
+    setTextSource(null)
     const index = Math.max(
       0,
       Math.min(history.length - 1, historyIndex + direction)
@@ -422,15 +491,18 @@ function PdfWorkspace({
     setNotice(next.notice ?? null)
     setPreview(false)
     setMobilePane(next.range ? "bytes" : "inspector")
-    setSearchResults(null)
     const page = document?.pages.indexOf(next.id ?? "") ?? -1
     if (page >= 0) setPreviewPage(page + 1)
   }
   const close = useCallback(() => {
     requestId.current++
     searchId.current++
+    searchAbort.current?.abort()
     client.current?.dispose()
     client.current = null
+    setTextSource(null)
+    setByteReveal(undefined)
+    setSourceLocationsPage(null)
     setBytes(EMPTY)
     setFilename("")
     setUnlocking(false)
@@ -444,6 +516,9 @@ function PdfWorkspace({
     setNotice(null)
     setPreview(false)
     setSearchResults(null)
+    setSearchOpen(false)
+    setResultsQuery(null)
+    setSearchInterrupted(null)
     setSearching(false)
     setQuery("")
     setHistory([{ id: null, tab: "properties", section: "overview" }])
@@ -463,6 +538,7 @@ function PdfWorkspace({
   useEffect(
     () => () => {
       client.current?.dispose()
+      searchAbort.current?.abort()
     },
     []
   )
@@ -474,6 +550,7 @@ function PdfWorkspace({
       }
       if ((event.metaKey || event.ctrlKey) && event.key === "k") {
         event.preventDefault()
+        setSearchOpen(true)
         searchInput.current?.focus()
       }
     }
@@ -643,15 +720,39 @@ function PdfWorkspace({
     return client.current.readStream(id, "decoded", "image")
   }, [])
 
+  function selectTextSource(location: PageTextLocation, source: TextSource) {
+    const object = objectMap.get(source.id)
+    visit({
+      id: source.id,
+      tab: "decoded",
+      section: "pages",
+      trail: [objectStep(location.pageId), objectStep(source.id)],
+      range: source.originalRanges?.[0] ?? object?.stream?.range,
+      notice: source.ranges.length
+        ? "Matching source text located. Byte highlights exclude intervening PDF operators."
+        : "Page text found; this is a candidate content stream. Exact text bytes could not be mapped.",
+    })
+    setTextSource(source)
+    setByteReveal(++revealSequence.current)
+    setPreviewPage(location.pageNumber)
+    setMobilePane("bytes")
+  }
   function selectSearchResult(
     result: SearchResult,
     index: number,
     resultScope = resultsScope
   ) {
     setActiveSearchResult(index)
-    if (result.id)
+    if (result.pageText) {
+      const location = result.pageText
+      if (location.sources.length)
+        selectTextSource(location, location.sources[0])
+      else navigate(location.pageId, "properties", "pages")
+      setPreviewPage(location.pageNumber)
+    } else if (result.id)
       navigate(result.id, resultScope === "decoded" ? "decoded" : "properties")
     else if (result.range) selectRange(result.range)
+    setByteReveal(++revealSequence.current)
   }
   const selectLatestSearchResult = useRef(selectSearchResult)
   useLayoutEffect(() => {
@@ -666,21 +767,104 @@ function PdfWorkspace({
       searchResults.length
     selectSearchResult(searchResults[index], index)
   }
-  async function search() {
-    const token = ++searchId.current
+  function clearSearch() {
+    setByteReveal(undefined)
+    setSourceLocationsPage(null)
+    searchId.current++
+    searchAbort.current?.abort()
+    setQuery("")
+    setSearching(false)
+    setSearchResults(null)
+    setSearchOpen(false)
+    setResultsQuery(null)
+    setSearchInterrupted(null)
+    setActiveSearchResult(null)
+    setSearchMessage("")
+    setTextSource(null)
+  }
+  async function search(nextScope?: string) {
+    const searchScope = nextScope ?? scope
     const term = query.trim()
     if (!term) {
-      setSearchResults(null)
+      clearSearch()
       return
     }
+    const token = ++searchId.current
+    setCancelRequest(token)
+    searchAbort.current?.abort()
+    const controller = new AbortController()
+    searchAbort.current = controller
+    setSearchOpen(true)
     setSearching(true)
-    setActiveSearchResult(null)
-    setSearchResults([])
-    setSearchMessage("")
-    setResultsScope(scope)
+    setSearchingScope(searchScope)
+    setSearchingQuery(term)
+    setSearchInterrupted(null)
+    // Keep the completed results and their scope/selection together until the
+    // replacement is ready. Only the status changes while a search is running.
+    setSearchResults((current) => current ?? [])
     const found: SearchResult[] = []
+    let message = ""
     try {
-      if (scope === "objects" || scope === "keys") {
+      if (searchScope === "pageText") {
+        if (!document || document.locked)
+          throw new Error("Unlock the PDF before searching page text.")
+        const { searchPageText } = await import("@/lib/pdf/page-text-search")
+        const pageSearch = await searchPageText(
+          bytes,
+          term,
+          previewPassword,
+          controller.signal
+        )
+        const streamCache = new Map<string, Promise<StreamResult>>()
+        const cachedRead = (id: string) => {
+          if (!streamCache.has(id))
+            streamCache.set(id, readStream(id, "decoded"))
+          return streamCache.get(id)!
+        }
+        for (const hit of pageSearch.hits) {
+          if (token !== searchId.current) return
+          const page = objects.find(
+            (object) =>
+              object.objectNumber === hit.objectNumber && object.kind === "Page"
+          )
+          if (!page) continue
+          const sources = await pageTextSources(
+            page,
+            objectMap,
+            term,
+            cachedRead,
+            document.encrypted,
+            () => token !== searchId.current
+          )
+          sources.sort(
+            (a, b) =>
+              Number(Boolean(b.ranges.length)) -
+              Number(Boolean(a.ranges.length))
+          )
+          const pageNumber =
+            pageSearch.pages.get(hit.objectNumber) ??
+            document.pages.indexOf(page.id) + 1
+          found.push({
+            label: `Page ${pageNumber}`,
+            detail: `${hit.count} text match${hit.count === 1 ? "" : "es"}`,
+            snippet: hit.context ?? {
+              before: "",
+              match: hit.snippet,
+              after: "",
+            },
+            pageText: {
+              pageId: page.id,
+              pageNumber,
+              count: hit.count,
+              snippet: hit.snippet,
+              sources,
+              matches: hit.matches,
+            },
+          })
+        }
+        if (token !== searchId.current) return
+        message = `${pageSearch.limited ? "Showing the first 500 text matches. " : ""}Results are grouped by page. Source locations cover supported fonts and direct page streams; candidate streams are labelled. Scans without a text layer need OCR.`
+      } else if (searchScope === "objects" || searchScope === "keys") {
         const needle = term.toLowerCase()
         const hasKey = (value: PdfValue): boolean => {
           if (value.type === "dictionary" || value.type === "stream")
@@ -693,7 +877,7 @@ function PdfWorkspace({
         }
         for (const object of objects)
           if (
-            scope === "keys"
+            searchScope === "keys"
               ? hasKey(object.value)
               : `${object.id} ${object.id} R ${object.label} ${object.kind}`
                   .toLowerCase()
@@ -706,7 +890,7 @@ function PdfWorkspace({
             })
             if (found.length === 500) break
           }
-      } else if (scope === "decoded") {
+      } else if (searchScope === "decoded") {
         let skipped = 0
         for (const object of objects.filter((object) => object.stream)) {
           if (token !== searchId.current) return
@@ -716,7 +900,13 @@ function PdfWorkspace({
             if (result.text.toLowerCase().includes(term.toLowerCase()))
               found.push({
                 label: `${object.id} obj`,
-                detail: "Match in decoded byte text (Latin-1)",
+                detail: "Decoded stream text",
+                snippet: byteSearchSnippet(
+                  result.bytes,
+                  result.text.toLowerCase().indexOf(term.toLowerCase()),
+                  result.text.toLowerCase().indexOf(term.toLowerCase()) +
+                    term.length
+                ),
                 id: object.id,
               })
           } catch {
@@ -725,25 +915,23 @@ function PdfWorkspace({
           if (found.length === 500) break
         }
         if (skipped)
-          setSearchMessage(
-            `${skipped} stream(s) unsupported or incomplete. Results are partial.`
-          )
+          message = `${skipped} stream(s) unsupported or incomplete. Results are partial.`
       } else {
         const compact = term.replace(/\s/g, "")
         if (
-          scope === "hex" &&
+          searchScope === "hex" &&
           (!/^[\da-f]+$/i.test(compact) || compact.length % 2)
         )
           throw new Error("Enter complete hex bytes, for example 25 50 44 46.")
         if (
-          scope === "text" &&
+          searchScope === "text" &&
           [...term].some((character) => character.charCodeAt(0) > 255)
         )
           throw new Error(
             "Original byte-text search accepts Latin-1 characters (0–255). Use decoded search for stream content."
           )
         const needle =
-          scope === "hex"
+          searchScope === "hex"
             ? Uint8Array.from(compact.match(/../g) ?? [], (pair) =>
                 parseInt(pair, 16)
               )
@@ -763,7 +951,13 @@ function PdfWorkspace({
           if (matches) {
             found.push({
               label: `0x${offset.toString(16).toUpperCase()}`,
-              detail: `${needle.length} original file bytes`,
+              detail: `${needle.length} original file byte${needle.length === 1 ? "" : "s"}`,
+              snippet: byteSearchSnippet(
+                bytes,
+                offset,
+                offset + needle.length,
+                searchScope === "hex"
+              ),
               range: { start: offset, end: offset + needle.length },
             })
             if (found.length === 500) break
@@ -772,13 +966,23 @@ function PdfWorkspace({
       }
       if (token === searchId.current) {
         setSearchResults(found)
-        if (found.length) selectLatestSearchResult.current(found[0], 0, scope)
-        if (found.length === 500)
-          setSearchMessage("Showing the first 500 matches. Narrow your search.")
+        setSourceLocationsPage(null)
+        setResultsScope(searchScope)
+        setResultsQuery(term)
+        setTextSource(null)
+        setActiveSearchResult(null)
+        if (found.length)
+          selectLatestSearchResult.current(found[0], 0, searchScope)
+        setSearchMessage(
+          found.length === 500
+            ? "Showing the first 500 matches. Narrow your search."
+            : message
+        )
         setSearching(false)
       }
     } catch (reason) {
       if (token === searchId.current) {
+        setSearchInterrupted("failed")
         setSearchMessage(
           reason instanceof Error ? reason.message : "Search failed."
         )
@@ -802,7 +1006,6 @@ function PdfWorkspace({
     }
   }
   function chooseSection(next: Section) {
-    setSearchResults(null)
     if (
       next === "overview" ||
       next === "structure" ||
@@ -1217,10 +1420,33 @@ function PdfWorkspace({
     </div>
   )
 
+  const byteView = textSource ? (
+    <TextSourceBytes
+      key={`${byteReveal}-${activeSearchResult}-${textSource.id}-${textSource.ranges[0]?.start ?? "candidate"}`}
+      source={textSource}
+      revealKey={byteReveal}
+      bytes={bytes}
+      originalRange={selectedRange}
+      scrollPositionRef={viewports.bytes}
+      onByteSelect={selectByte}
+    />
+  ) : (
+    <HexView
+      bytes={bytes}
+      revealKey={byteReveal}
+      scrollPositionRef={viewports.bytes}
+      range={selectedRange}
+      onByteSelect={selectByte}
+    />
+  )
+
   const objectInspector = selected ? (
     <ObjectInspector
       onFollowLink={followLink}
       object={selected}
+      textMatchRanges={
+        textSource?.id === selected.id ? textSource.ranges : undefined
+      }
       scrollPositionRef={viewports.inspector}
       tab={selection.tab}
       resources={
@@ -1343,6 +1569,7 @@ function PdfWorkspace({
             password={previewPassword}
             pageNumber={previewPage}
             onPageChange={setPreviewPage}
+            search={previewSearch}
           />
         </Suspense>
       ) : selected ? (
@@ -1634,50 +1861,111 @@ function PdfWorkspace({
                 </nav>
               </div>
               <form
+                ref={searchForm}
                 className="search-form"
                 onSubmit={(event) => {
                   event.preventDefault()
                   void search()
                 }}
               >
-                <Search size={14} />
+                <Search className="search-input-icon" size={14} />
                 <Input
+                  className="search-query"
                   ref={searchInput}
                   aria-label="Search document"
                   placeholder="Search document…"
                   value={query}
-                  onChange={(event) => setQuery(event.target.value)}
+                  aria-expanded={searchResults !== null && searchOpen}
+                  aria-haspopup="dialog"
+                  aria-controls={
+                    searchResults !== null && searchOpen
+                      ? searchResultsId
+                      : undefined
+                  }
+                  onClick={() => {
+                    if (searchResults !== null) setSearchOpen(true)
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") setSearchOpen(false)
+                    if (
+                      event.key === "ArrowDown" &&
+                      searchResults?.length &&
+                      !searching
+                    ) {
+                      event.preventDefault()
+                      setSearchOpen(true)
+                      requestAnimationFrame(() =>
+                        activeSearchMatch.current?.focus({
+                          preventScroll: true,
+                        })
+                      )
+                    }
+                  }}
+                  onChange={(event) => {
+                    const value = event.target.value
+                    if (value.trim()) {
+                      setQuery(value)
+                      if (searchResults !== null) setSearchOpen(true)
+                    } else clearSearch()
+                  }}
                 />
-                <select
-                  aria-label="Search scope"
+                <SearchScopeSelect
                   value={scope}
-                  onChange={(event) => setScope(event.target.value)}
-                >
-                  <option value="objects">Objects</option>
-                  <option value="keys">Keys</option>
-                  <option value="text">File text</option>
-                  <option value="hex">File hex</option>
-                  <option value="decoded">Decoded streams</option>
-                </select>
+                  onValueChange={(nextScope) => {
+                    setScope(nextScope)
+                    if (nextScope !== scope && query.trim())
+                      void search(nextScope)
+                  }}
+                />
                 <Button
                   size="icon-sm"
                   variant="ghost"
                   type="submit"
                   aria-label="Run search"
+                  title="Run search"
+                  className="search-submit"
                   disabled={searching || busy}
                 >
                   <ArrowRight size={14} />
+                  <span>Search</span>
                 </Button>
                 {searchResults !== null && (
                   <Button
+                    size="xs"
+                    variant="ghost"
+                    type="button"
+                    aria-label="Show search results"
+                    title="Open search results"
+                    className="search-show"
+                    aria-haspopup="dialog"
+                    aria-expanded={searchOpen}
+                    onClick={() => setSearchOpen(!searchOpen)}
+                  >
+                    Results{" "}
+                    <span>
+                      {searchResults.length}{" "}
+                      {resultsScope === "pageText"
+                        ? searchResults.length === 1
+                          ? "page"
+                          : "pages"
+                        : searchResults.length === 1
+                          ? "match"
+                          : "matches"}
+                    </span>
+                    <ChevronDown size={12} />
+                  </Button>
+                )}
+                {query && (
+                  <Button
                     size="icon-sm"
                     variant="ghost"
-                    aria-label="Close search"
+                    aria-label="Clear search"
+                    title="Clear query and results"
+                    className="search-clear"
                     type="button"
                     onClick={() => {
-                      searchId.current++
-                      setSearching(false)
-                      setSearchResults(null)
+                      clearSearch()
+                      searchInput.current?.focus()
                     }}
                   >
                     <X size={14} />
@@ -1686,85 +1974,384 @@ function PdfWorkspace({
               </form>
             </div>
             {searchResults !== null && (
-              <section className="search-results" aria-label="Search results">
-                <div className="search-results-header">
-                  <span role="status">
-                    {searching
-                      ? "Searching…"
-                      : `${searchResults.length} match${searchResults.length === 1 ? "" : "es"}`}
-                    {` · ${resultsScope === "text" ? "Latin-1 file bytes" : resultsScope === "decoded" ? "decoded streams" : resultsScope}`}
-                  </span>
-                  <div
-                    className="search-result-navigation"
-                    aria-label="Search result navigation"
-                    role="group"
-                  >
-                    <span aria-live="polite" aria-atomic="true">
-                      {searchResults.length
-                        ? `${(activeSearchResult ?? 0) + 1} of ${searchResults.length}`
-                        : "0 of 0"}
+              <SearchResultsPopover
+                id={searchResultsId}
+                open={searchOpen}
+                busy={searching || showPreviousResults}
+                onOpenChange={setSearchOpen}
+                anchor={searchForm}
+                input={searchInput}
+              >
+                <section
+                  className="search-results"
+                  aria-label="Search results"
+                  data-searching={searching || undefined}
+                  data-hold-height={
+                    searching || showPreviousResults || undefined
+                  }
+                  onKeyDown={(event) => {
+                    if (
+                      (event.key === "ArrowDown" || event.key === "ArrowUp") &&
+                      (event.target as HTMLElement).classList.contains(
+                        "search-result"
+                      )
+                    ) {
+                      event.preventDefault()
+                      moveSearchResult(event.key === "ArrowDown" ? 1 : -1)
+                      requestAnimationFrame(() =>
+                        activeSearchMatch.current?.focus({
+                          preventScroll: true,
+                        })
+                      )
+                    }
+                  }}
+                >
+                  <div className="search-results-header">
+                    <span
+                      role="status"
+                      title={
+                        searching || searchInterrupted
+                          ? searchingQuery
+                          : (resultsQuery ?? undefined)
+                      }
+                    >
+                      {searching
+                        ? `Searching for “${searchingQuery}”…`
+                        : searchInterrupted
+                          ? `Search ${searchInterrupted} for “${searchingQuery}”`
+                          : `${searchResults.length} ${resultsScope === "pageText" ? (searchResults.length === 1 ? "page" : "pages") : `match${searchResults.length === 1 ? "" : "es"}`}`}
+                      {` · ${displayedSearchScope === "pageText" ? "page text" : displayedSearchScope === "text" ? "Latin-1 file bytes" : displayedSearchScope === "decoded" ? "decoded streams" : displayedSearchScope}`}
                     </span>
-                    <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      aria-label="Previous search result"
-                      title="Previous result"
-                      disabled={searching || !searchResults.length}
-                      onClick={() => moveSearchResult(-1)}
+                    <div
+                      className="search-result-navigation"
+                      aria-label="Search result navigation"
+                      role="group"
                     >
-                      <ChevronUp size={14} />
-                    </Button>
-                    <Button
-                      size="icon-sm"
-                      variant="ghost"
-                      aria-label="Next search result"
-                      title="Next result"
-                      disabled={searching || !searchResults.length}
-                      onClick={() => moveSearchResult(1)}
-                    >
-                      <ChevronDown size={14} />
-                    </Button>
-                  </div>
-                  {searching && (
+                      <span aria-live="polite" aria-atomic="true">
+                        {resultsScope === "pageText" ? "Page " : "Match "}
+                        {searchResults.length
+                          ? `${(activeSearchResult ?? 0) + 1} of ${searchResults.length}`
+                          : "0 of 0"}
+                      </span>
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        aria-label="Previous search result"
+                        title={
+                          resultsScope === "pageText"
+                            ? "Previous matching page"
+                            : "Previous match"
+                        }
+                        disabled={searching || searchResults.length < 2}
+                        onClick={() => moveSearchResult(-1)}
+                      >
+                        <ChevronUp size={14} />
+                      </Button>
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        aria-label="Next search result"
+                        title={
+                          resultsScope === "pageText"
+                            ? "Next matching page"
+                            : "Next match"
+                        }
+                        disabled={searching || searchResults.length < 2}
+                        onClick={() => moveSearchResult(1)}
+                      >
+                        <ChevronDown size={14} />
+                      </Button>
+                    </div>
+                    {searching && cancelReady === cancelRequest && (
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        aria-label="Cancel search"
+                        title="Cancel search"
+                        onClick={() => {
+                          searchId.current++
+                          searchAbort.current?.abort()
+                          setSearching(false)
+                          setSearchInterrupted("cancelled")
+                          setSearchMessage("")
+                          searchInput.current?.focus()
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    )}
                     <Button
                       size="xs"
-                      variant="outline"
+                      variant="ghost"
+                      aria-label="Hide search results"
+                      title="Hide results (Esc)"
                       onClick={() => {
-                        searchId.current++
-                        setSearching(false)
-                        setSearchMessage(
-                          "Search cancelled. Results may be incomplete."
-                        )
+                        setSearchOpen(false)
+                        searchInput.current?.focus()
                       }}
                     >
-                      {resultsScope === "decoded"
-                        ? "Stop after current stream"
-                        : "Cancel search"}
+                      Close
                     </Button>
-                  )}
-                </div>
-                {searchMessage && <p role="status">{searchMessage}</p>}
-                <div className="search-matches">
-                  {searchResults.map((result, index) => (
-                    <button
-                      key={index}
-                      ref={
-                        index === activeSearchResult
-                          ? activeSearchMatch
-                          : undefined
-                      }
-                      aria-current={
-                        index === activeSearchResult ? "true" : undefined
-                      }
-                      onClick={() => selectSearchResult(result, index)}
-                    >
-                      <code>{result.label}</code>
-                      <span>{result.detail}</span>
-                      <ArrowUpRight size={13} />
-                    </button>
-                  ))}
-                </div>
-              </section>
+                  </div>
+                  <div className="search-results-body" aria-busy={searching}>
+                    {showPreviousResults && (
+                      <p className="search-previous">
+                        Previous results for “{resultsQuery}”
+                      </p>
+                    )}
+                    {searchInterrupted === "failed" && searchMessage && (
+                      <p role="status">{searchMessage}</p>
+                    )}
+                    <div className="search-matches">
+                      {searchResults.map((result, index) => (
+                        <div className="search-result-item" key={index}>
+                          <button
+                            className="search-result"
+                            ref={
+                              index === activeSearchResult
+                                ? activeSearchMatch
+                                : undefined
+                            }
+                            aria-current={
+                              index === activeSearchResult ? "true" : undefined
+                            }
+                            disabled={searching}
+                            onClick={(event) => {
+                              selectSearchResult(result, index)
+                              setSearchOpen(false)
+                              if (event.detail === 0) {
+                                searchInput.current?.focus({
+                                  preventScroll: true,
+                                })
+                              } else {
+                                // Keep a useful keyboard position without reopening
+                                // the software keyboard after a touch selection.
+                                searchForm.current
+                                  ?.querySelector<HTMLButtonElement>(
+                                    ".search-show"
+                                  )
+                                  ?.focus({ preventScroll: true })
+                              }
+                            }}
+                          >
+                            {result.pageText && (
+                              <span className="search-result-page">
+                                <strong>{result.label}</strong>
+                                <span>{result.detail}</span>
+                              </span>
+                            )}
+                            {result.snippet ? (
+                              <>
+                                <span
+                                  className={`search-result-context ${resultsScope === "pageText" ? "" : "search-byte-context"}`}
+                                >
+                                  {result.snippet.before}
+                                  <mark>{result.snippet.match}</mark>
+                                  {result.snippet.after}
+                                </span>
+                                {!result.pageText && (
+                                  <code className="search-result-meta">
+                                    {result.label}
+                                    <span> · {result.detail}</span>
+                                  </code>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <code>{result.label}</code>
+                                <span>{result.detail}</span>
+                              </>
+                            )}
+                            <ChevronRight size={15} />
+                          </button>
+                          {resultsScope === "pageText" && result.pageText && (
+                            <div
+                              className="text-source-links"
+                              role="group"
+                              aria-label="Page text source locations"
+                            >
+                              {!result.pageText.sources.some(
+                                (source) => source.ranges.length
+                              ) && (
+                                <span className="search-help">
+                                  Exact word bytes could not be mapped. Stream
+                                  inspection highlights a candidate container,
+                                  not the word.
+                                </span>
+                              )}
+                              {result.pageText.sources.length > 0 && (
+                                <div className="search-source-list">
+                                  <span className="search-source-label">
+                                    {result.pageText.sources.some(
+                                      (source) => source.ranges.length
+                                    )
+                                      ? "Bytes"
+                                      : "Streams"}
+                                  </span>
+                                  {result
+                                    .pageText!.sources.slice(
+                                      0,
+                                      sourceLocationsPage ===
+                                        result.pageText.pageId
+                                        ? undefined
+                                        : 1
+                                    )
+                                    .map((source, sourceIndex) => (
+                                      <Button
+                                        key={sourceIndex}
+                                        size="xs"
+                                        className="search-source-location"
+                                        variant={
+                                          textSource === source
+                                            ? "secondary"
+                                            : "ghost"
+                                        }
+                                        aria-label={`${source.ranges.length ? "Show bytes" : "Inspect content stream"} · ${source.id} obj${source.ranges[0] ? ` · 0x${source.ranges[0].start.toString(16).toUpperCase()}` : ""}`}
+                                        title={
+                                          source.ranges.length
+                                            ? "Show matching bytes"
+                                            : "Inspect candidate content stream"
+                                        }
+                                        aria-pressed={textSource === source}
+                                        disabled={searching}
+                                        onClick={() => {
+                                          setActiveSearchResult(index)
+                                          selectTextSource(
+                                            result.pageText!,
+                                            source
+                                          )
+                                          setSearchOpen(false)
+                                          requestAnimationFrame(() =>
+                                            searchForm.current
+                                              ?.closest(".app-shell")
+                                              ?.querySelector<HTMLElement>(
+                                                ".text-source-bytes .hex-viewport"
+                                              )
+                                              ?.focus({ preventScroll: true })
+                                          )
+                                        }}
+                                      >
+                                        <FileCode2 size={12} />
+                                        <code>
+                                          {source.ranges.length
+                                            ? source.id
+                                            : `Candidate ${source.id}`}
+                                          {source.ranges[0]
+                                            ? ` · 0x${source.ranges[0].start.toString(16).toUpperCase()}`
+                                            : ""}
+                                        </code>
+                                      </Button>
+                                    ))}
+                                </div>
+                              )}
+                              <div className="search-result-actions">
+                                {result.pageText.sources.length > 1 && (
+                                  <Button
+                                    size="xs"
+                                    variant="ghost"
+                                    className="search-source-toggle"
+                                    disabled={searching}
+                                    aria-expanded={
+                                      sourceLocationsPage ===
+                                      result.pageText.pageId
+                                    }
+                                    onClick={() =>
+                                      setSourceLocationsPage(
+                                        sourceLocationsPage ===
+                                          result.pageText!.pageId
+                                          ? null
+                                          : result.pageText!.pageId
+                                      )
+                                    }
+                                  >
+                                    {sourceLocationsPage ===
+                                    result.pageText.pageId
+                                      ? "Fewer sources"
+                                      : `${result.pageText.sources.length - 1} more source${result.pageText.sources.length > 2 ? "s" : ""}`}
+                                    {sourceLocationsPage ===
+                                    result.pageText.pageId ? (
+                                      <ChevronUp size={12} />
+                                    ) : (
+                                      <ChevronDown size={12} />
+                                    )}
+                                  </Button>
+                                )}
+                                <Button
+                                  size="xs"
+                                  variant="ghost"
+                                  disabled={searching}
+                                  onClick={() => {
+                                    selectSearchResult(result, index)
+                                    setPreviewPage(result.pageText!.pageNumber)
+                                    setPreview(true)
+                                    setMobilePane("inspector")
+                                    setSearchOpen(false)
+                                    searchForm.current
+                                      ?.querySelector<HTMLButtonElement>(
+                                        ".search-show"
+                                      )
+                                      ?.focus({ preventScroll: true })
+                                  }}
+                                >
+                                  Open page preview
+                                  <Eye size={12} />
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {!searching &&
+                      !searchInterrupted &&
+                      !searchResults.length && (
+                        <div className="search-empty">
+                          <Search size={22} aria-hidden="true" />
+                          <p>No results for “{resultsQuery}”</p>
+                          <span>
+                            {resultsScope === "objects" ||
+                            resultsScope === "keys"
+                              ? "This mode searches PDF structure, rather than words printed on a page."
+                              : resultsScope === "text" ||
+                                  resultsScope === "decoded"
+                                ? "Compression and font encodings can hide visible words in PDF bytes."
+                                : resultsScope === "pageText"
+                                  ? "Try a shorter phrase. Scanned pages without a text layer need OCR."
+                                  : "Try a shorter sequence of complete hexadecimal bytes."}
+                          </span>
+                          {["objects", "keys", "text", "decoded"].includes(
+                            resultsScope
+                          ) && (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => {
+                                setScope("pageText")
+                                void search("pageText")
+                              }}
+                            >
+                              Search page text instead
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    {!searching &&
+                      !searchInterrupted &&
+                      searchMessage &&
+                      (resultsScope === "pageText" ? (
+                        <details
+                          className="search-help"
+                          open={searchMessage.startsWith("Showing")}
+                        >
+                          <summary>Search coverage</summary>
+                          <p>{searchMessage}</p>
+                        </details>
+                      ) : (
+                        <p className="search-help">{searchMessage}</p>
+                      ))}
+                  </div>
+                </section>
+              </SearchResultsPopover>
             )}
             {busy && (
               <div className="progress-line">
@@ -1790,18 +2377,11 @@ function PdfWorkspace({
                   ))}
                 </nav>
                 <div className="mobile-workspace">
-                  {mobilePane === "explorer" ? (
-                    explorer
-                  ) : mobilePane === "bytes" ? (
-                    <HexView
-                      bytes={bytes}
-                      scrollPositionRef={viewports.bytes}
-                      range={selectedRange}
-                      onByteSelect={selectByte}
-                    />
-                  ) : (
-                    inspector
-                  )}
+                  {mobilePane === "explorer"
+                    ? explorer
+                    : mobilePane === "bytes"
+                      ? byteView
+                      : inspector}
                 </div>
               </>
             ) : (
@@ -1820,12 +2400,7 @@ function PdfWorkspace({
                   </ResizablePanel>
                   <ResizableHandle />
                   <ResizablePanel defaultSize="37%" minSize="290px">
-                    <HexView
-                      bytes={bytes}
-                      scrollPositionRef={viewports.bytes}
-                      range={selectedRange}
-                      onByteSelect={selectByte}
-                    />
+                    {byteView}
                   </ResizablePanel>
                 </ResizablePanelGroup>
               </div>

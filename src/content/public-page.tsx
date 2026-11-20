@@ -713,6 +713,14 @@ function Limitations() {
         cover indexed objects; unparsed objects can contain additional
         resources.
       </p>
+      <p>
+        Page text search uses a separate extraction engine. It can find words
+        that the source mapper cannot trace to exact bytes, including text with
+        unsupported font encodings or inside Form XObjects. Candidate stream
+        highlights identify containers, not word bytes. See the{" "}
+        <a href="/guides/search-bookmark-compare">search guide</a> for mapping
+        limits and byte representations.
+      </p>
       <h2>Exports and comparisons</h2>
       <p>
         Dictionary comparison checks keys and values. It does not compare stream
@@ -726,8 +734,8 @@ function Limitations() {
       <h2>Unavailable operations</h2>
       <p>
         Editing, repair, saving modified PDFs, signature validation, historical
-        object revisions, precise rendered-content-to-byte mapping, and
-        extracted page-text search are not available.
+        object revisions, and guaranteed mapping from a specific rendered text
+        occurrence to its source bytes are not available.
       </p>
       <h2>Browser coverage and evidence</h2>
       <p>
