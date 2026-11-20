@@ -5,7 +5,8 @@ import { mkdir, readFile } from 'node:fs/promises'
 import { classicPdf, encryptedPdf, embeddedFilesPdf, imageExportPdf } from '../scripts/fixtures/pdf-fixtures.mjs'
 
 const samplePath = (name: string) => resolve('public/samples', name)
-const screenshotPath = (name: string) => resolve('.context', name)
+// Keep artifacts separate when --browser=all runs engines concurrently.
+const screenshotPath = (name: string) => resolve('.context', test.info().project.use.browserName ?? 'chromium', name)
 
 async function upload(page: Page, name: string) {
   await page.getByLabel('Open local PDF').setInputFiles(samplePath(name))
