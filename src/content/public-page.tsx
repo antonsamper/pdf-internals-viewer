@@ -16,6 +16,7 @@ import {
   BrokenXrefExample,
 } from "./more-examples"
 import { BrandIcon } from "@/components/brand-artwork"
+import { ThemeControl } from "@/components/theme-control"
 import { AudiencePage, InspectorVsViewerPage } from "./overview-pages"
 import {
   ContentNavigation,
@@ -390,6 +391,11 @@ function Privacy() {
       </p>
       <h2>What persists in this browser</h2>
       <p>
+        Your light or dark appearance choice is saved in this browser for future
+        visits. Before you choose, the app follows your device’s appearance
+        setting. Use the sun/moon button in the header to change it.
+      </p>
+      <p>
         Bookmarks, selected object or byte-range locations, labels, and notes
         are saved in local browser storage. The app calculates a SHA-256 hash (a
         fingerprint of the PDF’s contents) to match saved bookmarks to the same
@@ -637,6 +643,7 @@ export function StaticPublicPage({ page }: { page: SitePage }) {
           <span>PDF Internals</span>
         </a>
         <ContentHeaderLinks path={page.path} />
+        <ThemeControl />
       </header>
       <PublicPage page={page} />
       <SiteLinks />

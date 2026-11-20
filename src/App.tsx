@@ -96,6 +96,7 @@ import type {
 import { ContentHeaderLinks } from "@/components/content-navigation"
 import { AboutPage } from "@/components/about-page"
 import { BrandArtwork, BrandIcon } from "@/components/brand-artwork"
+import { ThemeControl } from "@/components/theme-control"
 import { SiteLinks } from "@/components/site-links"
 import { MAX_INPUT_BYTES } from "@/lib/pdf/limits"
 import { PublicPage } from "@/content/public-page"
@@ -1539,6 +1540,7 @@ function PdfWorkspace({
               </div>
             </>
           )}
+          <ThemeControl />
         </header>
         {error && (
           <div className="error-banner" role="alert">

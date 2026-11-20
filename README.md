@@ -50,6 +50,8 @@ At narrower widths, use Explorer / Inspector / Original bytes tabs. Desktop pane
 
 Open **User guide** in the header for a short sample walkthrough and links to focused task guides. Use **Back to the workspace** to return to your open PDF and selection.
 
+Use the **sun/moon button** in the header to switch between light and dark mode. Before you choose, the app follows your device’s appearance setting. Your choice is saved in this browser for future visits and applies to the workspace and public pages.
+
 ## Verify
 
 ```sh

@@ -10,6 +10,7 @@ PDF Internals uses React and Vite to generate a static site hosted on Cloudflare
 
 - `/` and `/about` contain the rendered React app. `src/main.tsx` hydrates that HTML. Initial rendering must remain independent of browser APIs; browser reads belong in effects or event handlers. Narrow-screen layout adapts after hydration.
 - `/who-its-for`, `/pdf-inspector-vs-viewer`, `/guide`, `/privacy`, `/limitations`, the six `/guides/*` pages and ten example pages at `/examples` and `/examples/*` are static HTML with shared styles and no inspector JavaScript. Their normal links work without JavaScript.
+- Every page loads the small `public/theme.js` script before rendering to apply the saved appearance or device setting. The header's sun/moon button saves an explicit light or dark choice; static articles still work with JavaScript disabled.
 - Client navigation from the running inspector renders the same article components without unmounting the PDF workspace. The User guide dialogue links to the full guide. Back/Forward and metadata follow the public route.
 - `/?sample=minimal`, `/?sample=resources` `/?sample=compressed`, `/?sample=oversized-image` and `/?sample=incorrect-unicode` open only allowlisted bundled samples. Unknown values are ignored. These links start a new workspace; local files, notes and passwords never go into URLs.
 - `dist/sitemap.xml` is generated from the route inventory. `public/robots.txt` advertises it. Existing `404.html` prevents a catch-all SPA response from masking missing content.

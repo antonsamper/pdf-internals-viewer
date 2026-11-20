@@ -143,7 +143,7 @@ The interface brings the logo's dark purple ink, goggle red, violet layers, and 
 
 Geist supports navigation and explanations; system monospace distinguishes PDF syntax, object identifiers, offsets, and bytes. Colour has a role: red actions, violet navigation, orange source and byte highlights. The existing pane layout, typefaces, and control sizes remain the foundation.
 
-The theme is implemented in `src/index.css`, `src/app.css`, `src/components/hex-view.css`, and the shared controls. Dark token mappings retain the same roles on plum surfaces; light mode is the public default.
+The theme is implemented in `src/index.css`, `src/app.css`, `src/components/hex-view.css`, and the shared controls. Dark token mappings retain the same roles on plum surfaces. The app follows the device appearance until a visitor chooses light or dark mode with the header's sun/moon button. `public/theme.js` applies the saved browser preference before rendering on every page.
 
 ## Brand artwork
 
