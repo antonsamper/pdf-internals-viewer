@@ -14,7 +14,7 @@ const labels: Record<string, string> = {
   Font: "Fonts",
   XObject: "Images & forms",
   ExtGState: "Graphics states",
-  ColorSpace: "Color spaces",
+  ColorSpace: "Colour spaces",
   Pattern: "Patterns",
   Shading: "Shadings",
 }

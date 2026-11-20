@@ -40,7 +40,10 @@ export function ObjectInspector({
   onNavigate: (id: string, path?: string[]) => void
   onInspect: (id: string) => void
   readStream: (id: string, mode: "raw" | "decoded") => Promise<StreamResult>
-  extractStream: (id: string, purpose?: "download" | "size") => Promise<StreamResult>
+  extractStream: (
+    id: string,
+    purpose?: "download" | "size"
+  ) => Promise<StreamResult>
   extractImage: (id: string) => Promise<StreamResult>
 }) {
   const downloads = useMemo(
@@ -193,7 +196,8 @@ export function ObjectInspector({
                     >
                       {resources.inheritedFrom} R
                     </button>
-                    . This entry is derived from the page tree.
+                    . The inspector found these resources on an ancestor in the
+                    page tree.
                   </p>
                 ) : (
                   <p className="representation-note">Defined on this page.</p>
@@ -278,10 +282,10 @@ export function ObjectInspector({
             </div>
             {relationships.incomplete && (
               <p className="representation-note">
-                Relationship details are incomplete: inspection is bounded to
-                200 paths per direction, 200 incoming objects, 5,000 values per
-                object, and 32 nested levels. Object counts above describe the
-                indexed references.
+                Some relationship details may be missing. Inspection checks at
+                most 200 paths per direction, 200 incoming objects, 5,000 values
+                per object, and 32 nested levels. Object counts above describe
+                the indexed references.
               </p>
             )}
           </section>
@@ -289,10 +293,10 @@ export function ObjectInspector({
         <TabsContent value="source" className="inspector-scroll">
           <p className="representation-note">
             {object.provenance.type === "file"
-              ? "Original object syntax. Hex remains the authoritative byte representation."
+              ? "Original object syntax. Use Original bytes to check the exact bytes in the file."
               : object.provenance.type === "decoded"
                 ? "Object syntax from its decoded container. These are not original file bytes."
-                : "Reconstructed representation. Exact source syntax is unavailable."}
+                : "Reconstructed from parsed values. The exact syntax in the file is unavailable."}
           </p>
           <pre className="source-code">{object.source}</pre>
         </TabsContent>
@@ -311,7 +315,8 @@ export function ObjectInspector({
                   </Badge>
                 </div>
                 <p className="representation-note">
-                  Byte text (Latin-1 display), not extracted page text.{" "}
+                  Each byte is shown as a Latin-1 character. This does not
+                  extract text from the rendered page.{" "}
                   {mode === "decoded" &&
                     "Decoded offsets differ from original file offsets."}
                 </p>

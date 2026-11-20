@@ -93,7 +93,7 @@ try {
         if (event.target instanceof HTMLInputElement && event.target.type === 'file') { state.phase = 'opening'; state.openingStart = performance.now() }
       }, true)
       document.addEventListener('click', event => {
-        if (event.target instanceof Element && event.target.closest('button')?.textContent?.trim() === 'Document catalog' && state.phase === 'navigation') state.navigationStart = performance.now()
+        if (event.target instanceof Element && event.target.closest('button')?.textContent?.trim() === 'Document catalogue' && state.phase === 'navigation') state.navigationStart = performance.now()
       }, true)
       new MutationObserver(() => {
         if (state.phase === 'opening' && /\d+ objects indexed/.test(document.querySelector('.status-bar')?.textContent ?? '')) {
@@ -121,7 +121,7 @@ try {
       for (let index = 0; index < 5; index++) {
         if (index) await page.getByRole('button', { name: 'Overview', exact: true }).click()
         await page.evaluate(() => { const state = globalThis.__pdfPerformance; state.phase = 'navigation'; state.navigationStart = null; state.navigationReadyAt = null })
-        await page.getByRole('button', { name: 'Document catalog', exact: true }).first().click()
+        await page.getByRole('button', { name: 'Document catalogue', exact: true }).first().click()
         await page.waitForFunction(() => globalThis.__pdfPerformance.navigationReadyAt !== null)
         navigation.push(await page.evaluate(() => globalThis.__pdfPerformance.navigationReadyAt - globalThis.__pdfPerformance.navigationStart))
         await page.evaluate(() => { globalThis.__pdfPerformance.phase = 'opened' })

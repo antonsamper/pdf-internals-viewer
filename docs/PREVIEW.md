@@ -11,7 +11,7 @@ EmbedPDF Engine 3.1.0 renders a small, read-only page preview. The app supplies 
 - `pageNumber?: number`: optional controlled, one-based page selection.
 - `onPageChange?: (pageNumber: number) => void`: navigation callback.
 
-The preview opens the document locally, lists pages, and renders the selected page into a bounded-resolution image. Its controls support previous/next page and zoom from 50% to 200%. Raster previews do not implement text selection, annotations, editing, or rendered-content-to-object mapping.
+The preview opens the document locally, lists pages, and renders the selected page as an image with a resolution limit. Its controls support previous/next page and zoom from 50% to 200%. These image previews do not support text selection, annotations, editing, or selecting rendered content to find its PDF object.
 
 Document replacement and component unmount abort outstanding work, revoke rendered blob URLs, close the document, and destroy the engine worker. Loading and rendering failures are shown without changing the independent structure inspector.
 
@@ -29,4 +29,4 @@ The parser remains separate. Rendering a page does not establish exact original 
 
 ## Verification
 
-The consuming application should include preview opening/navigation in its browser smoke test and confirm worker/WASM requests remain same-origin. Type checking and production bundling are required integration checks. Browser behavior requires a test run; the integration notes alone do not verify it.
+The consuming application should include preview opening/navigation in its browser smoke test and confirm worker/WASM requests remain same-origin. Type checking and production bundling are required integration checks. Browser behaviour requires a test run; the integration notes alone do not verify it.

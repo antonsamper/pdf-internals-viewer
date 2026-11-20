@@ -59,7 +59,7 @@ export const SITE_PAGES = [
     title: "Supported Features and Limitations · PDF Internals",
     heading: "Supported features and limitations",
     description:
-      "PDF Internals file limits, stream decoding support, encrypted PDF behavior, export restrictions, browser coverage, and source-fidelity limitations.",
+      "PDF Internals file limits, stream decoding support, encrypted PDF behaviour, export restrictions, browser coverage, and limits on preserving exact file syntax.",
   },
 ] as const
 export type SitePath = (typeof SITE_PAGES)[number]["path"]
@@ -74,7 +74,7 @@ export const SAMPLES = [
     id: "minimal",
     file: "minimal.pdf",
     name: "A simple page",
-    detail: "Catalog, page tree, font, and drawing instructions",
+    detail: "Catalogue, page tree, font, and drawing instructions",
     tone: "purple",
   },
   {
@@ -88,7 +88,7 @@ export const SAMPLES = [
     id: "compressed",
     file: "compressed.pdf",
     name: "Compressed objects",
-    detail: "See how objects live inside decoded streams",
+    detail: "Find objects packed into a compressed stream",
     tone: "orange",
   },
 ] as const

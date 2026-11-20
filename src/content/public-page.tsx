@@ -63,14 +63,15 @@ function Guide() {
         <dd>Choose pages, resources, file structure, or individual objects.</dd>
         <dt>Inspector</dt>
         <dd>
-          Read properties, follow references, compare dictionaries, and inspect
-          source or stream representations.
+          Read object properties, follow references, compare dictionaries (lists
+          of keys and values), and inspect source syntax or stream bytes.
         </dd>
         <dt>Original bytes</dt>
         <dd>
-          Examine the file in hex and byte text. Compressed objects identify
-          their container and decoded offset instead of an individual
-          original-file range.
+          Examine the unchanged file as hexadecimal values and text, with one
+          character per byte. For compressed objects, the inspector shows the
+          containing stream and the position within its decoded bytes. These
+          objects have no separate byte range in the original file.
         </dd>
       </dl>
       <h2>Investigate a question</h2>
@@ -97,13 +98,15 @@ function Guide() {
       <h2>Search, bookmark, and compare</h2>
       <p>
         Search objects, dictionary keys, file byte text, hex, or decoded stream
-        byte text. Decoded search reads bounded previews; it does not extract
-        rendered page text. Use Back and Forward to retrace your inspection.
+        byte text. Decoded search checks only the first 256 KiB of each stream;
+        it does not extract the text you see on a rendered page. Use Back and
+        Forward to retrace your inspection.
       </p>
       <p>
-        Bookmark an object or byte range and add a note. Bookmarks persist in
-        this browser when storage is available. Pin one object, then select
-        another to compare dictionary values. Stream payloads are not compared.
+        Bookmark an object or byte range and add a note. This browser saves
+        bookmarks for the next time you open the same PDF, when storage is
+        available. Pin one object, then select another to compare dictionary
+        values. The bytes stored in streams are not compared.
       </p>
       <p>
         Use Ctrl/Cmd+O to open a PDF and Ctrl/Cmd+K to focus search. On narrow
@@ -122,13 +125,15 @@ function ObjectsGuide() {
     <>
       <p className="about-lead">
         <code>3 0 R</code> is an indirect reference to PDF object number 3,
-        generation 0. It points to an object defined elsewhere in the file,
-        rather than containing that object’s value inline.
+        generation 0. The generation number distinguishes versions of a reused
+        object number. The letter R marks a reference: look up that object to
+        read its value. An indirect object has its own number and can be
+        referenced from elsewhere in the PDF.
       </p>
       <h2>Follow a page to its drawing instructions</h2>
       <p>
         The original <strong>A simple page</strong> sample contains five
-        indirect objects. Object 1 is the document catalog, object 2 is the
+        indirect objects. Object 1 is the document catalogue, object 2 is the
         page-tree root, object 3 is a page, object 4 holds drawing instructions,
         and object 5 is a Helvetica font resource.
       </p>
@@ -144,8 +149,9 @@ endobj`}</code>
       <p>
         Here <code>/Parent 2 0 R</code> points to the page’s parent in the page
         tree. <code>/Contents 4 0 R</code> points to its content stream.{" "}
-        <code>/MediaBox</code> is an inline array describing the page boundary
-        in PDF user-space units.
+        <code>/MediaBox</code> is an array written directly in the page
+        dictionary. Its four numbers give the lower-left and upper-right corners
+        of the page boundary in PDF user-space units.
       </p>
       <ol>
         <li>
@@ -164,18 +170,20 @@ endobj`}</code>
           its parent and inherited resources.
         </li>
       </ol>
-      <h2>Properties and original syntax are different evidence</h2>
+      <h2>When to use Properties or Original bytes</h2>
       <p>
-        The snippet above reformats the sample for readability. The Properties
-        view is a semantic interpretation: dictionary order, duplicate keys, and
-        exact string spellings may be normalized. Use Original bytes when exact
-        file syntax matters.
+        The example above adds line breaks for readability. Properties shows how
+        the parser interprets each value. It may change the order of dictionary
+        entries, keep only one value for duplicate keys, or display strings
+        differently from how they were written. Use Original bytes to check the
+        exact syntax stored in the file.
       </p>
       <p>
-        Objects stored inside compressed object streams have decoded locations
-        within a container, not separate original-file offsets. Recovered or
-        unavailable positions are explicitly labeled. A reference to an
-        unavailable object does not prove that the object never existed.
+        To locate an object stored inside a compressed object stream, first
+        decode its containing stream. The object’s offset is its position in
+        those decoded bytes; it has no separate offset in the original file. The
+        inspector labels recovered or unavailable source locations. A reference
+        to an unavailable object does not prove that the object never existed.
       </p>
       <h2>Continue exploring</h2>
       <p>
@@ -193,8 +201,8 @@ endobj`}</code>
         <a href={fixtureSource}>
           original sample generator, baseObjects and minimalPdf
         </a>
-        . This is a walkthrough of the bundled fixture, not a claim of complete
-        PDF conformance.
+        . This walkthrough covers the bundled sample. It does not establish
+        support for every PDF allowed by the specification.
       </p>
     </>
   )
@@ -203,10 +211,11 @@ function StreamsGuide() {
   return (
     <>
       <p className="about-lead">
-        A PDF stream stores bytes alongside a dictionary describing them. When a
-        stream has a supported <code>/Filter</code>, decoding reverses that
-        encoding so you can inspect its contents. Decoded byte positions are
-        separate from original file offsets.
+        A PDF stream stores data bytes after a dictionary of properties. Its{" "}
+        <code>/Filter</code> entry names the encoding applied to those bytes,
+        such as compression. Decoding reverses supported encodings so you can
+        inspect the data. Positions within the decoded data differ from
+        positions in the original file.
       </p>
       <h2>Inspect a Flate-compressed content stream</h2>
       <p>
@@ -233,7 +242,8 @@ Q`}</code>
         </li>
         <li>
           Inspect <code>/Filter</code> in Properties. Select{" "}
-          <strong>Raw stream</strong> to see the stored, compressed payload.
+          <strong>Raw stream</strong> to see the compressed bytes stored in the
+          PDF.
         </li>
         <li>
           Select <strong>Decoded</strong> to inspect the decoded bytes. Use{" "}
@@ -241,37 +251,40 @@ Q`}</code>
           links.
         </li>
         <li>
-          Find <code>/Im1 Do</code>, which invokes the named XObject in this
-          example. Use Page preview to compare the instructions with the
+          Find <code>/Im1 Do</code>, which draws the image named /Im1 in this
+          example. Images and reusable groups of drawing instructions are called
+          XObjects in PDF. Use Page preview to compare the instructions with the
           rendered page.
         </li>
       </ol>
-      <h2>A compressed object stream is a different concept</h2>
+      <h2>Content streams and object streams</h2>
       <p>
         A content stream holds page drawing instructions. An object stream,
         identified by <code>/Type /ObjStm</code>, packs other objects into its
-        decoded payload. The <strong>Compressed objects</strong> sample packs
-        its catalog, page tree, page, and font into object 6. Object 4’s page
+        decoded data. The <strong>Compressed objects</strong> sample packs its
+        catalogue, page tree, page, and font into object 6. Object 4’s page
         content remains outside that container.
       </p>
       <SampleLinks sample="compressed" label="Compressed objects" />
       <p>
-        Open that sample and inspect First page. Its provenance identifies the
-        object-stream container and decoded position. Do not interpret that
-        decoded offset as an offset into the original file.
+        Open that sample and inspect First page. The location shown below its
+        heading identifies the containing object stream and the page object’s
+        position within the decoded stream. That position is not an offset into
+        the original file.
       </p>
       <h2>Decoding limits</h2>
       <p>
         The inspector supports Flate, ASCIIHex, ASCII85, and supported chains of
-        those filters. Other encodings retain raw inspection where available.
-        The independent page renderer may display content that the inspector
-        cannot decode.
+        those filters. A filter chain applies several encodings in sequence. For
+        other encodings, you can still inspect raw bytes where available. Page
+        preview uses a separate renderer, so it may display content that the
+        inspector cannot decode.
       </p>
       <p>
         Displayed stream previews stop at {MAX_DISPLAY_BYTES / 1024} KiB.
-        Decoded search only checks those previews and is byte-text search, not
-        extracted page text. Decoding is limited to{" "}
-        {MAX_DECODED_BYTES / 1024 / 1024} MiB per stream. Read the{" "}
+        Decoded search only checks those previews. It reads bytes as characters;
+        it does not extract the text shown on a rendered page. Decoding is
+        limited to {MAX_DECODED_BYTES / 1024 / 1024} MiB per stream. Read the{" "}
         <a href="/limitations">complete limitations</a> before drawing
         conclusions from partial results.
       </p>
@@ -292,8 +305,8 @@ function ResourcesGuide() {
       <p className="about-lead">
         A PDF page’s resources identify fonts, images, and other named objects
         available to its drawing instructions. Use the resource browser to
-        inspect them, then follow their references and page context.
-        Availability alone does not prove that a resource is drawn.
+        inspect them, follow their references, and see which pages make them
+        available. Availability alone does not prove that a resource is drawn.
       </p>
       <h2>Find the sample’s font and image</h2>
       <SampleLinks sample="resources" label="Fonts & resources" />
@@ -326,23 +339,24 @@ function ResourcesGuide() {
       </pre>
       <h2>A font resource may have no embedded file</h2>
       <p>
-        The sample’s Helvetica dictionary does not embed a font program. For
-        your own PDF, follow a font’s descriptor to its font stream if one
-        exists. A supported embedded font offers Download font, but it may be a
-        subset containing only characters used by the PDF. Extraction cannot
-        restore the complete original font, and some font programs are not
-        directly installable.
+        The sample’s Helvetica dictionary names a font but contains no embedded
+        font file (a font program). In your own PDF, follow the font descriptor,
+        which holds font properties and may link to a font stream. A supported
+        embedded font offers Download font, but it may be a subset containing
+        only characters used by the PDF. Extraction cannot restore the complete
+        original font, and some font programs are not directly installable.
       </p>
       <h2>Image dimensions and page appearance differ</h2>
       <p>
         The sample’s 1 × 1 image is scaled by the page instructions. Download
-        image exports its stored dimensions, without page transforms. Supported
-        RGB or grayscale samples export as PNG; supported standalone JPEG
+        image exports the image at its stored pixel dimensions. It does not
+        apply the scaling, rotation, or positioning used on the page. Supported
+        RGB or greyscale samples export as PNG; supported standalone JPEG
         streams can be saved without re-encoding.
       </p>
       <p>
-        PNG export does not support masks or custom color spaces. JPEG
-        extraction omits page masks and color adjustments. PNG conversion is
+        PNG export does not support masks or custom colour spaces. JPEG
+        extraction omits page masks and colour adjustments. PNG conversion is
         limited to 4 megapixels and 4096 pixels per side; image payloads are
         limited to 32 MiB. An image export is not necessarily an exact
         reproduction of its appearance on the page.
@@ -377,10 +391,10 @@ function Privacy() {
       <h2>What persists in this browser</h2>
       <p>
         Bookmarks, selected object or byte-range locations, labels, and notes
-        are saved in local browser storage. A SHA-256 hash of the PDF contents
-        associates those bookmarks with the same file when you reopen it, even
-        if its filename changes. A changed file has separate bookmarks. The PDF
-        and password are not saved.
+        are saved in local browser storage. The app calculates a SHA-256 hash (a
+        fingerprint of the PDF’s contents) to match saved bookmarks to the same
+        file when you reopen it, even if its filename changes. A changed file
+        has separate bookmarks. The PDF and password are not saved.
       </p>
       <p>
         Notes created while inspecting an encrypted PDF remain readable in
@@ -400,9 +414,9 @@ function Privacy() {
       <h2>Website requests</h2>
       <p>
         Your browser requests the application, fonts, worker assets, and any
-        bundled sample you choose from the site host. Hosting infrastructure may
-        process ordinary request information. Local PDF processing does not mean
-        that loading the website involves no network requests.
+        bundled sample you choose from the site host. The site host may process
+        ordinary request information. Loading the website requires these network
+        requests; processing your PDF happens on your device.
       </p>
       <p>
         The application has no analytics integration. Please remove sensitive
@@ -430,7 +444,7 @@ function Limitations() {
         PDF Internals is an early, read-only exploration tool. It can inspect
         the current object structure, references, streams, resources, and
         original bytes. Some PDFs are only partially supported; recovered or
-        unavailable data is labeled.
+        unavailable data is labelled.
       </p>
       <h2>File and processing limits</h2>
       <dl>
@@ -446,10 +460,10 @@ function Limitations() {
         <dd>{OPERATION_TIMEOUT_MS / 1000} seconds</dd>
       </dl>
       <p>
-        The cumulative decoded-data budget is 128 MiB per document. This is not
-        a total browser-memory limit: object graphs, original bytes, copies, UI
-        strings, and page rendering require additional memory. Large object
-        graphs can still be expensive.
+        The inspector allows up to 128 MiB of decoded data across all streams in
+        a document. The browser also needs memory for objects and their
+        relationships, original bytes, copies, displayed text, and page
+        rendering. A PDF with many objects can therefore use much more memory.
       </p>
       <h2>Decoding and encrypted PDFs</h2>
       <p>
@@ -466,24 +480,29 @@ function Limitations() {
       </p>
       <h2>Fidelity and incomplete results</h2>
       <p>
-        Original bytes are authoritative. Semantic properties may normalize
-        syntax and collapse duplicate dictionary keys. Compressed objects have
-        decoded locations in their container, not individual original-file
-        offsets. Damaged-file recovery may be incomplete.
+        Use Original bytes to check exactly what the file contains. Properties
+        shows the parser’s interpretation, which may change how values are
+        written and keep only one value for duplicate dictionary keys.
+        Compressed objects are located within their decoded container; they have
+        no separate offset in the original file. Recovery from damaged files may
+        be incomplete.
       </p>
       <p>
-        Decoded search checks bounded previews, stops at 500 results, and does
-        not extract rendered page text. Font or image availability does not
-        prove page usage. Resource lists cover indexed objects; unparsed objects
-        can contain additional resources.
+        Decoded search checks only the first 256 KiB of each stream, stops at
+        500 results, and does not extract the text shown on a rendered page.
+        Font or image availability does not prove page usage. Resource lists
+        cover indexed objects; unparsed objects can contain additional
+        resources.
       </p>
       <h2>Exports and comparisons</h2>
       <p>
-        Dictionary comparison does not compare stream payloads or original
-        syntax. Attachment and font downloads require supported decoding and
-        complete data, up to 32 MiB per file. Fonts can be incomplete subsets.{" "}
-        <a href="/guides/find-pdf-fonts-images">Image exports</a> have size,
-        codec, mask, color-space, and page-transform restrictions.
+        Dictionary comparison checks keys and values. It does not compare stream
+        bytes or the exact syntax used to write an object. Attachment and font
+        downloads require supported decoding and complete data, up to 32 MiB per
+        file. An embedded font may contain only the characters used by the PDF.{" "}
+        <a href="/guides/find-pdf-fonts-images">Image exports</a> are limited by
+        image size, encoding, masks, and colour space. They do not apply the
+        scaling, rotation, or positioning used on the page.
       </p>
       <h2>Unavailable operations</h2>
       <p>
@@ -505,7 +524,7 @@ function Limitations() {
       <p>
         Application code is licensed under the Apache License 2.0. Parsing uses LibPDF; optional preview
         uses EmbedPDF and PDFium locally. Dependencies retain their own
-        licenses. Read the{" "}
+        licences. Read the{" "}
         <a href="/THIRD-PARTY-NOTICES.txt">third-party notices</a>.
       </p>
     </>

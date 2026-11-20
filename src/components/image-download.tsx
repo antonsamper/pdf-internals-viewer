@@ -172,7 +172,7 @@ export function ImageDownload({
         {unavailable
           ? `Image export unavailable: ${unavailable}`
           : plan?.format === "jpeg"
-            ? "JPEG · embedded file, without page masks, color adjustments, or transforms."
+            ? "JPEG · embedded file, without page masks, colour adjustments, or transforms."
             : "PNG · full image dimensions, without page transforms. Up to 4 megapixels / 4096 pixels per side."}
       </p>
       {showDownloadError && (

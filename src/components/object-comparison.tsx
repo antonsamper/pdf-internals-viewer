@@ -78,8 +78,9 @@ export function ObjectComparison({
             Show differences only
           </label>
           <p className="mb-3 text-xs text-muted-foreground">
-            Dictionary/value comparison. Stream payloads and original syntax are
-            not compared. Added and removed are relative to the pinned object.
+            Compares dictionary keys and values. Stream bytes and original
+            syntax are not compared. Added and removed describe changes from the
+            pinned object to the current object.
           </p>
           {current.id === pinned.id ? (
             <p className="text-xs">Select another object to see differences.</p>

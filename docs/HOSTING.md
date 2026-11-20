@@ -8,7 +8,7 @@ The app has its own Cloudflare Pages project, `pdf-internals-viewer`, with a pro
 
 ## Build and publish
 
-Node.js 22.18+, pinned pnpm 10.33.4, and pinned Wrangler 4.160.1 are required. Install hooks must run: they generate the parser and apply the exact-hash preview validation backport.
+Node.js 22.18+, pinned pnpm 10.33.4, and pinned Wrangler 4.160.1 are required. Installation hooks must run: they generate the parser and apply the preview validation patch after checking exact file hashes.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -21,7 +21,7 @@ The CI `deploy` job publishes `dist/` to the existing Pages project with `--bran
 
 ## Automatic deployment from main
 
-The `deploy` job in `.github/workflows/ci.yml` publishes production after a push to `main`, including a merged pull request. It waits for the full secret-history scan, type checking, lint, unit tests, build/upload validation, and Chromium, Firefox and WebKit tests to pass. Pull requests and other branches run checks but do not deploy. Runs are serialized per event/branch to prevent overlapping production uploads; GitHub may replace a pending run with the latest push. Rerunning an old main workflow can republish that old commit, so use the latest main run for routine deployment retries.
+The `deploy` job in `.github/workflows/ci.yml` publishes production after a push to `main`, including a merged pull request. It waits for the full secret-history scan, type checking, lint, unit tests, build/upload validation, and Chromium, Firefox and WebKit tests to pass. Pull requests and other branches run checks but do not deploy. Runs are serialised per event/branch to prevent overlapping production uploads; GitHub may replace a pending run with the latest push. Rerunning an old main workflow can republish that old commit, so use the latest main run for routine deployment retries.
 
 One-time setup is required in [repository Settings → Secrets and variables → Actions](https://github.com/antonsamper/pdf-internals-viewer/settings/secrets/actions):
 
@@ -40,9 +40,9 @@ pnpm exec wrangler pages deployment list --project-name pdf-internals-viewer
 
 Wrangler in this environment automatically delegates creation of new Pages projects back to Workers. Initial setup explicitly used `wrangler pages project create pdf-internals-viewer --production-branch main --force` to create Pages directly. Here `--force` opts out of that delegation; it did not overwrite an existing project. Normal subsequent uploads use the existing project and do not need this flag.
 
-## Serving behavior
+## Serving behaviour
 
-Only `dist/` is uploaded. No document upload endpoint, database, server-side functions or Worker script is used. User PDFs remain local to the visitor's browser.
+Deployment uploads only `dist/`. The site has no document upload endpoint, database, server-side functions or Worker script. User PDFs remain local to the visitor's browser.
 
 `public/404.html` deliberately disables Pages' default SPA fallback: nonexistent workers/WASM/private-source paths return 404 instead of receiving HTML. Vite builds explicit `index.html` and `about.html` entries. Pages serves them at `/` and `/about` without client-route fallback rewrites; direct visits and refreshes work while missing assets still return 404. `public/_headers` sets HTML revalidation, immutable caching for hashed assets, `nosniff` and referrer policy. JavaScript workers, WASM, fonts, samples and notices are all served from this app's own origin. A custom domain is optional.
 
@@ -59,4 +59,4 @@ Actual Safari application testing remains separate; WebKit automation is not tha
 
 - [Cloudflare Pages Direct Upload](https://developers.cloudflare.com/pages/get-started/direct-upload/)
 - [Pages configuration](https://developers.cloudflare.com/pages/functions/wrangler-configuration/)
-- [Pages serving and 404 behavior](https://developers.cloudflare.com/pages/configuration/serving-pages/)
+- [Pages serving and 404 behaviour](https://developers.cloudflare.com/pages/configuration/serving-pages/)
