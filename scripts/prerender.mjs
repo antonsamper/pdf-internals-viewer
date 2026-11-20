@@ -3,9 +3,9 @@ import { dirname, join } from 'node:path'
 import { createServer } from 'vite'
 
 // Vite compiles the existing TSX and resolves aliases without a second runtime dependency.
-const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' })
+const server = await createServer({ appType: 'custom', server: { middlewareMode: true } })
 try {
-  const { SITE_PAGES, SITE_URL, pageHead, renderPage } = await server.ssrLoadModule('/src/prerender.tsx')
+  const { SITE_PAGES, SITE_URL, pageHead, renderPage } = await server.ssrLoadModule('/src/prerender.ts')
   const index = await readFile('dist/index.html', 'utf8')
   const styles = [...index.matchAll(/<link\b[^>]*rel="stylesheet"[^>]*>/g)].map(([tag]) => tag).join('\n')
   if (!styles) throw new Error('Built stylesheet missing from homepage')

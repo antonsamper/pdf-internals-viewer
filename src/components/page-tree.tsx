@@ -1,31 +1,10 @@
-import { ChevronDown, ChevronRight } from "lucide-react"
-import { effectiveResources, property } from "@/lib/pdf/navigation"
-import type { ExplorationStep } from "@/lib/pdf/exploration-trail"
-import type {
-  PdfDocumentInfo,
-  PdfObjectRecord,
-  PdfValue,
-} from "@/lib/pdf/types"
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
-const labels: Record<string, string> = {
-  Contents: "Content streams",
-  Resources: "Resources",
-  Annots: "Annotations",
-  Font: "Fonts",
-  XObject: "Images & forms",
-  ExtGState: "Graphics states",
-  ColorSpace: "Colour spaces",
-  Pattern: "Patterns",
-  Shading: "Shadings",
-}
-const dictionary = (value: PdfValue) =>
-  value.type === "dictionary" || value.type === "stream"
+import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
+import type { PdfDocumentInfo, PdfObjectRecord, PdfValue } from '@/lib/pdf/types';
 
-export interface PageTreeState {
-  expanded: Set<string>
-  limits: Record<string, number>
-}
-export function PageTree({
+import { effectiveResources, property } from '@/lib/pdf/navigation';
+export const PageTree = ({
   document,
   objects,
   selectedId,
@@ -33,22 +12,20 @@ export function PageTree({
   onStateChange,
   onNavigate,
 }: {
-  document: PdfDocumentInfo
-  objects: Map<string, PdfObjectRecord>
-  selectedId: string | null
-  state: PageTreeState
-  onStateChange: (state: PageTreeState) => void
-  onNavigate: (id: string, trail: ExplorationStep[]) => void
-}) {
-  // Root pagination is cheap and does not affect expanded branches.
-  const rootLimit = state.limits.root ?? 50
-  function toggle(key: string) {
-    const expanded = new Set(state.expanded)
-    if (expanded.has(key)) expanded.delete(key)
-    else expanded.add(key)
-    onStateChange({ ...state, expanded })
-  }
-  function node(
+  document: PdfDocumentInfo;
+  objects: Map<string, PdfObjectRecord>;
+  selectedId: string | null;
+  state: PageTreeState;
+  onStateChange: (state: PageTreeState) => void;
+  onNavigate: (id: string, trail: ExplorationStep[]) => void;
+}) => {
+  const toggle = (key: string) => {
+    const expanded = new Set(state.expanded);
+    if (expanded.has(key)) expanded.delete(key);
+    else expanded.add(key);
+    onStateChange({ ...state, expanded });
+  };
+  const node = (
     value: PdfValue,
     label: string,
     key: string,
@@ -58,98 +35,76 @@ export function PageTree({
     ancestors: string[],
     depth: number,
     pageRoot = false
-  ) {
-    const ref = value.type === "reference" ? value.ref : undefined
-    const object = ref ? objects.get(ref) : undefined
-    const cycle = ref !== undefined && ancestors.includes(ref)
-    const resolved = ref ? object?.value : value
-    const nextTrail = ref
-      ? [
-          ...trail,
-          ...path.map((label) => ({ id: owner, label })),
-          { id: ref, label: `${ref} obj` },
-        ]
-      : trail
-    const nextOwner = ref ?? owner
-    const nextPath = ref ? [] : path
-    const nextAncestors = ref ? [...ancestors, ref] : ancestors
+  ) => {
+    const ref = value.type === 'reference' ? value.ref : undefined;
+    const object = ref ? objects.get(ref) : undefined;
+    const cycle = ref !== undefined && ancestors.includes(ref);
+    const resolved = ref ? object?.value : value;
+    const nextTrail = ref ? [...trail, ...path.map((segment) => ({ id: owner, label: segment })), { id: ref, label: `${ref} obj` }] : trail;
+    const nextOwner = ref ?? owner;
+    const nextPath = ref ? [] : path;
+    const nextAncestors = ref ? [...ancestors, ref] : ancestors;
     let children: {
-      value: PdfValue
-      label: string
-      segment: string
-      owner?: string
-      inherited?: boolean
-    }[] = []
+      value: PdfValue;
+      label: string;
+      segment: string;
+      owner?: string;
+      inherited?: boolean;
+    }[] = [];
     if (!cycle && resolved) {
-      if (dictionary(resolved) && "entries" in resolved) {
+      if (dictionary(resolved) && 'entries' in resolved) {
         children = resolved.entries
-          .filter(
-            (entry) =>
-              !pageRoot ||
-              ["Contents", "Resources", "Annots"].includes(
-                entry.key.replace(/^\//, "")
-              )
-          )
+          .filter((entry) => !pageRoot || ['Contents', 'Resources', 'Annots'].includes(entry.key.replace(/^\//, '')))
           .map((entry) => {
-            const name = entry.key.replace(/^\//, "")
+            const name = entry.key.replace(/^\//, '');
             return {
-              value: entry.value,
               label: labels[name] ? `${labels[name]} · /${name}` : `/${name}`,
               segment: `/${name}`,
-            }
-          })
-        if (
-          pageRoot &&
-          object &&
-          !children.some((child) => child.segment === "/Resources")
-        ) {
-          const resources = effectiveResources(object, objects)
+              value: entry.value,
+            };
+          });
+        if (pageRoot && object && !children.some((child) => child.segment === '/Resources')) {
+          const resources = effectiveResources(object, objects);
           if (resources)
             children.push({
-              value: resources.value,
-              label: "Resources · /Resources (inherited)",
-              segment: "/Resources",
-              owner: resources.inheritedFrom,
               inherited: true,
-            })
+              label: 'Resources · /Resources (inherited)',
+              owner: resources.inheritedFrom,
+              segment: '/Resources',
+              value: resources.value,
+            });
         }
-      } else if (resolved.type === "array") {
+      } else if (resolved.type === 'array') {
         children = resolved.items.map((item, index) => ({
-          value: item,
           label: `[${index}]`,
           segment: `[${index}]`,
-        }))
+          value: item,
+        }));
       }
     }
-    const bounded = depth >= 6 && children.length > 0
-    const expandable = children.length > 0 && !bounded
-    const expanded = state.expanded.has(key)
-    const limit = state.limits[key] ?? 50
-    const fontName = object && property(object.value, "BaseFont")
+    const bounded = depth >= 6 && children.length > 0;
+    const expandable = children.length > 0 && !bounded;
+    const expanded = state.expanded.has(key);
+    const limit = state.limits[key] ?? 50;
+    const fontName = object && property(object.value, 'BaseFont');
     const detail = object
-      ? object.kind === "Font" && fontName?.type === "name"
+      ? object.kind === 'Font' && fontName?.type === 'name'
         ? `${fontName.value} · ${object.label}`
         : object.kind
-      : !ref && resolved && !dictionary(resolved) && resolved.type !== "array"
+      : !ref && resolved && !dictionary(resolved) && resolved.type !== 'array'
         ? resolved.text
-        : ""
+        : '';
     return (
       <li key={key}>
-        <div
-          className={`page-tree-row ${ref && selectedId === ref ? "selected" : ""}`}
-        >
+        <div className={`page-tree-row ${ref && selectedId === ref ? 'selected' : ''}`}>
           {expandable ? (
             <button
               className="tree-toggle"
-              aria-label={`${expanded ? "Collapse" : "Expand"} ${label}${ref ? ` ${ref}` : ""}`}
+              aria-label={`${expanded ? 'Collapse' : 'Expand'} ${label}${ref ? ` ${ref}` : ''}`}
               aria-expanded={expanded}
               onClick={() => toggle(key)}
             >
-              {expanded ? (
-                <ChevronDown size={14} />
-              ) : (
-                <ChevronRight size={14} />
-              )}
+              {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
             </button>
           ) : (
             <span className="tree-toggle-spacer" />
@@ -157,10 +112,8 @@ export function PageTree({
           {ref && object ? (
             <button
               className="tree-select"
-              aria-current={selectedId === ref ? "true" : undefined}
-              onClick={() =>
-                onNavigate(ref, pageRoot ? [{ id: ref, label }] : nextTrail)
-              }
+              aria-current={selectedId === ref ? 'true' : undefined}
+              onClick={() => onNavigate(ref, pageRoot ? [{ id: ref, label }] : nextTrail)}
             >
               <span>{label}</span>
               <code>{ref} obj</code>
@@ -172,25 +125,17 @@ export function PageTree({
             </span>
           )}
         </div>
-        {(detail ||
-          cycle ||
-          (ref && !object) ||
-          bounded ||
-          (object && object.referencedBy.length > 1 && !pageRoot)) && (
+        {(detail || cycle || (ref && !object) || bounded || (object && object.referencedBy.length > 1 && !pageRoot)) && (
           <p className="tree-detail">
             {[
               detail,
-              cycle ? "Already in this path" : "",
-              ref && !object ? "Unavailable reference" : "",
-              bounded
-                ? "Expansion limit · inspect the containing object to continue"
-                : "",
-              object && object.referencedBy.length > 1 && !pageRoot
-                ? "Shared reference"
-                : "",
+              cycle ? 'Already in this path' : '',
+              ref && !object ? 'Unavailable reference' : '',
+              bounded ? 'Expansion limit · inspect the containing object to continue' : '',
+              object && object.referencedBy.length > 1 && !pageRoot ? 'Shared reference' : '',
             ]
               .filter(Boolean)
-              .join(" · ")}
+              .join(' · ')}
           </p>
         )}
         {expanded && expandable && (
@@ -201,9 +146,7 @@ export function PageTree({
                 child.label,
                 `${key}/${index}`,
                 child.owner ?? nextOwner,
-                child.inherited
-                  ? [child.segment]
-                  : [...nextPath, child.segment],
+                child.inherited ? [child.segment] : [...nextPath, child.segment],
                 child.inherited
                   ? [
                       ...(pageRoot ? [{ id: ref!, label }] : nextTrail),
@@ -237,34 +180,21 @@ export function PageTree({
           </ul>
         )}
         {pageRoot && object && !children.length && (
-          <p className="tree-detail">
-            No content, resources, or annotations found in this page dictionary.
-          </p>
+          <p className="tree-detail">No content, resources, or annotations found in this page dictionary.</p>
         )}
       </li>
-    )
-  }
+    );
+  };
+  // Root pagination is cheap and does not affect expanded branches.
+  const rootLimit = state.limits.root ?? 50;
   return (
     <nav className="page-tree" aria-label="Page relationships">
-      <p className="tree-intro">
-        Expand a page to explore its connections. Shared objects can appear on
-        several paths.
-      </p>
+      <p className="tree-intro">Expand a page to explore its connections. Shared objects can appear on several paths.</p>
       <ul>
         {document.pages
           .slice(0, rootLimit)
           .map((id, index) =>
-            node(
-              { type: "reference", ref: id, text: `${id} R` },
-              `Page ${index + 1}`,
-              `page-${index}`,
-              id,
-              [],
-              [],
-              [],
-              0,
-              true
-            )
+            node({ ref: id, text: `${id} R`, type: 'reference' }, `Page ${index + 1}`, `page-${index}`, id, [], [], [], 0, true)
           )}
       </ul>
       {document.pages.length > rootLimit && (
@@ -280,11 +210,23 @@ export function PageTree({
           Show {Math.min(50, document.pages.length - rootLimit)} more pages
         </button>
       )}
-      {!document.pages.length && (
-        <p className="tree-intro">
-          No pages available in the indexed structure.
-        </p>
-      )}
+      {!document.pages.length && <p className="tree-intro">No pages available in the indexed structure.</p>}
     </nav>
-  )
+  );
+};
+const labels: Record<string, string> = {
+  Annots: 'Annotations',
+  ColorSpace: 'Colour spaces',
+  Contents: 'Content streams',
+  ExtGState: 'Graphics states',
+  Font: 'Fonts',
+  Pattern: 'Patterns',
+  Resources: 'Resources',
+  Shading: 'Shadings',
+  XObject: 'Images & forms',
+};
+const dictionary = (value: PdfValue) => value.type === 'dictionary' || value.type === 'stream';
+export interface PageTreeState {
+  expanded: Set<string>;
+  limits: Record<string, number>;
 }

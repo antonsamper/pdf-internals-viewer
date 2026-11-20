@@ -1,0 +1,49 @@
+import { ChevronRight } from 'lucide-react';
+
+import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
+
+import type { Section } from './types';
+
+import { uniqueKeys } from './keys';
+
+const SECTION_LABELS: Partial<Record<Section, string>> = {
+  issues: 'Issues',
+  resources: 'Resources',
+  structure: 'File structure',
+};
+
+export const ExplorationTrail = ({
+  busy,
+  section,
+  trail,
+  onSelectStep,
+}: {
+  busy: boolean;
+  section: Section;
+  trail: ExplorationStep[] | undefined;
+  onSelectStep: (index: number) => void;
+}) => {
+  const steps = trail ?? [];
+  const keys = uniqueKeys(steps, (step) => step.id ?? 'root');
+  const fallback = SECTION_LABELS[section] ?? 'Document overview';
+  return (
+    <nav className="exploration-trail flex min-w-0 items-center gap-1 overflow-x-auto text-xs" aria-label="Exploration trail">
+      {busy ? 'Inspecting…' : steps.length ? undefined : fallback}
+      {!busy &&
+        steps.map((step, index) => (
+          <span className="flex shrink-0 items-center gap-1" key={keys[index]}>
+            {index > 0 && <ChevronRight size={12} aria-hidden="true" />}
+            {index === steps.length - 1 ? (
+              <span aria-current="location" className="font-mono">
+                {step.label}
+              </span>
+            ) : (
+              <button className="reference whitespace-nowrap" onClick={() => onSelectStep(index)}>
+                {step.label}
+              </button>
+            )}
+          </span>
+        ))}
+    </nav>
+  );
+};

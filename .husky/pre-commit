@@ -1,0 +1,3 @@
+pnpm exec lint-staged
+pnpm run typecheck
+pnpm exec react-doctor --scope changed --blocking warning

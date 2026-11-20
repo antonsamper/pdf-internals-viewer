@@ -1,11 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { PdfInspector } from '../src/lib/pdf/inspector';
+
 // The fixture generator is deliberately plain Node ESM, shared with sample generation.
 // @ts-expect-error local JavaScript fixture helpers have no declaration file
-import { minimalPdf, compressedPdf, incrementalPdf, misleadingStreamPdf, resourcesPdf, filteredPdf, encryptedPdf, classicPdf, oversizedDecodedPdf } from '../scripts/fixtures/pdf-fixtures.mjs';
+import {
+  minimalPdf,
+  compressedPdf,
+  incrementalPdf,
+  misleadingStreamPdf,
+  resourcesPdf,
+  filteredPdf,
+  encryptedPdf,
+  classicPdf,
+  oversizedDecodedPdf,
+} from '../scripts/fixtures/pdf-fixtures.mjs';
+import { PdfInspector } from '../src/lib/pdf/inspector';
 
 const object = (document: Awaited<ReturnType<PdfInspector['open']>>, id: string) => {
-  const value = document.objects.find(item => item.id === id);
+  const value = document.objects.find((item) => item.id === id);
   if (!value) throw new Error(`Missing object ${id}`);
   return value;
 };
@@ -17,7 +28,11 @@ describe('read-only PDF inspection', () => {
     expect(document.catalogId).toBe('1 0');
     expect(document.xrefFormat).toBe('table');
     expect(document.objects).toHaveLength(5);
-    for (const entry of document.objects) expect(entry.provenance).toEqual({ type: 'file', range: fixture.ranges.get(entry.objectNumber) });
+    for (const entry of document.objects)
+      expect(entry.provenance).toEqual({
+        range: fixture.ranges.get(entry.objectNumber),
+        type: 'file',
+      });
     expect(object(document, '4 0').referencedBy).toContain('3 0');
     expect(object(document, '3 0').references).toContain('4 0');
   });
@@ -26,10 +41,13 @@ describe('read-only PDF inspection', () => {
     const inspector = new PdfInspector();
     const document = await inspector.open(fixture.bytes);
     expect(document.objects).toHaveLength(5);
-    expect(object(document, '4 0').provenance).toEqual({ type: 'file', range: fixture.ranges.get(4) });
+    expect(object(document, '4 0').provenance).toEqual({
+      range: fixture.ranges.get(4),
+      type: 'file',
+    });
     expect(inspector.readStream('4 0', 'raw').text).toBe(fixture.data);
   });
-  it.each([false, true])('reads compressed objects and correct decoded/container coordinates, hybrid=%s', async hybrid => {
+  it.each([false, true])('reads compressed objects and correct decoded/container coordinates, hybrid=%s', async (hybrid) => {
     const fixture = compressedPdf(hybrid);
     const inspector = new PdfInspector();
     const document = await inspector.open(fixture.bytes);
@@ -38,14 +56,19 @@ describe('read-only PDF inspection', () => {
     expect(document.objects).toHaveLength(7);
     for (const id of [1, 2, 3, 5]) {
       const record = object(document, `${id} 0`);
-      expect(record.provenance).toEqual({ type: 'decoded', containerId: '6 0', range: fixture.locations.get(id), containerRange: fixture.ranges.get(6) });
+      expect(record.provenance).toEqual({
+        containerId: '6 0',
+        containerRange: fixture.ranges.get(6),
+        range: fixture.locations.get(id),
+        type: 'decoded',
+      });
       expect(record.source).toContain('<<');
     }
   });
   it('selects current incremental objects and respects free xref entries', async () => {
     const fixture = incrementalPdf();
     const document = await new PdfInspector().open(fixture.bytes);
-    expect(document.objects.some(item => item.id === '6 0')).toBe(false);
+    expect(document.objects.some((item) => item.id === '6 0')).toBe(false);
     const page = object(document, '3 0');
     expect(page.provenance.type).toBe('file');
     if (page.provenance.type === 'file') expect(page.provenance.range.start).toBe(fixture.updatedOffset);
@@ -99,25 +122,35 @@ describe('read-only PDF inspection', () => {
     expect(document.warnings.join(' ')).toContain('Recovered');
     expect(document.objects).toHaveLength(5);
   });
-  it.each([0, 999999])('does not invent null objects for invalid xref offset %s', async offset => {
+  it.each([0, 999999])('does not invent null objects for invalid xref offset %s', async (offset) => {
     const fixture = minimalPdf();
     const target = Buffer.from(`${String(fixture.offsets.get(5)).padStart(10, '0')} 00000 n`);
     const entry = Buffer.from(fixture.bytes).indexOf(target, fixture.xref);
     expect(entry).toBeGreaterThan(fixture.xref);
     fixture.bytes.set(Buffer.from(String(offset).padStart(10, '0')), entry);
     const document = await new PdfInspector().open(fixture.bytes);
-    expect(document.objects.some(item => item.id === '5 0')).toBe(false);
+    expect(document.objects.some((item) => item.id === '5 0')).toBe(false);
     expect(document.warnings.join(' ')).toContain('invalid cross-reference offset');
     expect(object(document, '2 0').warnings.join(' ')).toContain('5 0 R');
   });
   it('preserves explicitly defined null objects with valid source locations', async () => {
-    const fixture = classicPdf([[1, '<< /Type /Catalog /Pages 2 0 R /Extra 3 0 R >>'], [2, '<< /Type /Pages /Kids [] /Count 0 >>'], [3, 'null']]);
+    const fixture = classicPdf([
+      [1, '<< /Type /Catalog /Pages 2 0 R /Extra 3 0 R >>'],
+      [2, '<< /Type /Pages /Kids [] /Count 0 >>'],
+      [3, 'null'],
+    ]);
     const document = await new PdfInspector().open(fixture.bytes);
     expect(object(document, '3 0').value.type).toBe('null');
-    expect(object(document, '3 0').provenance).toEqual({ type: 'file', range: fixture.ranges.get(3) });
+    expect(object(document, '3 0').provenance).toEqual({
+      range: fixture.ranges.get(3),
+      type: 'file',
+    });
   });
   it('reports dangling references without recursively following cycles', async () => {
-    const fixture = classicPdf([[1, '<< /Type /Catalog /Pages 2 0 R /Missing 99 0 R >>'], [2, '<< /Type /Pages /Kids [] /Count 0 /Cycle 1 0 R >>']]);
+    const fixture = classicPdf([
+      [1, '<< /Type /Catalog /Pages 2 0 R /Missing 99 0 R >>'],
+      [2, '<< /Type /Pages /Kids [] /Count 0 /Cycle 1 0 R >>'],
+    ]);
     const document = await new PdfInspector().open(fixture.bytes);
     expect(object(document, '1 0').warnings.join(' ')).toContain('99 0 R');
     expect(object(document, '1 0').referencedBy).toContain('2 0');

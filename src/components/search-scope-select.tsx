@@ -1,21 +1,11 @@
-import { Select } from "@base-ui/react/select"
-import { Check, ChevronDown } from "lucide-react"
-
-const scopes = [
-  { value: "objects", label: "Objects" },
-  { value: "keys", label: "Keys" },
-  { value: "pageText", label: "Page text" },
-  { value: "text", label: "File text" },
-  { value: "hex", label: "File hex" },
-  { value: "decoded", label: "Decoded streams" },
-]
-
-export function SearchScopeSelect({
+import { Select } from '@base-ui/react/select';
+import { Check, ChevronDown } from 'lucide-react';
+export const SearchScopeSelect = function SearchScopeSelect({
   value,
   onValueChange,
 }: {
-  value: string
-  onValueChange: (value: string) => void
+  value: string;
+  onValueChange: (value: string) => void;
 }) {
   return (
     <Select.Root
@@ -23,7 +13,7 @@ export function SearchScopeSelect({
       items={scopes}
       modal={false}
       onValueChange={(next) => {
-        if (next !== null) onValueChange(next)
+        if (next !== null) onValueChange(next);
       }}
     >
       <Select.Trigger className="search-mode" aria-label="Search scope">
@@ -48,11 +38,7 @@ export function SearchScopeSelect({
           <Select.Popup className="search-scope-popup">
             <Select.List>
               {scopes.map((scope) => (
-                <Select.Item
-                  className="search-scope-option"
-                  key={scope.value}
-                  value={scope.value}
-                >
+                <Select.Item className="search-scope-option" key={scope.value} value={scope.value}>
                   <Select.ItemText>{scope.label}</Select.ItemText>
                   <Select.ItemIndicator>
                     <Check size={14} />
@@ -64,5 +50,13 @@ export function SearchScopeSelect({
         </Select.Positioner>
       </Select.Portal>
     </Select.Root>
-  )
-}
+  );
+};
+const scopes = [
+  { label: 'Objects', value: 'objects' },
+  { label: 'Keys', value: 'keys' },
+  { label: 'Page text', value: 'pageText' },
+  { label: 'File text', value: 'text' },
+  { label: 'File hex', value: 'hex' },
+  { label: 'Decoded streams', value: 'decoded' },
+];

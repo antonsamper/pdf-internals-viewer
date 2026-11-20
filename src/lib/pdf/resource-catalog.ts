@@ -1,53 +1,43 @@
-import { embeddedDownloads, type EmbeddedDownload } from "./downloads"
-import { resourceKind } from "./resource-tools"
-import type { PdfObjectRecord } from "./types"
+import type { PdfObjectRecord } from './types';
 
-export type ResourceCategory = "All" | "Font" | "Attachment" | "Image" | "Form"
-export interface ResourceEntry {
-  object: PdfObjectRecord
-  kind: Exclude<ResourceCategory, "All">
-  downloads: EmbeddedDownload[]
-}
-
+import { embeddedDownloads, type EmbeddedDownload } from './downloads';
+import { resourceKind } from './resource-tools';
 /** A single attachment row per embedded stream and filename, preferring its file specification. */
-export function resourceCatalog(
+export const resourceCatalog = function resourceCatalog(
   objects: Map<string, PdfObjectRecord>,
   downloads = embeddedDownloads(objects)
 ): ResourceEntry[] {
-  const entries: ResourceEntry[] = []
+  const entries: ResourceEntry[] = [];
   for (const object of objects.values()) {
-    const kind = resourceKind(object)
+    const kind = resourceKind(object);
     if (kind)
       entries.push({
-        object,
+        downloads: (downloads.get(object.id) ?? []).filter((asset) => asset.kind === 'font'),
         kind,
-        downloads: (downloads.get(object.id) ?? []).filter(
-          (asset) => asset.kind === "font"
-        ),
-      })
+        object,
+      });
   }
-  const seen = new Set<string>()
-  const attachments = [...downloads.entries()].filter(([, assets]) =>
-    assets.some((asset) => asset.kind === "attachment")
-  )
+  const seen = new Set<string>();
+  const attachments = [...downloads.entries()].filter(([, assets]) => assets.some((asset) => asset.kind === 'attachment'));
   // A named file specification is more helpful than its bare stream.
-  attachments.sort(
-    ([a], [b]) =>
-      Number(Boolean(objects.get(a)?.stream)) -
-      Number(Boolean(objects.get(b)?.stream))
-  )
+  attachments.sort(([a], [b]) => Number(Boolean(objects.get(a)?.stream)) - Number(Boolean(objects.get(b)?.stream)));
   for (const [id, assets] of attachments) {
-    const object = objects.get(id)
-    if (!object) continue
+    const object = objects.get(id);
+    if (!object) continue;
     const unique = assets.filter((asset) => {
-      if (asset.kind !== "attachment") return false
-      const key = `${asset.streamId}:${asset.filename}`
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
-    if (unique.length)
-      entries.push({ object, kind: "Attachment", downloads: unique })
+      if (asset.kind !== 'attachment') return false;
+      const key = `${asset.streamId}:${asset.filename}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    if (unique.length) entries.push({ downloads: unique, kind: 'Attachment', object });
   }
-  return entries
+  return entries;
+};
+export type ResourceCategory = 'All' | 'Font' | 'Attachment' | 'Image' | 'Form';
+export interface ResourceEntry {
+  object: PdfObjectRecord;
+  kind: Exclude<ResourceCategory, 'All'>;
+  downloads: EmbeddedDownload[];
 }

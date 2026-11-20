@@ -1,30 +1,24 @@
-import { FileWarning } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { inspectionFailure } from "@/lib/pdf/failure"
+import { FileWarning } from 'lucide-react';
 
-export function InspectionUnavailable({
+import { Button } from '@/components/ui/button';
+import { inspectionFailure } from '@/lib/pdf/failure';
+export const InspectionUnavailable = function InspectionUnavailable({
   reason,
   onOpenFile,
   onShowBytes,
 }: {
-  reason?: string
-  onOpenFile: () => void
-  onShowBytes: () => void
+  reason?: string;
+  onOpenFile: () => void;
+  onShowBytes: () => void;
 }) {
-  const failure = inspectionFailure(reason)
+  const failure = inspectionFailure(reason);
   return (
-    <section
-      aria-label="Why structure is unavailable"
-      className="inspection-unavailable"
-    >
+    <section aria-label="Why structure is unavailable" className="inspection-unavailable">
       <FileWarning size={24} aria-hidden="true" />
       <h2>{failure.title}</h2>
       <p>{failure.explanation}</p>
       <p>{failure.suggestion}</p>
-      <p>
-        Original file bytes are still available. A parsing failure does not
-        confirm password protection.
-      </p>
+      <p>Original file bytes are still available. A parsing failure does not confirm password protection.</p>
       {reason && (
         <details className="inspection-error-details">
           <summary>Technical details</summary>
@@ -40,5 +34,5 @@ export function InspectionUnavailable({
         </Button>
       </div>
     </section>
-  )
-}
+  );
+};
