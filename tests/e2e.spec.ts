@@ -1476,12 +1476,12 @@ for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'pa
 
 
 test('navigates grouped public content without JavaScript on desktop and mobile', async ({ browser, baseURL }) => {
-  for (const width of [1440, 390]) {
+  for (const width of [1440, 390, 320]) {
     const context = await browser.newContext({ baseURL, javaScriptEnabled: false, viewport: { width, height: 900 } })
     const reader = await context.newPage()
     await reader.goto('/who-its-for')
     const navigation = reader.locator(width === 1440 ? '.content-sidebar' : '.content-mobile-nav')
-    if (width === 390) {
+    if (width !== 1440) {
       await reader.getByText('On this site', { exact: true }).focus()
       await reader.keyboard.press('Enter')
     }
@@ -1494,13 +1494,45 @@ test('navigates grouped public content without JavaScript on desktop and mobile'
     await expect(reader.getByRole('table')).toContainText('Your task')
     expect(await reader.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await expect(reader.getByRole('complementary', { name: 'Related reading' }).getByRole('link')).toHaveCount(3)
-    await reader.screenshot({ path: screenshotPath(`inspector-vs-viewer-${width}.png`), fullPage: width === 390 })
+    await reader.screenshot({ path: screenshotPath(`inspector-vs-viewer-${width}.png`), fullPage: width !== 1440 })
+    if (width !== 1440) {
+      expect((await reader.locator('.content-header').boundingBox())!.height).toBe(58)
+      const menu = reader.locator('.content-header-menu summary')
+      await menu.focus()
+      await reader.keyboard.press('Enter')
+      await expect(reader.locator('.content-header-menu')).toHaveAttribute('open', '')
+      await expect(reader.locator('.content-header-menu-links .active-section')).toHaveText('Overview')
+      await reader.keyboard.press('Enter')
+      await expect(reader.locator('.content-header-menu')).not.toHaveAttribute('open', '')
+      await reader.keyboard.press('Enter')
+    }
     await reader.getByRole('navigation', { name: 'Main navigation', exact: true }).getByRole('link', { name: 'Examples', exact: true }).click()
     await expect(reader.getByRole('heading', { level: 1 })).toHaveText('PDF debugging examples')
     await reader.goBack()
     await expect(reader.getByRole('heading', { level: 1 })).toHaveText('Why use a PDF inspector instead of a PDF viewer?')
     await context.close()
   }
+})
+
+test('keeps public header controls separate with a PDF open on narrow screens', async ({ page }) => {
+  await openMinimal(page)
+  await page.getByRole('link', { name: 'User guide', exact: true }).click()
+  for (const fontFamily of ['inherit', 'monospace']) {
+    await page.locator<HTMLElement>('.content-header').evaluate((header, font) => {
+      header.style.fontFamily = font
+    }, fontFamily)
+    for (const width of [320, 361, 375, 600, 760]) {
+      await page.setViewportSize({ width, height: 812 })
+      const navigation = await page.locator('.content-header-links').boundingBox()
+      const close = await page.getByRole('button', { name: 'Close PDF', exact: true }).boundingBox()
+      const theme = await page.locator('.theme-control').boundingBox()
+      expect(navigation!.x + navigation!.width).toBeLessThanOrEqual(close!.x)
+      expect(close!.x + close!.width).toBeLessThanOrEqual(theme!.x)
+      await expect(page.locator('.content-header')).toHaveJSProperty('offsetHeight', 58)
+    }
+  }
+  await page.locator('.content-open-link').click()
+  await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible()
 })
 
 test('preserves a PDF selection through the new overview pages and history', async ({ page }) => {
@@ -1709,12 +1741,12 @@ test('public headers match the workspace height and align the mobile identity ro
     expect(workspace!.height).toBe(58)
     const checkHeader = async () => {
       const actual = await header.boundingBox()
-      if (width > 600) expect(actual!.height).toBe(workspace!.height)
+      expect(actual!.height).toBe(workspace!.height)
       const actualIdentity = await identity.boundingBox()
       expect(actualIdentity!.y + actualIdentity!.height / 2).toBeCloseTo(
         workspaceIdentity!.y + workspaceIdentity!.height / 2, 0,
       )
-      await expect(page.getByRole('link', { name: 'Open the inspector →', exact: true })).toBeInViewport()
+      await expect(page.locator('.content-open-link')).toBeInViewport()
     }
     // Cover public navigation with an active PDF as well as direct static visits.
     await openMinimal(page)

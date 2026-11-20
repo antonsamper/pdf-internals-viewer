@@ -1,4 +1,6 @@
 import type { MouseEvent } from "react"
+import { Menu, X } from "lucide-react"
+import { buttonVariants } from "@/components/ui/button"
 import type { SitePath } from "@/lib/site-content"
 import {
   CONTENT_GROUPS,
@@ -15,26 +17,46 @@ export function ContentHeaderLinks({
   path: SitePath
   onFollowLink?: FollowLink
 }) {
+  const sectionLinks = CONTENT_GROUPS.slice(0, 3).map((group) => {
+    const href = group.items[0][0]
+    const active = group.items.some(([item]) => item === path)
+    return (
+      <a
+        key={href}
+        href={href}
+        aria-current={path === href ? "page" : undefined}
+        className={[
+          buttonVariants({ variant: "ghost", size: "sm" }),
+          active ? "active-section" : "",
+        ].join(" ")}
+        onClick={onFollowLink}
+      >
+        {group.label}
+      </a>
+    )
+  })
+
   return (
     <nav className="content-header-links" aria-label="Main navigation">
-      {CONTENT_GROUPS.slice(0, 3).map((group) => {
-        const href = group.items[0][0]
-        const active = group.items.some(([item]) => item === path)
-        return (
-          <a
-            key={href}
-            href={href}
-            aria-current={path === href ? "page" : undefined}
-            className={active ? "active-section" : undefined}
-            onClick={onFollowLink}
-          >
-            {group.label}
-          </a>
-        )
-      })}
-      <a className="content-open-link" href="/" onClick={onFollowLink}>
-        Open the inspector →
+      <div className="content-header-sections">{sectionLinks}</div>
+      <a
+        className={`${buttonVariants({ variant: "ghost", size: "sm" })} content-open-link`}
+        href="/"
+        onClick={onFollowLink}
+      >
+        <span className="content-open-full">Open the inspector →</span>
+        <span className="content-open-short">Inspector →</span>
       </a>
+      <details className="content-header-menu" key={path}>
+        <summary
+          className={buttonVariants({ variant: "ghost", size: "icon-lg" })}
+        >
+          <Menu className="content-menu-open" size={16} aria-hidden="true" />
+          <X className="content-menu-close" size={16} aria-hidden="true" />
+          <span className="sr-only">Menu</span>
+        </summary>
+        <div className="content-header-menu-links">{sectionLinks}</div>
+      </details>
     </nav>
   )
 }
