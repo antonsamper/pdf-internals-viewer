@@ -7,6 +7,7 @@ import { PdfInspector } from '../src/lib/pdf/inspector';
 import { documentIssues } from '../src/lib/pdf/issues';
 import { effectiveResources, property } from '../src/lib/pdf/navigation';
 import { pageRotationSummary } from '../src/lib/pdf/page-rotation';
+import { pageTextSources } from '../src/lib/pdf/page-text';
 import { resourceCatalog } from '../src/lib/pdf/resource-catalog';
 
 it('bundles reproducible samples whose indexed objects support the walkthrough findings', async () => {
@@ -98,6 +99,23 @@ for (const [name, generate] of ADDITIONAL_EXAMPLES) {
       expect(inspector.readStream('4 0', 'decoded').text).toContain('A readable page');
       expect(Buffer.from(bytes).toString('latin1')).toContain('6 0 obj');
       expect(Buffer.from(bytes).toString('latin1')).toContain('0000999999 00000 n');
+    } else if (name === 'find-text-source') {
+      expect(document.pages).toEqual(['3 0']);
+      expect(objects.get('4 0')?.stream?.filters).toEqual(['FlateDecode']);
+      expect(inspector.readStream('4 0', 'decoded').text).toContain('[(Payment refer) 12 (ence: INV-2048)] TJ');
+      const sources = await pageTextSources(
+        objects.get('3 0')!,
+        objects,
+        'reference',
+        async (id) => inspector.readStream(id, 'decoded'),
+        false,
+        () => false
+      );
+      expect(sources).toHaveLength(1);
+      expect(sources[0]!.incomplete).toBe(false);
+      expect(sources[0]!.ranges.map((range) => Buffer.from(sources[0]!.bytes.subarray(range.start, range.end)).toString('latin1'))).toEqual(
+        ['refer', 'ence']
+      );
     } else if (name === 'opening-action') {
       expect(get('1 0', 'OpenAction')).toMatchObject({ ref: '6 0' });
       expect(get('6 0', 'S')).toMatchObject({ value: 'GoTo' });

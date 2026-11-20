@@ -417,3 +417,65 @@ export const BrokenXrefExample = function BrokenXrefExample() {
     </>
   );
 };
+export const FindTextSourceExample = function FindTextSourceExample() {
+  return (
+    <>
+      <p className="about-lead">
+        This invoice shows the payment reference INV-2048. Search its page text for “reference”, find the match on the rendered page, then
+        follow it to the bytes that draw it. The PDF stores the word in two pieces inside a compressed content stream.
+      </p>
+      <ExampleActions sample="find-text-source" />
+      <h2>1. Search the page text</h2>
+      <p>
+        Open the example and press Ctrl/Cmd+K. Choose <strong>Page text</strong> in the search menu, enter <code>reference</code>, and run
+        the search. The results show 1 page with 1 text match. Page text search reads the words the page displays, so it finds the match
+        even though the file never stores them as one string.
+      </p>
+      <Preview
+        sample="find-text-source"
+        alt="An example invoice with the line Payment reference: INV-2048."
+        caption="The page shows “Payment reference: INV-2048” as a single line."
+      />
+      <h2>2. Find the match on the page</h2>
+      <p>
+        Select <strong>Open page preview</strong>. The preview highlights the word on the rendered page. This highlight comes from the
+        renderer, so it shows where the word appears, not which bytes draw it.
+      </p>
+      <h2>3. Show the bytes</h2>
+      <p>
+        Back in the results, select <strong>Show bytes</strong>. The inspector opens the page's content stream, <strong>4 0 R</strong>, and
+        highlights <code>refer</code> and <code>ence</code> in the <strong>Decoded bytes</strong> view. The status line reports 9 bytes
+        selected in 2 ranges. The stream is Flate-compressed, so these offsets are within the decoded stream. Switch to{' '}
+        <strong>Original bytes</strong> and only the containing stream is highlighted: compressed bytes do not contain readable letters.
+      </p>
+      <h2>4. Read the instruction</h2>
+      <p>
+        Open <strong>Decoded → Decoded byte text</strong> for stream <strong>4 0 R</strong>. The line is written as:
+      </p>
+      <pre>
+        <code>{'BT /F1 20 Tf 72 600 Td [(Payment refer) 12 (ence: INV-2048)] TJ ET'}</code>
+      </pre>
+      <p>
+        <code>TJ</code> draws an array of strings and spacing numbers. Here the word is cut in two, with the number <code>12</code> between
+        the pieces to adjust the gap. A Decoded streams search for <code>reference</code> finds nothing, because the bytes read{' '}
+        <code>refer) 12 (ence</code>. Page text search joins the pieces; the highlighted ranges leave out the parenthesis, the number and
+        the operator.
+      </p>
+      <h2>5. Inspect the character codes</h2>
+      <p>
+        In the hex view, the first highlighted range is <code>72 65 66 65 72</code> (<code>refer</code>) and the second is{' '}
+        <code>65 6E 63 65</code> (<code>ence</code>). Each letter is one byte, because the sample's Helvetica font uses WinAnsi encoding and
+        the string stores character codes directly. Other fonts may store glyph codes that only the font's <code>/ToUnicode</code> map turns
+        into text. The <a href="/examples/incorrect-text">incorrect text example</a> shows what happens when that map is wrong.
+      </p>
+      <h2>When the bytes cannot be found</h2>
+      <p>
+        Page text search can find a word that the byte mapper cannot trace. Text with unsupported font encodings or inside a Form XObject is
+        labelled as a candidate stream, with no word bytes highlighted. Repeated phrases can have several source locations, and a location
+        is a candidate rather than a proof of which occurrence it draws. See the <a href="/guides/search-bookmark-compare">search guide</a>{' '}
+        for causes and what to check next, and <a href="/limitations">limitations</a> for supported fonts. PDF Internals does not run OCR,
+        so scanned pages without a text layer have nothing to search.
+      </p>
+    </>
+  );
+};

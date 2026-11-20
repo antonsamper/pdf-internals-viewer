@@ -13,8 +13,8 @@ export const Examples = function Examples() {
   return (
     <>
       <p className="about-lead">
-        Investigate file size, text mappings, fonts, attachments, and page behaviour with nine worked examples, including a deliberately
-        damaged PDF. Each walkthrough includes an original sample PDF you can open in the inspector or download.
+        Investigate file size, text mappings, fonts, attachments, and page behaviour with ten examples, including a deliberately damaged
+        PDF. Each walkthrough includes an original sample PDF you can open in the inspector or download.
       </p>
       <h2>
         <a href="/examples/large-pdf">Why is this one-page PDF so large?</a>
@@ -145,8 +145,8 @@ export const IncorrectTextExample = function IncorrectTextExample() {
       </pre>
       <p>
         With Poppler installed, this command produces a line containing <code>Invoice total: £9,250.00</code>. Readers and extractors may
-        use different fallbacks, so clipboard behaviour can vary. PDF Internals does not extract page text; its decoded stream view shows
-        the underlying instructions.
+        use different fallbacks, so clipboard behaviour can vary. PDF Internals can search page text. Its decoded stream view shows the
+        underlying instructions and font encoding, not a full extraction.
       </p>
       <figure className="example-preview">
         <img

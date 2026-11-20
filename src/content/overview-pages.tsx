@@ -16,7 +16,7 @@ export const AudiencePage = function AudiencePage() {
         rotation? Inspect the output of your PDF generator to see which resources and page properties it actually wrote.
       </p>
       <p>
-        Try the worked examples for <a href="/examples/large-pdf">an unexpectedly large PDF</a>,{' '}
+        Try the examples for <a href="/examples/large-pdf">an unexpectedly large PDF</a>,{' '}
         <a href="/examples/repeated-logo">repeated logos</a> and <a href="/examples/page-rotation">page rotation</a>. Use the findings to
         investigate your generator; PDF Internals does not rewrite or optimise the file.
       </p>
@@ -145,12 +145,12 @@ export const InspectorVsViewerPage = function InspectorVsViewerPage() {
         produce <strong>£9,250.00</strong>. Looking at the rendered page alone does not explain the difference.
       </p>
       <p>
-        The <a href="/examples/incorrect-text">worked investigation</a> follows the page’s drawing instructions to its font and{' '}
+        The <a href="/examples/incorrect-text">investigation</a> follows the page’s drawing instructions to its font and{' '}
         <code>/ToUnicode</code> map. The map sends the source code for the visible digit 1 to the Unicode character 9.
       </p>
       <p className="article-actions">
         <a href="/?sample=incorrect-unicode">Inspect the incorrect-text sample →</a>
-        <a href="/examples/incorrect-text">Follow the worked example</a>
+        <a href="/examples/incorrect-text">Follow the example</a>
       </p>
 
       <h2>Use the page preview and inspector together</h2>

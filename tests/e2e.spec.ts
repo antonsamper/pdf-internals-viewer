@@ -598,7 +598,10 @@ for (const width of [1440, 390]) {
     await expect(scope).toHaveJSProperty('tagName', 'BUTTON');
     await scope.press('ArrowDown');
     await expect(page.getByRole('listbox')).toBeVisible();
+    // Wait for the list to highlight an option, otherwise a slow runner can drop the End key.
+    await expect(page.getByRole('option', { exact: true, name: 'Objects' })).toHaveAttribute('data-highlighted', '');
     await page.keyboard.press('End');
+    await expect(page.getByRole('option', { exact: true, name: 'Decoded streams' })).toHaveAttribute('data-highlighted', '');
     await page.keyboard.press('Enter');
     await expect(scope).toContainText('Decoded streams');
     await expect(page.getByRole('region', { exact: true, name: 'Search results' })).toHaveCount(0);
@@ -1633,6 +1636,7 @@ test('serves public answers without JavaScript and keeps articles free of inspec
     ['/examples', 'PDF debugging examples'],
     ['/examples/large-pdf', 'Why is this one-page PDF so large?'],
     ['/examples/incorrect-text', 'Why does copied PDF text differ from the page?'],
+    ['/examples/find-text-source', 'How to find the source bytes behind text in a PDF'],
     ['/examples/embedded-font', 'Which font is this PDF actually using?'],
     ['/examples/hidden-attachment', 'Where is the attachment?'],
     ['/examples/repeated-logo', 'Why is the same logo stored several times?'],
@@ -1823,7 +1827,7 @@ for (const [route, sample, instruction] of [
   ['/examples/large-pdf', 'oversized-image', '/Im1 Do'],
   ['/examples/incorrect-text', 'incorrect-unicode', 'Invoice total:'],
 ]) {
-  test(`opens worked example ${sample} and follows its content evidence`, async ({ page }) => {
+  test(`opens example ${sample} and follows its content evidence`, async ({ page }) => {
     await page.goto(route!);
     await expect(page.getByRole('link', { exact: true, name: 'Download sample PDF' })).toHaveAttribute('href', `/samples/${sample}.pdf`);
     await expect(page.locator('.example-preview img')).toBeVisible();
@@ -1857,7 +1861,7 @@ for (const [route, sample, instruction] of [
   });
 }
 for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'page-rotation', 'inherited-resources', 'opening-action']) {
-  test(`opens worked example ${sample} and verifies its finding`, async ({ page }) => {
+  test(`opens example ${sample} and verifies its finding`, async ({ page }) => {
     await page.goto(`/examples/${sample}`);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     const image = page.locator('.example-preview img');
@@ -1973,6 +1977,37 @@ for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'pa
     }
   });
 }
+test('opens example find-text-source and follows a page-text match to its source bytes', async ({ page }) => {
+  await page.goto('/examples/find-text-source');
+  await expect(page.getByRole('link', { exact: true, name: 'Download sample PDF' })).toHaveAttribute(
+    'href',
+    '/samples/find-text-source.pdf'
+  );
+  const image = page.locator('.example-preview img');
+  await image.scrollIntoViewIfNeeded();
+  await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  await page.setViewportSize({ height: 844, width: 390 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await expect(page.getByRole('complementary', { name: 'Related reading' }).getByRole('link')).toHaveCount(3);
+  await page.setViewportSize({ height: 1000, width: 1440 });
+  await page.getByRole('link', { exact: true, name: 'Open this example' }).click();
+  await expect(page.locator('.filename')).toContainText('find-text-source.pdf');
+  await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+  await selectSearchScope(page, 'decoded');
+  await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('reference');
+  await page.getByRole('button', { exact: true, name: 'Run search' }).click();
+  const results = page.getByRole('region', { exact: true, name: 'Search results' });
+  await expect(results).toContainText('0 matches');
+  await selectSearchScope(page, 'pageText');
+  await page.getByRole('button', { exact: true, name: 'Run search' }).click();
+  await expect(results).toContainText('1 page');
+  await expect(results).toContainText('1 text match');
+  await results.getByRole('button', { name: /Show bytes/ }).click();
+  const hex = page.getByRole('region', { exact: true, name: 'Decoded stream bytes' });
+  await expect(hex.locator('button.hex-selected')).toHaveCount(9);
+  await expect(hex.locator('.hex-status')).toContainText('9 bytes selected in 2 ranges');
+  await expect(page.locator('.content-instruction.text-match')).toContainText('TJ');
+});
 test('navigates grouped public content without JavaScript on desktop and mobile', async ({ browser, baseURL }) => {
   for (const width of [1440, 390, 320]) {
     const context = await browser.newContext({

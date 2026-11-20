@@ -19,6 +19,7 @@ import {
   InheritanceExample,
   ActionExample,
   BrokenXrefExample,
+  FindTextSourceExample,
 } from './more-examples';
 import { AudiencePage, InspectorVsViewerPage } from './overview-pages';
 import { AttachmentsGuide, SearchGuide, SuspiciousFeaturesGuide } from './task-guides';
@@ -52,7 +53,7 @@ const Guide = function Guide() {
           <strong>Page preview</strong> to see the result, or <strong>Original bytes</strong> to locate the selected object in the file.
         </li>
       </ol>
-      <h2>Worked examples</h2>
+      <h2>Examples</h2>
       <p>
         Start with a symptom: <a href="/examples/large-pdf">an unexpectedly large invoice</a> or{' '}
         <a href="/examples/incorrect-text">an amount that extracts incorrectly</a>. See <a href="/examples">all examples</a>.
@@ -535,14 +536,29 @@ const Limitations = function Limitations() {
         container; they have no separate offset in the original file. Recovery from damaged files may be incomplete.
       </p>
       <p>
-        Decoded search checks only the first 256 KiB of each stream, stops at 500 results, and does not extract the text shown on a rendered
-        page. Font or image availability does not prove page usage. Resource lists cover indexed objects; unparsed objects can contain
-        additional resources.
+        Decoded search checks only the first 256 KiB of each stream and stops at 500 results. It reads decoded bytes as characters, so it is
+        not page text search. Font or image availability does not prove page usage. Resource lists cover indexed objects; unparsed objects
+        can contain additional resources.
+      </p>
+      <h2>Page text search and source mapping</h2>
+      <p>
+        Page text search finds words extracted from pages that have a text layer. It runs locally in your browser, stops at 500 matches, and
+        Open page preview highlights the returned matches on the rendered page.
       </p>
       <p>
-        Page text search uses a separate extraction engine. It can find words that the source mapper cannot trace to exact bytes, including
-        text with unsupported font encodings or inside Form XObjects. Candidate stream highlights identify containers, not word bytes. See
-        the <a href="/guides/search-bookmark-compare">search guide</a> for mapping limits and byte representations.
+        Mapping those words to source bytes works for common ASCII fonts and fixed-width ToUnicode maps in direct page content streams. In
+        compressed or encrypted streams the decoded bytes are exact, while the original file highlights only the containing stream. Mapped
+        locations are candidates for the page text and may differ from reading order.
+      </p>
+      <p>
+        Some words are found but cannot be mapped: text with unsupported font encodings or inside Form XObjects, <code>/ActualText</code>{' '}
+        replacement text, phrases that span content streams, and inherited or variable-width character maps. These results link to a
+        candidate stream and highlight no word bytes. The <a href="/guides/search-bookmark-compare">search guide</a> explains the causes and
+        byte representations.
+      </p>
+      <p>
+        OCR for scanned pages without text is not available, and neither is guaranteed mapping from a specific rendered text occurrence to
+        its source bytes.
       </p>
       <h2>Exports and comparisons</h2>
       <p>
@@ -552,10 +568,7 @@ const Limitations = function Limitations() {
         masks, and colour space. They do not apply the scaling, rotation, or positioning used on the page.
       </p>
       <h2>Unavailable operations</h2>
-      <p>
-        Editing, repair, saving modified PDFs, signature validation, historical object revisions, and guaranteed mapping from a specific
-        rendered text occurrence to its source bytes are not available.
-      </p>
+      <p>Editing, repair, saving modified PDFs, signature validation, historical object revisions, and OCR are not available.</p>
       <h2>Browser coverage and evidence</h2>
       <p>
         Automated checks target Chromium, Firefox, and WebKit. The Safari application and broader device/PDF combinations still need
@@ -618,6 +631,8 @@ export const PublicPage = function PublicPage({
             <LargePdfExample />
           ) : page.path === '/examples/incorrect-text' ? (
             <IncorrectTextExample />
+          ) : page.path === '/examples/find-text-source' ? (
+            <FindTextSourceExample />
           ) : page.path === '/examples/broken-xref' ? (
             <BrokenXrefExample />
           ) : page.path === '/examples/embedded-font' ? (

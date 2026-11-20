@@ -1,5 +1,6 @@
 /** Original, deterministic examples. No third-party fonts, images or documents. */
 import { readFileSync } from 'node:fs';
+import { deflateSync } from 'node:zlib';
 import { classicPdf } from './pdf-fixtures.mjs';
 export const oversizedImagePdf = () => {
     // Store raw RGB deliberately: 1200 x 1200 x 3 = 4,320,000 bytes.
@@ -78,6 +79,8 @@ export const openingActionPdf = () => {
     objects.push([6, '<< /Type /Action /S /GoTo /D [3 0 R /Fit] >>']);
     return classicPdf(objects);
 };
+/** A compressed content stream whose phrase is split across a TJ array: the page-text search and source-byte example. */
+export const findTextSourcePdf = () => classicPdf(invoice('BT /F1 14 Tf 72 660 Td (A phrase can be stored in several pieces.) Tj ET\nBT /F1 20 Tf 72 600 Td [(Payment refer) 12 (ence: INV-2048)] TJ ET', undefined, '', true));
 /** Damage only the metadata object's xref entry; the page objects remain intact. */
 export const brokenXrefPdf = () => {
     const objects = invoice('BT /F1 14 Tf 72 660 Td (A readable page can still contain a structural error.) Tj ET\nBT /F1 12 Tf 72 628 Td (Open Issues to inspect the broken metadata cross-reference.) Tj ET');
@@ -92,15 +95,16 @@ export const brokenXrefPdf = () => {
     return { ...fixture, bytes: new Uint8Array(bytes) };
 };
 const ascii = text => Buffer.from(text, 'latin1');
-const stream = (data, dictionary = '') => {
-    const bytes = typeof data === 'string' ? ascii(data) : data;
-    return Buffer.concat([ascii(`<< /Length ${bytes.length} ${dictionary} >>\nstream\n`), bytes, ascii('\nendstream')]);
+const stream = (data, dictionary = '', compress = false) => {
+    const raw = typeof data === 'string' ? ascii(data) : data;
+    const bytes = compress ? deflateSync(raw) : raw;
+    return Buffer.concat([ascii(`<< /Length ${bytes.length} ${compress ? '/Filter /FlateDecode ' : ''}${dictionary} >>\nstream\n`), bytes, ascii('\nendstream')]);
 };
-const invoice = (instructions, font = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>', resources = '') => [
+const invoice = (instructions, font = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>', resources = '', compress = false) => [
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
     [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
     [3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> ${resources} >> /Contents 4 0 R >>`],
-    [4, stream(`0.12 0.16 0.24 rg\nBT /F1 28 Tf 72 708 Td (Example invoice) Tj ET\n${instructions}\n0.4 0.4 0.4 rg\nBT /F1 10 Tf 72 72 Td (Original learning sample - PDF Internals) Tj ET\n`)],
+    [4, stream(`0.12 0.16 0.24 rg\nBT /F1 28 Tf 72 708 Td (Example invoice) Tj ET\n${instructions}\n0.4 0.4 0.4 rg\nBT /F1 10 Tf 72 72 Td (Original learning sample - PDF Internals) Tj ET\n`, '', compress)],
     [5, font],
 ];
 export const attachmentText = 'description,amount\nService charge,1250.00\n';
@@ -123,5 +127,6 @@ export const ADDITIONAL_EXAMPLES = [
     ['page-rotation', pageRotationPdf],
     ['inherited-resources', inheritedResourcesPdf],
     ['opening-action', openingActionPdf],
+    ['find-text-source', findTextSourcePdf],
     ['broken-xref', brokenXrefPdf],
 ];
