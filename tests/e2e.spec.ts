@@ -1190,6 +1190,8 @@ test('serves public answers without JavaScript and keeps articles free of inspec
   const context = await browser.newContext({ javaScriptEnabled: false, baseURL })
   const reader = await context.newPage()
   for (const [path, heading] of [
+    ['/who-its-for', 'Who is PDF Internals for?'],
+    ['/pdf-inspector-vs-viewer', 'Why use a PDF inspector instead of a PDF viewer?'],
     ['/guide', 'How to inspect a PDF in your browser'],
     ['/guides/inspect-pdf-objects', 'PDF objects and references: what does 3 0 R mean?'],
     ['/guides/decode-pdf-streams', 'How to inspect and decode PDF streams'],
@@ -1241,8 +1243,8 @@ test('opens each public page at the top when following links from the bottom', a
     await expect(main).toBeFocused()
 
     await main.evaluate(element => { element.scrollTop = element.scrollHeight })
-    await main.getByRole('link', { name: 'Your PDFs and browser storage', exact: true }).click()
-    await expect(page).toHaveURL(/\/privacy$/)
+    await main.getByRole('complementary', { name: 'Related reading' }).getByRole('link', { name: 'Supported features and limitations', exact: true }).click()
+    await expect(page).toHaveURL(/\/limitations$/)
     await expect.poll(() => main.evaluate(element => element.scrollTop)).toBe(0)
     await expect(main).toBeFocused()
   }
@@ -1382,7 +1384,7 @@ for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'pa
     await page.setViewportSize({ width: 390, height: 844 })
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await page.screenshot({ path: screenshotPath(`${sample}-article-mobile.png`), fullPage: true })
-    await expect(page.getByRole('complementary', { name: 'More documentation' }).getByRole('link', { name: 'Limitations', exact: true })).toBeVisible()
+    await expect(page.getByRole('complementary', { name: 'Related reading' }).getByRole('link')).toHaveCount(3)
     const footer = page.getByRole('navigation', { name: 'Project', exact: true })
     await expect(footer.getByRole('link', { name: 'Limitations', exact: true })).toHaveCount(0)
     await expect(footer.getByRole('link', { name: 'Feedback', exact: true })).toHaveCount(0)
@@ -1459,3 +1461,50 @@ for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'pa
     }
   })
 }
+
+
+test('navigates grouped public content without JavaScript on desktop and mobile', async ({ browser, baseURL }) => {
+  for (const width of [1440, 390]) {
+    const context = await browser.newContext({ baseURL, javaScriptEnabled: false, viewport: { width, height: 900 } })
+    const reader = await context.newPage()
+    await reader.goto('/who-its-for')
+    const navigation = reader.locator(width === 1440 ? '.content-sidebar' : '.content-mobile-nav')
+    if (width === 390) {
+      await reader.getByText('On this site', { exact: true }).focus()
+      await reader.keyboard.press('Enter')
+    }
+    for (const label of ['Overview', 'Guides', 'Examples', 'Reference']) {
+      await expect(navigation.getByRole('heading', { name: label, exact: true })).toBeVisible()
+    }
+    await expect(navigation.locator('[aria-current="page"]')).toHaveText('Who it’s for')
+    await navigation.getByRole('link', { name: 'Inspector vs viewer', exact: true }).click()
+    await expect(reader.getByRole('heading', { level: 1 })).toHaveText('Why use a PDF inspector instead of a PDF viewer?')
+    await expect(reader.getByRole('table')).toContainText('Your task')
+    expect(await reader.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await expect(reader.getByRole('complementary', { name: 'Related reading' }).getByRole('link')).toHaveCount(3)
+    await reader.screenshot({ path: screenshotPath(`inspector-vs-viewer-${width}.png`), fullPage: width === 390 })
+    await reader.getByRole('navigation', { name: 'Main navigation', exact: true }).getByRole('link', { name: 'Examples', exact: true }).click()
+    await expect(reader.getByRole('heading', { level: 1 })).toHaveText('PDF debugging examples')
+    await reader.goBack()
+    await expect(reader.getByRole('heading', { level: 1 })).toHaveText('Why use a PDF inspector instead of a PDF viewer?')
+    await context.close()
+  }
+})
+
+test('preserves a PDF selection through the new overview pages and history', async ({ page }) => {
+  await openMinimal(page)
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  await page.getByRole('link', { name: 'User guide', exact: true }).click()
+  const navigation = page.locator('.content-sidebar')
+  await navigation.getByRole('link', { name: 'Who it’s for', exact: true }).click()
+  await expect(page).toHaveURL(/\/who-its-for$/)
+  await navigation.getByRole('link', { name: 'Inspector vs viewer', exact: true }).click()
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://pdf-internals-viewer.pages.dev/pdf-inspector-vs-viewer')
+  await page.goBack()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Who is PDF Internals for?')
+  await page.goForward()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Why use a PDF inspector instead of a PDF viewer?')
+  await page.getByRole('link', { name: 'Back to the workspace', exact: true }).click()
+  await expect(page.locator('.filename')).toContainText('minimal.pdf')
+  await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
+})
