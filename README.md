@@ -78,7 +78,7 @@ This opt-in suite checks 15 upstream PDFs against observations from independent 
 
 ## Public-facing limitations
 
-**About & limitations** is always available in the footer, including on mobile. The opening screen also links to it before a file is loaded. The scrollable dialog describes supported files/filters, encrypted-file behavior, source fidelity, preview/search truncation, browser coverage, resource limits, and local processing. It never opens automatically or requires acknowledgment.
+**About & limitations** is available in the document status bar while a PDF is loading or open, including on mobile. The empty homepage and public pages show only the site navigation footer. The opening screen links to limitations before a file is loaded. The scrollable dialog describes supported files/filters, encrypted-file behavior, source fidelity, preview/search truncation, browser coverage, resource limits, and local processing. It never opens automatically or requires acknowledgment.
 
 ## Parser and preview
 
