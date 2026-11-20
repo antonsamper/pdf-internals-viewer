@@ -15,13 +15,15 @@ import {
   ActionExample,
 } from "./more-examples"
 import { BrandIcon } from "@/components/brand-artwork"
-import { SiteLinks } from "@/components/site-links"
+import { AudiencePage, InspectorVsViewerPage } from "./overview-pages"
 import {
-  PRIVACY_SUMMARY,
-  PROJECT_URL,
-  SITE_PAGES,
-  type SitePage,
-} from "@/lib/site-content"
+  ContentNavigation,
+  ContentHeaderLinks,
+  RelatedContent,
+} from "@/components/content-navigation"
+import { navigationLabel } from "@/lib/site-navigation"
+import { SiteLinks } from "@/components/site-links"
+import { PRIVACY_SUMMARY, PROJECT_URL, type SitePage } from "@/lib/site-content"
 import {
   MAX_INPUT_BYTES,
   MAX_DISPLAY_BYTES,
@@ -536,105 +538,86 @@ export function PublicPage({
 }) {
   return (
     <main
-      className="about-page public-page"
+      className="about-page public-page content-page"
       tabIndex={-1}
       aria-labelledby="public-title"
       onClick={onFollowLink}
     >
-      <article>
-        <a className="back-to-workspace" href={import.meta.env.BASE_URL}>
-          <ArrowLeft size={14} aria-hidden="true" /> Back to the workspace
-        </a>
-        <nav className="article-breadcrumbs" aria-label="Breadcrumb">
-          <a href="/">PDF Internals</a>
-          <span aria-hidden="true"> / </span>
-          {page.path.startsWith("/guides/") && (
-            <>
-              <a href="/guide">Guide</a>
-              <span aria-hidden="true"> / </span>
-            </>
+      <div className="content-layout">
+        <ContentNavigation path={page.path} />
+        <article>
+          <a className="back-to-workspace" href={import.meta.env.BASE_URL}>
+            <ArrowLeft size={14} aria-hidden="true" /> Back to the workspace
+          </a>
+          <nav className="article-breadcrumbs" aria-label="Breadcrumb">
+            <a href="/">PDF Internals</a>
+            <span aria-hidden="true"> / </span>
+            {page.path.startsWith("/guides/") && (
+              <>
+                <a href="/guide">Guide</a>
+                <span aria-hidden="true"> / </span>
+              </>
+            )}
+            {page.path.startsWith("/examples/") && (
+              <>
+                <a href="/examples">Examples</a>
+                <span aria-hidden="true"> / </span>
+              </>
+            )}
+            <span aria-current="page">{navigationLabel(page.path)}</span>
+          </nav>
+          <h1 id="public-title">{page.heading}</h1>
+          {(page.path.startsWith("/guides/") ||
+            page.path.startsWith("/examples/")) && (
+            <p className="article-byline">
+              By <a href="https://github.com/antonsamper">Anton Samper</a> ·
+              Reviewed <time dateTime="2026-11-15">15 November 2026</time>
+            </p>
           )}
-          {page.path.startsWith("/examples/") && (
-            <>
-              <a href="/examples">Examples</a>
-              <span aria-hidden="true"> / </span>
-            </>
+          {page.path === "/who-its-for" ? (
+            <AudiencePage />
+          ) : page.path === "/pdf-inspector-vs-viewer" ? (
+            <InspectorVsViewerPage />
+          ) : page.path === "/examples" ? (
+            <Examples />
+          ) : page.path === "/examples/large-pdf" ? (
+            <LargePdfExample />
+          ) : page.path === "/examples/incorrect-text" ? (
+            <IncorrectTextExample />
+          ) : page.path === "/examples/embedded-font" ? (
+            <FontExample />
+          ) : page.path === "/examples/hidden-attachment" ? (
+            <AttachmentExample />
+          ) : page.path === "/examples/repeated-logo" ? (
+            <LogoExample />
+          ) : page.path === "/examples/page-rotation" ? (
+            <RotationExample />
+          ) : page.path === "/examples/inherited-resources" ? (
+            <InheritanceExample />
+          ) : page.path === "/examples/opening-action" ? (
+            <ActionExample />
+          ) : page.path === "/guide" ? (
+            <Guide />
+          ) : page.path === "/privacy" ? (
+            <Privacy />
+          ) : page.path === "/limitations" ? (
+            <Limitations />
+          ) : page.path === "/guides/inspect-pdf-objects" ? (
+            <ObjectsGuide />
+          ) : page.path === "/guides/decode-pdf-streams" ? (
+            <StreamsGuide />
+          ) : page.path === "/guides/find-pdf-attachments" ? (
+            <AttachmentsGuide />
+          ) : page.path === "/guides/search-bookmark-compare" ? (
+            <SearchGuide />
+          ) : page.path === "/guides/investigate-suspicious-features" ? (
+            <SuspiciousFeaturesGuide />
+          ) : (
+            <ResourcesGuide />
           )}
-          <span aria-current="page">
-            {page.path === "/examples"
-              ? "Examples"
-              : page.path.startsWith("/examples/")
-                ? "Walkthrough"
-                : page.path === "/guide"
-                  ? "Guide"
-                  : page.path === "/privacy"
-                    ? "Privacy"
-                    : page.path === "/limitations"
-                      ? "Limitations"
-                      : "Tutorial"}
-          </span>
-        </nav>
-        <h1 id="public-title">{page.heading}</h1>
-        {(page.path.startsWith("/guides/") ||
-          page.path.startsWith("/examples/")) && (
-          <p className="article-byline">
-            By <a href="https://github.com/antonsamper">Anton Samper</a> ·
-            Reviewed <time dateTime="2026-11-15">15 November 2026</time>
-          </p>
-        )}
-        {page.path === "/examples" ? (
-          <Examples />
-        ) : page.path === "/examples/large-pdf" ? (
-          <LargePdfExample />
-        ) : page.path === "/examples/incorrect-text" ? (
-          <IncorrectTextExample />
-        ) : page.path === "/examples/embedded-font" ? (
-          <FontExample />
-        ) : page.path === "/examples/hidden-attachment" ? (
-          <AttachmentExample />
-        ) : page.path === "/examples/repeated-logo" ? (
-          <LogoExample />
-        ) : page.path === "/examples/page-rotation" ? (
-          <RotationExample />
-        ) : page.path === "/examples/inherited-resources" ? (
-          <InheritanceExample />
-        ) : page.path === "/examples/opening-action" ? (
-          <ActionExample />
-        ) : page.path === "/guide" ? (
-          <Guide />
-        ) : page.path === "/privacy" ? (
-          <Privacy />
-        ) : page.path === "/limitations" ? (
-          <Limitations />
-        ) : page.path === "/guides/inspect-pdf-objects" ? (
-          <ObjectsGuide />
-        ) : page.path === "/guides/decode-pdf-streams" ? (
-          <StreamsGuide />
-        ) : page.path === "/guides/find-pdf-attachments" ? (
-          <AttachmentsGuide />
-        ) : page.path === "/guides/search-bookmark-compare" ? (
-          <SearchGuide />
-        ) : page.path === "/guides/investigate-suspicious-features" ? (
-          <SuspiciousFeaturesGuide />
-        ) : (
-          <ResourcesGuide />
-        )}
-        <aside className="article-related" aria-label="More documentation">
-          <h2>Keep exploring</h2>
-          <ul>
-            {SITE_PAGES.filter(
-              (p) =>
-                p.path !== "/" && p.path !== "/about" && p.path !== page.path
-            ).map((p) => (
-              <li key={p.path}>
-                <a href={p.path}>
-                  {p.path === "/limitations" ? "Limitations" : p.heading}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </aside>
-      </article>
+          <RelatedContent path={page.path} />
+        </article>
+      </div>
     </main>
   )
 }
@@ -643,16 +626,14 @@ export function PublicPage({
 export function StaticPublicPage({ page }: { page: SitePage }) {
   return (
     <div className="app-shell static-public-shell">
-      <header className="app-header">
+      <header className="app-header content-header">
         <a className="app-identity" href="/">
           <span className="app-mark">
             <BrandIcon />
           </span>
           <span>PDF Internals</span>
         </a>
-        <a className="static-open-link" href="/">
-          Open the inspector →
-        </a>
+        <ContentHeaderLinks path={page.path} />
       </header>
       <PublicPage page={page} />
       <SiteLinks />

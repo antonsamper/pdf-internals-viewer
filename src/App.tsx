@@ -86,6 +86,7 @@ import type {
   PdfObjectRecord,
   PdfValue,
 } from "@/lib/pdf/types"
+import { ContentHeaderLinks } from "@/components/content-navigation"
 import { AboutPage } from "@/components/about-page"
 import { BrandArtwork, BrandIcon } from "@/components/brand-artwork"
 import { SiteLinks } from "@/components/site-links"
@@ -1362,7 +1363,7 @@ function PdfWorkspace({
             event.target.value = ""
           }}
         />
-        <header className="app-header">
+        <header className={path !== "/" ? "app-header content-header" : "app-header"}>
           <a
             className="app-identity"
             href={import.meta.env.BASE_URL}
@@ -1378,55 +1379,77 @@ function PdfWorkspace({
             </span>
             <span>PDF Internals</span>
           </a>
-          <span className="header-divider" />
-          <div className="filename">
-            {filename ? (
-              <>
-                <FileIcon size={14} />
-                <span title={filename}>{filename}</span>
-                <span className="file-size">{size(bytes.length)}</span>
-              </>
-            ) : (
-              <span className="muted">Local workspace</span>
-            )}
-          </div>
-          <div className="header-actions">
-            <a
-              className={buttonVariants({ variant: "ghost", size: "sm" })}
-              href="/guide"
-              aria-label="User guide"
-              title="User guide"
-              onClick={followLink}
-            >
-              <BookOpen size={15} aria-hidden="true" />{" "}
-              <span className="header-action-label">User guide</span>
-            </a>
-            {filename && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={endSession}
-                aria-label={busy ? "Cancel opening PDF" : "Close PDF"}
-                title={busy ? "Cancel opening PDF" : "Close PDF"}
-              >
-                <X size={15} aria-hidden="true" />
-                <span className="header-action-label">
-                  {busy ? "Cancel opening PDF" : "Close PDF"}
-                </span>
-              </Button>
-            )}
-            {!filename && (
-              <Button
-                onClick={() => input.current?.click()}
-                size="sm"
-                aria-label="Open PDF"
-                title="Open PDF"
-              >
-                <FolderOpen size={15} aria-hidden="true" />
-                <span className="header-action-label">Open PDF</span>
-              </Button>
-            )}
-          </div>
+          {path !== "/" ? (
+            <>
+              <ContentHeaderLinks
+                path={sitePage(path)!.path}
+                onFollowLink={followLink}
+              />
+              {filename && (
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={endSession}
+                  aria-label={busy ? "Cancel opening PDF" : "Close PDF"}
+                  title={busy ? "Cancel opening PDF" : "Close PDF"}
+                >
+                  <X size={15} aria-hidden="true" />
+                </Button>
+              )}
+            </>
+          ) : (
+            <>
+              <span className="header-divider" />
+              <div className="filename">
+                {filename ? (
+                  <>
+                    <FileIcon size={14} />
+                    <span title={filename}>{filename}</span>
+                    <span className="file-size">{size(bytes.length)}</span>
+                  </>
+                ) : (
+                  <span className="muted">Local workspace</span>
+                )}
+              </div>
+              <div className="header-actions">
+                <a
+                  className={buttonVariants({ variant: "ghost", size: "sm" })}
+                  href="/guide"
+                  aria-label="User guide"
+                  title="User guide"
+                  onClick={followLink}
+                >
+                  <BookOpen size={15} aria-hidden="true" />{" "}
+                  <span className="header-action-label">User guide</span>
+                </a>
+                {filename && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={endSession}
+                    aria-label={busy ? "Cancel opening PDF" : "Close PDF"}
+                    title={busy ? "Cancel opening PDF" : "Close PDF"}
+                  >
+                    <X size={15} aria-hidden="true" />
+                    <span className="header-action-label">
+                      {busy ? "Cancel opening PDF" : "Close PDF"}
+                    </span>
+                  </Button>
+                )}
+                {!filename && (
+                  <Button
+                    onClick={() => input.current?.click()}
+                    size="sm"
+                    aria-label="Open PDF"
+                    title="Open PDF"
+                  >
+                    <FolderOpen size={15} aria-hidden="true" />
+                    <span className="header-action-label">Open PDF</span>
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
         </header>
         {error && (
           <div className="error-banner" role="alert">

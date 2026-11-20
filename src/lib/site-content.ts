@@ -20,6 +20,20 @@ export const SITE_PAGES = [
       "About PDF Internals, an open-source, read-only PDF exploration workspace that keeps files on your device.",
   },
   {
+    path: "/who-its-for",
+    title: "Who Is a PDF Inspector For? · PDF Internals",
+    heading: "Who is PDF Internals for?",
+    description:
+      "Explore how PDF developers, extraction engineers, QA teams and learners can use a local PDF inspector to investigate objects, fonts, streams and original bytes.",
+  },
+  {
+    path: "/pdf-inspector-vs-viewer",
+    title: "PDF Inspector vs PDF Viewer: When to Use Each · PDF Internals",
+    heading: "Why use a PDF inspector instead of a PDF viewer?",
+    description:
+      "Learn when a normal PDF viewer is enough and when inspecting objects, references, streams and bytes helps explain file size, incorrect text and hidden resources.",
+  },
+  {
     path: "/guide",
     title: "How to Inspect a PDF in Your Browser · PDF Internals",
     heading: "How to inspect a PDF in your browser",

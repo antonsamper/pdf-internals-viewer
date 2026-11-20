@@ -6,7 +6,7 @@ import { join } from 'node:path'
 const origin = 'https://pdf-internals-viewer.pages.dev'
 const sitemap = await readFile('dist/sitemap.xml', 'utf8')
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => new URL(url))
-assert.equal(urls.length, 20, 'Publish home, About, guide, six tutorials, nine example pages, privacy, and limitations')
+assert.equal(urls.length, 22, 'Publish home, About, two overview articles, guide, six tutorials, nine example pages, privacy, and limitations')
 const routes = new Set(urls.map(url => url.pathname))
 for (const url of urls) {
   assert.equal(url.origin, origin)
@@ -26,6 +26,13 @@ for (const url of urls) {
   if (url.pathname !== '/' && url.pathname !== '/about') {
     assert.doesNotMatch(html, /<script[^>]*\bsrc=/, 'Static articles must not require inspector JavaScript')
     assert.ok(html.includes('Back to the workspace'))
+    assert.match(html, /aria-label="Main navigation"/)
+    assert.match(html, /<summary>On this site<\/summary>/)
+    assert.match(html, /aria-label="Content navigation"/)
+    assert.match(html, /aria-current="page"/)
+    assert.match(html, /aria-label="Related reading"/)
+    const related = html.match(/<aside class="article-related"[\s\S]*?<\/aside>/)?.[0] ?? ''
+    assert.equal([...related.matchAll(/<li>/g)].length, 3, 'Three curated next steps per article')
   }
   for (const [, href] of html.matchAll(/href="(\/[^"#]*)"/g)) {
     const target = new URL(href.replaceAll('&amp;', '&'), origin)
