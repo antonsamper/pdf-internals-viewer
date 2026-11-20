@@ -1219,6 +1219,7 @@ function PdfWorkspace({
 
   const objectInspector = selected ? (
     <ObjectInspector
+      onFollowLink={followLink}
       object={selected}
       scrollPositionRef={viewports.inspector}
       tab={selection.tab}

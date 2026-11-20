@@ -52,7 +52,7 @@ export const SITE_PAGES = [
     title: "How to Inspect and Decode PDF Streams · PDF Internals",
     heading: "How to inspect and decode PDF streams",
     description:
-      "Compare raw and decoded PDF streams, inspect FlateDecode drawing instructions, and understand compressed object streams using original samples.",
+      "A guide to decoding PDF streams and searching their drawing instructions, with examples of split words, spacing adjustments and compressed object streams.",
   },
   {
     path: "/guides/find-pdf-fonts-images",

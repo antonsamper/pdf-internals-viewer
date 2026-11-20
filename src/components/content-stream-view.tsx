@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from "react"
+import { Fragment, useMemo, useState, type MouseEvent } from "react"
 import { Button } from "@/components/ui/button"
 import {
   contentInstructions,
@@ -16,6 +16,7 @@ export function ContentStreamView({
   pages,
   contextPageId,
   onNavigate,
+  onFollowLink,
 }: {
   object: PdfObjectRecord
   stream: StreamResult
@@ -23,6 +24,7 @@ export function ContentStreamView({
   pages: string[]
   contextPageId?: string
   onNavigate: (id: string, path?: string[]) => void
+  onFollowLink?: (event: MouseEvent<HTMLElement>) => boolean
 }) {
   const [readable, setReadable] = useState(true)
   const [chosenContext, setChosenContext] = useState<string | null>(null)
@@ -72,6 +74,38 @@ export function ContentStreamView({
             file. Strings retain PDF syntax and font encoding; this is not
             extracted text.
           </p>
+          <p className="representation-note content-operator-reference">
+            <a
+              href="https://pdfa.org/download-area/cheat-sheets/OperatorsAndOperands.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              PDF operator reference
+            </a>{" "}
+            (PDF Association, opens PDF in a new tab).
+          </p>
+          {parsed.instructions.some(
+            (instruction) => instruction.operator === "TJ"
+          ) && (
+            <details className="content-text-help">
+              <summary>Why are there numbers between strings? (TJ)</summary>
+              <p>
+                A PDF records how to draw text. In a <code>TJ</code> array,
+                parentheses hold text strings and numbers adjust where the next
+                string starts. For example, <code>[(lor) 17 (em)] TJ</code> can
+                draw “lorem”: <code>17</code> shifts where “em” starts.
+              </p>
+              <p>
+                Searching decoded streams checks the stored syntax, so a word
+                split across strings may not match. Try a fragment such as{" "}
+                <code>lor</code>.{" "}
+                <a href="/guides/decode-pdf-streams" onClick={onFollowLink}>
+                  Read the Streams guide
+                </a>
+                .
+              </p>
+            </details>
+          )}
           {contexts.length > 1 ? (
             <label className="content-context-label">
               Resource context

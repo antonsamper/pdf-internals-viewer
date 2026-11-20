@@ -867,6 +867,26 @@ pre,
   list-style: none;
   padding: 0;
 }
+.content-text-help {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.content-text-help summary {
+  cursor: pointer;
+}
+.content-text-help p {
+  margin: 8px 0 0;
+  color: var(--muted-foreground);
+}
+.content-text-help a,
+.content-operator-reference a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .content-instruction {
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr);
@@ -1551,6 +1571,24 @@ h2 {
 .about-page h2 {
   font-size: 16px;
   margin: 32px 0 12px;
+}
+.public-page h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 24px 0 10px;
+}
+.stream-spacing-detail {
+  margin: 16px 0;
+  font-size: 14px;
+  line-height: 1.85;
+}
+.stream-spacing-detail summary {
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.stream-spacing-detail p {
+  margin-top: 12px;
 }
 .about-page p a,
 .about-text-button {

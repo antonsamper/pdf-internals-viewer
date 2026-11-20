@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, type MouseEvent } from "react"
 import { ArrowUpRight, Braces, FileCode2, LoaderCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -36,6 +36,7 @@ export function ObjectInspector({
   downloadIndex,
   pages = [],
   contextPageId,
+  onFollowLink,
 }: {
   object: PdfObjectRecord
   scrollPositionRef: ScrollPosition
@@ -44,6 +45,7 @@ export function ObjectInspector({
   objects?: Map<string, PdfObjectRecord>
   pages?: string[]
   contextPageId?: string
+  onFollowLink?: (event: MouseEvent<HTMLElement>) => boolean
   tab: InspectorTab
   onTabChange: (tab: InspectorTab) => void
   onNavigate: (id: string, path?: string[]) => void
@@ -370,6 +372,7 @@ export function ObjectInspector({
                         pages={pages}
                         contextPageId={contextPageId}
                         onNavigate={onNavigate}
+                        onFollowLink={onFollowLink}
                       />
                     ) : (
                       <pre className="source-code">{stream.text}</pre>

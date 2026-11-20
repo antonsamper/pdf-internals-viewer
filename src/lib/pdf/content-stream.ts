@@ -240,7 +240,7 @@ const explanations: Record<string, string> = {
   ET: "End the text object.",
   Tf: "Select a font and size.",
   Tj: "Show a text string using the current font encoding.",
-  TJ: "Show text with positioning adjustments.",
+  TJ: "Draw each string in order, using the numbers to adjust spacing without adding characters.",
   Td: "Move the text position.",
   TD: "Move the text position and set line spacing (leading).",
   Tm: "Set the text matrix.",
