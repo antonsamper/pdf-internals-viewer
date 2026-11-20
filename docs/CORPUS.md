@@ -1,49 +1,55 @@
 # PDF corpus verification
 
-## Repeat the checks
+The corpus checks the inspection engine against 15 real-world PDFs from the pdf.js and pdf-lib repositories. Expected results come from independent readers, not from this project's parser.
+
+## Running the checks
 
 ```sh
 pnpm run corpus:fetch
 pnpm run test:corpus
 ```
 
-Fetch the corpus explicitly when you want to run it. The manifest pins each remote PDF to a repository commit, SHA-256, and exact size. The runner checks cached bytes before parsing and never downloads implicitly. Files live only under ignored `.context/corpus/`; none are bundled, committed, or redistributed. The upstream repository licence does not establish rights to the documents themselves.
+`scripts/corpus/manifest.json` pins each PDF to an upstream repository commit, a SHA-256 and an exact size. `corpus:fetch` downloads the files into the gitignored `.context/corpus/` directory and rejects any file whose size or hash differs. `test:corpus` never downloads: it fails if a file is missing and checks each cached file's size and hash before parsing it. No corpus PDF is bundled, committed or published. The upstream repositories' licences do not establish rights to the documents themselves.
 
-Each PDF is parsed in a separate Node process with a 384 MiB JavaScript heap ceiling and a 15-second timeout. Tests compare pages, object identities/counts, compressed-object counts, and sampled source offsets to independently recorded pypdf 6.14.2 and Poppler `pdfinfo` 26.07.0 observations. Every verified original range must lie within the unchanged input bytes. A file must match these expectations to pass; opening without a crash is insufficient.
+Each PDF is parsed in a separate Node process with a 384 MiB JavaScript heap limit and a 15-second timeout. The tests compare page counts, object identities and counts, compressed-object counts and sampled source offsets with observations recorded from pypdf 6.14.2 and Poppler `pdfinfo` 26.07.0. Every verified source range must lie within the unchanged input bytes. Opening a file without crashing is not enough to pass.
 
-## Recorded results
+Each run writes per-file results, including Node parse time and heap use, to `.context/corpus-results.json`, a gitignored local file. Those Node figures are not browser measurements; see [PERFORMANCE.md](PERFORMANCE.md) for those.
 
-Recorded 2026-11-11T13:20:26.623Z using Node v22.23.2 on darwin/arm64. All 15 corpus tests passed. Timings and heap figures below are Node observations, not browser benchmarks or peak-memory measurements.
+## Corpus files
 
-| Upstream fixture | Pages | Objects | Cross-references | Parse ms | Heap MiB |
-| --- | ---: | ---: | --- | ---: | ---: |
-| pdfjs-helloworld | 1 | 5 | table | 2.98 | 18.32 |
-| pdfjs-openoffice | 1 | 10 | table | 4.46 | 19.43 |
-| pdfjs-bug1937438_from_word | 1 | 43 | hybrid | 12.20 | 18.22 |
-| pdfjs-chrome-text-selection-markedContent | 1 | 515 | stream | 30.89 | 23.53 |
-| pdfjs-scan-bad | 1 | 11 | unknown | 8.14 | 17.74 |
-| pdfjs-images_1bit_grayscale | 1 | 12 | table | 4.40 | 18.92 |
-| pdfjs-tracemonkey | 14 | 996 | table | 62.52 | 27.17 |
-| pdfjs-cmykjpeg | 1 | 35 | table | 15.93 | 23.01 |
-| pdf-lib-normal | 2 | 108 | table | 13.92 | 18.67 |
-| pdf-lib-with_update_sections | 1 | 135 | table | 16.98 | 19.36 |
-| pdf-lib-linearized_with_object_streams | 206 | 85,334 | stream | 1513.94 | 240.11 |
-| pdf-lib-missing_endobj_keyword | 1 | 7 | table | 3.69 | 18.40 |
-| pdf-lib-invalid_root_ref | 0 | 6 | hybrid | 8.86 | 18.91 |
-| pdf-lib-encrypted_new | Locked | 0 | stream | 7.67 | 19.53 |
-| pdf-lib-create_form | 1 | 88 | stream | 13.84 | 18.71 |
+Pages and objects are what the inspection engine reports. Cross-references give the format it detects.
 
-## Findings and fixes
+| Upstream fixture | Pages | Objects | Cross-references |
+| --- | ---: | ---: | --- |
+| pdfjs-helloworld | 1 | 5 | table |
+| pdfjs-openoffice | 1 | 10 | table |
+| pdfjs-bug1937438_from_word | 1 | 43 | hybrid |
+| pdfjs-chrome-text-selection-markedContent | 1 | 515 | stream |
+| pdfjs-scan-bad | 1 | 11 | unknown |
+| pdfjs-images_1bit_grayscale | 1 | 12 | table |
+| pdfjs-tracemonkey | 14 | 996 | table |
+| pdfjs-cmykjpeg | 1 | 35 | table |
+| pdf-lib-normal | 2 | 108 | table |
+| pdf-lib-with_update_sections | 1 | 135 | table |
+| pdf-lib-linearized_with_object_streams | 206 | 85,334 | stream |
+| pdf-lib-missing_endobj_keyword | 1 | 7 | table |
+| pdf-lib-invalid_root_ref | 0 | 6 | hybrid |
+| pdf-lib-encrypted_new | Locked | 0 | stream |
+| pdf-lib-create_form | 1 | 88 | stream |
 
-- Quartz/Apple document: five malformed in-use cross-reference entries pointed to byte zero. The engine returned synthetic null placeholders for them. The adapter now marks invalid zero/out-of-range targets unavailable, omits them from the indexed object set, and emits document warnings. The 108 real objects match the independent reader. Explicitly defined `null` objects remain supported, verified by separate regression tests.
-- Missing object terminator: object `10 0` in the missing-endobj fixture has no trustworthy end boundary. Its provenance remains unknown because no original-byte range can be verified. The corpus test expects this unknown location and still checks the other sampled offsets.
-- Damaged root fixture: the engine exposes a partial object set and warnings, but does not recover all pages/objects found by the independent reader. This is a known recovery limitation, so the passing test does not establish full compatibility. The test requires the parser to preserve the structure it can read and report problems. It also allows recovery to improve later.
-- Large Illustrator document: a 4,019,135-byte linearised PDF contains 206 pages and 85,334 objects, including 83,804 compressed objects. Its object count shows how a small file can require substantial parsing work. The current file/object guardrails remain unchanged; the corpus is not enough evidence to tune them.
+## Known behaviours
 
-## Coverage and remaining gaps
+- `pdf-lib-normal` (Quartz PDFContext): five in-use cross-reference entries point to byte zero. The adapter marks zero and out-of-range targets unavailable, leaves them out of the indexed objects and adds a document warning. The remaining 108 objects match the independent reader. Objects explicitly defined as `null` are still supported, and separate regression tests cover them.
+- `pdf-lib-missing_endobj_keyword`: object `10 0` has no trustworthy end boundary, so no original byte range can be verified and its source location is reported as unknown. The test expects that and still checks the other sampled offsets.
+- `pdf-lib-invalid_root_ref`: the engine recovers part of the structure with warnings, but finds fewer pages and objects than the independent reader (1 page, 27 objects). This is a known recovery limit. The test requires the parser to keep at least some objects and either match the page count or report warnings, so better recovery still passes.
+- `pdfjs-scan-bad`: the engine recovers the document and reports warnings.
+- `pdf-lib-encrypted_new`: the document opens as locked, with no objects exposed.
+- `pdf-lib-linearized_with_object_streams`: a 4,019,135-byte Adobe Illustrator file with 206 pages and 85,334 objects, 83,804 of them in object streams. Its size understates its parsing cost.
 
-Metadata confirms examples produced by Microsoft Word 365, Quartz PDFContext, Adobe Illustrator/PDF library, pdf-lib, TeX, and a Canon scan. Other fixtures exercise JPEG/CMYK images, one-bit greyscale images, forms, cross-reference streams, hybrid files, incremental updates, linearisation, compressed objects, encryption, missing terminators, and malformed cross-references. See each manifest entry for exact producer evidence and source URLs.
+## Coverage and gaps
 
-An upstream fixture named `chrome-text-selection-markedContent` reports iLovePDF as its producer; it is not evidence of an untouched Chrome-generated PDF. Likewise the OpenOffice-named fixture lacks producer metadata. Further coverage should include untouched current Chrome/Edge output, modern Office exports, and more scanner and design-tool samples. Browser memory and interaction measurements and observed usability sessions also remain to be added. WebKit automation is distinct from testing the Safari application.
+Producer metadata includes Microsoft Word for Microsoft 365, Quartz PDFContext, Adobe Illustrator and the Adobe PDF library, pdf-lib, TeX and a Canon scanner. Other fixtures cover JPEG and CMYK images, one-bit greyscale images, forms, cross-reference streams, hybrid files, incremental updates, linearisation, object streams, encryption, a missing object terminator and malformed cross-references. Each manifest entry records its producer and source URL.
 
-The expected results come from independent PDF readers and are checked into the repository. `corpus:fetch` does not install Python or run native readers; reviewing/changing expectations requires a separate independent-reader check. Results are written to `.context/corpus-results.json` for review, outside source control.
+Two fixture names are misleading. `pdfjs-chrome-text-selection-markedContent` reports iLovePDF as its producer, so it is not an untouched Chrome PDF, and the OpenOffice-named fixture has no producer metadata. The corpus has no untouched current Chrome or Edge output, no modern Office exports, and few scanner and design-tool files.
+
+The expected values are checked into the manifest. `corpus:fetch` does not install Python or run the independent readers, so changing an expectation requires a separate check with those readers.

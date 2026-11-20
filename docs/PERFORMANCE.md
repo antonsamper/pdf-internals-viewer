@@ -1,6 +1,112 @@
 # Browser performance baseline
 
-The baseline was captured on 2026-11-12. All 12 observations completed without page runtime errors. The large-object case exceeded the main-thread stall target. These measurements did not change application code or limits.
+## Implemented batching and shared indexes — 2026-11-15
+
+The implementation removes the measured large-file stalls using an acknowledged batch protocol and worker-computed resource/download indexes. It retains the complete object graph in the browser: object details are not yet fetched lazily. Source bytes, source ranges, typed values, reference paths and search remain unchanged. No dependencies or limits were changed, and nothing was published.
+
+The worker sends up to 128 items per response, targeting 128 Ki characters of JSON-estimated payload size. Each item is a document summary, complete object record, download-index entry or resource-index entry. Actual messages use structured cloning to preserve optional fields and numeric values, including negative zero; JSON is used only to estimate batch size. Acknowledgements keep one response in flight and separate ingestion into browser tasks. One oversized record/summary is sent alone rather than truncated, so this is not a hard per-object size or main-thread-time guarantee. Full lazy values remain an option for unusually large individual records and memory reduction.
+
+Download discovery and resource classification run once in the worker. Resource rows carry object IDs rather than duplicate records; the UI and inspector reuse the transferred indexes. React receives a complete document only after the last batch. Closing, replacement and timeouts still terminate the document's worker and discard the in-progress graph.
+
+### Repeated production baseline
+
+Same environment, fixtures and procedure as the pre-change baseline below: three contexts per file, five catalogue visits per context, unthrottled localhost, no tracing or message probes. All 12 openings and 60 navigations completed without runtime errors.
+
+| Corpus ID | Open ms, median | Navigation ms, median | Max navigation ms | Opening long tasks ≥50 ms | Max RAF gap ms |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| pdfjs-helloworld | 86.3 | 31.2 | 37.4 | 0 | 16.8 |
+| pdfjs-bug1937438_from_word | 86.2 | 31.4 | 39.1 | 0 | 16.8 |
+| pdfjs-tracemonkey | 146.5 | 31.5 | 40.7 | 0 | 16.8 |
+| pdf-lib-linearized_with_object_streams | 2212.0 | 31.7 | 45.5 | 0 | 16.8 |
+
+For the 85,334-object file, the previous maximum long task was 399 ms; no task reached Chromium's 50 ms reporting threshold after this change. Maximum catalogue navigation fell from 123.3 to 45.5 ms; every measured navigation is below 100 ms. The opening-related main-thread target also passes for these files. Large-file median opening increased from 2146.8 to 2212.0 ms (about 3%); responsiveness improves while total opening time remains similar. The representative 10 MiB target and lower-memory device validation remain open.
+
+After-open large-file used-heap medians were 132.36 MiB on the main page and 152.13 MiB in the parser worker, versus 136.62 / 133.00 MiB before. The worker snapshot increased; these unforced-GC samples include temporary allocations and are not retained-heap or peak-memory measurements. This change makes no memory-reduction claim. Keep the current file/object/decoded-data safeguards.
+
+The evidence records application/worker asset hashes as well as the unchanged pnpm lock fingerprint.
+
+Validation: 155 unit tests, 15 pinned corpus checks, lint, type checking, production build and postbuild gates pass. All 144 production-preview browser checks pass (48 each in Chromium, Firefox and WebKit), including a deterministic replacement while an acknowledgement is held. Transport tests cover compressed-object provenance, source/value fidelity, shared indexes, Unicode, special numeric values, oversized records, cancellation between batches, subsequent errors and timeouts. The native Node corpus probe needed an existing extensionless `limits` import changed to `limits.ts`; this does not change parser behaviour. Actual Safari is still a separate manual check.
+
+The baseline command below reproduces this implementation when run against its build. Earlier baseline, profiles and recommendations are retained below as the evidence that led to this implementation.
+
+### Pre-PR verification
+
+Fresh unit, corpus, lint and build checks pass.
+
+A fresh production rebuild and uninstrumented 12-opening / 60-navigation run reconfirmed the result before creating the PR: large-file median opening 2220.5 ms, maximum catalogue navigation 44.4 ms, no opening long task ≥50 ms and maximum opening RAF gap 16.8 ms. Large-file after-open heap medians were 131.49 MiB (main) / 155.34 MiB (worker), with the same unforced-GC limitations. The conclusions above are unchanged.
+
+The rebuilt index fingerprint is `141cfb19db8a2251cec523b17760869c51a39fa9e31b0dadd4c9c27a8e14f4fc`; content-scanned CSS and its importing chunks changed since the first improved run, while the parser-worker hash is unchanged.
+
+## Current pnpm baseline — 2026-11-15
+
+Pre-implementation evidence: P1 baseline refresh and F1 bottleneck investigation were complete at this point. No application behaviour, dependencies, or limits had changed. The implementation and its repeated measurements are recorded above.
+
+Measured a clean `pnpm 10.33.4 install --frozen-lockfile` followed by `pnpm run build`, including all postbuild checks. The same production artefacts were served throughout baseline, tracing, and diagnostic runs. Chromium 158.0.8127.18, Node v22.23.2, Apple M2 Pro, 10 logical CPUs, 32 GiB RAM, darwin/arm64, headless 1440 × 1000, localhost, no throttling.
+
+- Production index SHA-256: `a7df1d50d2d39f583acd30ad85e2a9ef61f922aff78fabdea6da7dde2a52eac5`.
+- pnpm lock SHA-256: `4f59568caaa9dc6837907d2e6e0e88ef98450cc7c93bdf0085458f5b1672a3c0`.
+
+### Unprofiled production measurements
+
+Three fresh contexts per file; five catalogue visits per context, with Overview between visits. All 12 openings and 60 navigations completed without page runtime errors. Medians unless labelled maximum.
+
+| Corpus ID | Open ms | Navigation ms | Max navigation ms | Max main long task ms | Max RAF gap ms |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| pdfjs-helloworld | 91.0 | 31.3 | 42.6 | 0 | 49.9 |
+| pdfjs-bug1937438_from_word | 99.0 | 31.4 | 40.7 | 0 | 16.7 |
+| pdfjs-tracemonkey | 131.6 | 31.2 | 44.9 | 0 | 16.8 |
+| pdf-lib-linearized_with_object_streams | 2146.8 | 93.0 | 123.3 | 399 | 383.4 |
+
+The large document contains 85,334 objects, including 83,804 compressed objects, in 4,019,135 original bytes. Every large-file opening produced two long tasks: 382–399 ms followed by 126–129 ms. The first catalogue visit per context took 121.2–123.3 ms; later visits took 90.1–95.6 ms. Thus the 100 ms navigation ceiling fails even though its median passes. The representative 10 MiB / three-second opening target remains untested because the corpus has no such file.
+
+After-open median memory snapshots (MiB; no forced GC):
+
+| Corpus ID | Main used JS heap | Main backing storage | Worker used JS heap | Worker backing storage |
+| --- | ---: | ---: | ---: | ---: |
+| pdfjs-helloworld | 6.55 | 0.88 | 1.81 | 2.03 |
+| pdfjs-bug1937438_from_word | 6.39 | 0.92 | 2.86 | 2.08 |
+| pdfjs-tracemonkey | 9.86 | 1.85 | 6.17 | 3.01 |
+| pdf-lib-linearized_with_object_streams | 136.62 | 4.71 | 133.00 | 11.33 |
+
+These are separate isolate snapshots, not peak or whole-browser memory. They exclude optional preview/WASM and other allocations; retain the current safeguards.
+
+### Large-file bottleneck evidence
+
+Three additional runs used CDP timeline tracing and main-page CPU sampling, on the same minified production build. Their timings are diagnostic and excluded from the baseline above.
+
+| Run | Worker-response JS callback ms | Following React scheduler callback ms | Download discovery sampled inclusive ms | Object-map construction sampled inclusive ms |
+| --- | ---: | ---: | ---: | ---: |
+| 1 | 404.9 | 133.9 | 79.9 | 12.8 |
+| 2 | 400.1 | 135.3 | 79.3 | 14.2 |
+| 3 | 398.4 | 129.6 | 74.7 | 13.3 |
+
+The timeline places the longest main-thread task in `PdfWorkerClient`'s response handler (`src/lib/pdf/client.ts`), before the separate React scheduler task. CPU sampling attributes roughly 338–340 ms of self time to that handler. Its production body only reads `event.data`, finds the pending request, clears its timeout and resolves the promise. To isolate the expensive part, three further diagnostic runs installed a Worker message listener before the application listener and timed the first `event.data` read. Those reads took **384.4, 384.0 and 388.3 ms**, each receiving all 85,334 records. This confirms Chromium's lazy structured-clone deserialisation as the dominant main-thread stall. Reading the data in a preceding listener shifts where that work appears; it does not remove it or provide a new baseline.
+
+The later scheduler callback includes React rendering and application computations; its full duration is not a React commit-only measurement. The sampled download-discovery frames map to `embeddedDownloads` in `src/lib/pdf/downloads.ts` (production symbol `mg`, line 422, column 19500). Object-map construction maps to `App.tsx`'s `new Map(objects.map(...))` (line 446, column 15971). The exact positions apply only to `main-B47Yb-0W.js`. Inclusive samples include descendant calls and are approximate; do not add them to callback durations. The largest observed main-thread layout event in the first trace was 3.7 ms, so layout does not explain either large stall.
+
+Worker-side traces include parsing and response posting, but do not separately time `self.postMessage` serialisation. The worker retains complete records and `PdfInspector.open` returns all of them in `document.objects`; `pdf.worker.ts` posts the full document. No worker serialisation-only duration is claimed.
+
+### Implementation recommendation and acceptance
+
+1. Prioritise the worker response contract: send lightweight document/object summaries, retrieve full values on demand, and bound/paginate messages. Moving parsing to a worker or virtualising rows alone cannot avoid the measured full-tree deserialisation. Measure each batch; a single lightweight response can still be too large.
+2. Keep reference/resource indexing in the worker, or perform it in cancellable batches, and reuse its results across the overview, resource browser and inspector. `resourceCatalog` currently calls `embeddedDownloads` during opening; `ObjectInspector` independently memoises another full-document scan when mounted. Profile the first catalogue visit separately before attributing its exact cost.
+3. Preserve object IDs, reference paths, incoming-link completeness, original/decoded provenance, history, cancellation and document replacement. Keep the 64 MiB and 100,000-object safeguards. Lazy retrieval changes the current synchronous object-map contract, so account for unavailable/loading details explicitly.
+
+Acceptance for the next implementation: repeat these same unprofiled 12 openings and 60 navigations; no opening-related task over 100 ms and every measured catalogue navigation below 100 ms; verify provenance/reference/history/replacement behaviour with the existing unit/corpus/browser checks. Record both main and worker heaps with the same caveats. Add a representative 10 MiB file separately before declaring the opening-size target passed. Repeat on lower-memory target devices before changing limits.
+
+### Reproduce current evidence
+
+After installation, corpus fetch and production build, run `pnpm run preview --host 127.0.0.1 --port 5174 --strictPort`. Keep that build fixed throughout the following sequential runs:
+
+```sh
+PERFORMANCE_OUTPUT=.context/browser-performance-pnpm.json PERFORMANCE_BUILD_LABEL='pnpm 10.33.4 production' node scripts/performance/browser-baseline.mjs
+
+PERFORMANCE_FILES=pdf-lib-linearized_with_object_streams PERFORMANCE_PROFILE_DIR=.context/performance-profiles PERFORMANCE_OUTPUT=.context/browser-performance-profiled.json node scripts/performance/browser-baseline.mjs
+
+PERFORMANCE_FILES=pdf-lib-linearized_with_object_streams PERFORMANCE_PROBE_MESSAGES=1 PERFORMANCE_OUTPUT=.context/browser-performance-message-probe.json node scripts/performance/browser-baseline.mjs
+```
+
+`PERFORMANCE_PROFILE_DIR` saves one `.trace.json` (DevTools Performance import) and one `.cpuprofile` (JavaScript CPU profile) per opening, stopping before navigation. `PERFORMANCE_PROBE_MESSAGES=1` adds the first-read listener described above. Both are opt-in diagnostics and should be run separately from the uninstrumented baseline. Reports mark these modes explicitly. Neither changes built files. No deployed site was changed.
 
 ## Recorded results
 

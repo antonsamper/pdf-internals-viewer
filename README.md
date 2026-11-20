@@ -90,13 +90,13 @@ Preview loads on demand through EmbedPDF 3.1.0. Its PDFium engine runs as WebAss
 
 - 64 MiB input limit, 100,000 indirect-object limit, 15-second worker-operation timeout.
 - 32 MiB decoded stream limit and 128 MiB total decoded allocation budget; displayed source/stream previews are capped at 256 KiB.
-- The worker currently indexes all objects when opening a PDF. It does not build the index in stages or load objects only when requested. Files with many objects and references can still use substantial memory beyond the decoded-data budget.
+- The worker currently indexes all objects when opening a PDF, then delivers complete records and shared resource/download indexes in acknowledged batches so the browser can paint between responses. It does not build the index in stages or load objects only when requested. Files with many objects and references can still use substantial memory beyond the decoded-data budget.
 - Encrypted PDFs with an empty opening password unlock automatically. Otherwise enter an opening or owner password for local structure inspection and preview. Original source and raw stream bytes stay encrypted; properties and decoded streams are decrypted. Unsupported encryption remains unavailable. Passwords stay in memory only until the document is closed or replaced.
 - Decoded inspection supports Flate (including tested PNG predictors), ASCIIHex, ASCII85, and chains of those filters. Unsupported filters keep raw inspection available.
 - Recovered structure and unknown positions are labelled. Decoded positions are never presented as original file offsets. Properties may change dictionary entry order, keep only one value for duplicate keys, or display strings differently from how they were written. Use Original bytes to check exact file syntax.
 - Historical object revisions, precise rendered-content-to-byte mapping, extracted text search, editing, repair, saving PDF files, and comparing stream payloads are deferred.
 - Tooling advisories have been removed from this lockfile. One high-severity advisory remains tied to EmbedPDF's upstream Zod version, despite the tested local backport. The audit report is not suppressed. See [dependency remediation and remaining obligations](docs/DEPENDENCIES.md) before release.
-- Automated browser checks target Chromium, Firefox, and WebKit; actual Safari and broader PDF/browser coverage still need validation. Node corpus measurements are not the planned browser performance baseline.
+- Automated browser checks target Chromium, Firefox, and WebKit; actual Safari and broader PDF/browser coverage still need validation. A desktop [production browser baseline](docs/PERFORMANCE.md) records opening responsiveness, navigation and separate heap snapshots; representative 10 MiB files and lower-memory devices remain unverified.
 
 ## Sample provenance and licensing
 

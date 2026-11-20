@@ -1,3 +1,5 @@
+import type { InspectionIndexes, DocumentTransferItem } from './document-transfer';
+
 /** Serializable inspection data. Ranges are zero-based and half-open. */
 export interface ByteRange { start: number; end: number }
 export type PdfValue =
@@ -38,6 +40,7 @@ export interface PdfDocumentInfo {
   catalogId?: string;
   pages: string[];
   objects: PdfObjectRecord[];
+  indexes?: InspectionIndexes;
   trailer: PdfValue;
   warnings: string[];
   xrefFormat: 'table' | 'stream' | 'hybrid' | 'unknown';
@@ -55,8 +58,9 @@ export interface StreamResult {
 }
 export type ParserRequest =
   | { requestId: number; type: 'open'; password?: string; bytes: Uint8Array; filename: string }
+  | { requestId: number; type: 'open-next' }
   | { requestId: number; type: 'stream'; objectId: string; mode: 'raw' | 'decoded'; purpose?: 'preview' | 'download' | 'image' | 'size' };
 export type ParserResponse =
-  | { requestId: number; type: 'opened'; document: PdfDocumentInfo }
+  | { requestId: number; type: 'opened-batch'; items: DocumentTransferItem[]; done: boolean }
   | { requestId: number; type: 'stream'; result: StreamResult }
   | { requestId: number; type: 'error'; error: string };

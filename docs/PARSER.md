@@ -15,6 +15,12 @@ Evaluated alternatives:
 
 LibPDF is beta software. The low-level classes needed here exist in its distributed bundle but are outside its public exports. A build script exposes those internal classes from the exact pinned bundle. This process is called instrumentation below.
 
+## Worker delivery and shared indexes
+
+The adapter still resolves and indexes the complete current object set. The browser worker delivers it using an acknowledged batch protocol (`document-transfer.ts`), targeting 128 items / 128 Ki characters of JSON-estimated payload size per response. Actual payloads use structured cloning, preserving source strings, value types and provenance. A single oversized record is sent alone, without truncation. This avoids one monolithic full-graph deserialisation; it is not a hard per-record latency bound or full lazy object retrieval.
+
+Resource/download discovery runs once in the worker and its indexes travel in the same batches. Resource entries refer to object IDs. The UI publishes the document after all batches arrive and shares these indexes with the inspector. Closing/replacing a document terminates its worker; abandoned partial graphs cannot become the active document. Existing per-request timeouts also apply to acknowledgements. See [performance measurements and limitations](PERFORMANCE.md).
+
 ## Instrumentation and reproducibility
 
 `scripts/prepare-parser.mjs` reads the installed bundle and produces `src/generated/libpdf-inspection.mjs` and a small declaration file. Generated artefacts are excluded from version control and regenerated before development, tests, and builds.
@@ -90,7 +96,7 @@ One `PdfWorkerClient` per open document is the intended lifecycle. Its worker ow
 - The pinned adapter normalises both R6 permission values to signed int32 when verifying /Perms, accepting producers that write an unsigned /P. It also turns the engine's silent ciphertext fallback on decryption failure into an object warning/unavailable result. Hash and replacement-shape guards cover both patches.
 - Encryption fixtures under `tests/fixtures/encryption/` are original project content encrypted independently with pypdf 6.14.2. Regenerate with `python3 scripts/fixtures/generate-encrypted.py` (requires pypdf[crypto]); Python is not an app dependency.
 - Stream dictionaries and raw byte payloads are retained; arbitrary embedded document actions are not executed.
-- An opt-in 15-file independent corpus now checks pages, object identities, sampled offsets, immutability, recovery, and encryption; see [CORPUS.md](CORPUS.md). Actual Safari testing, broader current-producer coverage, browser memory/performance measurements, and the observed usability session remain pending.
+- An opt-in 15-file independent corpus now checks pages, object identities, sampled offsets, immutability, recovery, and encryption; see [CORPUS.md](CORPUS.md). A desktop [browser performance baseline](PERFORMANCE.md) now records opening/navigation responsiveness and separate heap snapshots. Actual Safari testing, broader current-producer coverage, representative 10 MiB files, lower-memory devices and the observed usability session remain pending.
 
 ## Release readiness
 

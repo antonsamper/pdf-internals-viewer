@@ -7,7 +7,7 @@ import { ContentStreamView } from "@/components/content-stream-view"
 import { EmbeddedDownloads } from "@/components/embedded-downloads"
 import { ImageDownload } from "@/components/image-download"
 import { hasSubtype } from "@/lib/pdf/navigation"
-import { embeddedDownloads } from "@/lib/pdf/downloads"
+import { embeddedDownloads, type EmbeddedDownload } from "@/lib/pdf/downloads"
 import {
   objectName,
   objectRelationships,
@@ -33,12 +33,14 @@ export function ObjectInspector({
   extractImage,
   resources,
   objects,
+  downloadIndex,
   pages = [],
   contextPageId,
 }: {
   object: PdfObjectRecord
   scrollPositionRef: ScrollPosition
   resources?: { value: PdfValue; inheritedFrom?: string }
+  downloadIndex?: Map<string, EmbeddedDownload[]>
   objects?: Map<string, PdfObjectRecord>
   pages?: string[]
   contextPageId?: string
@@ -54,8 +56,8 @@ export function ObjectInspector({
   extractImage: (id: string) => Promise<StreamResult>
 }) {
   const downloads = useMemo(
-    () => embeddedDownloads(objects ?? new Map()),
-    [objects]
+    () => downloadIndex ?? embeddedDownloads(objects ?? new Map()),
+    [objects, downloadIndex]
   )
   const assets = downloads.get(object.id) ?? []
   const relationships = useMemo(

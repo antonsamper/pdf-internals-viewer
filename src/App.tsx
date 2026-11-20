@@ -69,12 +69,14 @@ import { ResourceBrowser } from "@/components/resource-browser"
 import {
   resourceCatalog,
   type ResourceCategory,
+  type ResourceEntry,
 } from "@/lib/pdf/resource-catalog"
 import {
   extendExplorationTrail,
   referencePathOwners,
   type ExplorationStep,
 } from "@/lib/pdf/exploration-trail"
+import { embeddedDownloads } from "@/lib/pdf/downloads"
 import { PdfWorkerClient } from "@/lib/pdf/client"
 import { effectiveResources, hasSubtype } from "@/lib/pdf/navigation"
 import { pageRotationSummary } from "@/lib/pdf/page-rotation"
@@ -730,7 +732,21 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
       navigate(document.catalogId, "properties", next)
     else visit({ ...selection, section: next })
   }
-  const resourceEntries = useMemo(() => resourceCatalog(objectMap), [objectMap])
+  const downloadIndex = useMemo(
+    () => document?.indexes
+      ? new Map(document.indexes.downloads)
+      : embeddedDownloads(objectMap),
+    [document, objectMap]
+  )
+  const resourceEntries = useMemo<ResourceEntry[]>(
+    () => document?.indexes
+      ? document.indexes.resources.flatMap(({ objectId, ...entry }) => {
+          const object = objectMap.get(objectId)
+          return object ? [{ ...entry, object }] : []
+        })
+      : resourceCatalog(objectMap, downloadIndex),
+    [document, objectMap, downloadIndex]
+  )
   const resourceObjects = resourceEntries.map((entry) => entry.object)
   const listedObjects =
     section === "pages"
@@ -1114,6 +1130,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
       onNavigate={followReference}
       onInspect={(id) => navigate(id)}
       objects={objectMap}
+      downloadIndex={downloadIndex}
       pages={document?.pages}
       contextPageId={
         [...(selection.trail ?? [])]

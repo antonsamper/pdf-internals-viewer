@@ -1,3 +1,4 @@
+import { DocumentReceiver } from './document-transfer';
 import { OPERATION_TIMEOUT_MS } from './limits';
 import type { ParserRequest, ParserResponse, PdfDocumentInfo, StreamResult } from './types';
 
@@ -27,9 +28,14 @@ export class PdfWorkerClient {
     });
   }
   async open(bytes: Uint8Array, filename: string, password?: string): Promise<PdfDocumentInfo> {
-    const response = await this.request({ requestId: ++this.requestId, type: 'open', bytes, filename, password });
-    if (response.type !== 'opened') throw new Error('Unexpected parser response.');
-    return response.document;
+    const receiver = new DocumentReceiver();
+    let response = await this.request({ requestId: ++this.requestId, type: 'open', bytes, filename, password });
+    while (response.type === 'opened-batch') {
+      receiver.accept(response.items);
+      if (response.done) return receiver.finish();
+      response = await this.request({ requestId: ++this.requestId, type: 'open-next' });
+    }
+    throw new Error('Unexpected parser response.');
   }
   async readStream(objectId: string, mode: 'raw' | 'decoded', purpose: 'preview' | 'download' | 'image' | 'size' = 'preview'): Promise<StreamResult> {
     const response = await this.request({ requestId: ++this.requestId, type: 'stream', objectId, mode, purpose });
