@@ -87,7 +87,7 @@ export const SITE_PAGES = [
     title: "PDF Debugging Examples · PDF Internals",
     heading: "PDF debugging examples",
     description:
-      "Eight worked PDF investigations covering file size, text mappings, fonts, attachments, repeated images, rotation, inherited resources, and opening actions.",
+      "Nine worked PDF investigations covering structural errors, file size, text mappings, fonts, attachments, repeated images, rotation, inherited resources, and opening actions.",
   },
   {
     path: "/examples/large-pdf",
@@ -144,6 +144,13 @@ export const SITE_PAGES = [
     heading: "Does this PDF contain an automatic action?",
     description:
       "Inspect a catalogue’s OpenAction reference and follow a local GoTo destination to the first page.",
+  },
+  {
+    path: "/examples/broken-xref",
+    title: "What does a PDF error look like? · PDF Internals",
+    heading: "What does a PDF error look like?",
+    description:
+      "Open a deliberately damaged PDF, see its invalid cross-reference error and unresolved reference warning, and trace both to the original bytes.",
   },
   {
     path: "/privacy",
@@ -232,6 +239,11 @@ export const EXAMPLE_SAMPLES = [
     id: "opening-action",
     file: "opening-action.pdf",
     name: "Does this PDF contain an automatic action?",
+  },
+  {
+    id: "broken-xref",
+    file: "broken-xref.pdf",
+    name: "A broken cross-reference",
   },
 ] as const
 export const ALL_SAMPLES = [...SAMPLES, ...EXAMPLE_SAMPLES]

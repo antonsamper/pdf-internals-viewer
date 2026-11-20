@@ -3,6 +3,7 @@ import { expect, it } from 'vitest'
 import { effectiveResources, property } from "../src/lib/pdf/navigation"
 import { pageRotationSummary } from "../src/lib/pdf/page-rotation"
 import { resourceCatalog } from "../src/lib/pdf/resource-catalog"
+import { documentIssues } from '../src/lib/pdf/issues'
 import { PdfInspector } from '../src/lib/pdf/inspector'
 // @ts-expect-error Node ESM fixture generators have no declaration file.
 import { oversizedImagePdf, incorrectUnicodePdf, ADDITIONAL_EXAMPLES, attachmentText } from '../scripts/fixtures/example-fixtures.mjs'
@@ -75,6 +76,18 @@ for (const [name, generate] of ADDITIONAL_EXAMPLES) {
       expect(get('3 0', 'Resources')).toBeUndefined()
       expect(effectiveResources(objects.get('3 0')!, objects)?.inheritedFrom).toBe('2 0')
       expect(resources.filter(resource => ['Font', 'Image'].includes(resource.kind))).toHaveLength(2)
+    } else if (name === 'broken-xref') {
+      expect(document.pages).toEqual(['3 0'])
+      expect(objects.has('6 0')).toBe(false)
+      expect(get('1 0', 'Metadata')).toMatchObject({ ref: '6 0' })
+      const issues = documentIssues(document)
+      expect(issues.filter(issue => issue.severity === 'error')).toHaveLength(1)
+      expect(issues.filter(issue => issue.severity === 'warning')).toHaveLength(1)
+      expect(issues.find(issue => issue.severity === 'error')?.evidence).toContain('invalid cross-reference offset 999999')
+      expect(issues.find(issue => issue.severity === 'warning')).toMatchObject({ objectId: '1 0', evidence: 'Dangling or unresolved reference: 6 0 R' })
+      expect(inspector.readStream('4 0', 'decoded').text).toContain('A readable page')
+      expect(Buffer.from(bytes).toString('latin1')).toContain('6 0 obj')
+      expect(Buffer.from(bytes).toString('latin1')).toContain('0000999999 00000 n')
     } else if (name === 'opening-action') {
       expect(get('1 0', 'OpenAction')).toMatchObject({ ref: '6 0' })
       expect(get('6 0', 'S')).toMatchObject({ value: 'GoTo' })

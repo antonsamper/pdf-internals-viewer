@@ -1208,6 +1208,7 @@ test('serves public answers without JavaScript and keeps articles free of inspec
     ['/examples/page-rotation', 'Why is this page rotated?'],
     ['/examples/inherited-resources', 'Where did this page’s resources come from?'],
     ['/examples/opening-action', 'Does this PDF contain an automatic action?'],
+    ['/examples/broken-xref', 'What does a PDF error look like?'],
     ['/privacy', 'Your PDFs and browser storage'],
     ['/limitations', 'Supported features and limitations'],
   ]) {
@@ -1507,4 +1508,86 @@ test('preserves a PDF selection through the new overview pages and history', asy
   await page.getByRole('link', { name: 'Back to the workspace', exact: true }).click()
   await expect(page.locator('.filename')).toContainText('minimal.pdf')
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
+})
+
+test('collects PDF issues with evidence links and resets on document replacement', async ({ page }) => {
+  const fixture = classicPdf([[1, '<< /Type /Catalog /Pages 2 0 R /Missing 99 0 R >>'], [2, '<< /Type /Pages /Kids [] /Count 0 >>']])
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'dangling.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await page.getByRole('button', { name: 'View issues and coverage' }).click()
+  const panel = page.getByRole('region', { name: 'PDF issues' })
+  await expect(panel.getByRole('heading', { name: 'Unresolved object reference' })).toBeVisible()
+  await expect(panel).toContainText('99 0 R')
+  await panel.getByRole('button', { name: 'Inspect 1 0 obj' }).click()
+  await expect(page.getByRole('region', { name: 'Object inspector' })).toContainText('/Missing')
+  await page.getByRole('button', { name: /^Issues/ }).click()
+  await expect(panel).toBeVisible()
+  await mkdir(resolve('.context'), { recursive: true })
+  await page.screenshot({ path: screenshotPath('issues.png'), fullPage: true, animations: 'disabled' })
+  await upload(page, 'minimal.pdf')
+  await page.getByRole('button', { name: 'View issues and coverage' }).click()
+  await expect(panel).toContainText('No issues detected by these checks.')
+  await expect(panel.getByRole('listitem')).toHaveCount(0)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(panel.getByRole('heading', { name: 'Checks and coverage' })).toBeVisible()
+})
+
+test('records unsupported stream inspection as a limitation and deduplicates retries', async ({ page }) => {
+  const fixture = classicPdf([[1, '<< /Type /Catalog /Pages 2 0 R >>'], [2, '<< /Type /Pages /Kids [] /Count 0 >>'], [3, '<< /Length 1 /Filter /RunLengthDecode >>\nstream\nx\nendstream']])
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'unsupported-stream.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible()
+  for (let retry = 0; retry < 2; retry++) {
+    await page.locator('.object-list').getByRole('button').filter({ hasText: '3 0' }).click()
+    await page.getByRole('tab', { name: 'Decoded' }).click()
+    await expect(page.getByRole('region', { name: 'Object inspector' })).toContainText('does not support /RunLengthDecode')
+    await page.getByRole('button', { name: /^Issues/ }).click()
+    const panel = page.getByRole('region', { name: 'PDF issues' })
+    await expect(panel.getByRole('status')).toHaveText('1 inspection limitation')
+    await expect(panel.getByRole('listitem')).toHaveCount(1)
+    await expect(panel).toContainText('does not establish a defect in the PDF')
+  }
+})
+
+test('preserves later issues and scroll position when returning from evidence', async ({ page }) => {
+  const objects = [[1, '<< /Type /Catalog /Pages 2 0 R >>'], [2, '<< /Type /Pages /Kids [] /Count 0 >>'], ...Array.from({ length: 55 }, (_, index) => [index + 3, '<< /Missing 999 0 R >>'])]
+  const fixture = classicPdf(objects)
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'many-issues.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await page.getByRole('button', { name: 'View issues and coverage' }).click()
+  const panel = page.getByRole('region', { name: 'PDF issues' })
+  await expect(panel.getByRole('listitem')).toHaveCount(50)
+  await panel.getByRole('button', { name: /Show more/ }).click()
+  await expect(panel.getByRole('listitem')).toHaveCount(55)
+  const target = panel.getByRole('button', { name: 'Inspect 57 0 obj' })
+  await target.scrollIntoViewIfNeeded()
+  await expect.poll(() => panel.evaluate(el => el.scrollTop)).toBeGreaterThan(1200)
+  await target.click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await expect(panel.getByRole('button', { name: 'Inspect 57 0 obj' })).toBeInViewport()
+})
+
+test('opens the broken cross-reference example and follows both findings to evidence', async ({ page }) => {
+  await page.goto('/examples')
+  await page.getByRole('link', { name: 'What does a PDF error look like?', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('What does a PDF error look like?')
+  const download = page.getByRole('link', { name: 'Download sample PDF' })
+  const response = await page.request.get(await download.getAttribute('href') as string)
+  expect(response.ok()).toBe(true)
+  expect(await response.body()).toEqual(await readFile(samplePath('broken-xref.pdf')))
+  await page.getByRole('link', { name: 'Open this example', exact: true }).click()
+  await expect(page.locator('.filename')).toContainText('broken-xref.pdf')
+  await page.getByRole('button', { name: 'View issues and coverage' }).click()
+  const panel = page.getByRole('region', { name: 'PDF issues' })
+  await expect(panel.getByRole('status')).toContainText('1 error')
+  await expect(panel.getByRole('status')).toContainText('1 warning')
+  await expect(panel.getByRole('listitem')).toHaveCount(2)
+  await expect(panel).toContainText('invalid cross-reference offset 999999')
+  await mkdir(resolve('.context'), { recursive: true })
+  await page.screenshot({ path: screenshotPath('broken-xref-example.png'), fullPage: true, animations: 'disabled' })
+  await panel.getByRole('button', { name: 'Inspect file structure' }).click()
+  await page.getByRole('button', { name: /startxref →/ }).click()
+  await expect(page.locator('.hex-byte.hex-selected')).not.toHaveCount(0)
+  await page.getByRole('button', { name: /^Issues/ }).click()
+  await panel.getByRole('button', { name: 'Inspect 1 0 obj' }).click()
+  await expect(page.getByRole('region', { name: 'Object inspector' })).toContainText('/Metadata')
+  await page.getByRole('button', { name: 'Preview', exact: true }).click()
+  await expect(page.getByRole('img', { name: 'broken-xref.pdf, page 1' })).toBeVisible()
 })

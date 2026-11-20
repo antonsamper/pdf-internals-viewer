@@ -988,18 +988,6 @@ h2 {
   font-size: 11px;
   line-height: 1.8;
 }
-.warnings h2 {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.warnings p {
-  font-size: 11px;
-  color: var(--muted-foreground);
-  line-height: 1.7;
-  border-top: 1px solid var(--border);
-  padding: 10px 0;
-}
 .notice,
 .warning-inline,
 .error-banner {
@@ -1888,4 +1876,100 @@ h2 {
   .site-links > div { gap: 12px; }
   .site-links .footer-group { justify-content: center; }
   .comparison-table th, .comparison-table td { padding: 10px; }
+}
+
+.issues-overview,
+.issues-coverage {
+  margin-top: 20px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.issues-overview p,
+.issues-coverage p,
+.issue-item p {
+  margin: 8px 0;
+  color: var(--muted-foreground);
+}
+.issue-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.issue-item {
+  border-top: 1px solid var(--border);
+  padding: 16px 0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.issue-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.issue-title h2 {
+  margin: 0;
+}
+.issue-evidence {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--muted);
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 11px;
+  margin: 10px 0;
+}
+
+/* Severity reuses the brand's existing rose and warm amber/orange tokens. */
+[data-severity="error"] {
+  --issue-ink: var(--destructive);
+  --issue-soft: var(--brand-red-soft);
+}
+[data-severity="warning"] {
+  --issue-ink: var(--brand-orange-ink);
+  --issue-soft: var(--brand-orange-soft);
+}
+[data-severity="limitation"],
+[data-severity="info"] {
+  --issue-ink: var(--muted-foreground);
+  --issue-soft: var(--muted);
+}
+.issue-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.issue-count,
+.issue-severity {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--issue-ink);
+  background: var(--issue-soft);
+  border: 1px solid color-mix(in srgb, var(--issue-ink) 25%, transparent);
+}
+.issue-count {
+  border-radius: 5px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.issue-item[data-severity="error"],
+.issue-item[data-severity="warning"] {
+  border-left: 3px solid var(--issue-ink);
+  padding-left: 14px;
+  margin: 12px 0;
+}
+.issues-nav-icon[data-severity],
+.issues-nav-count[data-severity] {
+  color: var(--issue-ink);
+}
+.issues-nav-count[data-severity] {
+  background: var(--issue-soft);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-weight: 650;
 }

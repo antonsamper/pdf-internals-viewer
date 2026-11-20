@@ -23,6 +23,7 @@ import {
   ChevronDown,
   File as FileIcon,
   FileCode2,
+  FileWarning,
   FilePlus2,
   Files,
   FolderOpen,
@@ -52,6 +53,12 @@ import {
   type InspectorTab,
 } from "@/components/object-inspector"
 import { ValueView } from "@/components/value-view"
+import { IssuesPanel, IssueSummary } from "@/components/issues-panel"
+import {
+  diagnosticIssue,
+  documentIssues,
+  type PdfIssue,
+} from "@/lib/pdf/issues"
 import { InspectionUnavailable } from "@/components/inspection-unavailable"
 import {
   SessionBookmarks,
@@ -127,9 +134,16 @@ const newViewports = () => ({
   inspector: {} as ScrollPosition,
   bytes: {} as ScrollPosition,
   resourceLimit: 50,
+  issueLimit: 50,
 })
 type Section =
-  "overview" | "catalog" | "pages" | "resources" | "objects" | "structure"
+  | "overview"
+  | "catalog"
+  | "pages"
+  | "resources"
+  | "objects"
+  | "structure"
+  | "issues"
 type SearchResult = {
   label: string
   detail: string
@@ -193,6 +207,16 @@ function PdfWorkspace({
   const [bytes, setBytes] = useState(EMPTY)
   const [filename, setFilename] = useState("")
   const [document, setDocument] = useState<PdfDocumentInfo | null>(null)
+  const [observedIssues, setObservedIssues] = useState<PdfIssue[]>([])
+  const issues = useMemo(
+    () => [...(document ? documentIssues(document) : []), ...observedIssues],
+    [document, observedIssues]
+  )
+  const issueSeverity = issues.some((issue) => issue.severity === "error")
+    ? "error"
+    : issues.some((issue) => issue.severity === "warning")
+      ? "warning"
+      : undefined
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [inspectionError, setInspectionError] = useState<string | null>(null)
@@ -414,6 +438,7 @@ function PdfWorkspace({
     setUnlockError(null)
     setPreviewPassword(undefined)
     setDocument(null)
+    setObservedIssues([])
     setBusy(false)
     setError(null)
     setInspectionError(null)
@@ -578,11 +603,29 @@ function PdfWorkspace({
     )
     return () => window.clearTimeout(timer)
   }, [shouldOpenInitialSample])
-  const readStream = useCallback((id: string, mode: "raw" | "decoded") => {
-    if (!client.current)
-      return Promise.reject(new Error("Open a PDF before reading a stream."))
-    return client.current.readStream(id, mode)
-  }, [])
+  const readStream = useCallback(
+    async (id: string, mode: "raw" | "decoded") => {
+      if (!client.current)
+        return Promise.reject(new Error("Open a PDF before reading a stream."))
+      const activeClient = client.current
+      const result = await activeClient.readStream(id, mode)
+      if (result.error && activeClient === client.current) {
+        const issue = diagnosticIssue(result.error, id)
+        if (issue.severity === "warning") {
+          issue.title = "Stream could not be read"
+          issue.explanation =
+            "The viewer could not read this stream. Inspect its dictionary and original bytes; a decoding failure alone does not establish a PDF defect."
+        }
+        setObservedIssues((current) =>
+          current.some((item) => item.id === issue.id)
+            ? current
+            : [...current, issue]
+        )
+      }
+      return result
+    },
+    []
+  )
   const extractStream = useCallback(
     (id: string, purpose: "download" | "size" = "download") => {
       if (!client.current)
@@ -761,25 +804,32 @@ function PdfWorkspace({
   }
   function chooseSection(next: Section) {
     setSearchResults(null)
-    if (next === "overview" || next === "structure" || next === "resources")
+    if (
+      next === "overview" ||
+      next === "structure" ||
+      next === "resources" ||
+      next === "issues"
+    )
       navigate(null, "properties", next)
     else if (next === "catalog" && document?.catalogId)
       navigate(document.catalogId, "properties", next)
     else visit({ ...selection, section: next })
   }
   const downloadIndex = useMemo(
-    () => document?.indexes
-      ? new Map(document.indexes.downloads)
-      : embeddedDownloads(objectMap),
+    () =>
+      document?.indexes
+        ? new Map(document.indexes.downloads)
+        : embeddedDownloads(objectMap),
     [document, objectMap]
   )
   const resourceEntries = useMemo<ResourceEntry[]>(
-    () => document?.indexes
-      ? document.indexes.resources.flatMap(({ objectId, ...entry }) => {
-          const object = objectMap.get(objectId)
-          return object ? [{ ...entry, object }] : []
-        })
-      : resourceCatalog(objectMap, downloadIndex),
+    () =>
+      document?.indexes
+        ? document.indexes.resources.flatMap(({ objectId, ...entry }) => {
+            const object = objectMap.get(objectId)
+            return object ? [{ ...entry, object }] : []
+          })
+        : resourceCatalog(objectMap, downloadIndex),
     [document, objectMap, downloadIndex]
   )
   const resourceObjects = resourceEntries.map((entry) => entry.object)
@@ -810,6 +860,7 @@ function PdfWorkspace({
             ["resources", Layers, "Resources"],
             ["objects", Braces, "All objects"],
             ["structure", FileCode2, "File structure"],
+            ["issues", FileWarning, "Issues"],
           ] as const
         ).map(([key, Icon, label]) => (
           <button
@@ -820,8 +871,20 @@ function PdfWorkspace({
               setObjectScroll(0)
             }}
           >
-            <Icon size={15} />
+            <Icon
+              size={15}
+              className={key === "issues" ? "issues-nav-icon" : undefined}
+              data-severity={key === "issues" ? issueSeverity : undefined}
+            />
             <span>{label}</span>
+            {key === "issues" && (
+              <span
+                className="nav-count issues-nav-count"
+                data-severity={issueSeverity}
+              >
+                {issues.filter((issue) => issue.severity !== "info").length}
+              </span>
+            )}
             {key === "pages" && (
               <span className="nav-count">{document?.pages.length ?? "—"}</span>
             )}
@@ -1126,17 +1189,21 @@ function PdfWorkspace({
               </p>
             </>
           )}
-          {document.warnings.length > 0 && (
-            <section className="warnings">
-              <h2>
-                Parsing notes{" "}
-                <Badge variant="outline">{document.warnings.length}</Badge>
-              </h2>
-              {document.warnings.map((warning, index) => (
-                <p key={index}>{warning}</p>
-              ))}
-            </section>
-          )}
+          <section className="issues-overview">
+            <h2>Issues</h2>
+            {document.locked ? (
+              <p>Structure checks unavailable while locked.</p>
+            ) : (
+              <IssueSummary issues={issues} />
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => chooseSection("issues")}
+            >
+              View issues and coverage
+            </Button>
+          </section>
         </>
       ) : (
         <InspectionUnavailable
@@ -1195,9 +1262,11 @@ function PdfWorkspace({
                 ? "Object inspector"
                 : section === "structure"
                   ? "File structure"
-                  : section === "resources"
-                    ? "Resource browser"
-                    : "Overview"}
+                  : section === "issues"
+                    ? "Issues"
+                    : section === "resources"
+                      ? "Resource browser"
+                      : "Overview"}
         </span>
         <div className="pane-actions">
           {section === "resources" && selected && (
@@ -1302,6 +1371,24 @@ function PdfWorkspace({
             objectInspector
           )}
         </div>
+      ) : section === "issues" && document ? (
+        <IssuesPanel
+          key={filename}
+          issues={issues}
+          limit={viewports.issueLimit}
+          onLimitChange={(issueLimit) =>
+            setViewportHistory((entries) =>
+              entries.map((entry, index) =>
+                index === historyIndex ? { ...entry, issueLimit } : entry
+              )
+            )
+          }
+          scrollPositionRef={viewports.inspector}
+          locked={document.locked}
+          recovered={document.recovered}
+          onNavigate={(id) => navigate(id)}
+          onStructure={() => chooseSection("structure")}
+        />
       ) : section === "resources" && document ? (
         <ResourceBrowser
           scrollPositionRef={viewports.inspector}
@@ -1363,7 +1450,9 @@ function PdfWorkspace({
             event.target.value = ""
           }}
         />
-        <header className={path !== "/" ? "app-header content-header" : "app-header"}>
+        <header
+          className={path !== "/" ? "app-header content-header" : "app-header"}
+        >
           <a
             className="app-identity"
             href={import.meta.env.BASE_URL}
@@ -1540,11 +1629,13 @@ function PdfWorkspace({
                             )}
                           </span>
                         ))
-                      : section === "resources"
-                        ? "Resources"
-                        : section === "structure"
-                          ? "File structure"
-                          : "Document overview"}
+                      : section === "issues"
+                        ? "Issues"
+                        : section === "resources"
+                          ? "Resources"
+                          : section === "structure"
+                            ? "File structure"
+                            : "Document overview"}
                 </nav>
               </div>
               <form

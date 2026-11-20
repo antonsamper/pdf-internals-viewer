@@ -6,7 +6,7 @@ import { join } from 'node:path'
 const origin = 'https://pdf-internals-viewer.pages.dev'
 const sitemap = await readFile('dist/sitemap.xml', 'utf8')
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => new URL(url))
-assert.equal(urls.length, 22, 'Publish home, About, two overview articles, guide, six tutorials, nine example pages, privacy, and limitations')
+assert.equal(urls.length, 23, 'Publish home, About, two overview articles, guide, six tutorials, ten example pages, privacy, and limitations')
 const routes = new Set(urls.map(url => url.pathname))
 for (const url of urls) {
   assert.equal(url.origin, origin)

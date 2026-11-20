@@ -13,6 +13,7 @@ import {
   RotationExample,
   InheritanceExample,
   ActionExample,
+  BrokenXrefExample,
 } from "./more-examples"
 import { BrandIcon } from "@/components/brand-artwork"
 import { AudiencePage, InspectorVsViewerPage } from "./overview-pages"
@@ -584,6 +585,8 @@ export function PublicPage({
             <LargePdfExample />
           ) : page.path === "/examples/incorrect-text" ? (
             <IncorrectTextExample />
+          ) : page.path === "/examples/broken-xref" ? (
+            <BrokenXrefExample />
           ) : page.path === "/examples/embedded-font" ? (
             <FontExample />
           ) : page.path === "/examples/hidden-attachment" ? (
