@@ -228,6 +228,10 @@ The shared Base UI input provides a bordered, rounded field with placeholder-mut
 
 Explorer rows sit on the near-white sidebar. Default labels are muted; hover and active states use the soft-gray accent surface and foreground text. Active rows gain medium weight. Object rows use the same selection colors with an inset border. They are 42px tall and truncate secondary labels. Mobile pane buttons use secondary for the current pane and ghost for others.
 
+Pages uses an indented list of expandable connections. Separate native buttons expand a branch and select its object. Rows wrap friendly labels and exact keys above monospace object IDs; inherited, shared, cyclic and unavailable connections use muted supporting text. Selected rows retain the explorer’s neutral inset border. Other sections keep the flat object index.
+
+Object headings include a short role explanation. Incoming and outgoing relationships use wrapping rows with dictionary/index paths and linked object IDs, preserving the existing reference color and global keyboard focus treatment.
+
 ### Tabs
 
 Base UI tabs organize Properties, Source, Raw stream, and Decoded. The inspector uses a full-width transparent line list with a lower divider. An active tab uses foreground text and a narrow underline; inactive text is subdued. Compact text and horizontal gaps preserve inspector density.
