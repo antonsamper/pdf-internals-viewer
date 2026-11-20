@@ -57,6 +57,22 @@ test('shows document status only in an active PDF workspace', async ({ page }) =
   }
 })
 
+test('summarizes page rotation in the document overview', async ({ page }) => {
+  const rotation = page.locator('.document-facts > div').filter({ has: page.getByText('Page rotation', { exact: true }) }).locator('dd')
+  await openMinimal(page)
+  await expect(rotation).toHaveText('0°')
+  for (const [override, expected] of [['', '90°'], ['/Rotate 180', 'Mixed (90°, 180°)']]) {
+    const fixture = classicPdf([
+      [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+      [2, '<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 /Rotate 90 >>'],
+      [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 100 100] >>'],
+      [4, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 100 100] ${override} >>`],
+    ])
+    await page.getByLabel('Open local PDF').setInputFiles({ name: 'rotated.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+    await expect(rotation).toHaveText(expected)
+  }
+})
+
 test('follows page references, reads stream representations, and navigates history', async ({ page }) => {
   await openMinimal(page)
   await page.getByRole('button', { name: 'First page', exact: true }).click()
