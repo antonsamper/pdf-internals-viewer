@@ -4,7 +4,7 @@ PDF Internals uses React and Vite to generate a static site hosted on Cloudflare
 
 ## Rendering and maintenance
 
-`src/lib/site-content.ts` defines the public routes, site identity, metadata, structured data, privacy summary and allowed samples. `src/content/public-page.tsx` contains the guide, privacy/limitations references and six task guides. `src/content/overview-pages.tsx` contains the audience and inspector/viewer comparison pages. Shared navigation uses explicit groups and short labels in `src/lib/site-navigation.ts` and components in `src/components/content-navigation.tsx`; related reading is curated per route. `src/content/examples.tsx` and `src/content/more-examples.tsx` contain nine worked debugging examples and their index. Tutorial examples correspond to the original fixture definitions in `scripts/fixtures/pdf-fixtures.mjs` and `scripts/fixtures/example-fixtures.mjs`; regenerate PDFs using the existing fixture workflow when examples change. Update reviewed dates only after checking the content against the implementation.
+`src/lib/site-content.ts` defines the public routes, site identity, metadata, structured data, privacy summary and allowed samples. `src/content/public-page.tsx` contains the guide, privacy/limitations references and six task guides. `src/content/overview-pages.tsx` contains the audience and inspector/viewer comparison pages. Shared navigation uses explicit groups and short labels in `src/lib/site-navigation.ts` and components in `src/components/content-navigation.tsx`; related reading is curated per route. `src/content/examples.tsx` and `src/content/more-examples.tsx` contain nine worked debugging examples and their index. Bundled tutorial examples correspond to the original fixture definitions in `scripts/fixtures/pdf-fixtures.mjs` and `scripts/fixtures/example-fixtures.mjs`; regenerate PDFs using the existing fixture workflow when examples change. Update reviewed dates only after checking the content against the implementation.
 
 `pnpm run build` builds client assets, then `scripts/prerender.mjs` uses Vite's TSX loader and React's server APIs at build time:
 
@@ -18,6 +18,10 @@ PDF Internals uses React and Vite to generate a static site hosted on Cloudflare
 During development, a Vite middleware serves article components directly; the homepage/About use the normal development client entry. Use the production build to check how home/About behave with JavaScript disabled. Do not directly edit generated HTML in `dist/`.
 
 `pnpm run check:public-pages` runs automatically after each build. It checks readable HTML, local links, canonical/social metadata, JSON-LD, sitemap, robots policy, privacy wording, and article script isolation. `pnpm run deploy:check` additionally validates the static upload and existing licence obligations.
+
+## Reading text instructions
+
+The Streams guide explains how to find visible words in decoded syntax and read `TJ` arrays, including split strings, spacing adjustments and decoded byte offsets. Its “at varius lorem” excerpt is illustrative and is not part of the bundled Fonts & resources sample. The inspector shows a collapsible explanation when a content stream contains `TJ`, with an in-app guide link that preserves the loaded PDF. The inspector and guide link to the PDF Association operator reference in a new tab.
 
 ## Production verification after publication
 

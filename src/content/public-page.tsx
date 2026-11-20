@@ -294,6 +294,20 @@ function StreamsGuide() {
         inspect the data. Positions within the decoded data differ from
         positions in the original file.
       </p>
+      <h2>Know what the stream contains</h2>
+      <p>
+        A page’s
+        <code> /Contents</code> stream holds drawing instructions, including
+        text. Other streams can hold images, fonts or embedded files, so
+        decoding does not always produce readable instructions.
+      </p>
+      <p>
+        An object stream, identified by <code>/Type /ObjStm</code>, is a
+        container for other PDF objects. Open the{" "}
+        <a href="/?sample=compressed">Compressed objects sample</a> and inspect
+        First page to find its containing object stream and position within that
+        stream’s decoded bytes.
+      </p>
       <h2>Inspect a Flate-compressed content stream</h2>
       <p>
         The <strong>Fonts &amp; resources</strong> sample stores object 4’s page
@@ -334,20 +348,144 @@ Q`}</code>
           rendered page.
         </li>
       </ol>
-      <h2>Content streams and object streams</h2>
+      <h2 id="text-instructions">Find visible text in a decoded stream</h2>
       <p>
-        A content stream holds page drawing instructions. An object stream,
-        identified by <code>/Type /ObjStm</code>, packs other objects into its
-        decoded data. The <strong>Compressed objects</strong> sample packs its
-        catalogue, page tree, page, and font into object 6. Object 4’s page
-        content remains outside that container.
+        To search for a word you can see on the page, choose{" "}
+        <strong>Decoded streams</strong> and enter the word, for example
+        “lorem”. Search checks the PDF syntax. A word split across several
+        strings may not match, so try a shorter fragment such as{" "}
+        <code>lor</code>. Open the matching stream in{" "}
+        <strong>Readable instructions</strong> to see how the text is drawn.
       </p>
-      <SampleLinks sample="compressed" label="Compressed objects" />
       <p>
-        Open that sample and inspect First page. The location shown below its
-        heading identifies the containing object stream and the page object’s
-        position within the decoded stream. That position is not an offset into
-        the original file.
+        A PDF can split a word into pieces to control where it draws each
+        letter. This allows it to adjust the gap between letters (kerning) or
+        space a line to fit its width (justification). Decoding removes
+        compression; it does not join these pieces into words.
+      </p>
+      <h3>Read the text instruction</h3>
+      <p>
+        For example, this instruction draws “at varius lorem ”, including the
+        trailing space. It stores “lorem” as <code>(lor)</code> and{" "}
+        <code>(em )</code>, with a spacing adjustment between them. This example
+        is separate from the bundled sample above:
+      </p>
+      <pre>
+        <code>{`[(at) -41 ( ) -48 (varius) -7 ( ) -82 (lor) 17 (em )] TJ`}</code>
+      </pre>
+      <div className="comparison-table-wrap">
+        <table className="comparison-table">
+          <caption>Reading a TJ text instruction</caption>
+          <colgroup>
+            <col style={{ width: "30%" }} />
+            <col />
+          </colgroup>
+          <thead>
+            <tr>
+              <th scope="col">Syntax</th>
+              <th scope="col">Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">
+                <code>[ … ]</code>
+              </th>
+              <td>
+                An array of strings and spacing adjustments, read in order.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <code>(lor)</code>, <code>(em )</code>
+              </th>
+              <td>
+                Text strings. Parentheses mark where each string starts and
+                ends; they do not appear on the page. The second string includes
+                a trailing space.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <code>( )</code>
+              </th>
+              <td>A string containing a space character.</td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <code>17</code>, <code>-82</code>
+              </th>
+              <td>
+                Move the text position without adding characters or marking word
+                boundaries.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <code>TJ</code>
+              </th>
+              <td>
+                Draw the strings, applying each adjustment before continuing.
+                The related <code>Tj</code> operator draws a single string
+                without an array of adjustments.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        For other instructions, see the{" "}
+        <a
+          href="https://pdfa.org/download-area/cheat-sheets/OperatorsAndOperands.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          PDF operator reference
+        </a>{" "}
+        from the PDF Association (opens PDF in a new tab).
+      </p>
+      <h3>What do the positive and negative numbers mean?</h3>
+      <p>
+        Each number is measured in thousandths of a unit of text space. For
+        ordinary horizontal text, a positive value pulls the next string back,
+        tightening the gap; a negative value moves it forwards, opening the gap.
+        The numbers adjust how far the text position normally advances after
+        each letter or space. They do not specify absolute page coordinates.
+      </p>
+      <details className="stream-spacing-detail">
+        <summary>Convert a spacing adjustment to a distance</summary>
+        <p>
+          At a 12-point font size with no additional scaling,
+          <code> 17</code> pulls the next string back by 17 / 1000 × 12 = 0.204
+          points. The final distance depends on the font size, horizontal
+          scaling and transformation matrices set by the surrounding
+          instructions.
+        </p>
+      </details>
+      <h3>Compare instructions with the page</h3>
+      <p>
+        In <strong>Readable instructions</strong>, each array and its{" "}
+        <code>TJ</code> operator occupy one row. That row may draw an entire
+        line containing the word you searched for. Line wrapping in the
+        inspector fits the panel; it does not represent line breaks on the PDF
+        page. Use <strong>Page preview</strong> to compare the instruction with
+        the rendered text.
+      </p>
+      <p>
+        The hexadecimal label at the left of each row gives its byte offset
+        within the decoded stream, measured from zero. It is separate from the
+        page coordinates and the original file’s offsets.
+      </p>
+      <h3>When strings are not readable text</h3>
+      <p>
+        The selected font determines how to interpret the character codes in
+        each string, so they may not look like readable letters. A{" "}
+        <code>TJ</code> array can also contain hexadecimal strings such as
+        <code> &lt;00120034&gt;</code>. If the text is unreadable, follow the
+        font resource in the preceding <code>Tf</code> instruction and inspect
+        its encoding and <code>/ToUnicode</code> mapping. The{" "}
+        <a href="/examples/incorrect-text">incorrect copied text example</a>{" "}
+        walks through this process.
       </p>
       <h2>Decoding limits</h2>
       <p>

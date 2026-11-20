@@ -114,6 +114,13 @@ export function SearchGuide() {
         text shown on a rendered page. Compressed or encrypted content may not
         match a file-text search.
       </p>
+      <p>
+        A visible word may be split across several strings: “lorem” can be
+        stored as <code>(lor) 17 (em)</code>, where the number adjusts spacing.
+        Try a shorter fragment, then read the surrounding instruction. The{" "}
+        <a href="/guides/decode-pdf-streams">Streams guide</a> explains how to
+        read these text and spacing instructions.
+      </p>
       <h2>Save a finding</h2>
       <ol>
         <li>

@@ -378,6 +378,45 @@ test('explains decoded instructions and follows resources in their page context'
   await expect(page.getByRole('heading', { name: /5 0\s+obj/ })).toBeVisible()
 })
 
+test('explains split text and returns from the guide to the loaded PDF', async ({ page }) => {
+  await openMinimal(page)
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  await page.getByRole('button', { name: '4 0 R', exact: true }).first().click()
+  await page.getByRole('tab', { name: 'Decoded', exact: true }).click()
+  const decoded = page.getByRole('tabpanel', { name: 'Decoded', exact: true })
+  // A plain Tj instruction does not need the split-string explanation.
+  await expect(decoded.locator('.content-instructions')).toBeVisible()
+  await expect(decoded.locator('.content-text-help')).toHaveCount(0)
+  const content = 'BT /F1 12 Tf [(lor) 17 (em)] TJ ET'
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+    [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>'],
+    [4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`],
+    [5, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'],
+  ])
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'split-text.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await expect(page.locator('.filename')).toContainText('split-text.pdf')
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  await page.getByRole('button', { name: '4 0 R', exact: true }).first().click()
+  await page.getByRole('tab', { name: 'Decoded', exact: true }).click()
+  const help = decoded.locator('.content-text-help')
+  await help.locator('summary').click()
+  await expect(help).toContainText('17 shifts where “em” starts')
+  const reference = decoded.getByRole('link', { name: 'PDF operator reference', exact: true })
+  await expect(reference).toHaveAttribute('href', 'https://pdfa.org/download-area/cheat-sheets/OperatorsAndOperands.pdf')
+  await expect(reference).toHaveAttribute('target', '_blank')
+  await expect(reference).toHaveAttribute('rel', 'noopener noreferrer')
+  await help.getByRole('link', { name: 'Read the Streams guide', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Find visible text in a decoded stream', exact: true })).toBeVisible()
+  await page.locator('.stream-spacing-detail summary').click()
+  await expect(page.locator('.stream-spacing-detail')).toContainText('0.204')
+  await expect(page.getByRole('link', { name: 'PDF operator reference', exact: true })).toHaveAttribute('target', '_blank')
+  await page.getByRole('link', { name: 'Back to the workspace', exact: true }).click()
+  await expect(page.locator('.filename')).toContainText('split-text.pdf')
+  await expect(decoded.locator('.content-syntax').filter({ hasText: '[(lor) 17 (em)] TJ' })).toBeVisible()
+})
+
 test('browses font details, generates local image thumbnails and follows using pages', async ({ page }) => {
   const remote: string[] = []
   page.on('request', request => {
