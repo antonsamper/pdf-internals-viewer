@@ -14,7 +14,6 @@ import {
   BookmarkPlus,
   BookOpen,
   Pin,
-  Binary,
   Braces,
   Check,
   ChevronRight,
@@ -78,6 +77,7 @@ import type {
   PdfValue,
 } from "@/lib/pdf/types"
 import { AboutPage } from "@/components/about-page"
+import { BrandArtwork } from "@/components/brand-artwork"
 import { SiteLinks } from "@/components/site-links"
 import { useSiteRoute } from "@/lib/site-route"
 import "./app.css"
@@ -95,18 +95,21 @@ const SAMPLES = [
     name: "A simple page",
     detail: "Catalog, page tree, font, and drawing instructions",
     icon: FileCode2,
+    tone: "purple",
   },
   {
     file: "resources.pdf",
     name: "Fonts & resources",
     detail: "Explore page resources and their references",
     icon: Layers,
+    tone: "red",
   },
   {
     file: "compressed.pdf",
     name: "Compressed objects",
     detail: "See how objects live inside decoded streams",
     icon: Braces,
+    tone: "orange",
   },
 ]
 type Selection = BookmarkSelection
@@ -1205,7 +1208,7 @@ export default function App() {
             }}
           >
             <span className="app-mark">
-              <Binary size={19} />
+              <BrandArtwork decorative />
             </span>
             <span>PDF Internals</span>
           </a>
@@ -1511,57 +1514,66 @@ export default function App() {
         ) : (
           <main className="empty-workspace" tabIndex={-1}>
             <div className="welcome-layout">
-              <div className="empty-introduction">
-                <h1>Look inside a PDF.</h1>
-                <p>
-                  A browser workspace for developers to explore PDF objects,
-                  follow references, and inspect the original bytes.
-                </p>
-                <Button size="lg" onClick={() => input.current?.click()}>
-                  <FilePlus2 size={16} />
-                  Open a PDF<span className="shortcut">⌘ O</span>
-                </Button>
-                <span className="drop-hint">
-                  or drop a file anywhere · up to 64 MiB
-                </span>
-                <span className="welcome-privacy">
-                  <ShieldCheck size={14} aria-hidden="true" /> Processed
-                  locally. No uploads.
-                </span>
-                <button
-                  className="empty-limitations-link"
-                  aria-haspopup="dialog"
-                  aria-controls="limitations-dialog"
-                  onClick={(event) => {
-                    limitationsOpener.current = event.currentTarget
-                    setLimitationsOpen(true)
-                  }}
-                >
-                  Early version · View limitations
-                </button>
-              </div>
-              <section className="samples">
-                <h2>Start with a sample</h2>
-                <p className="samples-description">
-                  No file handy? Explore a PDF made for learning.
-                </p>
-                {SAMPLES.map(({ file, name, detail, icon: Icon }) => (
+              <BrandArtwork className="welcome-artwork" />
+              <div className="welcome-content">
+                <div className="empty-introduction">
+                  <span className="welcome-eyebrow">
+                    Structure & byte explorer
+                  </span>
+                  <h1>
+                    Look <span>inside</span> a PDF.
+                  </h1>
+                  <p>
+                    A browser workspace for developers to explore PDF objects,
+                    follow references, and inspect the original bytes.
+                  </p>
+                  <Button size="lg" onClick={() => input.current?.click()}>
+                    <FilePlus2 size={16} />
+                    Open a PDF<span className="shortcut">⌘ O</span>
+                  </Button>
+                  <span className="drop-hint">
+                    or drop a file anywhere · up to 64 MiB
+                  </span>
+                  <span className="welcome-privacy">
+                    <ShieldCheck size={14} aria-hidden="true" /> Processed
+                    locally. No uploads.
+                  </span>
                   <button
-                    className="sample-row"
-                    key={file}
-                    onClick={() => void sample(file)}
+                    className="empty-limitations-link"
+                    aria-haspopup="dialog"
+                    aria-controls="limitations-dialog"
+                    onClick={(event) => {
+                      limitationsOpener.current = event.currentTarget
+                      setLimitationsOpen(true)
+                    }}
                   >
-                    <span className="sample-icon">
-                      <Icon size={19} strokeWidth={1.5} />
-                    </span>
-                    <span>
-                      <strong>{name}</strong>
-                      <span>{detail}</span>
-                    </span>
-                    <ArrowUpRight size={15} />
+                    Early version · View limitations
                   </button>
-                ))}
-              </section>
+                </div>
+                <section className="samples">
+                  <h2>Start with a sample</h2>
+                  <p className="samples-description">
+                    No file handy? Explore a PDF made for learning.
+                  </p>
+                  {SAMPLES.map(({ file, name, detail, icon: Icon, tone }) => (
+                    <button
+                      className="sample-row"
+                      data-tone={tone}
+                      key={file}
+                      onClick={() => void sample(file)}
+                    >
+                      <span className="sample-icon">
+                        <Icon size={19} strokeWidth={1.5} />
+                      </span>
+                      <span>
+                        <strong>{name}</strong>
+                        <span>{detail}</span>
+                      </span>
+                      <ArrowUpRight size={15} />
+                    </button>
+                  ))}
+                </section>
+              </div>
             </div>
             <p className="welcome-note">
               From a page to its content stream to the bytes behind it.
