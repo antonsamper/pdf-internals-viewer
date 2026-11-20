@@ -1095,6 +1095,27 @@ test('serves public answers without JavaScript and keeps articles free of inspec
   }
 })
 
+test('opens each public page at the top when following links from the bottom', async ({ page }) => {
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 844 })
+    await page.goto('/')
+    await page.getByRole('link', { name: 'User guide', exact: true }).click()
+    const main = page.getByRole('main')
+    await main.evaluate(element => { element.scrollTop = element.scrollHeight })
+    expect(await main.evaluate(element => element.scrollTop)).toBeGreaterThan(0)
+    await page.getByRole('link', { name: 'Investigate suspicious features', exact: true }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Investigate suspicious PDF features')
+    await expect.poll(() => main.evaluate(element => element.scrollTop)).toBe(0)
+    await expect(main).toBeFocused()
+
+    await main.evaluate(element => { element.scrollTop = element.scrollHeight })
+    await main.getByRole('link', { name: 'Your PDFs and browser storage', exact: true }).click()
+    await expect(page).toHaveURL(/\/privacy$/)
+    await expect.poll(() => main.evaluate(element => element.scrollTop)).toBe(0)
+    await expect(main).toBeFocused()
+  }
+})
+
 test('keeps document state and route metadata across public content navigation', async ({ page }) => {
   await openMinimal(page)
   await page.getByRole('button', { name: 'First page', exact: true }).click()

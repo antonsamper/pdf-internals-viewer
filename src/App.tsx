@@ -1373,7 +1373,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
             }}
           />
         ) : path !== "/" ? (
-          <PublicPage page={sitePage(path)!} onFollowLink={followLink} />
+          <PublicPage key={path} page={sitePage(path)!} onFollowLink={followLink} />
         ) : bytes.length || busy ? (
           <>
             <div className="workspace-toolbar">
