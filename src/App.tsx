@@ -82,7 +82,13 @@ const SAMPLES = [
     icon: Braces,
   },
 ]
-type Selection = { id: string | null; tab: InspectorTab }
+type Selection = {
+  id: string | null
+  tab: InspectorTab
+  section: Section
+  range?: ByteRange
+  notice?: string
+}
 type Section =
   "overview" | "catalog" | "pages" | "resources" | "objects" | "structure"
 type SearchResult = {
@@ -125,12 +131,10 @@ export default function App() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
-  const [section, setSection] = useState<Section>("overview")
   const [history, setHistory] = useState<Selection[]>([
-    { id: null, tab: "properties" },
+    { id: null, tab: "properties", section: "overview" },
   ])
   const [historyIndex, setHistoryIndex] = useState(0)
-  const [overrideRange, setOverrideRange] = useState<ByteRange | undefined>()
   const [preview, setPreview] = useState(false)
   const [previewPage, setPreviewPage] = useState(1)
   const [dragging, setDragging] = useState(false)
@@ -146,6 +150,7 @@ export default function App() {
   const [objectScroll, setObjectScroll] = useState(0)
   const narrow = useNarrow()
   const selection = history[historyIndex]
+  const section = selection.section
   const objects = useMemo(() => document?.objects ?? [], [document])
   const objectMap = useMemo(
     () => new Map(objects.map((object) => [object.id, object])),
@@ -153,40 +158,61 @@ export default function App() {
   )
   const selected = selection.id ? objectMap.get(selection.id) : undefined
   const selectedRange =
-    overrideRange ??
+    selection.range ??
     (selected?.provenance.type === "file"
       ? selected.provenance.range
       : selected?.provenance.type === "decoded"
         ? selected.provenance.containerRange
         : undefined)
 
-  function navigate(id: string | null, tab: InspectorTab = "properties") {
+  function visit(next: Selection) {
+    if (next.section !== section) setObjectScroll(0)
+    setNotice(next.notice ?? null)
+    setPreview(false)
+    const page = document?.pages.indexOf(next.id ?? "") ?? -1
+    if (page >= 0) setPreviewPage(page + 1)
+    if (
+      selection.id === next.id &&
+      selection.tab === next.tab &&
+      selection.section === next.section &&
+      selection.range?.start === next.range?.start &&
+      selection.range?.end === next.range?.end
+    )
+      return
+    setHistory(history.slice(0, historyIndex + 1).concat(next))
+    setHistoryIndex(historyIndex + 1)
+  }
+  function navigate(
+    id: string | null,
+    tab: InspectorTab = "properties",
+    nextSection: Section = section
+  ) {
     if (id && !objectMap.has(id)) {
       setNotice(
         `Reference ${id} R has no available object in the current object set.`
       )
       return
     }
-    setNotice(null)
-    setOverrideRange(undefined)
-    setPreview(false)
+    visit({ id, tab, section: nextSection })
     setMobilePane("inspector")
-    const page = document?.pages.indexOf(id ?? "") ?? -1
-    if (page >= 0) setPreviewPage(page + 1)
-    if (selection.id === id && selection.tab === tab) return
-    const next = history.slice(0, historyIndex + 1).concat({ id, tab })
-    setHistory(next)
-    setHistoryIndex(next.length - 1)
+  }
+  function selectRange(range: ByteRange, message?: string) {
+    visit({ ...selection, range, notice: message })
+    setMobilePane("bytes")
   }
   function travel(direction: number) {
     const index = Math.max(
       0,
       Math.min(history.length - 1, historyIndex + direction)
     )
+    const next = history[index]
+    if (next.section !== section) setObjectScroll(0)
     setHistoryIndex(index)
-    setOverrideRange(undefined)
+    setNotice(next.notice ?? null)
     setPreview(false)
-    const page = document?.pages.indexOf(history[index].id ?? "") ?? -1
+    setMobilePane(next.range ? "bytes" : "inspector")
+    setSearchResults(null)
+    const page = document?.pages.indexOf(next.id ?? "") ?? -1
     if (page >= 0) setPreviewPage(page + 1)
   }
   const close = useCallback(() => {
@@ -201,13 +227,11 @@ export default function App() {
     setError(null)
     setNotice(null)
     setPreview(false)
-    setOverrideRange(undefined)
     setSearchResults(null)
     setSearching(false)
     setQuery("")
-    setHistory([{ id: null, tab: "properties" }])
+    setHistory([{ id: null, tab: "properties", section: "overview" }])
     setHistoryIndex(0)
-    setSection("overview")
     setObjectScroll(0)
     setPreviewPage(1)
   }, [])
@@ -422,17 +446,19 @@ export default function App() {
     )
     if (object) navigate(object.id)
     else {
-      setOverrideRange({ start: offset, end: offset + 1 })
-      setNotice(
+      selectRange(
+        { start: offset, end: offset + 1 },
         `Byte 0x${offset.toString(16).toUpperCase()} has no known containing object.`
       )
     }
   }
   function chooseSection(next: Section) {
-    setSection(next)
     setSearchResults(null)
-    if (next === "overview" || next === "structure") navigate(null)
-    if (next === "catalog" && document?.catalogId) navigate(document.catalogId)
+    if (next === "overview" || next === "structure")
+      navigate(null, "properties", next)
+    else if (next === "catalog" && document?.catalogId)
+      navigate(document.catalogId, "properties", next)
+    else visit({ ...selection, section: next })
   }
   const resourceObjects = objects.filter((object) =>
     ["Font", "Image", "XObject", "Form"].includes(object.kind)
@@ -588,11 +614,10 @@ export default function App() {
                   variant="outline"
                   className="font-mono"
                   onClick={() => {
-                    setOverrideRange({
+                    selectRange({
                       start: document.startXref!,
                       end: Math.min(bytes.length, document.startXref! + 32),
                     })
-                    setMobilePane("bytes")
                   }}
                 >
                   startxref → 0x{document.startXref.toString(16).toUpperCase()}
@@ -625,8 +650,7 @@ export default function App() {
                   variant="outline"
                   disabled={!document.pages.length}
                   onClick={() => {
-                    setSection("pages")
-                    navigate(document.pages[0])
+                    navigate(document.pages[0], "properties", "pages")
                   }}
                 >
                   <Files size={15} />
@@ -791,8 +815,7 @@ export default function App() {
             onClick={(event) => {
               event.preventDefault()
               if (document) {
-                setSection("overview")
-                navigate(null)
+                navigate(null, "properties", "overview")
               }
             }}
           >
@@ -973,8 +996,7 @@ export default function App() {
                               : "properties"
                           )
                         else if (result.range) {
-                          setOverrideRange(result.range)
-                          setMobilePane("bytes")
+                          selectRange(result.range)
                         }
                       }}
                     >
