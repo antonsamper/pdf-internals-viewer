@@ -39,7 +39,7 @@ describe("inspection failure hints", () => {
       "Encryption could not be opened"
     )
     expect(inspectionFailure("Password required").suggestion).toContain(
-      "Password entry is not supported"
+      "This encryption could not be processed"
     )
   })
   it("preserves uncertainty for unknown, malformed, or dismissed errors", () => {

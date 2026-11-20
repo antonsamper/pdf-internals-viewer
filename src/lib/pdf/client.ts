@@ -25,8 +25,8 @@ export class PdfWorkerClient {
       this.worker.postMessage(request);
     });
   }
-  async open(bytes: Uint8Array, filename: string): Promise<PdfDocumentInfo> {
-    const response = await this.request({ requestId: ++this.requestId, type: 'open', bytes, filename });
+  async open(bytes: Uint8Array, filename: string, password?: string): Promise<PdfDocumentInfo> {
+    const response = await this.request({ requestId: ++this.requestId, type: 'open', bytes, filename, password });
     if (response.type !== 'opened') throw new Error('Unexpected parser response.');
     return response.document;
   }

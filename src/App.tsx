@@ -156,6 +156,9 @@ export default function App() {
   const [bookmarks, setBookmarks] = useState<SessionBookmark<Selection>[]>([])
   const bookmarkKey = useRef(0)
   const [pinnedId, setPinnedId] = useState<string | null>(null)
+  const [unlocking, setUnlocking] = useState(false)
+  const [unlockError, setUnlockError] = useState<string | null>(null)
+  const [previewPassword, setPreviewPassword] = useState<string | undefined>()
   const [preview, setPreview] = useState(false)
   const [previewPage, setPreviewPage] = useState(1)
   const [dragging, setDragging] = useState(false)
@@ -298,6 +301,9 @@ export default function App() {
     client.current = null
     setBytes(EMPTY)
     setFilename("")
+    setUnlocking(false)
+    setUnlockError(null)
+    setPreviewPassword(undefined)
     setDocument(null)
     setBusy(false)
     setError(null)
@@ -370,6 +376,36 @@ export default function App() {
       setError(message)
       setInspectionError(message)
       setBusy(false)
+    }
+  }
+  async function unlock(password: string) {
+    if (unlocking) return
+    const token = ++requestId.current
+    setUnlocking(true)
+    setUnlockError(null)
+    client.current?.dispose()
+    const worker = new PdfWorkerClient()
+    client.current = worker
+    try {
+      const parsed = await worker.open(bytes, filename, password)
+      if (token !== requestId.current) return
+      setDocument(parsed)
+      if (parsed.locked)
+        setUnlockError(
+          parsed.encryptionError ??
+            "That password did not unlock this PDF. Try again."
+        )
+      else {
+        setPreviewPassword(password)
+        setNotice("PDF unlocked. Structure inspection is available.")
+      }
+    } catch (reason) {
+      if (token !== requestId.current) return
+      setUnlockError(
+        reason instanceof Error ? reason.message : "Could not unlock this PDF."
+      )
+    } finally {
+      if (token === requestId.current) setUnlocking(false)
     }
   }
   async function sample(file: string) {
@@ -715,17 +751,71 @@ export default function App() {
               <dd>{document.encrypted ? "Encrypted" : "None"}</dd>
             </div>
           </dl>
+          {document.encrypted && !document.locked && (
+            <p role="status" className="text-xs text-muted-foreground">
+              Encrypted PDF unlocked locally. Properties and decoded streams are
+              decrypted. Source and raw streams show the original encrypted
+              bytes.
+            </p>
+          )}
           {document.locked && (
             <div className="warning-inline">
               <LockKeyhole size={16} />
-              <p>
-                This PDF is encrypted. Structure inspection is locked because
-                password entry is not supported yet. An encrypted PDF may have
-                an opening password or permissions restrictions; this viewer
-                does not distinguish between them. Try an unencrypted copy
-                exported from the source application. Original bytes remain
-                available.
-              </p>
+              <div className="min-w-0 flex-1 space-y-3">
+                <p>
+                  This PDF is encrypted.{" "}
+                  {document.encryptionError ??
+                    "Enter its opening or owner password to inspect the structure."}{" "}
+                  Original bytes remain available.
+                </p>
+                {!document.encryptionError && (
+                  <form
+                    className="flex flex-wrap items-end gap-2"
+                    aria-label="Unlock PDF"
+                    onSubmit={(event) => {
+                      event.preventDefault()
+                      const form = event.currentTarget
+                      const password = new FormData(form).get(
+                        "password"
+                      ) as string
+                      void unlock(password)
+                    }}
+                  >
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <label
+                        htmlFor="pdf-password"
+                        className="text-xs font-medium"
+                      >
+                        PDF password
+                      </label>
+                      <Input
+                        id="pdf-password"
+                        name="password"
+                        type="password"
+                        autoComplete="off"
+                        disabled={unlocking}
+                        aria-invalid={Boolean(unlockError)}
+                        aria-describedby={unlockError ? "pdf-password-help pdf-password-error" : "pdf-password-help"}
+                      />
+                    </div>
+                    <Button type="submit" disabled={unlocking}>
+                      {unlocking ? "Unlocking…" : "Unlock PDF"}
+                    </Button>
+                    <p
+                      id="pdf-password-help"
+                      className="w-full text-xs text-muted-foreground"
+                    >
+                      The password stays in memory for this document and is
+                      cleared when you close it.
+                    </p>
+                  </form>
+                )}
+                {unlockError && (
+                  <p id="pdf-password-error" role="alert" className="text-xs">
+                    {unlockError}
+                  </p>
+                )}
+              </div>
             </div>
           )}
           {section === "structure" ? (
@@ -933,6 +1023,7 @@ export default function App() {
           <PdfPreview
             bytes={bytes}
             fileName={filename}
+            password={previewPassword}
             pageNumber={previewPage}
             onPageChange={setPreviewPage}
           />

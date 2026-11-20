@@ -37,7 +37,7 @@ export function inspectionFailure(message?: string): {
       title: "Encryption could not be opened",
       explanation: "The parser reported a password or encryption limitation.",
       suggestion:
-        "Password entry is not supported yet. Try an unencrypted copy exported from the source application.",
+        "This encryption could not be processed. Try an unencrypted copy exported from the source application.",
     }
   return {
     title: "PDF structure could not be read",
