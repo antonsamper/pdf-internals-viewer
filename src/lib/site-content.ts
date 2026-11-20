@@ -24,7 +24,7 @@ export const SITE_PAGES = [
     title: "How to Inspect a PDF in Your Browser · PDF Internals",
     heading: "How to inspect a PDF in your browser",
     description:
-      "Follow a PDF page to its objects, drawing instructions, and original bytes with the local PDF Internals inspector and original sample files.",
+      "Start with a sample PDF, then explore task guides for objects, streams, resources, attachments, search, and suspicious features.",
   },
   {
     path: "/guides/inspect-pdf-objects",
@@ -46,6 +46,27 @@ export const SITE_PAGES = [
     heading: "How to find fonts and images in a PDF",
     description:
       "Inspect PDF font and image resources, follow inherited references, and understand embedded font and image extraction limits without uploading your PDF.",
+  },
+  {
+    path: "/guides/find-pdf-attachments",
+    title: "Find and extract PDF attachments · PDF Internals",
+    heading: "Find and extract PDF attachments",
+    description:
+      "Locate embedded files, follow file specifications, and download supported attachments while understanding indexing and decoding limits.",
+  },
+  {
+    path: "/guides/search-bookmark-compare",
+    title: "Search, bookmark, and compare PDF objects · PDF Internals",
+    heading: "Search, bookmark, and compare PDF objects",
+    description:
+      "Choose a search mode, save findings with notes, and compare dictionary values without changing your PDF.",
+  },
+  {
+    path: "/guides/investigate-suspicious-features",
+    title: "Investigate suspicious PDF features · PDF Internals",
+    heading: "Investigate suspicious PDF features",
+    description:
+      "Find JavaScript, automatic actions, launch actions, and embedded files. Follow references and interpret results without treating an empty search as proof of safety.",
   },
   {
     path: "/privacy",

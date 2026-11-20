@@ -1591,122 +1591,6 @@ h2 {
   }
 }
 
-/* The guide mirrors the workspace, with recipes opened as needed. */
-.user-guide-dialog {
-  max-width: 720px;
-}
-.guide-map {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr) 16px minmax(0, 1fr);
-  align-items: stretch;
-  gap: 5px;
-}
-.guide-map > div {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: linear-gradient(150deg, var(--sidebar), var(--background) 70%);
-}
-.guide-step-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-.guide-map .guide-step-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: var(--brand-purple-soft);
-}
-.guide-map .guide-step-number {
-  color: var(--muted-foreground);
-  font: 10px "SFMono-Regular", Consolas, monospace;
-  letter-spacing: 0.06em;
-}
-.guide-map strong {
-  font-size: 13px;
-  letter-spacing: -0.015em;
-}
-.guide-map svg {
-  width: 18px;
-  height: 18px;
-  color: var(--brand-purple);
-}
-.guide-map svg.guide-map-arrow {
-  align-self: center;
-  width: 16px;
-  height: 16px;
-  color: var(--muted-foreground);
-}
-.guide-map span {
-  color: var(--muted-foreground);
-  font-size: 11px;
-  line-height: 1.5;
-}
-.guide-tools {
-  display: grid;
-  gap: 16px;
-  margin-top: 22px;
-}
-.guide-tools > div {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-.guide-tools > div > svg {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  margin-top: 2px;
-  color: var(--brand-purple);
-}
-.user-guide-body .guide-tools h2 {
-  margin: 0 0 3px;
-}
-.user-guide-body p {
-  line-height: 1.6;
-}
-.guide-examples > p {
-  margin-bottom: 12px;
-}
-.guide-examples details {
-  border-bottom: 1px solid var(--border);
-}
-.user-guide-body summary {
-  cursor: pointer;
-  font-weight: 500;
-  padding: 12px 0;
-}
-.user-guide-body summary:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-.guide-examples summary svg {
-  display: inline-block;
-  vertical-align: middle;
-  margin: 0 8px 2px 4px;
-  width: 16px;
-  height: 16px;
-  color: var(--brand-purple);
-}
-.guide-examples details > div {
-  padding: 0 0 14px 29px;
-}
-.guide-details {
-  margin-top: 16px;
-}
-.guide-details summary {
-  color: var(--muted-foreground);
-  font-size: 11px;
-}
 @media (max-width: 600px) {
   .app-header {
     height: 58px;
@@ -1723,7 +1607,7 @@ h2 {
     grid-column: 3;
     grid-row: 1;
   }
-  .header-actions button {
+  .header-actions :is(button, a) {
     width: 36px;
     height: 36px;
     padding: 0;
@@ -1779,32 +1663,7 @@ h2 {
     height: 32px;
   }
 
-  .guide-map {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  .guide-map > div {
-    position: relative;
-    padding: 12px 42px 12px 60px;
-    gap: 3px;
-  }
-  .guide-step-heading {
-    margin: 0;
-  }
-  .guide-step-icon {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-  .guide-step-number {
-    position: absolute;
-    right: 14px;
-    top: 14px;
-  }
-  .guide-map-arrow {
-    display: none;
-  }
+
 }
 
 .embedded-downloads {
@@ -1942,6 +1801,5 @@ h2 {
   .public-page { padding: 32px 24px 48px; }
   .public-page pre { padding: 14px; }
 }
-.full-guide-link { margin-right: auto; align-self: center; color: var(--reference); text-decoration: underline; text-underline-offset: 3px; font-size: 13px; }
 .public-page ol { list-style: decimal; }
 .public-page ul { list-style: disc; }

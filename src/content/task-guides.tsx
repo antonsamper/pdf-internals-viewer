@@ -1,0 +1,238 @@
+import { MAX_DECODED_BYTES, MAX_DISPLAY_BYTES } from "@/lib/pdf/limits"
+
+export function AttachmentsGuide() {
+  return (
+    <>
+      <p className="about-lead">
+        A PDF can carry other files inside it. Use the attachment list to find
+        them, then inspect their references or download their contents.
+      </p>
+      <h2>Find an embedded file</h2>
+      <ol>
+        <li>
+          Open your PDF and choose <strong>Resources → Attachments</strong>.
+        </li>
+        <li>Search by filename, then select an entry to inspect its object.</li>
+        <li>
+          Click <strong>Download attachment</strong> in the list or inspector to
+          save its decoded contents. Inspecting a reference does not open the
+          attached file.
+        </li>
+      </ol>
+      <h2>Follow the references</h2>
+      <p>
+        In <strong>Document catalogue</strong>, follow <code>/Names</code> →{" "}
+        <code>/EmbeddedFiles</code>. A name tree uses <code>/Kids</code> or{" "}
+        <code>/Names</code> entries to lead to file specifications. Follow a
+        file specification’s <code>/EF</code> reference to its embedded file
+        stream.
+      </p>
+      <p>
+        For example, a file specification might contain the following entries.
+        This is illustrative syntax, rather than a bundled sample:
+      </p>
+      <pre>
+        <code>{`<< /Type /Filespec
+   /F (notes.txt)
+   /EF << /F 12 0 R >> >>`}</code>
+      </pre>
+      <p>
+        Here <code>/F (notes.txt)</code> names the file; <code>12 0 R</code>{" "}
+        inside <code>/EF</code> points to the stream holding its contents.
+        Follow that reference and check its dictionary and decoded bytes.
+      </p>
+      <p>
+        Also check a page’s <code>/Annots</code> for{" "}
+        <code>/FileAttachment</code> annotations and their <code>/FS</code>{" "}
+        references, and look for associated files under <code>/AF</code>.
+        Attachments may not appear in the page preview.
+      </p>
+      <h2>Understand the limits</h2>
+      <p>
+        Downloads require supported filters and are limited to{" "}
+        {MAX_DECODED_BYTES / 1024 / 1024} MiB per decoded file. Incomplete files
+        are not downloaded. The list covers indexed objects; unavailable or
+        unparsed objects may contain other files. An empty list does not prove
+        that the PDF has no attachments.
+      </p>
+      <p>
+        For files you do not trust, continue with{" "}
+        <a href="/guides/investigate-suspicious-features">
+          investigating suspicious features
+        </a>{" "}
+        before opening an extracted attachment.
+      </p>
+    </>
+  )
+}
+
+export function SearchGuide() {
+  return (
+    <>
+      <p className="about-lead">
+        Find a value, bookmark the evidence, and pin an object to compare it
+        with another. These tools leave the original PDF unchanged.
+      </p>
+      <h2>Choose what to search</h2>
+      <p>Use Ctrl/Cmd+K to focus search, then choose a mode:</p>
+      <dl>
+        <dt>Objects</dt>
+        <dd>Find indexed objects by their number or description.</dd>
+        <dt>Keys</dt>
+        <dd>
+          Find dictionary keys such as <code>MediaBox</code> or{" "}
+          <code>JavaScript</code>.
+        </dd>
+        <dt>File text</dt>
+        <dd>Search the original file bytes as text.</dd>
+        <dt>File hex</dt>
+        <dd>Find a sequence of hexadecimal byte values.</dd>
+        <dt>Decoded streams</dt>
+        <dd>Search text in supported decoded stream previews.</dd>
+      </dl>
+      <p>
+        Try the <a href="/?sample=minimal">A simple page sample</a>: choose{" "}
+        <strong>Keys</strong>, search for <code>MediaBox</code>, and select the
+        matching page. Use Back and Forward in the workspace to retrace your
+        inspection.
+      </p>
+      <p>
+        Decoded search checks only the first {MAX_DISPLAY_BYTES / 1024} KiB of
+        each stream. It reads bytes as characters, rather than extracting the
+        text shown on a rendered page. Compressed or encrypted content may not
+        match a file-text search.
+      </p>
+      <h2>Save a finding</h2>
+      <ol>
+        <li>
+          Select an object or a byte range and click <strong>Bookmark</strong>.
+        </li>
+        <li>Add a note describing what you found.</li>
+        <li>
+          Select the bookmark to return to it, or use its trash button to delete
+          it.
+        </li>
+      </ol>
+      <p>
+        Bookmarks are saved in this browser and restored when you reopen the
+        same PDF, even if it has been renamed. Changed files have separate
+        bookmarks. The PDF and password are not saved. Clearing site data
+        removes bookmarks; notes from encrypted PDFs remain readable in browser
+        storage. See <a href="/privacy">privacy and browser storage</a>.
+      </p>
+      <h2>Compare two objects</h2>
+      <ol>
+        <li>
+          Select a page or object, then click <strong>Pin to compare</strong>.
+        </li>
+        <li>
+          Select another object to compare its dictionary values with the pinned
+          one.
+        </li>
+        <li>
+          Choose differences only to narrow the comparison, or unpin to close
+          it.
+        </li>
+      </ol>
+      <p>
+        For a PDF with several pages, compare <code>/MediaBox</code>,{" "}
+        <code>/CropBox</code>, <code>/Rotate</code>, and resource references.
+        Missing page entries may inherit values from a parent in the page tree.
+        Comparison checks dictionary values; it does not compare stream bytes or
+        original syntax.
+      </p>
+      <p>
+        Drag the horizontal divider, or focus it and use the arrow keys, to
+        resize the comparison. Closing or replacing the PDF clears the pin.
+      </p>
+    </>
+  )
+}
+
+export function SuspiciousFeaturesGuide() {
+  return (
+    <>
+      <p className="about-lead">
+        Look for scripts, automatic actions, launch actions, and embedded files,
+        then follow their references to understand what the PDF contains.
+      </p>
+      <h2>Find an action</h2>
+      <ol>
+        <li>
+          Open the PDF and select <strong>Keys</strong> in search.
+        </li>
+        <li>
+          Search for <code>JavaScript</code> and <code>JS</code>, then{" "}
+          <code>OpenAction</code> and <code>AA</code> in turn. Select a result
+          to inspect the containing dictionary.
+        </li>
+        <li>
+          Follow references to the action dictionary and any script stream.
+          Check <strong>Properties</strong> for relationships and{" "}
+          <strong>Source</strong> for its representation.
+        </li>
+        <li>
+          If the script is stored in a stream, use <strong>Decoded</strong>{" "}
+          where supported. Check <strong>Original bytes</strong> when you need
+          the exact syntax stored in the file.
+        </li>
+      </ol>
+      <p>
+        For launch actions, search <strong>File text</strong> for{" "}
+        <code>/Launch</code>. Also try <strong>Decoded streams</strong> for
+        content stored in compressed streams. Keys search matches dictionary key
+        names, so it will not find <code>/S /Launch</code> by searching for{" "}
+        <code>Launch</code> alone.
+      </p>
+      <h2>Read what you found</h2>
+      <p>
+        <code>/OpenAction</code> identifies an action or destination used when
+        opening a document; it is not always a script. <code>/AA</code> holds
+        additional actions associated with events. In an action dictionary,{" "}
+        <code>/S /JavaScript</code> identifies a JavaScript action and{" "}
+        <code>/JS</code> holds its script or a reference to it.{" "}
+        <code>/S /Launch</code> identifies a launch action.
+      </p>
+      <p>
+        For example, these illustrative entries connect a catalogue’s opening
+        action to a script stream. They are not part of the bundled samples:
+      </p>
+      <pre>
+        <code>{`1 0 obj
+<< /Type /Catalog /Pages 2 0 R /OpenAction 8 0 R >>
+endobj
+
+8 0 obj
+<< /S /JavaScript /JS 9 0 R >>
+endobj`}</code>
+      </pre>
+      <p>
+        Start at object 1, follow <code>/OpenAction 8 0 R</code>, then{" "}
+        <code>/JS 9 0 R</code> to inspect the script stream. Record the
+        references and bookmark the relevant objects. Finding the word
+        “JavaScript” alone gives less context than tracing this relationship.
+      </p>
+      <h2>Check embedded files and known strings</h2>
+      <p>
+        Use <a href="/guides/find-pdf-attachments">Resources → Attachments</a>{" "}
+        to inspect embedded files and their file specifications. For a known
+        string, choose <strong>Decoded streams</strong>; for a known byte
+        sequence, choose <strong>File hex</strong>.
+      </p>
+      <h2>Interpret the results carefully</h2>
+      <p>
+        These features can have legitimate uses. A match identifies something to
+        investigate; it does not establish that a file is malicious. PDF
+        Internals does not run an antivirus signature scan, analyse what a
+        payload would do when run, or declare a file safe.
+      </p>
+      <p>
+        An empty search does not establish safety. Compression, encryption,
+        unsupported filters, obfuscation, and unavailable objects can hide
+        content. Decoded search covers only the first {MAX_DISPLAY_BYTES / 1024}{" "}
+        KiB per stream. Review the <a href="/limitations">inspection limits</a>{" "}
+        before drawing conclusions.
+      </p>
+    </>
+  )
+}

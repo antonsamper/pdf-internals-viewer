@@ -15,7 +15,7 @@ pnpm run dev
 
 `pnpm-lock.yaml` is the sole dependency lockfile. CI uses a frozen install and caches the pnpm store. Project settings enable preparation hooks and copy installed packages so the preview backport cannot modify the shared store. See [dependency setup](docs/DEPENDENCIES.md).
 
-Open the URL printed by Vite. The homepage opens directly to the workspace with a file picker and three original sample PDFs. The footer links to About, a public guide, privacy, limitations, project feedback, and the source on GitHub. Three worked tutorials explain objects/references, stream decoding, and font/image resources. Visiting About within the app preserves the current document in memory. You can also drop a PDF anywhere in the app. The app processes files in memory on your device. It does not upload or save them.
+Open the URL printed by Vite. The homepage opens directly to the workspace with a file picker and three original sample PDFs. The footer links to About, a public guide, privacy, limitations, project feedback, and the source on GitHub. Six task guides cover objects/references, streams, fonts/images, attachments, search/bookmarks/comparison, and suspicious features. Visiting public pages within the app preserves the current document and selection in memory. You can also drop a PDF anywhere in the app. The app processes files in memory on your device. It does not upload or save them.
 
 ## Explore a PDF
 
@@ -46,7 +46,7 @@ At narrower widths, use Explorer / Inspector / Original bytes tabs. Desktop pane
 - Open **Resources** for font details, image/form objects, and links to pages exposing those resources. Image thumbnails are generated locally on request for supported bounded images; unsupported formats retain dictionary and byte inspection.
 - **Bookmark** objects or explicit byte ranges and add notes in the explorer. Bookmarks and notes are saved in browser local storage using a SHA-256 hash of the PDF contents. Reopening the same PDF restores them, even under a different filename; different file contents have separate bookmarks. Clearing site data removes saved bookmarks. If browser storage is unavailable, bookmarks remain usable for the current open file and a status message explains that they are not saved. PDF files and passwords are not saved; bookmark notes from encrypted PDFs remain readable in browser storage. Pinned comparisons clear when the file is closed or replaced.
 
-Open **User guide** in the header for a short explanation of the workspace sections, bookmarks, and pinning to compare.
+Open **User guide** in the header for a short sample walkthrough and links to focused task guides. Use **Back to the workspace** to return to your open PDF and selection.
 
 ## Verify
 
