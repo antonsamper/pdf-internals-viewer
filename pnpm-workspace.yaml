@@ -5,7 +5,10 @@ minimumReleaseAgeExclude:
 ignoreScripts: false
 enablePrePostScripts: true
 strictDepBuilds: true
-allowBuilds: {}
+# Wrangler's platform-binary verification hooks, reviewed at these exact versions.
+allowBuilds:
+  'esbuild@0.28.2': true
+  'workerd@1.20261110.1': true
 
 # The preview backport modifies installed files; isolate them from the pnpm store.
 packageImportMethod: copy

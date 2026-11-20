@@ -131,102 +131,102 @@ components:
     padding: "3px 0"
 ---
 
-# Design System: PDF Internals Viewer
+# Design system: PDF Internals Viewer
 
 ## Overview
 
-The implemented interface follows the user-selected shadcn neutral defaults with Base UI controls. White inspection surfaces, a subtly tinted explorer, thin dividers, and compact typography keep attention on PDF structure and original bytes. Theme and brand exploration are low priority.
+The interface uses the shadcn neutral defaults and Base UI controls chosen by the user. Inspection surfaces are white, with a lightly tinted explorer, thin dividers, and compact type to leave room for PDF structure and original bytes. Theme and brand exploration are low priority.
 
-This is a desktop-first developer workspace with dense data and restrained controls. Geist supports navigation and explanations; system monospace distinguishes PDF syntax, object identifiers, offsets, and bytes. Blue references provide the clearest navigational color cue.
+The workspace is designed for dense data on desktop, with compact controls. Geist supports navigation and explanations; system monospace distinguishes PDF syntax, object identifiers, offsets, and bytes. Blue references provide the clearest navigational color cue.
 
-**Key Characteristics:**
+The interface uses:
 
 - Neutral light surfaces with thin structural borders.
 - Compact controls and dense, independently scrolling data panes.
 - System monospace for syntax and original-byte inspection.
 - Blue object references; dark neutral byte selection.
 
-This file records the implemented light interface in `src/index.css`, `src/app.css`, `src/components/hex-view.css`, and the existing UI components. The source also contains dark theme mappings; they are not a separate reviewed visual direction. No creative metaphor is imposed on the neutral default system.
+The light interface is implemented in `src/index.css`, `src/app.css`, `src/components/hex-view.css`, and the existing UI components. The source also contains dark theme mappings, which have not had a separate visual review. The design uses neutral defaults without a creative metaphor.
 
 ## Colors
 
-The palette is primarily achromatic. Color identifies navigation and syntax rather than branding; normative values are in the frontmatter.
+The palette is primarily achromatic. Color identifies navigation and syntax. Use the values in the frontmatter as the specification.
 
 ### Primary
 
-- **Dark neutral:** primary actions and selected byte ranges, paired with near-white text.
-- **Reference blue:** navigable PDF object references, with an underline on hover.
+- Dark neutral: primary actions and selected byte ranges, paired with near-white text.
+- Reference blue: navigable PDF object references, with an underline on hover.
 
 ### Secondary
 
-- **String green:** PDF string values, distinct from object references and neutral syntax.
-- **Destructive red:** invalid-control treatments available in the shared primitives; ordinary warning surfaces remain neutral in the current UI.
+- String green: PDF string values, distinct from object references and neutral syntax.
+- Destructive red: invalid-control treatments available in the shared primitives; ordinary warning surfaces remain neutral in the current UI.
 
 ### Neutral
 
-- **White workspace:** the app background and inspection surfaces.
-- **Near-white explorer:** navigation and bottom status surfaces.
-- **Soft gray:** selected navigation, control hover, search result surrounds, and notices.
-- **Dark ink:** primary text and object names.
-- **Muted gray:** metadata, offsets, labels, secondary explanations, and zero bytes.
-- **Light gray border:** pane dividers, row separators, fields, and selection outlines.
-- **Mid gray ring:** keyboard focus and byte cursor outlines.
-- **Pale blue selection / dark blue selection ink:** native text selection only.
+- White workspace: the app background and inspection surfaces.
+- Near-white explorer: navigation and bottom status surfaces.
+- Soft gray: selected navigation, control hover, search result surrounds, and notices.
+- Dark ink: primary text and object names.
+- Muted gray: metadata, offsets, labels, secondary explanations, and zero bytes.
+- Light gray border: pane dividers, row separators, fields, and selection outlines.
+- Mid gray ring: keyboard focus and byte cursor outlines.
+- Pale blue selection / dark blue selection ink: native text selection only.
 
-**The Reference Color Rule.** Use reference blue for navigable object relationships; selected original bytes use the primary neutral pair.
+Use reference blue for navigable object relationships; selected original bytes use the primary neutral pair.
 
 ## Typography
 
-**Body Font:** Geist Variable, falling back to sans-serif. No separate display face is used.
+Body font: Geist Variable, falling back to sans-serif. No separate display face is used.
 
-**Syntax Font:** SFMono-Regular, Consolas, Liberation Mono, monospace for general code. Individual PDF syntax uses the shorter SFMono-Regular, Consolas, monospace stack. Hex uses the system UI monospace stack recorded above.
+Syntax font: SFMono-Regular, Consolas, Liberation Mono, monospace for general code. Individual PDF syntax uses the shorter SFMono-Regular, Consolas, monospace stack. Hex uses the system UI monospace stack recorded above.
 
 ### Hierarchy
 
-- **Headline:** the responsive empty-workspace heading; medium weight and tight tracking.
-- **Title:** document overview heading. Object titles use the distinct monospace object-title role.
-- **Body:** application base text; introductory copy is larger (14px) with generous line height (1.75).
-- **Label:** pane headings and compact navigation, with contextual weights. Shared button defaults are 14px; workspace overrides commonly use 10–11px.
-- **Metadata:** provenance, file sizes, and status. Section overlines and hex column headings reduce to 9px.
-- **Code / Hex:** dense technical data. General code defaults to 12px; PDF values, source streams, and hex rows use the code-size roles above. Source text has relaxed line height (1.85).
+- Headline: the responsive empty-workspace heading; medium weight and tight tracking.
+- Title: document overview heading. Object titles use the distinct monospace object-title role.
+- Body: application base text; introductory copy is larger (14px) with generous line height (1.75).
+- Label: pane headings and compact navigation, with contextual weights. Shared button defaults are 14px; workspace overrides commonly use 10 to 11px.
+- Metadata: provenance, file sizes, and status. Section overlines and hex column headings reduce to 9px.
+- Code / Hex: dense technical data. General code defaults to 12px; PDF values, source streams, and hex rows use the code-size roles above. Source text has relaxed line height (1.85).
 
-**The Syntax Type Rule.** Keep byte syntax and object identifiers in system monospace while navigation and explanatory copy remain in Geist.
+Keep byte syntax and object identifiers in system monospace while navigation and explanatory copy remain in Geist.
 
 ## Layout
 
-The application fills the viewport (`100dvh`) with a fixed header (58px), a flexing workspace, and a bottom status bar (29px). Loaded documents add a compact workspace toolbar with a minimum height (45px). Pane headings are (42px); the hex toolbar has its own minimum height (45px).
+The app fills the viewport (`100dvh`). A 58px header and 29px bottom status bar frame the flexible workspace. Loaded documents add a toolbar at least 45px tall. Pane headings are 42px tall, and the hex toolbar is at least 45px tall.
 
-Above the mobile breakpoint, the workspace uses three horizontally resizable panes: explorer (20%), inspector (43%), and original bytes (37%). The explorer has a minimum width (180px) and maximum width (35%); inspector and bytes have minimum widths (300px) and (290px). Thin handles mark the boundaries. Each pane manages its own scrolling.
+On desktop, three horizontally resizable panes divide the workspace: explorer (20%), inspector (43%), and original bytes (37%). The explorer ranges from 180px to 35% wide. The inspector is at least 300px wide; original bytes is at least 290px wide. Thin handles separate the panes, which scroll independently.
 
-At widths up to (900px), Explorer, Inspector, and Bytes become pane-switch buttons showing one pane at a time. Search wraps to the toolbar's full width, header spacing tightens, and secondary status details reduce. At widths up to (480px), header decorations and the secondary status group hide, while inspector padding reduces to the mobile content spacing. Hex further tightens columns at (400px).
+At 900px and below, Explorer, Inspector, and Bytes buttons switch between panes. Search takes the toolbar's full width, header spacing tightens, and fewer secondary status details appear. At 480px and below, header decorations and the secondary status group disappear, and the inspector uses the mobile content padding. Hex columns tighten further at 400px.
 
 The empty workspace centers an introduction and action vertically above a sample list with maximum width (435px). Its headline and top padding are responsive. Loaded inspector content uses the recorded inspector-content inset; pane headings and hex controls use the pane-heading inset. PDF dictionaries align keys and values in a two-column grid with a minimum key track (90px), proportion (32%), and gap (12px).
 
-## Elevation & Depth
+## Elevation and depth
 
-The workspace is flat: backgrounds, subtle tonal changes, and single-pixel dividers establish hierarchy. Pane containers are not elevated cards. Selected object rows add an inset border. Hex hover uses an inset border shadow. A rendered PDF page uses the shared small shadow against a muted canvas; shared default tabs also provide a small active shadow, while the implemented inspector uses the flat line variant.
+The workspace is flat: backgrounds, subtle tonal changes, and single-pixel dividers establish hierarchy. Pane containers have no card elevation. Selected object rows add an inset border. Hex hover uses an inset border shadow. A rendered PDF page uses the shared small shadow against a muted canvas; shared default tabs also provide a small active shadow, while the implemented inspector uses the flat line variant.
 
-Keyboard focus uses visible ring or outline treatments. General interactive elements have a ring-colored outline (2px) and offset (2px); shared controls also provide their shadcn ring treatment. These are state indicators rather than ambient elevation.
+Keyboard focus uses visible ring or outline treatments. General interactive elements have a ring-colored outline (2px) and offset (2px); shared controls also provide their shadcn ring treatment. These treatments indicate interaction state.
 
 ## Shapes
 
-Workspace panes have square shared boundaries. Compact data controls use small corners: byte cells, badges, navigation rows, fields, and shared buttons follow the extracted radius roles. The root shadcn radius is (0.625rem); its small, medium, and large steps are recorded above. Small and extra-small buttons use the medium radius; default buttons use the large radius. Object-kind and pane-count badges are deliberately compact with the compact radius instead of the library's default pill shape.
+Workspace panes have square shared boundaries. Compact data controls use small corners: byte cells, badges, navigation rows, fields, and shared buttons follow the extracted radius roles. The root shadcn radius is (0.625rem); its small, medium, and large steps are recorded above. Small and extra-small buttons use the medium radius; default buttons use the large radius. Object-kind and pane-count badges use the compact radius, replacing the library's default pill shape.
 
 ## Components
 
 ### Buttons
 
-Restrained shadcn controls implemented with Base UI. The default variant is dark neutral; outline, secondary, and ghost variants support navigation and secondary actions. Default height is recorded above; extra-small, small, and large sizes are (24px), (28px), and (36px). Icon sizes follow the same height scale. Open PDF in the header uses the small size; the empty-state action has a local height override (37px).
+Buttons use shadcn controls implemented with Base UI. The default variant is dark neutral; outline, secondary, and ghost variants support navigation and secondary actions. Default height is recorded above; extra-small, small, and large sizes are (24px), (28px), and (36px). Icon sizes follow the same height scale. Open PDF in the header uses the small size; the empty-state action has a local height override (37px).
 
 Primary hover reduces the background opacity to (80%). Outline and ghost hover use muted surfaces; secondary hover mixes a small amount of foreground into its background. Keyboard focus uses the ring token. Active non-popup buttons move down (1px); disabled controls reduce opacity to (50%) and stop pointer interaction. Destructive and link variants exist in the shared library but do not establish additional workspace actions.
 
-### Inputs / Fields
+### Inputs and fields
 
 The shared Base UI input provides a bordered, rounded field with placeholder-muted text, focus ring, and invalid/disabled states. The workspace search composes it into a bordered search group, locally removing the inner border, radius, and shadow. Search text is (11px); the adjacent scope select is (10px). The offset jump field uses a compact monospace input, the row radius, and an explicit focus outline.
 
 ### Navigation
 
-Explorer rows sit on the near-white sidebar. Default labels are muted; hover and active states use the soft-gray accent surface and foreground text. Active rows gain medium weight. Object rows use the same tonal selection language plus an inset border, remain (42px) tall, and truncate secondary labels. Mobile pane buttons use secondary for the current pane and ghost for others.
+Explorer rows sit on the near-white sidebar. Default labels are muted; hover and active states use the soft-gray accent surface and foreground text. Active rows gain medium weight. Object rows use the same selection colors with an inset border. They are 42px tall and truncate secondary labels. Mobile pane buttons use secondary for the current pane and ghost for others.
 
 ### Tabs
 
@@ -234,7 +234,7 @@ Base UI tabs organize Properties, Source, Raw stream, and Decoded. The inspector
 
 ### Badges
 
-Object-kind badges use the secondary variant; count and stream metadata badges use outline. Inspector badges have compact corners and (10px) text; stream metadata can reduce to (9px). They identify data rather than behaving as primary actions.
+Object-kind badges use the secondary variant; count and stream metadata badges use outline. Inspector badges have compact corners and (10px) text; stream metadata can reduce to (9px). They label data and are not primary actions.
 
 ### PDF values and references
 
@@ -242,7 +242,7 @@ Dictionary entries use thin row dividers, muted monospace keys, and wrapping val
 
 ### Original-byte grid
 
-Offsets, hex cells, and ASCII align in fixed-width columns. Hex cells are (23px) wide and ASCII positions (8px); narrow layouts reduce them to (22px) and (7px). Zero bytes and offsets are muted. Hover adds an inset border; the byte cursor has a ring outline. Selected bytes and corresponding ASCII use the dark primary background and near-white foreground. Content can scroll horizontally rather than collapsing byte alignment.
+Offsets, hex cells, and ASCII align in fixed-width columns. Hex cells are (23px) wide and ASCII positions (8px); narrow layouts reduce them to (22px) and (7px). Zero bytes and offsets are muted. Hover adds an inset border; the byte cursor has a ring outline. Selected bytes and corresponding ASCII use the dark primary background and near-white foreground. Horizontal scrolling preserves byte alignment.
 
 ### Notices, samples, and preview
 
@@ -250,19 +250,19 @@ Notices and warnings use neutral surfaces, small explanatory type, icons, and bo
 
 The application honors reduced-motion preferences by shortening transitions and animations; the preview loading icon also disables spinning under reduced motion.
 
-## Do's and Don'ts
+## Usage rules
 
-### Do:
+### Recommended
 
-- Do use the existing semantic neutral tokens and shadcn Base UI controls.
-- Do use monospace for object syntax, offsets, bytes, and references.
-- Do preserve the blue reference affordance and visible keyboard focus.
-- Do keep pane content independently scrollable and use the existing mobile pane switcher.
-- Do distinguish original file bytes from decoded data and rendered preview.
+- Use the existing semantic neutral tokens and shadcn Base UI controls.
+- Use monospace for object syntax, offsets, bytes, and references.
+- Preserve the blue reference affordance and visible keyboard focus.
+- Keep pane content independently scrollable and use the existing mobile pane switcher.
+- Distinguish original file bytes from decoded data and rendered preview.
 
-### Don't:
+### Restrictions
 
-- Don't introduce a new brand theme or decorative typeface without a user request.
-- Don't replace the workspace panes with a dashboard of cards.
-- Don't use reference blue as a general decorative surface or byte selection color.
-- Don't remove focus indicators or force desktop panes side by side on mobile.
+- Do not introduce a new brand theme or decorative typeface without a user request.
+- Do not replace the workspace panes with a dashboard of cards.
+- Do not use reference blue as a general decorative surface or byte selection color.
+- Do not remove focus indicators or force desktop panes side by side on mobile.

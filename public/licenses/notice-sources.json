@@ -1,6 +1,6 @@
 {
   "recordedAt": "2026-11-12",
-  "status": "draft-native-notice-gap",
+  "status": "prepared-source-matched-notices",
   "scope": "Installed production runtime graph, excluding @tailwindcss/vite build integration; optional native targets excluded; WASM target included",
   "packages": [
     {
@@ -563,5 +563,28 @@
     "version": "4.23.0",
     "source": "public/licenses/shadcn.txt",
     "sha256": "1564074e13439397221ffd522e2e504d56561994a23d371aa5e3ad43e4f5423f"
+  },
+  "nativeRuntime": {
+    "status": "verified-source-superset",
+    "provenanceFile": "public/licenses/embedpdf-runtime-provenance.json",
+    "notices": [
+      {
+        "file": "public/licenses/embedpdf-runtime-pdfium-license.txt",
+        "source": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/LICENSE",
+        "sha256": "1fe9dea718fbd75cf149adaf4d8a22a4335604d964ddb76d1b45383dec8668c9"
+      },
+      {
+        "file": "public/licenses/embedpdf-runtime-NOTICE.txt",
+        "source": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/NOTICE",
+        "sha256": "1d03c44d3af36ccffe2586e0bb0f8471223b71ce2e38069725d1da7859fc5b5d"
+      },
+      {
+        "file": "public/licenses/embedpdf-NOTICE.txt",
+        "source": "https://github.com/embedpdf/embed-pdf-viewer/blob/37273d7d149f893255344f0f8e9ff7b2dfbc8057/NOTICE",
+        "sha256": "6c08af23e1951b7058957cafd600a21d9d50a020c600c3276df69ba0b89631cf"
+      }
+    ],
+    "manifest": "public/licenses/native-notice-manifest.json",
+    "bundle": "public/licenses/embedpdf-native-notices.txt"
   }
 }

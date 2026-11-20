@@ -1,53 +1,50 @@
-# Hosting options
+# Cloudflare Pages hosting
 
-Prepared 2026-11-12. The user requested options; no provider has been selected and nothing has been deployed.
+Updated 2026-11-12. Public app: **https://pdf-internals-viewer.pages.dev**.
 
-## Recommendation
+## Project and account separation
 
-For a first public preview, Netlify is the simplest fit in my assessment: its documented Vite integration uses the existing build command and `dist` output, without adding an application backend or changing the SPA framework. Cloudflare Workers Static Assets is also a good option for an assets-only deployment. GitHub Pages fits a repository-centered public project but needs explicit base-path/deployment workflow work.
+The app has its own Cloudflare Pages project, `pdf-internals-viewer`, with a project-specific `pages.dev` hostname. It uses the existing Cloudflare account but no account-wide Workers hostname. Other projects and the shared account namespace were not modified.
 
-| Provider | How this app fits | Additional setup |
-| --- | --- | --- |
-| Netlify | Existing Vite static build; documented automatic detection of build command and publish directory | Connect repository, select Node/build settings, preview branch/domain, then verify WASM/workers/headers |
-| Cloudflare Workers Static Assets | Serve the built `dist` directory as static assets; no PDF processing on the server | Assets-only Wrangler configuration, deployment project/account and domain; no need to adopt a backend template |
-| GitHub Pages | Build the SPA in GitHub Actions and publish its artifact | Pages workflow/permissions and the Vite base path, especially for a repository subdirectory |
+## Build and publish
 
-Provider plans, quotas, account eligibility, custom-domain setup and current pricing should be confirmed when choosing the deployment. This comparison makes no zero-cost guarantee.
+Node.js 22.18+, pinned pnpm 10.33.4, and pinned Wrangler 4.160.1 are required. Install hooks must run: they generate the parser and apply the exact-hash preview validation backport.
 
-## Common build contract
+```sh
+pnpm install --frozen-lockfile
+pnpm run deploy:check
+pnpm run deploy
+```
 
-- Node 22.18 or later, consistent with package metadata.
-- Use Node.js 22.18+ and pnpm 10.33.4, with `pnpm install --frozen-lockfile` followed by `pnpm run build`. `packageManager` and `pnpm-lock.yaml` define the build contract. Preparation hooks must remain enabled.
-- Install lifecycle scripts must run: they prepare the parser and apply the version/hash-checked preview validation patch. An install with scripts disabled followed by a raw Vite build is not the tested release pipeline.
-- Publish only `dist/`. Do not publish `.context`, corpus downloads, `node_modules`, source research artifacts, or the Vite development/preview server.
-- User PDFs remain local. The host serves application assets, WASM, fonts, notices, and original samples; it needs no document upload endpoint, database, or PDF service.
+`wrangler.jsonc` declares `pages_build_output_dir: "./dist"`. `deploy:check` builds, checks the preview modification notices and exact native WASM/notice inventory, then validates the static Pages upload. The upload checker requires `index.html` and `404.html`, rejects symlinks/hidden files/server-side entry points, and checks Pages' 20,000-file/25-MiB-per-file limits. It does not publish or need credentials.
 
-## Asset and route checks
+`deploy` publishes `dist/` to the existing Pages project with `--branch main`, its production branch. The app currently uses **Direct Upload**, not Git integration. Publishing is manual; a local checkout can publish without merging a branch. A Direct Upload project cannot later be switched to Git integration in place; future automatic publishing can instead use a CI upload or a newly created Git-integrated Pages project.
 
-The PDFium WASM is about 7.9 MB uncompressed. The normal JavaScript worker, inline worker, embedded source fallback, parser worker and fonts are emitted by Vite and must resolve from the same deployment. Confirm the chosen provider's current individual-asset limit before publishing.
+Check/login using `pnpm exec wrangler whoami` / `pnpm exec wrangler login`. If more than one account is available, set `CLOUDFLARE_ACCOUNT_ID` to the intended account. Never commit tokens or local credentials. To inspect deployments:
 
-Serve `.wasm` as `application/wasm` and JavaScript worker files with an appropriate JavaScript MIME type. Missing asset URLs must not silently receive the SPA HTML shell. Check hashed-asset caching separately from HTML freshness. Any CSP added later must be tested with the worker/WASM/Blob URL paths actually used by EmbedPDF rather than copied from a generic website template.
+```sh
+pnpm exec wrangler pages deployment list --project-name pdf-internals-viewer
+```
 
-The app currently uses one entry URL, so it does not require arbitrary client-route rewrites. A provider's optional SPA fallback should be configured deliberately, preserving asset errors.
+Wrangler in this environment automatically delegates creation of new Pages projects back to Workers. Initial setup explicitly used `wrangler pages project create pdf-internals-viewer --production-branch main --force` to create Pages directly. Here `--force` opts out of that delegation; it did not overwrite an existing project. Normal subsequent uploads use the existing project and do not need this flag.
 
-For GitHub project Pages at `https://<owner>.github.io/<repo>/`, use `base: '/<repo>/'` in the build; a root/custom-domain deployment uses `/`. For example, the existing build script can receive `--base=/pdf-internals-viewer/`. Verify sample fetches, font URLs, worker/WASM URLs, and credits links under that prefix.
+## Serving behavior
 
-## Preview acceptance before public launch
+Only `dist/` is uploaded. No document upload endpoint, database, server-side functions or Worker script is used. User PDFs remain local to the visitor's browser.
 
-1. Close the dependency-resolution review findings and repeat the canonical clean-install checks.
-2. Complete third-party notices, especially the exact PDFium/WASM native dependency bundle. Original project code uses the Apache License 2.0; that does not replace dependency notices.
-3. Deploy a reviewable preview on the chosen account/provider. Choose the project/domain explicitly before publishing it as the public site.
-4. Test a locally selected PDF and original samples: objects, references, raw/decoded streams, original bytes, preview rendering, file replacement and keyboard focus.
-5. Check the network: no document content uploaded, no unexpected external document requests, no failed worker/WASM/font loads, and notice/license files accessible.
-6. Run the production browser suite against the preview URL and smoke-test the Safari application itself.
-7. Publish the agreed domain only after the preview's remaining issues are resolved.
+`public/404.html` deliberately disables Pages' default SPA fallback: nonexistent workers/WASM/private-source paths return 404 instead of receiving HTML. The app has one entry URL and does not need client-route fallback rewrites. `public/_headers` sets HTML revalidation, immutable caching for hashed assets, `nosniff` and referrer policy. JavaScript workers, WASM, fonts, samples and notices are all served from this app's own origin. A custom domain is optional.
 
-## Primary sources
+## Verification
 
-Checked 2026-11-12:
+- Build, native/preview notice checks, Pages upload validation, lint and type checking passed.
+- `PLAYWRIGHT_CLOUDFLARE=1 pnpm run test:e2e --browser=all` starts/stops `wrangler pages dev dist` and passed **27/27** in 29.9 seconds. CI uses the same Pages mode and performs upload validation without credentials.
+- `PLAYWRIGHT_BASE_URL=https://pdf-internals-viewer.pages.dev pnpm run test:e2e --browser=all` passed **27/27** in 36.7 seconds: 9 each in Chromium, Firefox and WebKit. Tests include file upload/replacement and preview rendering with no external requests, document uploads or runtime errors in that tested flow.
+- Hosted HTML matches the built HTML. All 64 native notice/evidence files, native bundle, combined notice inclusion and exact WASM hash passed HTTPS verification. JS/parser/preview workers, fonts and WASM have the expected MIME types and immutable caching. HTML revalidates. Missing assets/private-source paths return 404.
 
-- [Netlify: Vite setup](https://docs.netlify.com/build/frameworks/framework-setup-guides/vite/) documents `npm run build` and `dist` detection.
-- [Cloudflare: Static Assets](https://developers.cloudflare.com/workers/static-assets/) documents directory-based static publishing and asset-first routing.
-- [Cloudflare Pages framework guide](https://developers.cloudflare.com/pages/framework-guides/) currently recommends Workers for new Cloudflare projects; do not assume an older Pages tutorial is the current preferred path.
-- [Cloudflare Workers limits](https://developers.cloudflare.com/workers/platform/limits/) is the reference to check for the selected asset/deployment limits.
-- [Vite static deployment guide](https://vite.dev/guide/static-deploy.html) documents project/root base paths and GitHub Pages deployment. It also states that `vite preview` is a local preview server, not a production server.
+Actual Safari application testing remains separate; WebKit automation is not that test. The native source inventory's scope and maintenance checks are in [NOTICES.md](NOTICES.md).
+
+## Sources
+
+- [Cloudflare Pages Direct Upload](https://developers.cloudflare.com/pages/get-started/direct-upload/)
+- [Pages configuration](https://developers.cloudflare.com/pages/functions/wrangler-configuration/)
+- [Pages serving and 404 behavior](https://developers.cloudflare.com/pages/configuration/serving-pages/)
