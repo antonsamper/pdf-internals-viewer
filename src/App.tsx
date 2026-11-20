@@ -78,6 +78,7 @@ import {
 } from "@/lib/pdf/exploration-trail"
 import { PdfWorkerClient } from "@/lib/pdf/client"
 import { effectiveResources, hasSubtype } from "@/lib/pdf/navigation"
+import { pageRotationSummary } from "@/lib/pdf/page-rotation"
 import type {
   ByteRange,
   PdfDocumentInfo,
@@ -848,6 +849,14 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
     </aside>
   )
 
+  const pageRotation = useMemo(
+    () =>
+      document?.locked
+        ? "Locked"
+        : pageRotationSummary(document?.pages ?? [], objectMap),
+    [document, objectMap]
+  )
+
   const overview = (
     <div className="overview inspector-scroll">
       <div className="overview-heading">
@@ -876,6 +885,10 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
             <div>
               <dt>Pages</dt>
               <dd>{document.locked ? "Locked" : document.pages.length}</dd>
+            </div>
+            <div>
+              <dt>Page rotation</dt>
+              <dd>{pageRotation}</dd>
             </div>
             <div>
               <dt>Indirect objects</dt>
