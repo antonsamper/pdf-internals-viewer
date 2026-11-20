@@ -12,6 +12,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   BookmarkPlus,
+  BookOpen,
   Pin,
   Binary,
   Braces,
@@ -53,6 +54,13 @@ import {
   SessionBookmarks,
   type SessionBookmark,
 } from "@/components/session-bookmarks"
+import { UserGuide } from "@/components/user-guide"
+import {
+  documentBookmarkKey,
+  readBookmarks,
+  writeBookmarks,
+  type BookmarkSelection,
+} from "@/lib/pdf/bookmark-storage"
 import { ObjectComparison } from "@/components/object-comparison"
 import { PageTree, type PageTreeState } from "@/components/page-tree"
 import { ResourceBrowser } from "@/components/resource-browser"
@@ -101,14 +109,7 @@ const SAMPLES = [
     icon: Braces,
   },
 ]
-type Selection = {
-  id: string | null
-  tab: InspectorTab
-  section: Section
-  range?: ByteRange
-  notice?: string
-  trail?: ExplorationStep[]
-}
+type Selection = BookmarkSelection
 type Section =
   "overview" | "catalog" | "pages" | "resources" | "objects" | "structure"
 type SearchResult = {
@@ -139,6 +140,8 @@ function useNarrow() {
 
 export default function App() {
   const { about, goHome, followLink } = useSiteRoute()
+  const [guideOpen, setGuideOpen] = useState(false)
+  const guideOpener = useRef<HTMLElement | null>(null)
   const [limitationsOpen, setLimitationsOpen] = useState(false)
   const limitationsOpener = useRef<HTMLElement | null>(null)
   const input = useRef<HTMLInputElement>(null)
@@ -158,7 +161,11 @@ export default function App() {
   ])
   const [historyIndex, setHistoryIndex] = useState(0)
   const [bookmarks, setBookmarks] = useState<SessionBookmark<Selection>[]>([])
-  const bookmarkKey = useRef(0)
+  const activeBookmarkStorageKey = useRef<string | null>(null)
+  const [bookmarkStorageKey, setBookmarkStorageKey] = useState<string | null>(
+    null
+  )
+  const [bookmarksSaved, setBookmarksSaved] = useState(true)
   const [pinnedId, setPinnedId] = useState<string | null>(null)
   const [unlocking, setUnlocking] = useState(false)
   const [unlockError, setUnlockError] = useState<string | null>(null)
@@ -223,15 +230,53 @@ export default function App() {
     visit({ id, tab: "properties", section, trail })
     setMobilePane("inspector")
   }
+  function updateBookmarks(
+    mutate: (
+      current: SessionBookmark<Selection>[]
+    ) => SessionBookmark<Selection>[]
+  ) {
+    const key = bookmarkStorageKey
+    const apply = () => {
+      if (activeBookmarkStorageKey.current !== key) return
+      let current = bookmarks
+      if (key && bookmarksSaved) {
+        try {
+          current = readBookmarks(key)
+        } catch {
+          /* Retain this tab's bookmarks if storage is blocked. */
+        }
+      }
+      const next = mutate(current)
+      setBookmarks(next)
+      setBookmarksSaved(key ? writeBookmarks(key, next) : false)
+    }
+    // Serialize edits across tabs, reading the latest snapshot inside the lock.
+    if (key && navigator.locks) void navigator.locks.request(key, apply)
+    else apply()
+  }
+  useEffect(() => {
+    if (!bookmarkStorageKey) return
+    const sync = (event: StorageEvent) => {
+      if (event.key !== bookmarkStorageKey && event.key !== null) return
+      try {
+        setBookmarks(readBookmarks(bookmarkStorageKey))
+        setBookmarksSaved(true)
+      } catch {
+        setBookmarksSaved(false)
+      }
+    }
+    window.addEventListener("storage", sync)
+    return () => window.removeEventListener("storage", sync)
+  }, [bookmarkStorageKey])
   function addBookmark() {
     if (!selection.id && !selection.range) return
     const rangeLabel = selection.range
       ? `Bytes 0x${selection.range.start.toString(16).toUpperCase()}–0x${(selection.range.end - 1).toString(16).toUpperCase()}`
       : ""
     const label = rangeLabel || `${selection.id} obj · ${selection.tab}`
-    setBookmarks((current) =>
+    updateBookmarks((current) =>
       current.concat({
-        key: ++bookmarkKey.current,
+        key: current.reduce((max, item) => Math.max(max, item.key), 0) + 1,
         label,
         selection: { ...selection },
         note: "",
@@ -322,6 +367,9 @@ export default function App() {
     setObjectScroll(0)
     setPreviewPage(1)
     setPageTreeState(emptyPageTree())
+    activeBookmarkStorageKey.current = null
+    setBookmarkStorageKey(null)
+    setBookmarksSaved(true)
     setBookmarks([])
     setPinnedId(null)
   }, [])
@@ -366,6 +414,17 @@ export default function App() {
       const original = new Uint8Array(await file.arrayBuffer())
       if (token !== requestId.current) return
       setBytes(original)
+      try {
+        const key = await documentBookmarkKey(original)
+        if (token !== requestId.current) return
+        const saved = readBookmarks(key)
+        activeBookmarkStorageKey.current = key
+        setBookmarks(saved)
+        setBookmarkStorageKey(key)
+      } catch {
+        if (token !== requestId.current) return
+        setBookmarksSaved(false)
+      }
       const worker = new PdfWorkerClient()
       client.current = worker
       const parsed = await worker.open(original, file.name)
@@ -694,19 +753,20 @@ export default function App() {
       )}
       <SessionBookmarks
         bookmarks={bookmarks}
+        saved={bookmarksSaved}
         onVisit={(saved) => {
           visit(saved)
           setMobilePane(saved.range ? "bytes" : "inspector")
         }}
         onNote={(key, note) =>
-          setBookmarks((current) =>
+          updateBookmarks((current) =>
             current.map((bookmark) =>
               bookmark.key === key ? { ...bookmark, note } : bookmark
             )
           )
         }
         onRemove={(key) =>
-          setBookmarks((current) =>
+          updateBookmarks((current) =>
             current.filter((bookmark) => bookmark.key !== key)
           )
         }
@@ -800,7 +860,11 @@ export default function App() {
                         autoComplete="off"
                         disabled={unlocking}
                         aria-invalid={Boolean(unlockError)}
-                        aria-describedby={unlockError ? "pdf-password-help pdf-password-error" : "pdf-password-help"}
+                        aria-describedby={
+                          unlockError
+                            ? "pdf-password-help pdf-password-error"
+                            : "pdf-password-help"
+                        }
                       />
                     </div>
                     <Button type="submit" disabled={unlocking}>
@@ -936,6 +1000,30 @@ export default function App() {
     </div>
   )
 
+  const objectInspector = selected ? (
+    <ObjectInspector
+      object={selected}
+      tab={selection.tab}
+      resources={
+        selected.kind === "Page"
+          ? effectiveResources(selected, objectMap)
+          : undefined
+      }
+      onTabChange={(tab) => navigate(selected.id, tab)}
+      onNavigate={followReference}
+      onInspect={(id) => navigate(id)}
+      objects={objectMap}
+      pages={document?.pages}
+      contextPageId={
+        [...(selection.trail ?? [])]
+          .reverse()
+          .find((step) => step.id !== null && document?.pages.includes(step.id))
+          ?.id ?? undefined
+      }
+      readStream={readStream}
+    />
+  ) : null
+
   const inspector = (
     <main
       className="main-inspector"
@@ -1034,38 +1122,30 @@ export default function App() {
           />
         </Suspense>
       ) : selected ? (
-        <div className="inspection-detail-stack min-h-0 flex-1 overflow-auto">
-          {pinnedId && objectMap.has(pinnedId) && (
-            <ObjectComparison
-              pinned={objectMap.get(pinnedId)!}
-              current={selected}
-              onUnpin={() => setPinnedId(null)}
-              onNavigate={(id) => navigate(id)}
-            />
+        <div className="inspection-detail-stack min-h-0 flex-1">
+          {pinnedId && objectMap.has(pinnedId) ? (
+            <ResizablePanelGroup orientation="vertical">
+              <ResizablePanel defaultSize="40%" minSize="20%">
+                <ObjectComparison
+                  pinned={objectMap.get(pinnedId)!}
+                  current={selected}
+                  onUnpin={() => setPinnedId(null)}
+                  onNavigate={(id) => navigate(id)}
+                />
+              </ResizablePanel>
+              <ResizableHandle
+                withHandle
+                className="comparison-divider"
+                aria-label="Resize comparison and inspector"
+                title="Drag to resize · use arrow keys when focused"
+              />
+              <ResizablePanel defaultSize="60%" minSize="25%">
+                {objectInspector}
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          ) : (
+            objectInspector
           )}
-          <ObjectInspector
-            object={selected}
-            tab={selection.tab}
-            resources={
-              selected.kind === "Page"
-                ? effectiveResources(selected, objectMap)
-                : undefined
-            }
-            onTabChange={(tab) => navigate(selected.id, tab)}
-            onNavigate={followReference}
-            onInspect={(id) => navigate(id)}
-            objects={objectMap}
-            pages={document?.pages}
-            contextPageId={
-              [...(selection.trail ?? [])]
-                .reverse()
-                .find(
-                  (step) =>
-                    step.id !== null && document?.pages.includes(step.id)
-                )?.id ?? undefined
-            }
-            readStream={readStream}
-          />
         </div>
       ) : section === "resources" && document ? (
         <ResourceBrowser
@@ -1142,6 +1222,17 @@ export default function App() {
             )}
           </div>
           <div className="header-actions">
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-haspopup="dialog"
+              onClick={(event) => {
+                guideOpener.current = event.currentTarget
+                setGuideOpen(true)
+              }}
+            >
+              <BookOpen size={15} /> User guide
+            </Button>
             {filename && (
               <Button
                 variant="ghost"
@@ -1520,6 +1611,11 @@ export default function App() {
               : "No file open"}
           </span>
         </footer>
+        <UserGuide
+          open={guideOpen}
+          onOpenChange={setGuideOpen}
+          returnFocusRef={guideOpener}
+        />
         <LimitationsDialog
           returnFocusRef={limitationsOpener}
           open={limitationsOpen}
