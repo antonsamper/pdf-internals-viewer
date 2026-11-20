@@ -1,62 +1,25 @@
 # Cloudflare Pages hosting
 
-Updated 2026-11-12. Public app: **https://pdf-internals-viewer.pages.dev**.
+PDF Internals Viewer is a static site hosted on Cloudflare Pages at https://pdf-internals-viewer.pages.dev, in the Pages project `pdf-internals-viewer`. Everything runs in the visitor's browser: there is no backend, database or server-side code, and PDFs are never uploaded.
 
-## Project and account separation
+## Deployment
 
-The app has its own Cloudflare Pages project, `pdf-internals-viewer`, with a project-specific `pages.dev` hostname. It uses the existing Cloudflare account but no account-wide Workers hostname. Other projects and the shared account namespace were not modified.
+Production deploys only from the `deploy` job in `.github/workflows/ci.yml`, after a merge to `main` and once the `secrets`, `check` and `browsers` jobs pass. Pull requests never deploy. Never deploy manually, and never use `wrangler deploy`, which targets Workers rather than Pages.
 
-## Build and publish
+The job builds the site in GitHub Actions and uploads `dist/` with Cloudflare's Direct Upload, so the files that ship come from the same pinned, hash-checked build that CI tested. Cloudflare's alternative, Git integration, would rebuild every push in Cloudflare's own environment, needs Cloudflare's GitHub app on the repository and by default publishes a public preview of every branch. The project has no preview deployments. A Direct Upload project cannot be switched to Git integration in place.
 
-Node.js 22.18+, pinned pnpm 10.33.4, and pinned Wrangler 4.160.1 are required. Installation hooks must run: they generate the parser and apply the preview validation patch after checking exact file hashes.
+The job needs two repository Actions secrets: `CLOUDFLARE_API_TOKEN`, an API token with the Account / Cloudflare Pages / Edit permission scoped to the hosting account, and `CLOUDFLARE_ACCOUNT_ID`. Pull request runs never receive them.
 
-```sh
-pnpm install --frozen-lockfile
-pnpm run deploy:check
-```
+Rerunning an old `main` workflow run publishes that old commit again, so retry from the latest run.
 
-`wrangler.jsonc` declares `pages_build_output_dir: "./dist"`. `deploy:check` builds, checks the preview modification notices and exact native WASM/notice inventory, then validates the static Pages upload. The upload checker requires `index.html` and `404.html`, rejects symlinks/hidden files/server-side entry points, and checks Pages' 20,000-file/25-MiB-per-file limits. It does not publish or need credentials.
+## Checking locally
 
-The CI `deploy` job publishes `dist/` to the existing Pages project with `--branch main`, its production branch. The app uses **Direct Upload**, not Cloudflare Git integration. GitHub Actions automates the upload as described below. A Direct Upload project cannot later be switched to Cloudflare Git integration in place.
-
-## Automatic deployment from main
-
-The `deploy` job in `.github/workflows/ci.yml` publishes production after a push to `main`, including a merged pull request. It waits for the full secret-history scan, type checking, lint, unit tests, build/upload validation, and Chromium, Firefox and WebKit tests to pass. Pull requests and other branches run checks but do not deploy. Runs are serialised per event/branch to prevent overlapping production uploads; GitHub may replace a pending run with the latest push. Rerunning an old main workflow can republish that old commit, so use the latest main run for routine deployment retries.
-
-One-time setup is required in [repository Settings → Secrets and variables → Actions](https://github.com/antonsamper/pdf-internals-viewer/settings/secrets/actions):
-
-- `CLOUDFLARE_API_TOKEN`: create a custom token with **Account → Cloudflare Pages → Edit**, restricted to the account hosting `pdf-internals-viewer`.
-- `CLOUDFLARE_ACCOUNT_ID`: the ID of that Cloudflare account, available in its dashboard.
-
-Keep both values outside Git and chat. See [Cloudflare's CI upload instructions](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/) for credential setup. Deployment fails with an explicit setup error if either secret is missing. Credentials are supplied only to the credential check and publishing steps in the main-only deploy job.
-
-Once these secrets exist and this workflow is merged to `main`, the merge itself triggers the first automatic deployment. Check the **Checks → Deploy production** job in the repository's Actions tab for its result. After publication, the job checks that the production homepage returns a successful HTTP response; this is an availability check, not a complete live browser or asset verification. If publishing fails, fix the cause and rerun the failed jobs in that workflow run. The last successful deployment continues to serve until another upload succeeds.
-
-Check/login using `pnpm exec wrangler whoami` / `pnpm exec wrangler login`. If more than one account is available, set `CLOUDFLARE_ACCOUNT_ID` to the intended account. Never commit tokens or local credentials. To inspect deployments:
+After `pnpm run build`:
 
 ```sh
-pnpm exec wrangler pages deployment list --project-name pdf-internals-viewer
+# Serve dist/ with the local Pages runtime on http://127.0.0.1:8787
+pnpm run preview:cloudflare
+
+# Run the browser suite against a fresh local Pages server, as CI does
+PLAYWRIGHT_CLOUDFLARE=1 pnpm run test:e2e --browser=all
 ```
-
-Wrangler in this environment automatically delegates creation of new Pages projects back to Workers. Initial setup explicitly used `wrangler pages project create pdf-internals-viewer --production-branch main --force` to create Pages directly. Here `--force` opts out of that delegation; it did not overwrite an existing project. Normal subsequent uploads use the existing project and do not need this flag.
-
-## Serving behaviour
-
-Deployment uploads only `dist/`. The site has no document upload endpoint, database, server-side functions or Worker script. User PDFs remain local to the visitor's browser.
-
-`public/404.html` deliberately disables Pages' default SPA fallback: nonexistent workers/WASM/private-source paths return 404 instead of receiving HTML. Vite builds explicit `index.html` and `about.html` entries. Pages serves them at `/` and `/about` without client-route fallback rewrites; direct visits and refreshes work while missing assets still return 404. `public/_headers` sets HTML revalidation, immutable caching for hashed assets, `nosniff` and referrer policy. JavaScript workers, WASM, fonts, samples and notices are all served from this app's own origin. A custom domain is optional.
-
-## Verification
-
-- Build, native/preview notice checks, Pages upload validation, lint and type checking passed.
-- `PLAYWRIGHT_CLOUDFLARE=1 pnpm run test:e2e --browser=all` starts/stops `wrangler pages dev dist` and passed **27/27** in 29.9 seconds. CI uses the same Pages mode and performs upload validation without credentials.
-- `PLAYWRIGHT_BASE_URL=https://pdf-internals-viewer.pages.dev pnpm run test:e2e --browser=all` passed **27/27** in 36.7 seconds: 9 each in Chromium, Firefox and WebKit. Tests include file upload/replacement and preview rendering with no external requests, document uploads or runtime errors in that tested flow.
-- Hosted HTML matches the built HTML. All 64 native notice/evidence files, native bundle, combined notice inclusion and exact WASM hash passed HTTPS verification. JS/parser/preview workers, fonts and WASM have the expected MIME types and immutable caching. HTML revalidates. Missing assets/private-source paths return 404.
-
-Actual Safari application testing remains separate; WebKit automation is not that test. The native source inventory's scope and maintenance checks are in [NOTICES.md](NOTICES.md).
-
-## Sources
-
-- [Cloudflare Pages Direct Upload](https://developers.cloudflare.com/pages/get-started/direct-upload/)
-- [Pages configuration](https://developers.cloudflare.com/pages/functions/wrangler-configuration/)
-- [Pages serving and 404 behaviour](https://developers.cloudflare.com/pages/configuration/serving-pages/)

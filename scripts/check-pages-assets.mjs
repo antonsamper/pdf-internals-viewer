@@ -8,6 +8,7 @@ const dist = resolve('dist')
 assert.equal(resolve(config.pages_build_output_dir), dist, 'Pages must upload only dist/')
 assert.equal(config.assets, undefined, 'Workers assets config must not be used for Pages')
 assert.equal(config.main, undefined, 'No server-side Worker entry point is expected')
+assert.equal(config.observability, undefined, 'Pages does not support Workers observability configuration')
 await readFile(join(dist, 'index.html'))
 await readFile(join(dist, 'about.html')) // Public About route must work without an SPA fallback.
 await readFile(join(dist, '404.html')) // Prevent Pages from silently using an SPA fallback.
