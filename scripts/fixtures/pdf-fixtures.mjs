@@ -155,3 +155,11 @@ export function imageExportPdf({ data, filter = 'FlateDecode', width = 400, heig
   objects.push([6, Buffer.concat([ascii(`<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Length ${encoded.length} /Filter /${filter} ${extra} >>\nstream\n`), encoded, ascii('\nendstream')])]);
   return { ...classicPdf(objects), pixels };
 }
+
+/** Split-word source mapping, with optional compression or an unsupported simple encoding. */
+export function pageTextSearchPdf(compressed = false, customEncoding = false) {
+  const objects = baseObjects();
+  objects[3][1] = stream('BT /F1 24 Tf 72 700 Td [(Hel) -20 (lo)] TJ ( world) Tj ET', '', compressed);
+  if (customEncoding) objects[4][1] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding << /BaseEncoding /WinAnsiEncoding /Differences [32 /space] >> >>';
+  return classicPdf(objects);
+}

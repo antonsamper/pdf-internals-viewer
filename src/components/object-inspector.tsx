@@ -13,7 +13,12 @@ import {
   objectRelationships,
   objectSummary,
 } from "@/lib/pdf/object-context"
-import type { PdfObjectRecord, PdfValue, StreamResult } from "@/lib/pdf/types"
+import type {
+  ByteRange,
+  PdfObjectRecord,
+  PdfValue,
+  StreamResult,
+} from "@/lib/pdf/types"
 
 import {
   useScrollRestoration,
@@ -36,6 +41,7 @@ export function ObjectInspector({
   downloadIndex,
   pages = [],
   contextPageId,
+  textMatchRanges,
   onFollowLink,
 }: {
   object: PdfObjectRecord
@@ -45,6 +51,7 @@ export function ObjectInspector({
   objects?: Map<string, PdfObjectRecord>
   pages?: string[]
   contextPageId?: string
+  textMatchRanges?: ByteRange[]
   onFollowLink?: (event: MouseEvent<HTMLElement>) => boolean
   tab: InspectorTab
   onTabChange: (tab: InspectorTab) => void
@@ -367,6 +374,7 @@ export function ObjectInspector({
                       <ContentStreamView
                         key={object.id}
                         object={object}
+                        textMatchRanges={textMatchRanges}
                         stream={stream}
                         objects={objects}
                         pages={pages}

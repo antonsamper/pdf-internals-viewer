@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 import { resolve } from 'node:path'
 import { mkdir, readFile } from 'node:fs/promises'
 // @ts-expect-error local JavaScript fixture helpers have no declaration file
-import { classicPdf, encryptedPdf, embeddedFilesPdf, imageExportPdf } from '../scripts/fixtures/pdf-fixtures.mjs'
+import { classicPdf, encryptedPdf, embeddedFilesPdf, imageExportPdf, pageTextSearchPdf } from '../scripts/fixtures/pdf-fixtures.mjs'
 
 const samplePath = (name: string) => resolve('public/samples', name)
 // Keep artifacts separate when --browser=all runs engines concurrently.
@@ -13,6 +13,15 @@ async function upload(page: Page, name: string) {
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible()
   await expect(page.locator('.filename')).toContainText(name)
   await expect(page.locator('.status-bar')).toContainText('objects indexed')
+}
+
+async function selectSearchScope(page: Page, value: string) {
+  const labels: Record<string, string> = {
+    objects: 'Objects', keys: 'Keys', pageText: 'Page text',
+    text: 'File text', hex: 'File hex', decoded: 'Decoded streams',
+  }
+  await page.getByRole('combobox', { name: 'Search scope', exact: true }).click()
+  await page.getByRole('option', { name: labels[value], exact: true }).click()
 }
 
 async function openMinimal(page: Page) {
@@ -196,7 +205,7 @@ test('explains parsing failures and retains the reason after dismissing the bann
   await expect(explanation.locator('pre')).toContainText('Could not recover PDF structure: no objects found')
   await page.screenshot({ path: screenshotPath('structure-unavailable.png'), fullPage: true, animations: 'disabled' })
   await explanation.getByRole('button', { name: 'Inspect original bytes', exact: true }).click()
-  await expect(page.locator('.hex-status')).toContainText('1 bytes selected')
+  await expect(page.locator('.hex-status')).toContainText('1 byte selected')
   await upload(page, 'minimal.pdf')
   await expect(explanation).toHaveCount(0)
 })
@@ -310,7 +319,7 @@ test('bookmarks objects and byte ranges with notes and restores them for the sam
   await page.getByRole('button', { name: 'Bookmark', exact: true }).click()
   await page.getByRole('button', { name: '4 0 R', exact: true }).first().click()
   await bookmarks.getByRole('button', { name: /^Bytes 0x0/ }).click()
-  await expect(page.locator('.hex-status')).toContainText('1 bytes selected')
+  await expect(page.locator('.hex-status')).toContainText('1 byte selected')
   await upload(page, 'resources.pdf')
   await expect(bookmarks.getByRole('textbox')).toHaveCount(0)
   await page.reload()
@@ -318,7 +327,7 @@ test('bookmarks objects and byte ranges with notes and restores them for the sam
   await page.getByLabel('Open local PDF').setInputFiles({ name: 'renamed.pdf', mimeType: 'application/pdf', buffer: data })
   await expect(bookmarks.getByRole('textbox', { name: 'Note for 3 0 obj · properties' })).toHaveValue('Check inherited fonts')
   await bookmarks.getByRole('button', { name: /^Bytes 0x0/ }).click()
-  await expect(page.locator('.hex-status')).toContainText('1 bytes selected')
+  await expect(page.locator('.hex-status')).toContainText('1 byte selected')
   await bookmarks.getByRole('button', { name: 'Remove bookmark 3 0 obj · properties' }).click()
   await expect(bookmarks.getByRole('textbox')).toHaveCount(1)
   await page.reload()
@@ -469,18 +478,108 @@ test('distinguishes compressed-object provenance and decodes filtered streams', 
   await expect(page.getByRole('tabpanel', { name: 'Decoded', exact: true })).toContainText('FlateDecode')
 })
 
+for (const width of [1440, 390]) {
+  test(`custom search scope supports keyboard selection and keeps results open at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1000 })
+    await openMinimal(page)
+    const scope = page.getByRole('combobox', { name: 'Search scope', exact: true })
+    const search = page.getByRole('textbox', { name: 'Search document', exact: true })
+    const form = page.locator('.search-form')
+    const empty = (await form.boundingBox())!
+    const submit = (await page.getByRole('button', { name: 'Run search', exact: true }).boundingBox())!
+    expect(empty.x + empty.width - submit.x - submit.width).toBeLessThan(12)
+    await expect(scope).toHaveJSProperty('tagName', 'BUTTON')
+    await scope.press('ArrowDown')
+    await expect(page.getByRole('listbox')).toBeVisible()
+    await page.keyboard.press('End')
+    await page.keyboard.press('Enter')
+    await expect(scope).toContainText('Decoded streams')
+    await expect(page.getByRole('region', { name: 'Search results', exact: true })).toHaveCount(0)
+    await expect(scope).toBeFocused()
+    await scope.press('ArrowDown')
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('listbox')).toHaveCount(0)
+    await expect(scope).toContainText('Decoded streams')
+    await search.fill('Hello')
+    await expect(page.getByRole('button', { name: 'Clear search', exact: true })).toBeVisible()
+    expect((await form.boundingBox())!.height).toBe(empty.height)
+    await page.getByRole('button', { name: 'Clear search', exact: true }).click()
+    await expect(search).toBeFocused()
+    await expect(search).toHaveValue('')
+    await search.fill('Hello')
+    await selectSearchScope(page, 'text')
+    const results = page.getByRole('region', { name: 'Search results', exact: true })
+    await expect(results).toContainText('1 match')
+    await results.locator('.search-result').first().focus()
+    await scope.click()
+    await expect(page.getByRole('listbox')).toBeVisible()
+    await expect(results).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(results).toBeVisible()
+    await selectSearchScope(page, 'pageText')
+    await expect(results).toBeVisible()
+    await expect(search).toHaveValue('Hello')
+    await expect(results).toContainText('1 page')
+    await expect(results.locator('.search-result mark')).toHaveText('Hello')
+  })
+}
+
+for (const width of [1440, 390]) {
+  test(`search selection preserves focus and labels single-page navigation at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1000 })
+    const fixture = pageTextSearchPdf(true)
+    await page.getByLabel('Open local PDF').setInputFiles({ name: 'focus-search.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+    await expect(page.locator('.status-bar')).toContainText('5 objects indexed')
+    await selectSearchScope(page, 'pageText')
+    const query = page.getByRole('textbox', { name: 'Search document', exact: true })
+    await query.fill('Hello')
+    await expect.poll(() => page.locator('.search-form').evaluate(el => getComputedStyle(el).boxShadow)).not.toBe('none')
+    await query.press('Enter')
+    const results = page.getByRole('region', { name: 'Search results', exact: true })
+    const row = results.locator('.search-result')
+    await expect(row).toHaveCount(1)
+    await expect(results.getByRole('group', { name: 'Search result navigation', exact: true })).toContainText('Page 1 of 1')
+    await expect(results.getByRole('button', { name: 'Next search result', exact: true })).toBeDisabled()
+    await expect(results.getByRole('button', { name: 'Previous search result', exact: true })).toBeDisabled()
+    const showResults = page.getByRole('button', { name: 'Show search results', exact: true })
+    await expect(showResults).toContainText('1 page')
+    await query.press('ArrowDown')
+    await expect(row).toBeFocused()
+    await row.press('Enter')
+    await expect(results).toHaveCount(0)
+    await expect(query).toBeFocused()
+    await query.press('Tab')
+    await expect(page.getByRole('combobox', { name: 'Search scope', exact: true })).toBeFocused()
+    await showResults.click()
+    await row.click()
+    await expect(showResults).toBeFocused()
+    await showResults.click()
+    await results.getByRole('button', { name: /Show bytes/ }).click()
+    const bytes = page.getByRole('region', { name: 'Decoded stream bytes', exact: true })
+    await expect(bytes.locator('.hex-viewport')).toBeFocused()
+    await expect(bytes.locator('button.hex-selected')).toHaveCount(5)
+    await expect(bytes.locator('button.hex-selected').first()).toBeInViewport()
+    await showResults.click()
+    const openPreview = results.getByRole('button', { name: 'Open page preview', exact: true })
+    await openPreview.focus()
+    await openPreview.press('Enter')
+    await expect(results).toHaveCount(0)
+    await expect(page.getByRole('img', { name: 'focus-search.pdf, page 1', exact: true })).toBeVisible()
+    await expect(showResults).toBeFocused()
+  })
+}
+
 test('searches keys and original hex bytes with distinct navigation', async ({ page }) => {
   await openMinimal(page)
   const search = page.getByRole('textbox', { name: 'Search document', exact: true })
-  const scope = page.getByRole('combobox', { name: 'Search scope', exact: true })
-  await scope.selectOption('keys')
+  await selectSearchScope(page, 'keys')
   await search.fill('Contents')
   await page.getByRole('button', { name: 'Run search', exact: true }).click()
   const results = page.getByRole('region', { name: 'Search results', exact: true })
   await expect(results).toContainText('1 match')
   await results.getByRole('button', { name: /3 0 obj/ }).click()
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
-  await scope.selectOption('hex')
+  await selectSearchScope(page, 'hex')
   await search.fill('25 50 44 46')
   await page.getByRole('button', { name: 'Run search', exact: true }).click()
   await expect(results).toContainText('1 match')
@@ -504,6 +603,7 @@ test('steps through search results, wraps, and resets for a new search', async (
   await expect(matches.nth(1)).toHaveAttribute('aria-current', 'true')
   await expect(page.getByRole('heading', { name: /2 0\s+obj/ })).toBeVisible()
   await matches.last().click()
+  await page.getByRole('button', { name: 'Show search results', exact: true }).click()
   await results.getByRole('button', { name: 'Next search result', exact: true }).click()
   await expect(matches.first()).toHaveAttribute('aria-current', 'true')
   await results.getByRole('button', { name: 'Previous search result', exact: true }).click()
@@ -512,7 +612,7 @@ test('steps through search results, wraps, and resets for a new search', async (
   await search.press('Enter')
   await expect(results.getByRole('group')).toContainText('0 of 0')
   await expect(results.getByRole('button', { name: 'Next search result', exact: true })).toBeDisabled()
-  await page.getByRole('combobox', { name: 'Search scope', exact: true }).selectOption('text')
+  await selectSearchScope(page, 'text')
   await search.fill('obj')
   await search.press('Enter')
   await expect(results.getByRole('group')).toContainText('1 of 10')
@@ -538,10 +638,10 @@ test('preserves intervening navigation when an asynchronous search finishes', as
   })
   await page.reload()
   await openMinimal(page)
-  await page.getByRole('combobox', { name: 'Search scope', exact: true }).selectOption('decoded')
+  await selectSearchScope(page, 'decoded')
   await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('Hello')
   await page.getByRole('button', { name: 'Run search', exact: true }).click()
-  await expect(page.getByRole('region', { name: 'Search results', exact: true })).toContainText('Searching…')
+  await expect(page.getByRole('region', { name: 'Search results', exact: true })).toContainText('Searching for “Hello”…')
   await page.getByRole('button', { name: 'First page', exact: true }).click()
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
   await page.evaluate(() => window.dispatchEvent(new Event('release-search')))
@@ -617,7 +717,7 @@ test('restores byte-search results and unknown-byte selections', async ({ page }
   await page.getByRole('button', { name: 'First page', exact: true }).click()
   const back = page.getByRole('button', { name: 'Back', exact: true })
   const forward = page.getByRole('button', { name: 'Forward', exact: true })
-  await page.getByRole('combobox', { name: 'Search scope', exact: true }).selectOption('hex')
+  await selectSearchScope(page, 'hex')
   await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('25 50 44 46')
   await page.getByRole('button', { name: 'Run search', exact: true }).click()
   await page.getByRole('region', { name: 'Search results', exact: true }).getByRole('button', { name: /0x0/ }).click()
@@ -628,7 +728,7 @@ test('restores byte-search results and unknown-byte selections', async ({ page }
   await forward.click()
   await expect(page.locator('.hex-status')).toContainText('4 bytes selected')
   await page.getByRole('button', { name: 'Offset 0, byte 25', exact: true }).click()
-  await expect(page.locator('.hex-status')).toContainText('1 bytes selected')
+  await expect(page.locator('.hex-status')).toContainText('1 byte selected')
   await expect(page.getByRole('status').filter({ hasText: 'no known containing object' })).toBeVisible()
   await back.click()
   await expect(page.locator('.hex-status')).toContainText('4 bytes selected')
@@ -1797,4 +1897,629 @@ test('public headers match the workspace height and align the mobile identity ro
       await checkHeader()
     }
   }
+})
+
+
+for (const compressed of [false, true]) {
+  test(`page text search maps split words to ${compressed ? 'decoded' : 'original'} bytes`, async ({ page }) => {
+    const fixture = pageTextSearchPdf(compressed)
+    await page.getByLabel('Open local PDF').setInputFiles({ name: 'split-text.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+    await expect(page.locator('.status-bar')).toContainText('5 objects indexed')
+    await selectSearchScope(page, 'pageText')
+    await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('Hello')
+    await page.getByRole('button', { name: 'Run search', exact: true }).click()
+    const results = page.getByRole('region', { name: 'Search results', exact: true })
+    await expect(results).toContainText('1 page')
+    await expect(results).toContainText('1 text match')
+    await expect(results.getByRole('button', { name: /Show bytes/ })).toHaveCount(1)
+    const hex = page.getByRole('region', { name: compressed ? 'Decoded stream bytes' : 'Original file bytes', exact: true })
+    await expect(hex.locator('button.hex-selected')).toHaveCount(5)
+    await expect(hex.locator('.hex-status')).toContainText('5 bytes selected in 2 ranges')
+    await expect(page.locator('.content-instruction.text-match')).toContainText('TJ')
+    if (compressed) {
+      await page.keyboard.press('Escape')
+      await page.getByRole('button', { name: 'Original bytes', exact: true }).click()
+      await expect(page.locator('.text-source-note')).toContainText('Containing stream only')
+      const original = page.getByRole('region', { name: 'Original file bytes', exact: true })
+      await expect(original.locator('button.hex-selected')).not.toHaveCount(5)
+      await page.getByRole('button', { name: 'Decoded bytes', exact: true }).click()
+      await expect(hex.locator('button.hex-selected')).toHaveCount(5)
+    }
+    await mkdir(resolve('.context'), { recursive: true })
+    await page.screenshot({ path: screenshotPath(`page-text-${compressed ? 'decoded' : 'original'}.png`), fullPage: true, animations: 'disabled' })
+    if (compressed) await page.getByRole('button', { name: 'Show search results', exact: true }).click()
+    await results.getByRole('button', { name: 'Open page preview', exact: true }).click()
+    await expect(page.getByRole('img', { name: 'split-text.pdf, page 1', exact: true })).toBeVisible()
+    const preview = page.getByRole('region', { name: 'Rendered page preview', exact: true })
+    await expect(preview.locator('.pdf-preview-search-highlights polygon')).toHaveCount(1)
+    await expect(preview.getByRole('status')).toHaveText('1 text match on this page for “Hello”')
+    await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('not-present')
+    await page.getByRole('button', { name: 'Run search', exact: true }).click()
+    await expect(results).toContainText('0 pages')
+    await expect(page.locator('.text-source-bytes')).toHaveCount(0)
+    await expect(preview.locator('.pdf-preview-search-highlights')).toHaveCount(0)
+  })
+}
+
+test('preview search highlights follow page rotation, zoom and page navigation', async ({ page }) => {
+  const content = 'BT /F1 12 Tf 72 700 Td (Hello Hello) Tj ET'
+  const other = 'BT /F1 12 Tf 72 700 Td (Other page) Tj ET'
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R 6 0 R] /Count 2 /Resources << /Font << /F1 5 0 R >> >> >>'],
+    [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Rotate 90 /Contents 4 0 R >>'],
+    [4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`],
+    [5, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'],
+    [6, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 7 0 R >>'],
+    [7, `<< /Length ${other.length} >>\nstream\n${other}\nendstream`],
+  ])
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'rotated-search.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await expect(page.locator('.status-bar')).toContainText('7 objects indexed')
+  await selectSearchScope(page, 'pageText')
+  await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('hello')
+  await page.getByRole('button', { name: 'Run search', exact: true }).click()
+  await page.getByRole('button', { name: 'Open page preview', exact: true }).click()
+  const preview = page.getByRole('region', { name: 'Rendered page preview', exact: true })
+  const polygons = preview.locator('.pdf-preview-search-highlights polygon')
+  const image = preview.getByRole('img')
+  await expect(polygons).toHaveCount(2)
+  await expect(polygons.first()).toBeInViewport()
+  await expect(preview.getByRole('status')).toHaveText('2 text matches on this page for “hello”')
+  const relativeHighlight = async () => {
+    const mark = (await polygons.first().boundingBox())!
+    const bounds = (await image.boundingBox())!
+    return { x: (mark.x - bounds.x) / bounds.width, y: (mark.y - bounds.y) / bounds.height, width: mark.width / bounds.width, height: mark.height / bounds.height }
+  }
+  const before = await relativeHighlight()
+  // Rotated text is vertical near the right side of this landscape page.
+  expect(before.x).toBeGreaterThan(0.8)
+  expect(before.y).toBeLessThan(0.2)
+  expect((await polygons.first().boundingBox())!.height).toBeGreaterThan((await polygons.first().boundingBox())!.width)
+  await preview.getByRole('button', { name: 'Zoom in preview', exact: true }).click()
+  await expect(preview.getByText('125%', { exact: true })).toBeVisible()
+  await expect(polygons).toHaveCount(2)
+  const after = await relativeHighlight()
+  for (const key of ['x', 'y', 'width', 'height'] as const) expect(after[key]).toBeCloseTo(before[key], 3)
+  await preview.getByRole('button', { name: 'Next preview page', exact: true }).click()
+  await expect(image).toHaveAttribute('alt', 'rotated-search.pdf, page 2')
+  await expect(polygons).toHaveCount(0)
+  await expect(preview.getByRole('status')).toHaveText('0 text matches on this page for “hello”')
+  await preview.getByRole('button', { name: 'Previous preview page', exact: true }).click()
+  await expect(polygons).toHaveCount(2)
+  await page.getByRole('button', { name: 'Clear search', exact: true }).click()
+  await expect(polygons).toHaveCount(0)
+  await expect(image).toBeVisible()
+  await upload(page, 'minimal.pdf')
+  await page.getByRole('button', { name: 'Page preview', exact: true }).click()
+  await expect(preview.getByRole('img', { name: 'minimal.pdf, page 1', exact: true })).toBeVisible()
+  await expect(polygons).toHaveCount(0)
+})
+
+test('page text search labels unsupported font mappings as candidate streams on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const fixture = pageTextSearchPdf(false, true)
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'custom-font.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await expect(page.locator('.status-bar')).toContainText('5 objects indexed')
+  await selectSearchScope(page, 'pageText')
+  await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('Hello')
+  await page.getByRole('button', { name: 'Run search', exact: true }).click()
+  const results = page.getByRole('region', { name: 'Search results', exact: true })
+  await expect(results).toContainText('1 page')
+  await expect(results.getByRole('button', { name: /Inspect content stream/i })).toHaveCount(1)
+  await expect(page.locator('.text-source-note')).toContainText('Exact text bytes could not be mapped')
+  await expect(results).toContainText('Exact word bytes could not be mapped')
+  const original = page.getByRole('region', { name: 'Original file bytes', exact: true })
+  await expect(original.locator('button.hex-selected').first()).toBeVisible()
+  await expect(page.locator('.text-source-note')).toContainText('not an exact word match')
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Decoded bytes', exact: true }).click()
+  await expect(page.getByRole('region', { name: 'Decoded stream bytes', exact: true }).locator('button.hex-selected')).toHaveCount(0)
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
+  await page.getByRole('button', { name: 'Show search results', exact: true }).click()
+  await results.getByRole('button', { name: 'Open page preview', exact: true }).click()
+  const preview = page.getByRole('region', { name: 'Rendered page preview', exact: true })
+  await expect(preview.locator('.pdf-preview-search-highlights polygon')).toHaveCount(1)
+  await expect(preview.getByRole('status')).toHaveText('1 text match on this page for “Hello”')
+  await page.getByRole('button', { name: 'Clear search', exact: true }).click()
+  await expect(page.locator('.text-source-bytes')).toHaveCount(0)
+  await expect(preview.locator('.pdf-preview-search-highlights')).toHaveCount(0)
+})
+
+test('page text search uses the unlock password and keeps encrypted source bytes distinct', async ({ page }) => {
+  await page.getByLabel('Open local PDF').setInputFiles(resolve('tests/fixtures/encryption/AES-256-password.pdf'))
+  const password = page.getByLabel('PDF password', { exact: true })
+  await password.fill('secret')
+  await password.press('Enter')
+  await expect(password).toHaveCount(0)
+  await selectSearchScope(page, 'pageText')
+  await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('Hello')
+  await page.getByRole('button', { name: 'Run search', exact: true }).click()
+  await expect(page.getByRole('region', { name: 'Search results', exact: true })).toContainText('1 page')
+  await expect(page.getByRole('region', { name: 'Decoded stream bytes', exact: true }).locator('button.hex-selected')).toHaveCount(5)
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Original bytes', exact: true }).click()
+  await expect(page.locator('.text-source-note')).toContainText('Containing stream only')
+})
+
+test('cancels a pending page text search when the document is replaced', async ({ page }) => {
+  await openMinimal(page)
+  let release!: () => void
+  const gate = new Promise<void>(resolve => { release = resolve })
+  await page.route('**/*.wasm*', async route => {
+    await gate
+    await route.continue().catch(() => undefined)
+  })
+  await selectSearchScope(page, 'pageText')
+  await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('Hello')
+  const loading = page.waitForRequest(request => request.url().includes('.wasm'))
+  await page.getByRole('button', { name: 'Run search', exact: true }).click()
+  await loading
+  await page.getByLabel('Open local PDF').setInputFiles(samplePath('minimal.pdf'))
+  await expect(page.locator('.status-bar')).toContainText('5 objects indexed')
+  release()
+  await page.unrouteAll({ behavior: 'wait' })
+  await expect(page.getByRole('region', { name: 'Search results', exact: true })).toHaveCount(0)
+  await expect(page.locator('.text-source-bytes')).toHaveCount(0)
+  await selectSearchScope(page, 'pageText')
+  await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('internals')
+  await page.getByRole('button', { name: 'Run search', exact: true }).click()
+  await expect(page.getByRole('region', { name: 'Search results', exact: true })).toContainText('1 page')
+  await expect(page.getByRole('region', { name: 'Original file bytes', exact: true }).locator('button.hex-selected')).toHaveCount(9)
+})
+
+for (const width of [1440, 390]) {
+  test(`keeps popover results stable while searching and preserves them when hidden at ${width}px`, async ({ page }) => {
+    await page.addInitScript(() => {
+      const postMessage = Worker.prototype.postMessage
+      const pending: { worker: Worker; message: unknown }[] = []
+      let released = false
+      Worker.prototype.postMessage = function (message) {
+        if (!released && message?.type === 'stream') pending.push({ worker: this, message })
+        else postMessage.call(this, message, [])
+      }
+      window.addEventListener('release-search', () => {
+        released = true
+        for (const { worker, message } of pending) postMessage.call(worker, message, [])
+      })
+    })
+    await page.reload()
+    await page.setViewportSize({ width, height: 1000 })
+    await openMinimal(page)
+    const search = page.getByRole('textbox', { name: 'Search document', exact: true })
+    const results = page.getByRole('region', { name: 'Search results', exact: true })
+    await search.fill('0')
+    await search.press('Enter')
+    const matches = results.locator('.search-matches button')
+    await expect(matches).toHaveCount(5)
+    const height = (await results.boundingBox())!.height
+    expect(height).toBeGreaterThan(200)
+    expect(height).toBeLessThanOrEqual(600)
+    const panel = await results.elementHandle()
+    await search.fill('Hello')
+    await selectSearchScope(page, 'decoded')
+    await expect(results).toContainText('Searching for “Hello”…')
+    await expect(matches).toHaveCount(5)
+    await expect(results.locator('.search-previous')).toHaveText('Previous results for “0”')
+    await expect(results.locator('.search-matches')).toHaveCSS('opacity', '0.55')
+    expect((await results.boundingBox())!.height).toBe(height)
+    await expect(matches.first()).toBeDisabled()
+    await page.evaluate(() => window.dispatchEvent(new Event('release-search')))
+    await expect(matches).toHaveCount(1)
+    await expect(results).toContainText('1 match')
+    expect((await results.boundingBox())!.height).toBeLessThan(height)
+    expect(await panel!.evaluate(element => element === document.querySelector('.search-results'))).toBe(true)
+    await search.fill('no-such-text')
+    await search.press('Enter')
+    await expect(results).toContainText('0 matches')
+    expect((await results.boundingBox())!.height).toBeLessThan(height)
+    // Inspecting outside the popover hides it without discarding the query or results.
+    if (width < 900) {
+      await page.keyboard.press('Escape')
+      await page.getByRole('button', { name: 'Explorer', exact: true }).click()
+    }
+    await page.getByRole('button', { name: 'Overview', exact: true }).click()
+    await expect(results).toHaveCount(0)
+    await expect(search).toHaveValue('no-such-text')
+    await page.getByRole('button', { name: 'Back', exact: true }).click()
+    await page.getByRole('button', { name: 'Show search results', exact: true }).click()
+    await expect(results).toContainText('0 matches')
+    await search.fill('')
+    await expect(results).toHaveCount(0)
+  })
+}
+
+test('clearing a query cancels the pending results and the close button clears the query too', async ({ page }) => {
+  await page.addInitScript(() => {
+    const postMessage = Worker.prototype.postMessage
+    const pending: { worker: Worker; message: unknown }[] = []
+    let released = false
+    Worker.prototype.postMessage = function (message) {
+      if (!released && message?.type === 'stream') pending.push({ worker: this, message })
+      else postMessage.call(this, message, [])
+    }
+    window.addEventListener('release-search', () => {
+      released = true
+      for (const { worker, message } of pending) postMessage.call(worker, message, [])
+    })
+  })
+  await page.reload()
+  await openMinimal(page)
+  const search = page.getByRole('textbox', { name: 'Search document', exact: true })
+  const results = page.getByRole('region', { name: 'Search results', exact: true })
+  await selectSearchScope(page, 'decoded')
+  await search.fill('Hello')
+  await search.press('Enter')
+  await expect(results).toContainText('Searching for “Hello”…')
+  await search.fill('')
+  await expect(results).toHaveCount(0)
+  await page.evaluate(() => window.dispatchEvent(new Event('release-search')))
+  // A subsequent search must work and must not inherit results from the cancelled query.
+  await selectSearchScope(page, 'text')
+  await search.fill('not-present')
+  await search.press('Enter')
+  await expect(results).toContainText('0 matches')
+  await page.getByRole('button', { name: 'Clear search', exact: true }).click()
+  await expect(search).toHaveValue('')
+  await expect(results).toHaveCount(0)
+})
+
+for (const width of [1440, 390]) {
+  test(`labels retained results during loading, cancellation and failure at ${width}px`, async ({ page }) => {
+    await page.addInitScript(() => {
+      const postMessage = Worker.prototype.postMessage
+      const pending: { worker: Worker; message: unknown }[] = []
+      let released = false
+      Worker.prototype.postMessage = function (message) {
+        if (!released && message?.type === 'stream') pending.push({ worker: this, message })
+        else postMessage.call(this, message, [])
+      }
+      window.addEventListener('release-search', () => {
+        released = true
+        for (const { worker, message } of pending) postMessage.call(worker, message, [])
+      })
+    })
+    await page.reload()
+    await page.setViewportSize({ width, height: 1000 })
+    await openMinimal(page)
+    const search = page.getByRole('textbox', { name: 'Search document', exact: true })
+    const results = page.getByRole('region', { name: 'Search results', exact: true })
+    const matches = results.locator('.search-matches button')
+    await search.fill('0')
+    await search.press('Enter')
+    await expect(matches).toHaveCount(5)
+    await page.clock.install()
+    await search.fill('Hello')
+    await page.getByRole('combobox', { name: 'Search scope', exact: true }).click()
+    const decoded = page.getByRole('option', { name: 'Decoded streams', exact: true })
+    await expect(decoded).toBeVisible()
+    // Freeze before the search starts, using the browser clock rather than host
+    // time. Force the click because actionability's animation frames are paused.
+    await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000))
+    await decoded.click({ force: true })
+    await expect(results).toContainText('Searching for “Hello”…')
+    await page.clock.runFor(599)
+    await expect(results.getByRole('button', { name: 'Cancel search', exact: true })).toHaveCount(0)
+    await page.clock.runFor(1)
+    await expect(results.getByRole('button', { name: 'Cancel search', exact: true })).toHaveText('Cancel')
+    await page.clock.resume()
+    await search.fill('edited while searching')
+    await expect(results).toContainText('Searching for “Hello”…')
+    await expect(results.locator('.search-previous')).toHaveText('Previous results for “0”')
+    await expect(matches.first()).toBeDisabled()
+    await mkdir(resolve('.context'), { recursive: true })
+    await results.screenshot({ path: screenshotPath(`search-refined-loading-${width}.png`), animations: 'disabled' })
+    await expect(results.getByRole('button', { name: 'Cancel search', exact: true })).toHaveText('Cancel')
+    await results.getByRole('button', { name: 'Cancel search', exact: true }).click()
+    await expect(results).toContainText('Search cancelled for “Hello”')
+    await expect(search).toBeFocused()
+    await expect(results.locator('.search-previous')).toHaveText('Previous results for “0”')
+    await expect(matches).toHaveCount(5)
+    await expect(matches.first()).toBeEnabled()
+    await expect(results.locator('.search-matches')).toHaveCSS('opacity', '1')
+    await page.evaluate(() => window.dispatchEvent(new Event('release-search')))
+    await selectSearchScope(page, 'hex')
+    await search.fill('ZZ')
+    await search.press('Enter')
+    await expect(results).toContainText('Search failed for “ZZ”')
+    await expect(results).toContainText('Enter complete hex bytes')
+    await expect(results.locator('.search-previous')).toHaveText('Previous results for “0”')
+    await expect(matches).toHaveCount(5)
+    await selectSearchScope(page, 'objects')
+    await search.fill('not-present')
+    await search.press('Enter')
+    await expect(results).toContainText('0 matches')
+    await expect(results.locator('.search-previous')).toHaveCount(0)
+    expect((await results.boundingBox())!.height).toBeLessThan(400)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
+  })
+}
+
+for (const width of [1440, 390]) {
+  test(`shows a vertical search popover without shifting the workspace at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1000 })
+    await openMinimal(page)
+    const workspace = page.locator(width < 900 ? '.mobile-workspace' : '.desktop-workspace')
+    const before = await workspace.boundingBox()
+    const search = page.getByRole('textbox', { name: 'Search document', exact: true })
+    await selectSearchScope(page, 'text')
+    await search.fill('0')
+    await search.press('Enter')
+    const results = page.getByRole('region', { name: 'Search results', exact: true })
+    const rows = results.locator('.search-result')
+    await expect(results).toBeVisible()
+    expect(await rows.count()).toBeGreaterThan(10)
+    const after = await workspace.boundingBox()
+    expect(after!.y).toBe(before!.y)
+    expect(after!.height).toBe(before!.height)
+    const first = (await rows.nth(0).boundingBox())!
+    const second = (await rows.nth(1).boundingBox())!
+    expect(second.x).toBe(first.x)
+    expect(second.y).toBeGreaterThanOrEqual(first.y + first.height)
+    expect(first.height).toBeGreaterThan(40)
+    const body = results.locator('.search-results-body')
+    expect(await body.evaluate(element => element.scrollHeight > element.clientHeight)).toBe(true)
+    const bounds = (await results.boundingBox())!
+    expect(bounds.x).toBeGreaterThanOrEqual(0)
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(width)
+    await mkdir(resolve('.context'), { recursive: true })
+    await page.screenshot({ path: screenshotPath(`search-popover-${width}.png`), fullPage: true, animations: 'disabled' })
+    await search.press('ArrowDown')
+    await expect(rows.nth(0)).toBeFocused()
+    await rows.nth(0).press('ArrowDown')
+    await expect(rows.nth(1)).toBeFocused()
+    await expect(rows.nth(1)).toHaveAttribute('aria-current', 'true')
+    await rows.nth(1).press('Enter')
+    await expect(results).toHaveCount(0)
+    await expect(search).toHaveValue('0')
+    await page.getByRole('button', { name: 'Show search results', exact: true }).click()
+    await expect(rows.nth(1)).toHaveAttribute('aria-current', 'true')
+    await rows.nth(1).press('Escape')
+    await expect(results).toHaveCount(0)
+    await expect(search).toBeFocused()
+    await search.press('ControlOrMeta+k')
+    await expect(results).toBeVisible()
+    await rows.last().click()
+    await expect(results).toHaveCount(0)
+    await page.getByRole('button', { name: 'Show search results', exact: true }).click()
+    await expect(rows.last()).toBeInViewport()
+    await page.getByRole('button', { name: 'Hide search results', exact: true }).click()
+    await expect(results).toHaveCount(0)
+    await search.click()
+    await expect(results).toBeVisible()
+    await page.getByRole('button', { name: 'Clear search', exact: true }).click()
+    await expect(search).toHaveValue('')
+    await expect(results).toHaveCount(0)
+  })
+}
+
+for (const width of [1440, 390, 320]) {
+  test(`keeps match navigation in the popover and offers contextual results at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await openMinimal(page)
+    const search = page.getByRole('textbox', { name: 'Search document', exact: true })
+    const results = page.getByRole('region', { name: 'Search results', exact: true })
+    const current = results.getByRole('group', { name: 'Search result navigation', exact: true })
+    await selectSearchScope(page, 'text')
+    await search.fill('Hello')
+    await search.press('Enter')
+    await expect(results).toContainText('1 match')
+    await expect(results.locator('.search-result mark')).toHaveText('Hello')
+    await expect(results.locator('.search-result-context')).toContainText('PDF internals.')
+    await expect(results.locator('.search-result-meta')).toContainText('5 original file bytes')
+    expect((await results.boundingBox())!.height).toBeLessThan(width < 900 ? 280 : 240)
+    await results.locator('.search-result').click()
+    await expect(results).toHaveCount(0)
+    await expect(page.getByRole('group', { name: 'Current search match', exact: true })).toHaveCount(0)
+    await search.fill('0')
+    await search.press('Enter')
+    await expect(results).toContainText('89 matches')
+    await results.locator('.search-result').first().click()
+    await page.getByRole('button', { name: 'Show search results', exact: true }).click()
+    const previousSelection = await page.locator('.hex-status').textContent()
+    await current.getByRole('button', { name: 'Next search result', exact: true }).click()
+    await expect(current).toContainText('2 of 89')
+    await expect(results).toBeVisible()
+    await expect(page.locator('.hex-status')).not.toHaveText(previousSelection!)
+    await current.getByRole('button', { name: 'Previous search result', exact: true }).click()
+    await expect(current).toContainText('1 of 89')
+    await current.getByRole('button', { name: 'Previous search result', exact: true }).click()
+    await expect(current).toContainText('89 of 89')
+    await expect(results.locator('.search-result').last()).toBeInViewport()
+    await selectSearchScope(page, 'objects')
+    await search.fill('Hello')
+    await search.press('Enter')
+    await expect(results).toContainText('0 matches')
+    await results.getByRole('button', { name: 'Search page text instead', exact: true }).click()
+    await expect(results).toContainText('1 page')
+    await expect(page.getByRole('combobox', { name: 'Search scope', exact: true })).toContainText('Page text')
+    await expect(search).toHaveValue('Hello')
+    await expect(results.locator('.search-result mark')).toHaveText('Hello')
+    await expect(results.getByRole('button', { name: 'Open page preview', exact: true })).toBeVisible()
+    if (width < 900) {
+      expect((await search.boundingBox())!.width).toBeGreaterThan(180)
+      expect((await current.getByRole('button', { name: 'Next search result', exact: true }).boundingBox())!.height).toBeGreaterThanOrEqual(44)
+      expect((await results.getByRole('button', { name: 'Hide search results', exact: true }).boundingBox())!.height).toBeGreaterThanOrEqual(44)
+    }
+    await mkdir(resolve('.context'), { recursive: true })
+    await page.screenshot({ path: screenshotPath(`search-reviewed-${width}.png`), fullPage: true, animations: 'disabled' })
+    await results.getByRole('button', { name: /Show bytes/ }).click()
+    await expect(results).toHaveCount(0)
+    await expect(page.getByRole('group', { name: 'Current search match', exact: true })).toHaveCount(0)
+    await expect(page.locator('.hex-status')).toContainText('5 bytes selected')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false)
+  })
+}
+
+for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
+  test(`reselecting the same ${scope} result reveals its highlighted bytes after scrolling away`, async ({ page }) => {
+    const content = 'BT /F1 12 Tf 72 700 Td (Hello) Tj ET\n%' + 'padding '.repeat(4000)
+    const compressed = scope === 'pageTextDecoded'
+    const contentBytes = compressed ? (await import('node:zlib')).deflateSync(Buffer.from(content)) : Buffer.from(content)
+    const fixture = classicPdf([
+      [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+      [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 /Resources << /Font << /F1 5 0 R >> >> >>'],
+      [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>'],
+      [4, Buffer.concat([Buffer.from(`<< /Length ${contentBytes.length}${compressed ? ' /Filter /FlateDecode' : ''} >>\nstream\n`), contentBytes, Buffer.from('\nendstream')])],
+      [5, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'],
+    ])
+    await page.getByLabel('Open local PDF').setInputFiles({ name: 'long-text-stream.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+    await expect(page.locator('.status-bar')).toContainText('5 objects indexed')
+    await selectSearchScope(page, compressed ? 'pageText' : scope)
+    await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('Hello')
+    await page.getByRole('button', { name: 'Run search', exact: true }).click()
+    const results = page.getByRole('region', { name: 'Search results', exact: true })
+    await expect(results.locator('.search-result')).toHaveCount(1)
+    await results.locator('.search-result').click()
+    const bytes = page.getByRole('region', { name: compressed ? 'Decoded stream bytes' : 'Original file bytes', exact: true })
+    await expect(bytes.locator('button.hex-selected')).toHaveCount(5)
+    await bytes.locator('.hex-viewport').evaluate(element => { element.scrollTop = element.scrollHeight })
+    await expect(bytes.locator('button.hex-selected')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Show search results', exact: true }).click()
+    await results.locator('.search-result').click()
+    await expect(bytes.locator('button.hex-selected')).toHaveCount(5)
+    await expect(bytes.locator('button.hex-selected').first()).toBeInViewport()
+    await bytes.locator('.hex-viewport').evaluate(element => { element.scrollTop = element.scrollHeight })
+    await expect(bytes.locator('button.hex-selected')).toHaveCount(0)
+    await page.getByRole('button', { name: 'Back', exact: true }).click()
+    await page.getByRole('button', { name: 'Forward', exact: true }).click()
+    await page.getByRole('button', { name: 'Show search results', exact: true }).click()
+    await results.locator('.search-result').click()
+    await expect(bytes.locator('button.hex-selected')).toHaveCount(5)
+    await expect(bytes.locator('button.hex-selected').first()).toBeInViewport()
+    if (compressed) {
+      for (const width of [2400, 1440]) {
+        await page.setViewportSize({ width, height: 1000 })
+        await expect(bytes.locator('.hex-spacer')).toHaveCSS('--hex-columns', width === 2400 ? '16' : '8')
+        await expect(bytes.locator('button.hex-selected')).toHaveCount(5)
+        await expect(bytes.locator('button.hex-selected').first()).toBeInViewport()
+      }
+      // Selecting a text result again must reveal the word even after inspecting
+      // the compressed original container with the representation switch.
+      await page.getByRole('button', { name: 'Original bytes', exact: true }).click()
+      await expect(page.locator('.text-source-note')).toContainText('Containing stream only')
+      await page.getByRole('button', { name: 'Show search results', exact: true }).click()
+      await results.locator('.search-result').click()
+      await expect(bytes).toBeVisible()
+      await expect(bytes.locator('button.hex-selected')).toHaveCount(5)
+      await expect(bytes.locator('button.hex-selected').first()).toBeInViewport()
+    }
+  })
+}
+
+for (const width of [1440, 390]) {
+  test(`result arrows reveal the whole page result card at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 })
+    const content = 'BT /F1 12 Tf 72 700 Td (Hello model) Tj ET'
+    const objects: [number, string][] = [
+      [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+      [2, '<< /Type /Pages /Kids [6 0 R 8 0 R 10 0 R 12 0 R 14 0 R 16 0 R] /Count 6 /Resources << /Font << /F1 5 0 R >> >> >>'],
+      [5, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding << /BaseEncoding /WinAnsiEncoding /Differences [32 /space] >> >>'],
+    ]
+    for (let id = 6; id <= 16; id += 2) {
+      objects.push(
+        [id, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents ${id + 1} 0 R >>`],
+        [id + 1, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`],
+      )
+    }
+    const fixture = classicPdf(objects)
+    await page.getByLabel('Open local PDF').setInputFiles({ name: 'six-pages.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+    await expect(page.locator('.status-bar')).toContainText('15 objects indexed')
+    await selectSearchScope(page, 'pageText')
+    const search = page.getByRole('textbox', { name: 'Search document', exact: true })
+    await search.fill('model')
+    await search.press('Enter')
+    const results = page.getByRole('region', { name: 'Search results', exact: true })
+    const cards = results.locator('.search-result-item')
+    await expect(cards).toHaveCount(6)
+    const expectWholeCard = async (index: number) => {
+      await expect(cards.nth(index).locator('.search-result')).toHaveAttribute('aria-current', 'true')
+      await expect.poll(async () => {
+        const card = (await cards.nth(index).boundingBox())!
+        const body = (await results.locator('.search-results-body').boundingBox())!
+        return card.y >= body.y && card.y + card.height <= body.y + body.height + 1
+      }).toBe(true)
+    }
+    const next = results.getByRole('button', { name: 'Next search result', exact: true })
+    const previous = results.getByRole('button', { name: 'Previous search result', exact: true })
+    const move = async (direction: 'next' | 'previous') => {
+      if (width < 900) {
+        await results.locator('.search-result[aria-current="true"]').press(direction === 'next' ? 'ArrowDown' : 'ArrowUp')
+      } else {
+        await (direction === 'next' ? next : previous).click()
+      }
+    }
+    for (let index = 1; index <= 3; index++) {
+      await move('next')
+      await expectWholeCard(index)
+    }
+    await move('previous')
+    await expectWholeCard(2)
+    // Keyboard focus must not override the card's scroll position with the snippet's.
+    await search.press('ArrowDown')
+    await expect(cards.nth(2).locator('.search-result')).toBeFocused()
+    await cards.nth(2).locator('.search-result').press('ArrowDown')
+    await expectWholeCard(3)
+    await cards.nth(3).locator('.search-result').press('ArrowUp')
+    await expectWholeCard(2)
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await move('previous')
+    await expectWholeCard(1)
+    await move('previous')
+    await expectWholeCard(0)
+    await move('previous')
+    await expectWholeCard(5)
+  })
+}
+
+test('page result actions are visible before choosing an unselected page', async ({ page }) => {
+  const content = 'BT /F1 12 Tf 72 700 Td (Hello) Tj ET'
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R 6 0 R] /Count 2 /Resources << /Font << /F1 5 0 R >> >> >>'],
+    [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>'],
+    [4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`],
+    [5, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'],
+    [6, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 7 0 R >>'],
+    [7, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`],
+  ])
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'two-pages.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await expect(page.locator('.status-bar')).toContainText('7 objects indexed')
+  await selectSearchScope(page, 'pageText')
+  await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('Hello')
+  await page.getByRole('button', { name: 'Run search', exact: true }).click()
+  const results = page.getByRole('region', { name: 'Search results', exact: true })
+  await expect(results.locator('.search-result')).toHaveCount(2)
+  const second = results.locator('.search-result-item').nth(1)
+  await expect(second.getByRole('button', { name: /Show bytes/ })).toBeVisible()
+  await expect(second.getByRole('button', { name: 'Open page preview', exact: true })).toBeVisible()
+  await second.getByRole('button', { name: /Show bytes/ }).click()
+  await expect(results).toHaveCount(0)
+  await expect(page.getByRole('group', { name: 'Current search match', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('region', { name: 'Original file bytes', exact: true }).locator('button.hex-selected')).toHaveCount(5)
+})
+
+test('page text search highlights bytes encoded through a Unicode range font map', async ({ page }) => {
+  const content = 'BT /F1 12 Tf 72 700 Td (Hello) Tj ET'
+  const cmap = 'begincmap\n1 begincodespacerange <00> <FF> endcodespacerange\n1 beginbfrange <00> <FF> <0000> endbfrange\nendcmap'
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 /Resources << /Font << /F1 5 0 R >> >> >>'],
+    [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>'],
+    [4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`],
+    [5, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /ToUnicode 6 0 R >>'],
+    [6, `<< /Length ${cmap.length} >>\nstream\n${cmap}\nendstream`],
+  ])
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'range-font.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await expect(page.locator('.status-bar')).toContainText('6 objects indexed')
+  await selectSearchScope(page, 'pageText')
+  await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('Hello')
+  await page.getByRole('button', { name: 'Run search', exact: true }).click()
+  const results = page.getByRole('region', { name: 'Search results', exact: true })
+  await expect(results).toContainText('1 page')
+  await expect(results.getByRole('button', { name: /Show bytes/ })).toBeVisible()
+  await expect(results).not.toContainText('Exact word bytes could not be mapped')
+  await results.getByRole('button', { name: /Show bytes/ }).click()
+  const selected = page.getByRole('region', { name: 'Original file bytes', exact: true }).locator('button.hex-selected')
+  await expect(selected).toHaveCount(5)
+  await expect(selected.first()).toBeInViewport()
 })

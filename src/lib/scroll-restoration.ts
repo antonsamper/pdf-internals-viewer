@@ -2,7 +2,14 @@ import { useLayoutEffect, useRef, type UIEvent } from "react"
 
 // Mutable visit-local storage: scrolling does not rerender the application and
 // these positions never become part of persisted bookmarks.
-export type ScrollPosition = { current?: { top: number; left: number } }
+export type ScrollPosition = {
+  current?: {
+    top: number
+    left: number
+    /** Hex view only: preserve the byte anchor when the grid changes columns. */
+    byteColumns?: number
+  }
+}
 
 export function useScrollRestoration(
   positionRef: ScrollPosition,
