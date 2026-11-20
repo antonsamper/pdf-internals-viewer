@@ -1,6 +1,6 @@
 import { embeddedDownloads, type EmbeddedDownload } from './downloads';
 import { resourceCatalog, type ResourceEntry } from './resource-catalog';
-import type { PdfDocumentInfo, PdfObjectRecord } from './types';
+import type { PdfDocumentInfo, PdfObjectRecord, PdfValue } from './types';
 
 export interface InspectionIndexes {
   downloads: [string, EmbeddedDownload[]][];
@@ -18,6 +18,7 @@ export type DocumentTransferItem =
  */
 export const TRANSFER_BATCH_CHARACTERS = 128 * 1024;
 const TRANSFER_BATCH_ITEMS = 128;
+const MAX_SHARED_SCALARS = 100_000;
 
 function* documentItems(document: PdfDocumentInfo): Generator<DocumentTransferItem> {
   const { objects, ...header } = document;
@@ -61,14 +62,37 @@ export class DocumentTransfer {
 
 /** Build once, before publishing the document to React. No partial graph escapes. */
 export class DocumentReceiver {
+  // Only scalar leaves are shared. Dictionary/array ownership and reference paths
+  // stay independent, and the pool itself is released before publishing the graph.
+  private values = new Map<string, PdfValue>();
+  private share(value: PdfValue): PdfValue {
+    if (value.type === 'array') {
+      for (let i = 0; i < value.items.length; i++) value.items[i] = this.share(value.items[i]);
+    } else if (value.type === 'dictionary' || value.type === 'stream') {
+      for (const entry of value.entries) entry.value = this.share(entry.value);
+    } else {
+      // Preserve any future/extended fields rather than silently merging them.
+      if (Object.keys(value).length !== (value.type === 'null' ? 2 : 3)) return value;
+      const existing = this.values.get(value.text);
+      if (existing?.type === value.type && (
+        value.type === 'null' ||
+        ('ref' in value && 'ref' in existing && value.ref === existing.ref) ||
+        ('value' in value && 'value' in existing && Object.is(value.value, existing.value))
+      )) return existing;
+      // The displayed text is the lookup key, but never the equality test: long
+      // strings may have the same truncated display and different full values.
+      if (!existing && this.values.size < MAX_SHARED_SCALARS) this.values.set(value.text, Object.freeze(value));
+    }
+    return value;
+  }
   private header: Omit<PdfDocumentInfo, 'objects' | 'indexes'> | undefined;
   private objects: PdfObjectRecord[] = [];
   private indexes: InspectionIndexes = { downloads: [], resources: [] };
   accept(items: DocumentTransferItem[]): void {
     for (const item of items) {
       switch (item.type) {
-        case 'document': this.header = item.document; break;
-        case 'object': this.objects.push(item.object); break;
+        case 'document': this.header = item.document; this.header.trailer = this.share(this.header.trailer); break;
+        case 'object': item.object.value = this.share(item.object.value); this.objects.push(item.object); break;
         case 'download': this.indexes.downloads.push(item.entry); break;
         case 'resource': this.indexes.resources.push(item.entry); break;
       }
@@ -76,6 +100,7 @@ export class DocumentReceiver {
   }
   finish(): PdfDocumentInfo {
     if (!this.header) throw new Error('The document transfer did not include its summary.');
+    this.values.clear();
     return { ...this.header, objects: this.objects, indexes: this.indexes };
   }
 }

@@ -9,6 +9,10 @@ import { dirname, resolve } from 'node:path'
 const baseURL = process.env.PERFORMANCE_BASE_URL ?? 'http://127.0.0.1:5174'
 const output = resolve(process.env.PERFORMANCE_OUTPUT ?? '.context/browser-performance.json')
 const profileDirectory = process.env.PERFORMANCE_PROFILE_DIR ? resolve(process.env.PERFORMANCE_PROFILE_DIR) : null
+const assertCloseRelease = process.env.PERFORMANCE_ASSERT_CLOSE_RELEASE === '1'
+const maxMainRetainedMiB = process.env.PERFORMANCE_MAX_MAIN_RETAINED_MIB === undefined ? null : Number(process.env.PERFORMANCE_MAX_MAIN_RETAINED_MIB)
+if (maxMainRetainedMiB !== null && (!Number.isFinite(maxMainRetainedMiB) || maxMainRetainedMiB <= 0)) throw new Error('PERFORMANCE_MAX_MAIN_RETAINED_MIB must be a positive number.')
+const retainedMemory = process.env.PERFORMANCE_RETAINED_MEMORY === '1' || assertCloseRelease || maxMainRetainedMiB !== null
 const probeMessages = process.env.PERFORMANCE_PROBE_MESSAGES === '1'
 const repetitions = Number(process.env.PERFORMANCE_RUNS ?? 3)
 if (!Number.isInteger(repetitions) || repetitions < 1 || repetitions > 10) throw new Error('PERFORMANCE_RUNS must be 1 through 10.')
@@ -31,33 +35,37 @@ if (createHash('sha256').update(servedHTML).digest('hex') !== createHash('sha256
 const browser = await chromium.launch()
 const rootCDP = await browser.newBrowserCDPSession()
 let commandId = 0
-async function workerHeap() {
+async function workerHeap(forceGC = false) {
   const { targetInfos } = await rootCDP.send('Target.getTargets')
   const worker = targetInfos.find(target => target.type === 'worker' && /pdf\.worker-/.test(target.url))
   if (!worker) return { unavailable: 'No parser worker target found.' }
   let sessionId
   try {
     ;({ sessionId } = await rootCDP.send('Target.attachToTarget', { targetId: worker.targetId, flatten: false }))
-    const id = ++commandId
-    const response = new Promise((resolveResult, reject) => {
-      const timer = setTimeout(() => { rootCDP.off('Target.receivedMessageFromTarget', receive); reject(new Error('Worker heap query timed out.')) }, 5000)
-      function receive(event) {
-        if (event.sessionId !== sessionId) return
-        const message = JSON.parse(event.message)
-        if (message.id !== id) return
-        clearTimeout(timer); rootCDP.off('Target.receivedMessageFromTarget', receive)
-        if (message.error) reject(new Error(message.error.message)); else resolveResult(message.result)
-      }
-      rootCDP.on('Target.receivedMessageFromTarget', receive)
-    })
-    await rootCDP.send('Target.sendMessageToTarget', { sessionId, message: JSON.stringify({ id, method: 'Runtime.getHeapUsage' }) })
-    return await response
+    let result
+    for (const method of forceGC ? ['HeapProfiler.collectGarbage', 'Runtime.getHeapUsage'] : ['Runtime.getHeapUsage']) {
+      const id = ++commandId
+      const response = new Promise((resolveResult, reject) => {
+        const timer = setTimeout(() => { rootCDP.off('Target.receivedMessageFromTarget', receive); reject(new Error('Worker heap query timed out.')) }, 5000)
+        function receive(event) {
+          if (event.sessionId !== sessionId) return
+          const message = JSON.parse(event.message)
+          if (message.id !== id) return
+          clearTimeout(timer); rootCDP.off('Target.receivedMessageFromTarget', receive)
+          if (message.error) reject(new Error(message.error.message)); else resolveResult(message.result)
+        }
+        rootCDP.on('Target.receivedMessageFromTarget', receive)
+      })
+      await rootCDP.send('Target.sendMessageToTarget', { sessionId, message: JSON.stringify({ id, method }) })
+      result = await response
+    }
+    return result
   } catch (error) { return { unavailable: error.message } }
   finally { if (sessionId) await rootCDP.send('Target.detachFromTarget', { sessionId }).catch(() => undefined) }
 }
 const report = {
   recordedAt: new Date().toISOString(),
-  baseURL, repetitions, profiling: Boolean(profileDirectory), messageProbe: probeMessages, browser: await browser.version(), node: process.version,
+  baseURL, repetitions, profiling: Boolean(profileDirectory), messageProbe: probeMessages, retainedMemory, assertCloseRelease, maxMainRetainedMiB, browser: await browser.version(), node: process.version,
   platform: `${os.platform()}/${os.arch()}`, cpus: os.cpus().length,
   cpu: os.cpus()[0]?.model, totalSystemMemoryBytes: os.totalmem(),
   viewport: { width: 1440, height: 1000 }, headless: true, cpuThrottling: 'none', network: 'localhost, unthrottled',
@@ -126,6 +134,7 @@ try {
       await page.goto(baseURL, { waitUntil: 'networkidle' })
       await page.getByRole('heading', { name: 'Look inside a PDF.' }).waitFor()
       result.startup = await page.evaluate(() => ({ navigation: performance.getEntriesByType('navigation')[0]?.toJSON(), lcp: globalThis.__pdfPerformance.lcp, longTaskSupported: globalThis.__pdfPerformance.longTaskSupported, paint: performance.getEntriesByType('paint').map(entry => entry.toJSON()), resources: performance.getEntriesByType('resource').map(entry => ({ name: new URL(entry.name).pathname, type: entry.initiatorType, transferSize: entry.transferSize, encodedBodySize: entry.encodedBodySize, duration: entry.duration })) }))
+      if (retainedMemory) await mainCDP.send('HeapProfiler.collectGarbage')
       result.mainHeapBefore = await mainCDP.send('Runtime.getHeapUsage')
       if (profileDirectory) {
         await mkdir(profileDirectory, { recursive: true })
@@ -177,6 +186,31 @@ try {
       }
       result.cachedNavigationMs = navigation
       result.mainHeapAfterNavigation = await mainCDP.send('Runtime.getHeapUsage')
+      // Diagnostic only: retained samples follow all opening/navigation timings.
+      // Separate isolates, excluding preview/WASM and whole-process peak memory.
+      if (retainedMemory) {
+        await mainCDP.send('HeapProfiler.collectGarbage')
+        result.mainHeapRetained = await mainCDP.send('Runtime.getHeapUsage')
+        result.workerHeapRetained = await workerHeap(true)
+        if (maxMainRetainedMiB !== null && result.mainHeapRetained.usedSize > maxMainRetainedMiB * 1024 * 1024) throw new Error(`Main-page retained heap exceeds ${maxMainRetainedMiB} MiB: ${(result.mainHeapRetained.usedSize / 1024 / 1024).toFixed(2)} MiB.`)
+        await page.getByRole('button', { name: 'Close PDF', exact: true }).click()
+        await page.getByRole('heading', { name: 'Look inside a PDF.' }).waitFor()
+        await mainCDP.send('HeapProfiler.collectGarbage')
+        result.mainHeapAfterClose = await mainCDP.send('Runtime.getHeapUsage')
+        result.workerHeapAfterClose = await workerHeap()
+        // A further app render distinguishes immediate close retention from
+        // allocations that persist through subsequent use of the empty app.
+        await page.getByRole('link', { name: 'About', exact: true }).click()
+        await page.waitForURL('**/about')
+        await mainCDP.send('HeapProfiler.collectGarbage')
+        result.mainHeapAfterCloseAndNavigation = await mainCDP.send('Runtime.getHeapUsage')
+        if (assertCloseRelease) {
+          // Compare two empty-app states, allowing 10 MiB for rendering variance.
+          // A closed large document must not wait for navigation to be released.
+          const retainedUntilNavigation = result.mainHeapAfterClose.usedSize - result.mainHeapAfterCloseAndNavigation.usedSize
+          if (retainedUntilNavigation > 10 * 1024 * 1024) throw new Error(`Closing the PDF retains ${(retainedUntilNavigation / 1024 / 1024).toFixed(2)} MiB until another navigation (maximum 10 MiB).`)
+        }
+      }
       result.pageErrors = pageErrors
       result.status = 'measured'
     } catch (error) {

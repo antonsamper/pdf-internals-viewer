@@ -56,6 +56,26 @@ test('shows document status only in an active PDF workspace', async ({ page }) =
   }
 })
 
+test('ends sample sessions without reopening them and preserves the current public route', async ({ page }) => {
+  await page.goto('/?sample=compressed')
+  await expect(page.locator('.filename')).toContainText('compressed.pdf')
+  await expect(page.locator('.status-bar')).toContainText('7 objects indexed')
+  await page.getByRole('button', { name: 'Close PDF', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Look inside a PDF.' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Close PDF', exact: true })).toHaveCount(0)
+  // A new session can open normally, even though the initial sample query remains.
+  await upload(page, 'minimal.pdf')
+  await expect(page.locator('.status-bar')).toContainText('5 objects indexed')
+  await page.getByRole('link', { name: 'User guide', exact: true }).click()
+  await expect(page).toHaveURL(/\/guide$/)
+  await page.getByRole('button', { name: 'Close PDF', exact: true }).click()
+  await expect(page).toHaveURL(/\/guide$/)
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('How to inspect a PDF in your browser')
+  await page.getByRole('link', { name: 'Back to the workspace', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Look inside a PDF.' })).toBeVisible()
+  await expect(page.locator('.status-bar')).toHaveCount(0)
+})
+
 test('summarizes page rotation in the document overview', async ({ page }) => {
   const rotation = page.locator('.document-facts > div').filter({ has: page.getByText('Page rotation', { exact: true }) }).locator('dd')
   await openMinimal(page)

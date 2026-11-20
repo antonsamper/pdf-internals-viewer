@@ -155,6 +155,31 @@ function useNarrow() {
 }
 
 export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
+  const [session, setSession] = useState({ id: 0, path: initialPath })
+  return (
+    <PdfWorkspace
+      key={session.id}
+      initialPath={session.path}
+      openInitialSample={session.id === 0}
+      onSessionEnd={() =>
+        setSession((current) => ({
+          id: current.id + 1,
+          path: sitePage(window.location.pathname)?.path ?? "/",
+        }))
+      }
+    />
+  )
+}
+
+function PdfWorkspace({
+  initialPath,
+  openInitialSample: shouldOpenInitialSample,
+  onSessionEnd,
+}: {
+  initialPath: SitePath
+  openInitialSample: boolean
+  onSessionEnd: () => void
+}) {
   const { path, about, goHome, followLink } = useSiteRoute(initialPath)
   const [limitationsOpen, setLimitationsOpen] = useState(false)
   const limitationsOpener = useRef<HTMLElement | null>(null)
@@ -430,6 +455,13 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
     return () => window.removeEventListener("keydown", handler)
   }, [])
 
+  function endSession() {
+    close()
+    // Unmount the document owner so React's previous render, memoised graphs
+    // and event-handler closures cannot retain a closed PDF until another update.
+    onSessionEnd()
+  }
+
   async function open(file: File) {
     goHome()
     close()
@@ -534,6 +566,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
     void sample(file)
   })
   useEffect(() => {
+    if (!shouldOpenInitialSample) return
     const id = new URLSearchParams(window.location.search).get("sample")
     const selectedSample = SITE_SAMPLES.find((item) => item.id === id)
     if (!selectedSample) return
@@ -542,7 +575,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
       0
     )
     return () => window.clearTimeout(timer)
-  }, [])
+  }, [shouldOpenInitialSample])
   const readStream = useCallback((id: string, mode: "raw" | "decoded") => {
     if (!client.current)
       return Promise.reject(new Error("Open a PDF before reading a stream."))
@@ -1371,7 +1404,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={close}
+                onClick={endSession}
                 aria-label={busy ? "Cancel opening PDF" : "Close PDF"}
                 title={busy ? "Cancel opening PDF" : "Close PDF"}
               >
@@ -1626,7 +1659,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
             {busy && (
               <div className="progress-line">
                 Opening PDF…{" "}
-                <Button variant="ghost" size="xs" onClick={close}>
+                <Button variant="ghost" size="xs" onClick={endSession}>
                   Cancel
                 </Button>
               </div>
