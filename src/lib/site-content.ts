@@ -140,10 +140,11 @@ export const SITE_PAGES = [
   },
   {
     path: "/examples/opening-action",
-    title: "Does this PDF contain an automatic action? · PDF Internals",
-    heading: "Does this PDF contain an automatic action?",
+    title:
+      "PDF actions explained: types and OpenAction example · PDF Internals",
+    heading: "PDF actions: types and an automatic opening example",
     description:
-      "Inspect a catalogue’s OpenAction reference and follow a local GoTo destination to the first page.",
+      "Learn what PDF actions do, how OpenAction and other triggers work, and inspect a GoTo opening action in a downloadable example.",
   },
   {
     path: "/examples/broken-xref",

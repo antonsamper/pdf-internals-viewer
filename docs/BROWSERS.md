@@ -28,6 +28,8 @@ PLAYWRIGHT_PREVIEW=1 pnpm run test:e2e --browser=webkit
 
 Stop any existing server on port 5173 before using this recipe, or set `PLAYWRIGHT_BASE_URL` to a separately running production server. Detailed local logs are under ignored `.context/`.
 
+Browser cases run in parallel with four workers locally and in CI. Use `--workers=1` for serial debugging or `--workers=N` to tune concurrency. Save manual screenshots under `.context/<browser>/` to avoid overwriting evidence from other engines.
+
 These automated checks cover core flows. They do not establish complete PDF compatibility, Safari/iOS behaviour, or browser memory budgets. The independent PDF corpus runs the inspection engine in Node; broader combinations of those files with each browser remain useful follow-up coverage.
 
 ## Clean pnpm production verification: 2026-11-12

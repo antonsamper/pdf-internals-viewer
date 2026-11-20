@@ -36,7 +36,7 @@ export const CONTENT_GROUPS: ReadonlyArray<{
       ["/examples/repeated-logo", "Repeated logos"],
       ["/examples/page-rotation", "Page rotation"],
       ["/examples/inherited-resources", "Inherited resources"],
-      ["/examples/opening-action", "An automatic action"],
+      ["/examples/opening-action", "PDF actions and OpenAction"],
     ],
   },
   {

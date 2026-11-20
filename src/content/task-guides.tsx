@@ -19,6 +19,13 @@ export function AttachmentsGuide() {
           attached file.
         </li>
       </ol>
+      <p>
+        Each attachment is listed once per stream and filename, including
+        identified embedded streams without file specifications. The size shown
+        is the complete decoded file size where available. Resource filters
+        persist when you inspect an object and return, and reset when you open
+        another PDF.
+      </p>
       <h2>Follow the references</h2>
       <p>
         In <strong>Document catalogue</strong>, follow <code>/Names</code> →{" "}
@@ -28,8 +35,7 @@ export function AttachmentsGuide() {
         stream.
       </p>
       <p>
-        For example, a file specification might contain the following entries.
-        This is illustrative syntax, rather than a bundled sample:
+        This illustrative file specification is not part of a bundled sample:
       </p>
       <pre>
         <code>{`<< /Type /Filespec
@@ -97,6 +103,12 @@ export function SearchGuide() {
         inspection.
       </p>
       <p>
+        The first match opens automatically. Use the result counter and
+        previous/next arrows to step through matches, wrapping at either end, or
+        select a result directly. Results stop at 500; incomplete searches are
+        labelled. File text treats the original bytes as Latin-1 text.
+      </p>
+      <p>
         Decoded search checks only the first {MAX_DISPLAY_BYTES / 1024} KiB of
         each stream. It reads bytes as characters, rather than extracting the
         text shown on a rendered page. Compressed or encrypted content may not
@@ -119,6 +131,10 @@ export function SearchGuide() {
         bookmarks. The PDF and password are not saved. Clearing site data
         removes bookmarks; notes from encrypted PDFs remain readable in browser
         storage. See <a href="/privacy">privacy and browser storage</a>.
+      </p>
+      <p>
+        If browser storage is unavailable, bookmarks remain usable for the
+        current file and a status message explains that they are not saved.
       </p>
       <h2>Compare two objects</h2>
       <ol>
@@ -194,8 +210,8 @@ export function SuspiciousFeaturesGuide() {
         <code>/S /Launch</code> identifies a launch action.
       </p>
       <p>
-        For example, these illustrative entries connect a catalogue’s opening
-        action to a script stream. They are not part of the bundled samples:
+        These illustrative entries connect a catalogue’s opening action to a
+        script stream. They are not part of the bundled samples:
       </p>
       <pre>
         <code>{`1 0 obj
@@ -218,6 +234,20 @@ endobj`}</code>
         to inspect embedded files and their file specifications. For a known
         string, choose <strong>Decoded streams</strong>; for a known byte
         sequence, choose <strong>File hex</strong>.
+      </p>
+      <h2>Review reported issues</h2>
+      <p>
+        Open <strong>Issues</strong> for parser diagnostics and object warnings,
+        with links to affected objects or file structure. Error and warning
+        counts are separate from inspection limitations and information notes.
+        Stream-read failures appear when you inspect or search those streams;
+        preview and download errors stay beside the relevant action.
+      </p>
+      <p>
+        A clean result means the checks detected no issues; they do not validate
+        every stream, page appearance, signature, or PDF conformance
+        requirement. Locked and recovered documents identify incomplete
+        coverage.
       </p>
       <h2>Interpret the results carefully</h2>
       <p>

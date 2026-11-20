@@ -1218,7 +1218,7 @@ test('serves public answers without JavaScript and keeps articles free of inspec
     ['/examples/repeated-logo', 'Why is the same logo stored several times?'],
     ['/examples/page-rotation', 'Why is this page rotated?'],
     ['/examples/inherited-resources', 'Where did this page’s resources come from?'],
-    ['/examples/opening-action', 'Does this PDF contain an automatic action?'],
+    ['/examples/opening-action', 'PDF actions: types and an automatic opening example'],
     ['/examples/broken-xref', 'What does a PDF error look like?'],
     ['/privacy', 'Your PDFs and browser storage'],
     ['/limitations', 'Supported features and limitations'],
@@ -1390,6 +1390,7 @@ for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'pa
     await page.goto(`/examples/${sample}`)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     const image = page.locator('.example-preview img')
+    await image.scrollIntoViewIfNeeded()
     await expect(image).toBeVisible()
     await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0)
     await page.screenshot({ path: screenshotPath(`${sample}-article.png`), fullPage: false })
