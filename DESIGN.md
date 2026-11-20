@@ -147,7 +147,7 @@ The theme is implemented in `src/index.css`, `src/app.css`, `src/components/hex-
 
 ## Brand artwork
 
-Use the supplied full-colour PDF Internals illustration from `public/brand/pdf-internals-logo.png` on the welcome screen and About page. Keep its full aspect ratio and original colours, with responsive sizing on white. The compact workspace header frames the detective mascot from the same artwork as its brand mark.
+Use the supplied full-colour PDF Internals illustration from `public/brand/pdf-internals-logo.png` on the welcome screen and About page. Keep its full aspect ratio and original colours, with responsive sizing on white. The compact workspace and public-page headers use the separate square detective mascot from `public/brand/pdf-internals-icon.png`, contained within the 32px brand mark. Use `public/favicon.png` for the browser favicon across all public pages.
 
 ## Colours
 

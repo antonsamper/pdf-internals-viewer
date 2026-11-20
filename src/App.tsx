@@ -86,7 +86,7 @@ import type {
   PdfValue,
 } from "@/lib/pdf/types"
 import { AboutPage } from "@/components/about-page"
-import { BrandArtwork } from "@/components/brand-artwork"
+import { BrandArtwork, BrandIcon } from "@/components/brand-artwork"
 import { SiteLinks } from "@/components/site-links"
 import { MAX_INPUT_BYTES } from "@/lib/pdf/limits"
 import { PublicPage } from "@/content/public-page"
@@ -1300,7 +1300,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
             }}
           >
             <span className="app-mark">
-              <BrandArtwork decorative />
+              <BrandIcon />
             </span>
             <span>PDF Internals</span>
           </a>

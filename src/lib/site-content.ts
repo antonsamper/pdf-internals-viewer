@@ -188,6 +188,7 @@ export function pageHead(page: SitePage) {
   const url = SITE_URL + page.path
   const image = `${SITE_URL}/brand/pdf-internals-logo.png`
   return `<title>${escapeHtml(page.title)}</title>
+<link rel="icon" type="image/png" sizes="64x64" href="/favicon.png?v=8e7cb0ea" />
 <meta name="description" content="${escapeHtml(page.description)}" />
 <link rel="canonical" href="${url}" />
 <meta property="og:type" content="${page.path.startsWith("/guides/") ? "article" : "website"}" />
