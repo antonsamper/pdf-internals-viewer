@@ -1,10 +1,14 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { ArrowUpRight, Braces, FileCode2, LoaderCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ValueView } from "@/components/value-view"
 import { ContentStreamView } from "@/components/content-stream-view"
+import {
+  objectName,
+  objectRelationships,
+  objectSummary,
+} from "@/lib/pdf/object-context"
 import type { PdfObjectRecord, PdfValue, StreamResult } from "@/lib/pdf/types"
 
 export type InspectorTab = "properties" | "source" | "raw" | "decoded"
@@ -13,6 +17,7 @@ export function ObjectInspector({
   tab,
   onTabChange,
   onNavigate,
+  onInspect,
   readStream,
   resources,
   objects,
@@ -27,8 +32,19 @@ export function ObjectInspector({
   tab: InspectorTab
   onTabChange: (tab: InspectorTab) => void
   onNavigate: (id: string, path?: string[]) => void
+  onInspect: (id: string) => void
   readStream: (id: string, mode: "raw" | "decoded") => Promise<StreamResult>
 }) {
+  const relationships = useMemo(
+    () => objectRelationships(object, objects ?? new Map()),
+    [object, objects]
+  )
+  const summary = objectSummary(
+    object,
+    pages,
+    relationships.incoming,
+    objects ?? new Map()
+  )
   const [state, setState] = useState<{
     object: PdfObjectRecord
     tab: InspectorTab
@@ -74,6 +90,7 @@ export function ObjectInspector({
           <Badge variant="secondary">{object.kind}</Badge>
         </div>
         <p>{object.label}</p>
+        <p className="object-explanation">{summary}</p>
       </header>
       <div className="provenance">
         <FileCode2 size={14} />
@@ -166,48 +183,77 @@ export function ObjectInspector({
               </>
             )}
             <h2>
-              References <span>{object.references.length}</span>
+              References{" "}
+              <span>
+                {object.references.length}{" "}
+                {object.references.length === 1 ? "object" : "objects"}
+              </span>
             </h2>
-            <div className="reference-list">
-              {object.references.length ? (
-                object.references.map((id) => (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    key={id}
-                    onClick={() => onNavigate(id)}
-                    className="font-mono"
-                  >
-                    {id} R<ArrowUpRight size={12} />
-                  </Button>
-                ))
-              ) : (
-                <p className="muted">No outgoing references.</p>
-              )}
-            </div>
-            <h2>
-              Referenced by <span>{object.referencedBy.length}</span>
-            </h2>
-            <div className="reference-list">
-              {object.referencedBy.length ? (
-                object.referencedBy.map((id) => (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    key={id}
-                    onClick={() => onNavigate(id)}
-                    className="font-mono"
-                  >
-                    {id} obj
+            <div className="relationship-links">
+              {relationships.outgoing.map((link, index) => (
+                <button
+                  className="relationship-link"
+                  key={index}
+                  onClick={() => onNavigate(link.targetId, link.path)}
+                >
+                  <span className="relationship-path">
+                    {link.path.join(" → ") || "Direct reference"}
+                  </span>
+                  <span>
+                    {objectName(link.targetId, objects ?? new Map(), pages)} ·{" "}
+                    <code>{link.targetId} R</code>
                     <ArrowUpRight size={12} />
-                  </Button>
-                ))
-              ) : (
+                  </span>
+                </button>
+              ))}
+              {!relationships.outgoing.length && (
                 <p className="muted">
-                  No incoming references in the indexed object set.
+                  {object.references.length
+                    ? "Reference paths unavailable in the inspected value."
+                    : "No outgoing references."}
                 </p>
               )}
             </div>
+            <h2>
+              Referenced by{" "}
+              <span>
+                {object.referencedBy.length}{" "}
+                {object.referencedBy.length === 1 ? "object" : "objects"}
+              </span>
+            </h2>
+            <div className="relationship-links">
+              {relationships.incoming.map((link, index) => (
+                <button
+                  className="relationship-link"
+                  key={index}
+                  onClick={() => onInspect(link.sourceId)}
+                >
+                  <span>
+                    {objectName(link.sourceId, objects ?? new Map(), pages)} ·{" "}
+                    <code>{link.sourceId} obj</code>
+                    <ArrowUpRight size={12} />
+                  </span>
+                  <span className="relationship-path">
+                    via {link.path.join(" → ") || "a direct reference"}
+                  </span>
+                </button>
+              ))}
+              {!relationships.incoming.length && (
+                <p className="muted">
+                  {object.referencedBy.length
+                    ? "Incoming reference paths unavailable in the inspected values."
+                    : "No incoming references in the indexed object set."}
+                </p>
+              )}
+            </div>
+            {relationships.incomplete && (
+              <p className="representation-note">
+                Relationship details are incomplete: inspection is bounded to
+                200 paths per direction, 200 incoming objects, 5,000 values per
+                object, and 32 nested levels. Object counts above describe the
+                indexed references.
+              </p>
+            )}
           </section>
         </TabsContent>
         <TabsContent value="source" className="inspector-scroll">
