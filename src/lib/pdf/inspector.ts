@@ -37,14 +37,17 @@ function streamFilters(stream: PdfStream): string[] {
 /** Read-only adapter around a pinned established parser; no PDF writing occurs. */
 export class PdfInspector {
   private encrypted = false;
-  private objects = new Map<string, PdfObject>();
+  private streams = new Map<string, PdfStream>();
   private rawStreams = new Map<string, Uint8Array>();
-  private records = new Map<string, PdfObjectRecord>();
 
   async open(bytes: Uint8Array, filename = 'document.pdf', password?: string): Promise<PdfDocumentInfo> {
     if (bytes.length > MAX_INPUT_BYTES) throw new Error('This file exceeds the 64 MiB inspection limit.');
     if (!bytes.length) throw new Error('This file is empty. Choose a PDF document.');
-    this.objects.clear(); this.records.clear(); this.rawStreams.clear();
+    this.streams.clear(); this.rawStreams.clear();
+    // Object graphs and display records belong to this opening operation only.
+    // After delivery the worker needs just streams for subsequent byte requests.
+    const objects = new Map<string, PdfObject>();
+    const records = new Map<string, PdfObjectRecord>();
     inspectionResetDecodedCache();
     const parsed = new InspectionDocumentParser(new InspectionScanner(bytes), { lenient: true, credentials: password }).parse();
     this.encrypted = parsed.isEncrypted;
@@ -76,13 +79,14 @@ export class PdfInspector {
             ? inspectionReadIndirect(bytes, entry.offset).value
             : parsed.getObject(PdfRef.of(number, generation));
           if (!object) { warnings.push(`Object ${id} could not be resolved.`); continue; }
-          this.objects.set(id, object);
+          objects.set(id, object);
+          if (isStream(object)) this.streams.set(id, object);
         } catch (error) { warnings.push(`Object ${id}: ${message(error)}`); }
       }
       for (const [number, entry] of entries) {
         const generation = entry.type === 'uncompressed' ? entry.generation : 0;
         const id = `${number} ${generation}`;
-        const object = this.objects.get(id);
+        const object = objects.get(id);
         if (!object) continue;
         const recordWarnings: string[] = [];
         const references = new Set<string>();
@@ -102,7 +106,7 @@ export class PdfInspector {
           } else if (entry.type === 'compressed') {
             const containerEntry = parsed.xref.get(entry.streamObjNum);
             const containerId = `${entry.streamObjNum} ${containerEntry?.type === 'uncompressed' ? containerEntry.generation : 0}`;
-            const stream = this.objects.get(containerId);
+            const stream = objects.get(containerId);
             if (!isStream(stream)) throw new Error('Compressed object container is unavailable.');
             const location = inspectionCompressedLocation(stream, entry.indexInStream, number);
             provenance = { type: 'decoded', containerId, range: { start: location.start, end: location.end } };
@@ -114,16 +118,16 @@ export class PdfInspector {
         const subtype = dictionary?.getName('Subtype')?.value;
         const originalStream = this.rawStreams.get(id);
         const streamRange = originalStream?.buffer === bytes.buffer ? { start: originalStream.byteOffset - bytes.byteOffset, end: originalStream.byteOffset - bytes.byteOffset + originalStream.byteLength } : undefined;
-        this.records.set(id, { id, objectNumber: number, generation, kind, label: subtype ? `${kind} · ${subtype}` : kind, value, source, provenance, references: [...references], referencedBy: [], ...(isStream(object) ? { stream: { length: originalStream?.length ?? object.data.length, filters: streamFilters(object), range: streamRange } } : {}), warnings: recordWarnings });
+        records.set(id, { id, objectNumber: number, generation, kind, label: subtype ? `${kind} · ${subtype}` : kind, value, source, provenance, references: [...references], referencedBy: [], ...(isStream(object) ? { stream: { length: originalStream?.length ?? object.data.length, filters: streamFilters(object), range: streamRange } } : {}), warnings: recordWarnings });
       }
     }
-    for (const record of this.records.values()) {
+    for (const record of records.values()) {
       if (record.provenance.type === 'decoded') {
-        const container = this.records.get(record.provenance.containerId);
+        const container = records.get(record.provenance.containerId);
         if (container?.provenance.type === 'file') record.provenance.containerRange = container.provenance.range;
       }
       for (const id of record.references) {
-        const target = this.records.get(id);
+        const target = records.get(id);
         if (target) target.referencedBy.push(record.id);
         else record.warnings.push(`Dangling or unresolved reference: ${id} R`);
       }
@@ -132,11 +136,11 @@ export class PdfInspector {
     if (!locked) { try { pages = parsed.getPages().map(refId); } catch (error) { warnings.push(`Page tree: ${message(error)}`); } }
     const root = parsed.trailer.getRef('Root');
     const catalog = !locked ? parsed.getCatalog() : null;
-    return { filename, size: bytes.length, version: parsed.version, catalogVersion: catalog?.getName('Version')?.value, encrypted: parsed.isEncrypted, locked, encryptionError, recovered: parsed.recoveredViaBruteForce, catalogId: root ? refId(root) : undefined, pages, objects: [...this.records.values()], trailer: valueTree(parsed.trailer, new Set()), warnings: [...new Set([...warnings, ...parsed.warnings])], xrefFormat, startXref };
+    return { filename, size: bytes.length, version: parsed.version, catalogVersion: catalog?.getName('Version')?.value, encrypted: parsed.isEncrypted, locked, encryptionError, recovered: parsed.recoveredViaBruteForce, catalogId: root ? refId(root) : undefined, pages, objects: [...records.values()], trailer: valueTree(parsed.trailer, new Set()), warnings: [...new Set([...warnings, ...parsed.warnings])], xrefFormat, startXref };
   }
 
   readStream(objectId: string, mode: 'raw' | 'decoded', purpose: 'preview' | 'download' | 'image' | 'size' = 'preview'): StreamResult {
-    const object = this.objects.get(objectId);
+    const object = this.streams.get(objectId);
     const result: StreamResult = { objectId, mode, bytes: new Uint8Array(), text: '', truncated: false };
     if (!isStream(object)) return { ...result, error: 'This object is not an available stream.' };
     try {

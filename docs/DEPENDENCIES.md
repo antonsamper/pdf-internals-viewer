@@ -49,4 +49,4 @@ Because the preview preparation script modifies installed dependency files, `pac
 - The production build must emit the patched worker assets, not stale prebuilt files. Build before browser tests; avoid testing a development server while other jobs rewrite generated modules and trigger HMR.
 - Preview remains lazy-loaded, uses local byte input and a worker, and serves WASM/workers from this application's build. Tests verify no external document requests in the tested preview flow.
 - Track an upstream-compatible EmbedPDF/Zod update so the local backport can be retired after its behaviour tests pass against the replacement.
-- The project uses the Apache License 2.0. Complete third-party notices and validate hosting headers and worker/WASM loading before public deployment. Dependency changes do not publish the application.
+- Original project code uses the Apache License 2.0. Complete third-party notices and validate hosting headers and worker/WASM loading before public deployment. Dependency changes do not publish the application.
