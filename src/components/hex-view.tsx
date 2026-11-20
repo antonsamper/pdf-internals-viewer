@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react'
 import { ArrowDownToLine, Check, Copy, FileCode2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import './hex-view.css'
@@ -26,6 +26,10 @@ export function HexView({ bytes, range, onByteSelect }: HexViewProps) {
   const [copying, setCopying] = useState(false)
   const [cursor, setCursor] = useState<number | null>(null)
   const copyTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const localSelection = useRef<{ bytes: Uint8Array; offset: number } | null>(null)
+  const localSelectionFrame = useRef<number | undefined>(undefined)
+  const rangeStart = range?.start
+  const rangeEnd = range?.end
   const columns = viewport.width >= 650 ? 16 : 8
   const totalRows = Math.ceil(bytes.length / columns)
   const firstRow = Math.max(0, Math.floor(viewport.top / ROW_HEIGHT) - OVERSCAN)
@@ -46,10 +50,19 @@ export function HexView({ bytes, range, onByteSelect }: HexViewProps) {
     return () => observer.disconnect()
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const viewportElement = viewportRef.current
     if (!viewportElement) return
-    const start = Math.max(0, Math.min(bytes.length - 1, range?.start ?? 0))
+    const start = Math.max(0, Math.min(bytes.length - 1, rangeStart ?? 0))
+    const local = localSelection.current
+    // A byte click may select its enclosing object, whose start can be far
+    // above the viewport. Preserve the clicked byte's position and cursor.
+    if (local?.bytes === bytes && rangeStart !== undefined && rangeEnd !== undefined && local.offset >= rangeStart && local.offset < rangeEnd) {
+      localSelection.current = null
+      setMessage('')
+      setCopying(false)
+      return
+    }
     viewportElement.scrollTop = Math.floor(start / columns) * ROW_HEIGHT
     const frame = requestAnimationFrame(() => {
       setCursor(null)
@@ -57,9 +70,12 @@ export function HexView({ bytes, range, onByteSelect }: HexViewProps) {
       setCopying(false)
     })
     return () => cancelAnimationFrame(frame)
-  }, [range?.start, range?.end, columns, bytes])
+  }, [rangeStart, rangeEnd, columns, bytes])
 
-  useEffect(() => () => clearTimeout(copyTimer.current), [])
+  useEffect(() => () => {
+    clearTimeout(copyTimer.current)
+    if (localSelectionFrame.current !== undefined) cancelAnimationFrame(localSelectionFrame.current)
+  }, [])
 
   function jumpToOffset(event: FormEvent) {
     event.preventDefault()
@@ -82,6 +98,14 @@ export function HexView({ bytes, range, onByteSelect }: HexViewProps) {
   }
 
   function selectByte(offset: number) {
+    localSelection.current = { bytes, offset }
+    if (localSelectionFrame.current !== undefined) cancelAnimationFrame(localSelectionFrame.current)
+    // Clear even when the same object's range stays unchanged. Otherwise a
+    // later external navigation could incorrectly suppress its own reveal.
+    localSelectionFrame.current = requestAnimationFrame(() => {
+      localSelection.current = null
+      localSelectionFrame.current = undefined
+    })
     setCursor(offset)
     onByteSelect?.(offset)
   }
@@ -97,7 +121,7 @@ export function HexView({ bytes, range, onByteSelect }: HexViewProps) {
       case 'Home': next = event.ctrlKey || event.metaKey ? 0 : Math.floor(current / columns) * columns; break
       case 'End': next = event.ctrlKey || event.metaKey ? bytes.length - 1 : Math.min(bytes.length - 1, Math.floor(current / columns) * columns + columns - 1); break
       case 'Enter':
-      case ' ': onByteSelect?.(current); event.preventDefault(); return
+      case ' ': selectByte(current); event.preventDefault(); return
       default: return
     }
     if (!bytes.length) return

@@ -30,6 +30,8 @@ The preparation script:
 7. Resolves all static external imports through the engine package's own dependency chain before relocating the bundle, supporting pnpm's isolated dependency layout. Its `lru-cache` import specifically uses the browser ESM entry to avoid Node-only diagnostics.
 8. Replaces two unused optional Google Cloud signing imports with explicit unsupported-operation rejections. These signing operations are outside the read-only adapter. Vite development import analysis otherwise attempts to resolve the optional SDKs even though production tree-shaking removes them. No cloud SDK is installed or used.
 
+The inspector imports the generated adapter through the package's `pdf-internals-viewer/inspection` self-reference. Vite explicitly prebundles this entry and its dependency graph for development workers. Direct relative imports bypassed that conversion and caused native workers to reject named CommonJS exports (for example, `asn1js`'s `Boolean`), while production bundling continued to work. The self-reference also resolves in Node parser/corpus tests. CI exercises sample opening, replacement, references, compressed objects, and stream decoding against both production assets and the development server.
+
 The script leaves `node_modules` unchanged. An engine upgrade fails preparation until the instrumentation and fixture results have been reviewed. The generated module retains the upstream license; the engine dependency and lockfile remain the source of truth. A future upstream low-level export would remove much of this instrumentation.
 
 The generated adapter depends on internal token lookahead fields. They have no stable public API contract. Its provenance tests are mandatory when the engine changes.

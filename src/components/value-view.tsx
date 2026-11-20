@@ -1,10 +1,11 @@
 import { ChevronRight, Info } from "lucide-react"
+import { useState } from "react"
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import type { PdfValue } from "@/lib/pdf/types"
+import type { PdfObjectRecord, PdfValue } from "@/lib/pdf/types"
 
 const explanations: Record<string, string> = {
   Type: "The kind of object this dictionary describes.",
@@ -31,10 +32,18 @@ export function ValueView({
   value,
   onNavigate,
   depth = 0,
+  objects,
+  ancestors = [],
+  path = [],
+  referenceDepth = 0,
 }: {
   value: PdfValue
-  onNavigate: (id: string) => void
+  onNavigate: (id: string, path?: string[]) => void
   depth?: number
+  objects?: Map<string, PdfObjectRecord>
+  ancestors?: string[]
+  path?: string[]
+  referenceDepth?: number
 }) {
   if (depth > 12)
     return (
@@ -42,17 +51,43 @@ export function ValueView({
         Expand this object in Source to inspect deeper nesting.
       </span>
     )
-  if (value.type === "reference")
+  if (value.type === "reference") {
+    const target = objects?.get(value.ref)
+    const cycle = ancestors.includes(value.ref)
     return (
-      <button
-        className="reference"
-        onClick={() => onNavigate(value.ref)}
-        title={`Follow reference ${value.ref}`}
-      >
-        {value.text}
-        <ChevronRight size={12} />
-      </button>
+      <span className="inline-reference">
+        <button
+          className="reference"
+          onClick={() => onNavigate(value.ref, path)}
+          title={`Open object ${value.ref} in the inspector`}
+        >
+          {value.text}
+          <ChevronRight size={12} />
+        </button>
+        {objects && !target ? (
+          <span className="muted"> · unavailable reference</span>
+        ) : cycle ? (
+          <span className="muted"> · already in this path</span>
+        ) : target && referenceDepth < 4 && depth < 12 ? (
+          <InlineReference
+            key={value.ref}
+            target={target}
+            onNavigate={onNavigate}
+            objects={objects}
+            ancestors={ancestors}
+            path={path}
+            referenceDepth={referenceDepth}
+            depth={depth}
+          />
+        ) : target ? (
+          <span className="muted">
+            {" "}
+            · inline depth limit; open object to continue
+          </span>
+        ) : null}
+      </span>
     )
+  }
   if (value.type === "dictionary" || value.type === "stream")
     return (
       <div className="pdf-dictionary">
@@ -82,6 +117,10 @@ export function ValueView({
                   value={child}
                   onNavigate={onNavigate}
                   depth={depth + 1}
+                  objects={objects}
+                  ancestors={ancestors}
+                  path={[...path, `/${bareKey}`]}
+                  referenceDepth={referenceDepth}
                 />
               </div>
             </div>
@@ -99,10 +138,63 @@ export function ValueView({
             value={child}
             onNavigate={onNavigate}
             depth={depth + 1}
+            objects={objects}
+            ancestors={ancestors}
+            path={[...path, `[${index}]`]}
+            referenceDepth={referenceDepth}
           />
         ))}
         <span className="syntax">]</span>
       </div>
     )
   return <span className={`pdf-scalar pdf-${value.type}`}>{value.text}</span>
+}
+
+function InlineReference({
+  target,
+  onNavigate,
+  objects,
+  ancestors,
+  path,
+  referenceDepth,
+  depth,
+}: {
+  target: PdfObjectRecord
+  onNavigate: (id: string, path?: string[]) => void
+  objects?: Map<string, PdfObjectRecord>
+  ancestors: string[]
+  path: string[]
+  referenceDepth: number
+  depth: number
+}) {
+  const [expanded, setExpanded] = useState(false)
+  return (
+    <details
+      className="inline-reference-details"
+      onToggle={(event) => setExpanded(event.currentTarget.open)}
+    >
+      <summary>Expand {target.id} inline</summary>
+      {expanded && (
+        <div className="inline-reference-body">
+          <p className="representation-note">
+            {target.label} ·{" "}
+            {target.provenance.type === "file"
+              ? "Original-file object"
+              : target.provenance.type === "decoded"
+                ? "Decoded object-stream member"
+                : "Source location unknown"}
+          </p>
+          <ValueView
+            value={target.value}
+            onNavigate={onNavigate}
+            objects={objects}
+            ancestors={[...ancestors, target.id]}
+            path={path}
+            referenceDepth={referenceDepth + 1}
+            depth={depth + 1}
+          />
+        </div>
+      )}
+    </details>
+  )
 }

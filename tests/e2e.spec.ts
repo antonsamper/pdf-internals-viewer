@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test'
 import { resolve } from 'node:path'
 import { mkdir } from 'node:fs/promises'
 // @ts-expect-error local JavaScript fixture helpers have no declaration file
-import { classicPdf } from '../scripts/fixtures/pdf-fixtures.mjs'
+import { classicPdf, encryptedPdf } from '../scripts/fixtures/pdf-fixtures.mjs'
 
 const samplePath = (name: string) => resolve('public/samples', name)
 const screenshotPath = (name: string) => resolve('.context', name)
@@ -62,6 +62,57 @@ test('follows page references, reads stream representations, and navigates histo
   await page.screenshot({ path: screenshotPath('desktop.png'), fullPage: true, animations: 'disabled' })
 })
 
+test('shows a prominent loading state and allows cancelling a slow open', async ({ page }) => {
+  let release!: () => void
+  const pending = new Promise<void>(resolve => { release = resolve })
+  await page.route('**/samples/minimal.pdf', async route => {
+    await pending
+    await route.continue()
+  })
+  await page.getByRole('button', { name: /^A simple page/ }).click()
+  const loading = page.getByRole('status', { name: 'Opening PDF', exact: true })
+  await expect(loading).toBeVisible()
+  await expect(loading).toContainText('Larger documents can take a few seconds.')
+  await expect(page.getByRole('main', { name: 'Document inspection' })).toHaveAttribute('aria-busy', 'true')
+  await expect(loading.locator('svg')).toHaveClass(/animate-spin/)
+  await page.screenshot({ path: screenshotPath('opening-pdf.png'), fullPage: true, animations: 'disabled' })
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+  await expect(loading).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Look inside a PDF.' })).toBeVisible()
+  release()
+  await page.unrouteAll({ behavior: 'wait' })
+  await openMinimal(page)
+  await expect(loading).toHaveCount(0)
+  await expect(page.getByRole('main', { name: 'Document inspection' })).toHaveAttribute('aria-busy', 'false')
+})
+
+test('explains parsing failures and retains the reason after dismissing the banner', async ({ page }) => {
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'broken.pdf', mimeType: 'application/pdf', buffer: Buffer.from('not a PDF') })
+  const explanation = page.getByRole('region', { name: 'Why structure is unavailable' })
+  await expect(explanation).toBeVisible()
+  await expect(explanation).toContainText('could not determine whether it is encrypted')
+  await expect(explanation).toContainText('export a fresh copy')
+  await page.getByRole('button', { name: 'Dismiss error', exact: true }).click()
+  await explanation.getByText('Technical details', { exact: true }).click()
+  await expect(explanation.locator('pre')).toContainText('Could not recover PDF structure: no objects found')
+  await page.screenshot({ path: screenshotPath('structure-unavailable.png'), fullPage: true, animations: 'disabled' })
+  await explanation.getByRole('button', { name: 'Inspect original bytes', exact: true }).click()
+  await expect(page.locator('.hex-status')).toContainText('1 bytes selected')
+  await upload(page, 'minimal.pdf')
+  await expect(explanation).toHaveCount(0)
+})
+
+test('distinguishes confirmed encryption from an unknown parsing failure', async ({ page }) => {
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'encrypted.pdf', mimeType: 'application/pdf', buffer: Buffer.from(encryptedPdf().bytes) })
+  await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible()
+  await expect(page.locator('.warning-inline')).toContainText('This PDF is encrypted')
+  await expect(page.locator('.warning-inline')).toContainText('password entry is not supported yet')
+  await expect(page.locator('.warning-inline')).toContainText('permissions restrictions')
+  await expect(page.getByRole('region', { name: 'Why structure is unavailable' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'First page', exact: true })).toBeDisabled()
+  await expect(page.getByRole('region', { name: 'Original file bytes', exact: true })).toBeVisible()
+})
+
 test('validates hex offsets and supports keyboard byte navigation', async ({ page }) => {
   await openMinimal(page)
   const offset = page.getByRole('textbox', { name: 'Go to offset', exact: true })
@@ -82,6 +133,144 @@ test('validates hex offsets and supports keyboard byte navigation', async ({ pag
   await expect(page.getByRole('status').filter({ hasText: 'no known containing object' })).toBeVisible()
   await page.getByRole('button', { name: /Offsets in hexadecimal; switch to decimal/ }).click()
   await expect(page.getByRole('button', { name: /Offsets in decimal; switch to hexadecimal/ })).toBeVisible()
+})
+
+test('keeps a clicked byte in place while selecting its containing object', async ({ page }) => {
+  const data = 'x'.repeat(20000)
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+    [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>'],
+    [4, `<< /Length ${data.length} >>\nstream\n${data}\nendstream`],
+  ])
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'long-stream.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await expect(page.locator('.status-bar')).toContainText('4 objects indexed')
+  const viewport = page.locator('.hex-viewport')
+  await viewport.evaluate(element => { element.scrollTop = 2600 })
+  const chooseMiddleByte = () => viewport.evaluate(element => {
+    const viewport = element.getBoundingClientRect()
+    const target = Array.from(element.querySelectorAll('button.hex-byte')).find(element => {
+      const rect = element.getBoundingClientRect()
+      return rect.top > viewport.top + viewport.height / 2 && rect.bottom < viewport.bottom
+    })
+    return target ? { label: target.getAttribute('aria-label')!, top: target.getBoundingClientRect().top } : null
+  })
+  // Wait for the virtualized rows to reflect the scrolled viewport.
+  await expect.poll(() => viewport.evaluate(element => element.scrollTop)).toBe(2600)
+  await expect.poll(chooseMiddleByte).not.toBeNull()
+  const target = (await chooseMiddleByte())!
+  const byte = page.getByRole('button', { name: target.label, exact: true })
+  await byte.click()
+  await expect(page.getByRole('heading', { name: /4 0\s+obj/ })).toBeVisible()
+  await expect.poll(() => viewport.evaluate(element => element.scrollTop)).toBe(2600)
+  await expect.poll(() => byte.evaluate(element => element.getBoundingClientRect().top)).toBeCloseTo(target.top, 0)
+  await expect(byte).toHaveClass(/hex-cursor/)
+  // Keyboard selection inside the same object should preserve the viewport too.
+  await viewport.focus()
+  await viewport.press('ArrowDown')
+  await viewport.press('Enter')
+  await expect.poll(() => viewport.evaluate(element => element.scrollTop)).toBe(2600)
+  // External object navigation should still reveal its original file range.
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Document catalog', exact: true }).click()
+  await expect(page.getByRole('heading', { name: /1 0\s+obj/ })).toBeVisible()
+  await expect.poll(() => viewport.evaluate(element => element.scrollTop)).toBeLessThan(2600)
+})
+
+test('keeps exploration paths and expands cyclic references without leaving the object', async ({ page }) => {
+  await openMinimal(page)
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  const inspector = page.getByRole('region', { name: 'Object inspector', exact: true })
+  await inspector.getByText('Expand 2 0 inline', { exact: true }).click()
+  await expect(inspector).toContainText('already in this path')
+  await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
+  await inspector.getByRole('button', { name: '4 0 R', exact: true }).first().click()
+  const trail = page.getByRole('navigation', { name: 'Exploration trail' })
+  await expect(trail).toContainText('Page 1')
+  await expect(trail).toContainText('/Contents')
+  await expect(trail).toContainText('4 0 obj')
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await expect(trail).not.toContainText('/Contents')
+  await page.getByRole('button', { name: 'Forward', exact: true }).click()
+  await expect(trail).toContainText('/Contents')
+  await trail.getByRole('button', { name: 'Page 1', exact: true }).click()
+  await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
+})
+
+test('bookmarks objects and byte ranges with session notes and clears them on replacement', async ({ page }) => {
+  await openMinimal(page)
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  await page.getByRole('button', { name: 'Bookmark', exact: true }).click()
+  const bookmarks = page.getByRole('region', { name: 'Session bookmarks' })
+  await bookmarks.getByRole('textbox', { name: 'Note for 3 0 obj · properties' }).fill('Check inherited fonts')
+  await page.getByRole('button', { name: '4 0 R', exact: true }).first().click()
+  await bookmarks.getByRole('button', { name: '3 0 obj · properties', exact: true }).click()
+  await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
+  await expect(bookmarks.getByRole('textbox')).toHaveValue('Check inherited fonts')
+  await page.getByRole('textbox', { name: 'Go to offset', exact: true }).fill('0')
+  await page.getByRole('button', { name: 'Jump to offset', exact: true }).click()
+  await page.getByRole('button', { name: 'Offset 0, byte 25', exact: true }).click()
+  await page.getByRole('button', { name: 'Bookmark', exact: true }).click()
+  await page.getByRole('button', { name: '4 0 R', exact: true }).first().click()
+  await bookmarks.getByRole('button', { name: /^Bytes 0x0/ }).click()
+  await expect(page.locator('.hex-status')).toContainText('1 bytes selected')
+  await upload(page, 'resources.pdf')
+  await expect(bookmarks.getByRole('textbox')).toHaveCount(0)
+})
+
+test('pins an object and compares typed dictionary differences', async ({ page }) => {
+  await openMinimal(page)
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  await page.getByRole('button', { name: 'Pin to compare', exact: true }).click()
+  await page.getByRole('button', { name: '4 0 R', exact: true }).first().click()
+  const comparison = page.getByRole('region', { name: 'Object comparison' })
+  await expect(comparison).toContainText('3 0')
+  await expect(comparison).toContainText('4 0')
+  await expect(comparison).toContainText('removed')
+  await expect(comparison).toContainText('added')
+  await comparison.getByRole('checkbox', { name: 'Show differences only' }).check()
+  await page.screenshot({ path: screenshotPath('object-comparison.png'), fullPage: true, animations: 'disabled' })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(comparison).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  await page.screenshot({ path: screenshotPath('comparison-mobile.png'), fullPage: true, animations: 'disabled' })
+  await comparison.getByRole('button', { name: /Unpin/ }).click()
+  await expect(comparison).toHaveCount(0)
+})
+
+test('explains decoded instructions and follows resources in their page context', async ({ page }) => {
+  await openMinimal(page)
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  await page.getByRole('button', { name: '4 0 R', exact: true }).first().click()
+  await page.getByRole('tab', { name: 'Decoded', exact: true }).click()
+  const decoded = page.getByRole('tabpanel', { name: 'Decoded', exact: true })
+  await decoded.getByRole('button', { name: 'Readable instructions', exact: true }).click()
+  await expect(decoded).toContainText('Select font /F1 at size 24')
+  await page.screenshot({ path: screenshotPath('readable-instructions.png'), fullPage: true, animations: 'disabled' })
+  await decoded.getByRole('button', { name: 'Decoded byte text', exact: true }).click()
+  await expect(decoded.locator('pre')).toContainText('/F1 24 Tf')
+  await decoded.getByRole('button', { name: 'Readable instructions', exact: true }).click()
+  await decoded.getByRole('button', { name: 'Inspect /F1 resource', exact: true }).first().click()
+  await expect(page.getByRole('heading', { name: /5 0\s+obj/ })).toBeVisible()
+})
+
+test('browses font details, generates local image thumbnails and follows using pages', async ({ page }) => {
+  const remote: string[] = []
+  page.on('request', request => {
+    if (/^https?:/.test(request.url()) && new URL(request.url()).origin !== new URL(page.url()).origin) remote.push(request.url())
+  })
+  await upload(page, 'resources.pdf')
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Resources', exact: true }).click()
+  const browser = page.getByRole('region', { name: 'Visual resource browser' })
+  await expect(browser).toContainText('Helvetica')
+  await browser.getByRole('button', { name: 'Preview image 6 0', exact: true }).click()
+  const image = browser.getByRole('img', { name: 'Image object 6 0', exact: true })
+  await expect(image).toBeVisible()
+  expect(await image.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBeGreaterThan(0)
+  await mkdir(resolve('.context'), { recursive: true })
+  await page.screenshot({ path: screenshotPath('resource-browser.png'), fullPage: true, animations: 'disabled' })
+  await browser.getByRole('button', { name: 'Page 1', exact: true }).first().click()
+  await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
+  expect(remote).toEqual([])
 })
 
 test('uploads and replaces local PDFs while clearing stale navigation', async ({ page }) => {
