@@ -1,0 +1,863 @@
+{
+  "version": 1,
+  "measuredOn": "2026-11-11",
+  "files": [
+    {
+      "id": "pdfjs-helloworld",
+      "filename": "pdfjs-helloworld.pdf",
+      "repository": "mozilla/pdf.js",
+      "revision": "94a48f3c844d4677b264b6e7c0a1e239c245189f",
+      "path": "examples/learning/helloworld.pdf",
+      "url": "https://raw.githubusercontent.com/mozilla/pdf.js/94a48f3c844d4677b264b6e7c0a1e239c245189f/examples/learning/helloworld.pdf",
+      "sha256": "c9efcaa374939ff19fc37974131f1db6d457eb942700c02a63fc9dda983e1400",
+      "size": 678,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 1,
+        "objects": 5,
+        "compressedObjects": 0,
+        "objectIdsSha256": "8dc5b2a4d738eec3e831ba8f3c63a54e0d22e06cb428395be686840f01dcdd1e",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 10
+          },
+          {
+            "id": "2 0",
+            "offset": 79
+          },
+          {
+            "id": "3 0",
+            "offset": 173
+          },
+          {
+            "id": "4 0",
+            "offset": 301
+          },
+          {
+            "id": "5 0",
+            "offset": 380
+          }
+        ],
+        "popplerPages": 1,
+        "producer": "Unspecified",
+        "creator": "Unspecified"
+      },
+      "features": [
+        "minimal upstream example"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/mozilla/pdf.js/blob/94a48f3c844d4677b264b6e7c0a1e239c245189f/examples/learning/helloworld.pdf"
+    },
+    {
+      "id": "pdfjs-openoffice",
+      "filename": "pdfjs-openoffice.pdf",
+      "repository": "mozilla/pdf.js",
+      "revision": "94a48f3c844d4677b264b6e7c0a1e239c245189f",
+      "path": "test/pdfs/openoffice.pdf",
+      "url": "https://raw.githubusercontent.com/mozilla/pdf.js/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/openoffice.pdf",
+      "sha256": "5c9841d641406b074f16087442a62f652057a607364b7aa82f8b4851f7e2acfc",
+      "size": 10388,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 1,
+        "objects": 10,
+        "compressedObjects": 0,
+        "objectIdsSha256": "3659071ac4f34ea0d648995fd1d65f1d6ec69ca91bc403e70820c7b0d2ccc0a6",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 15
+          },
+          {
+            "id": "10 0",
+            "offset": 9887
+          },
+          {
+            "id": "2 0",
+            "offset": 261
+          },
+          {
+            "id": "5 0",
+            "offset": 9534
+          },
+          {
+            "id": "7 0",
+            "offset": 9721
+          },
+          {
+            "id": "8 0",
+            "offset": 9756
+          },
+          {
+            "id": "9 0",
+            "offset": 10067
+          }
+        ],
+        "popplerPages": 1,
+        "producer": "Unspecified",
+        "creator": "Unspecified"
+      },
+      "features": [
+        "OpenOffice-named regression fixture",
+        "font resources"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/mozilla/pdf.js/blob/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/openoffice.pdf"
+    },
+    {
+      "id": "pdfjs-bug1937438_from_word",
+      "filename": "pdfjs-bug1937438_from_word.pdf",
+      "repository": "mozilla/pdf.js",
+      "revision": "94a48f3c844d4677b264b6e7c0a1e239c245189f",
+      "path": "test/pdfs/bug1937438_from_word.pdf",
+      "url": "https://raw.githubusercontent.com/mozilla/pdf.js/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/bug1937438_from_word.pdf",
+      "sha256": "e03f741a8d0f6b6bbc811b39616f28d09ffb5098ab0f9ea89a0dfbd3f22e51b9",
+      "size": 46285,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 1,
+        "objects": 43,
+        "compressedObjects": 11,
+        "objectIdsSha256": "b2586c3abf00a926657a8187f7e602589a2ae8a047a6674e96061295843dbdeb",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 17
+          },
+          {
+            "id": "10 0",
+            "offset": 1727
+          },
+          {
+            "id": "11 0",
+            "offset": 1781
+          },
+          {
+            "id": "34 0",
+            "offset": 4179
+          },
+          {
+            "id": "7 0",
+            "offset": 1262
+          },
+          {
+            "id": "8 0",
+            "offset": 1417
+          },
+          {
+            "id": "9 0",
+            "offset": 1490
+          }
+        ],
+        "popplerPages": 1,
+        "producer": "Microsoft\u00ae Word for Microsoft 365",
+        "creator": "Microsoft\u00ae Word for Microsoft 365"
+      },
+      "features": [
+        "Microsoft Word 365",
+        "tagged",
+        "hybrid xref",
+        "compressed objects"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/mozilla/pdf.js/blob/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/bug1937438_from_word.pdf"
+    },
+    {
+      "id": "pdfjs-chrome-text-selection-markedContent",
+      "filename": "pdfjs-chrome-text-selection-markedContent.pdf",
+      "repository": "mozilla/pdf.js",
+      "revision": "94a48f3c844d4677b264b6e7c0a1e239c245189f",
+      "path": "test/pdfs/chrome-text-selection-markedContent.pdf",
+      "url": "https://raw.githubusercontent.com/mozilla/pdf.js/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/chrome-text-selection-markedContent.pdf",
+      "sha256": "256551a6dabf4ae27b603a820bc58a15fa082919b023c7a181b491b92ef05b44",
+      "size": 137291,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 1,
+        "objects": 515,
+        "compressedObjects": 445,
+        "objectIdsSha256": "ddf9dbabff1efa98be204832762001bdb0f14e8815b9480be4b2416014d7228b",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 132157
+          },
+          {
+            "id": "10 0",
+            "offset": 3695
+          },
+          {
+            "id": "11 0",
+            "offset": 3640
+          },
+          {
+            "id": "43 0",
+            "offset": 18251
+          },
+          {
+            "id": "7 0",
+            "offset": 15
+          },
+          {
+            "id": "8 0",
+            "offset": 71
+          },
+          {
+            "id": "9 0",
+            "offset": 133
+          }
+        ],
+        "popplerPages": 1,
+        "producer": "iLovePDF",
+        "creator": "Unspecified"
+      },
+      "features": [
+        "iLovePDF producer",
+        "tagged",
+        "compressed objects",
+        "images"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/mozilla/pdf.js/blob/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/chrome-text-selection-markedContent.pdf"
+    },
+    {
+      "id": "pdfjs-scan-bad",
+      "filename": "pdfjs-scan-bad.pdf",
+      "repository": "mozilla/pdf.js",
+      "revision": "94a48f3c844d4677b264b6e7c0a1e239c245189f",
+      "path": "test/pdfs/scan-bad.pdf",
+      "url": "https://raw.githubusercontent.com/mozilla/pdf.js/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/scan-bad.pdf",
+      "sha256": "d40f31f182cf254ab134826d379875acacb1f7b48bf1a57bce2e30b38d16628e",
+      "size": 29832,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 1,
+        "objects": 11,
+        "compressedObjects": 0,
+        "objectIdsSha256": "26e87077c0ade1817aaf14a25c4574a81da1dd8ef1d94594fa5e93ecbb7cf14c",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 15
+          },
+          {
+            "id": "10 0",
+            "offset": 17816
+          },
+          {
+            "id": "11 0",
+            "offset": 17927
+          },
+          {
+            "id": "4 0",
+            "offset": 163
+          },
+          {
+            "id": "7 0",
+            "offset": 17660
+          },
+          {
+            "id": "8 0",
+            "offset": 17721
+          },
+          {
+            "id": "9 0",
+            "offset": 17739
+          }
+        ],
+        "popplerPages": 1,
+        "producer": "",
+        "creator": "Canon"
+      },
+      "features": [
+        "Canon scan",
+        "damaged xref",
+        "recovery",
+        "image"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/mozilla/pdf.js/blob/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/scan-bad.pdf"
+    },
+    {
+      "id": "pdfjs-images_1bit_grayscale",
+      "filename": "pdfjs-images_1bit_grayscale.pdf",
+      "repository": "mozilla/pdf.js",
+      "revision": "94a48f3c844d4677b264b6e7c0a1e239c245189f",
+      "path": "test/pdfs/images_1bit_grayscale.pdf",
+      "url": "https://raw.githubusercontent.com/mozilla/pdf.js/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/images_1bit_grayscale.pdf",
+      "sha256": "afbed07b9fe25563b2604b81cd7186c91d4356e5428a05322b8b7eae88301e24",
+      "size": 4573,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 1,
+        "objects": 12,
+        "compressedObjects": 0,
+        "objectIdsSha256": "982cfef38bf6e1287802bdb6f828053de6e0d02745effbe94927b1d0cd05185d",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 4155
+          },
+          {
+            "id": "10 0",
+            "offset": 3186
+          },
+          {
+            "id": "11 0",
+            "offset": 15
+          },
+          {
+            "id": "4 0",
+            "offset": 4026
+          },
+          {
+            "id": "7 0",
+            "offset": 3721
+          },
+          {
+            "id": "8 0",
+            "offset": 336
+          },
+          {
+            "id": "9 0",
+            "offset": 1811
+          }
+        ],
+        "popplerPages": 1,
+        "producer": "Unspecified",
+        "creator": "Unspecified"
+      },
+      "features": [
+        "1-bit grayscale images"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/mozilla/pdf.js/blob/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/images_1bit_grayscale.pdf"
+    },
+    {
+      "id": "pdfjs-tracemonkey",
+      "filename": "pdfjs-tracemonkey.pdf",
+      "repository": "mozilla/pdf.js",
+      "revision": "94a48f3c844d4677b264b6e7c0a1e239c245189f",
+      "path": "test/pdfs/tracemonkey.pdf",
+      "url": "https://raw.githubusercontent.com/mozilla/pdf.js/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/tracemonkey.pdf",
+      "sha256": "3662ff519e485810520552bf301d8c3b2b917fd2f83303f4965d7abed367e113",
+      "size": 1016315,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 14,
+        "objects": 996,
+        "compressedObjects": 0,
+        "objectIdsSha256": "fce635c295ccc60ca07b2767ea48306d6cb8d42b68c501928ec6343e113a8d26",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 4814
+          },
+          {
+            "id": "10 0",
+            "offset": 957843
+          },
+          {
+            "id": "100 0",
+            "offset": 54134
+          },
+          {
+            "id": "548 0",
+            "offset": 729878
+          },
+          {
+            "id": "994 0",
+            "offset": 995879
+          },
+          {
+            "id": "995 0",
+            "offset": 995956
+          },
+          {
+            "id": "996 0",
+            "offset": 996009
+          }
+        ],
+        "popplerPages": 14,
+        "producer": "pdfeTeX-1.21a",
+        "creator": "TeX"
+      },
+      "features": [
+        "TeX",
+        "14 pages",
+        "embedded fonts",
+        "images"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/mozilla/pdf.js/blob/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/tracemonkey.pdf"
+    },
+    {
+      "id": "pdfjs-cmykjpeg",
+      "filename": "pdfjs-cmykjpeg.pdf",
+      "repository": "mozilla/pdf.js",
+      "revision": "94a48f3c844d4677b264b6e7c0a1e239c245189f",
+      "path": "test/pdfs/cmykjpeg.pdf",
+      "url": "https://raw.githubusercontent.com/mozilla/pdf.js/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/cmykjpeg.pdf",
+      "sha256": "659d6b19912f63db988b0b26b9bde0e6d8100667ef162051a4a84ea8e5b90272",
+      "size": 374080,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 1,
+        "objects": 35,
+        "compressedObjects": 0,
+        "objectIdsSha256": "6a04ad3880815649f3452003177c3bc37b54b490fcebb3cdf9075fbb22d41b40",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 16
+          },
+          {
+            "id": "15 0",
+            "offset": 372411
+          },
+          {
+            "id": "16 0",
+            "offset": 372442
+          },
+          {
+            "id": "44 0",
+            "offset": 76307
+          },
+          {
+            "id": "58 0",
+            "offset": 353027
+          },
+          {
+            "id": "59 0",
+            "offset": 372552
+          },
+          {
+            "id": "7 0",
+            "offset": 59740
+          }
+        ],
+        "popplerPages": 1,
+        "producer": "Adobe PDF library 9.90",
+        "creator": "Adobe Illustrator CS5.1"
+      },
+      "features": [
+        "Adobe Illustrator CS5.1",
+        "CMYK JPEG image"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/mozilla/pdf.js/blob/94a48f3c844d4677b264b6e7c0a1e239c245189f/test/pdfs/cmykjpeg.pdf"
+    },
+    {
+      "id": "pdf-lib-normal",
+      "filename": "pdf-lib-normal.pdf",
+      "repository": "Hopding/pdf-lib",
+      "revision": "93dd36e85aa659a3bca09867d2d8fac172501fbe",
+      "path": "assets/pdfs/normal.pdf",
+      "url": "https://raw.githubusercontent.com/Hopding/pdf-lib/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/normal.pdf",
+      "sha256": "a255252ff46a1ae879a08767096f3e784f0e90737771207096d3454035be598d",
+      "size": 75959,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 2,
+        "objects": 108,
+        "compressedObjects": 0,
+        "objectIdsSha256": "5d9ad97354b2e5b7d82190f46e5a5807c647d82faf16533227aa807a81fc45b3",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 73441
+          },
+          {
+            "id": "10 0",
+            "offset": 8057
+          },
+          {
+            "id": "100 0",
+            "offset": 52661
+          },
+          {
+            "id": "50 0",
+            "offset": 18259
+          },
+          {
+            "id": "97 0",
+            "offset": 47236
+          },
+          {
+            "id": "98 0",
+            "offset": 51749
+          },
+          {
+            "id": "99 0",
+            "offset": 52399
+          }
+        ],
+        "popplerPages": 2,
+        "producer": "Mac OS X 10.12.6 Quartz PDFContext",
+        "creator": "Unspecified"
+      },
+      "features": [
+        "Quartz",
+        "AcroForm",
+        "zero-offset xref entries"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "zero-offset-xref",
+      "sourcePage": "https://github.com/Hopding/pdf-lib/blob/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/normal.pdf"
+    },
+    {
+      "id": "pdf-lib-with_update_sections",
+      "filename": "pdf-lib-with_update_sections.pdf",
+      "repository": "Hopding/pdf-lib",
+      "revision": "93dd36e85aa659a3bca09867d2d8fac172501fbe",
+      "path": "assets/pdfs/with_update_sections.pdf",
+      "url": "https://raw.githubusercontent.com/Hopding/pdf-lib/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/with_update_sections.pdf",
+      "sha256": "b0de16ff27cf3a95e7eb3ba261b0f5d257070ab00f374fdfdaeb1e0b6a85d2ea",
+      "size": 75741,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 1,
+        "objects": 135,
+        "compressedObjects": 0,
+        "objectIdsSha256": "05866dc6b691b5d96a69d878275a953af70c349580dd63a1b0c772060c724dc4",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 70593
+          },
+          {
+            "id": "10 0",
+            "offset": 9468
+          },
+          {
+            "id": "100 0",
+            "offset": 49469
+          },
+          {
+            "id": "32 0",
+            "offset": 70872
+          },
+          {
+            "id": "97 0",
+            "offset": 49274
+          },
+          {
+            "id": "98 0",
+            "offset": 49333
+          },
+          {
+            "id": "99 0",
+            "offset": 49382
+          }
+        ],
+        "popplerPages": 1,
+        "producer": "Adobe Acrobat Pro 10.1.8",
+        "creator": "Adobe LiveCycle Designer ES 8.2"
+      },
+      "features": [
+        "Adobe Acrobat",
+        "incremental updates",
+        "AcroForm",
+        "document JavaScript present but not executed"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/Hopding/pdf-lib/blob/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/with_update_sections.pdf"
+    },
+    {
+      "id": "pdf-lib-linearized_with_object_streams",
+      "filename": "pdf-lib-linearized_with_object_streams.pdf",
+      "repository": "Hopding/pdf-lib",
+      "revision": "93dd36e85aa659a3bca09867d2d8fac172501fbe",
+      "path": "assets/pdfs/linearized_with_object_streams.pdf",
+      "url": "https://raw.githubusercontent.com/Hopding/pdf-lib/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/linearized_with_object_streams.pdf",
+      "sha256": "5c72c92bd1c3043890c4ccda0fa783513cf2dc5bc585e815c0b139be5f668402",
+      "size": 4019135,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 206,
+        "objects": 85334,
+        "compressedObjects": 83804,
+        "objectIdsSha256": "cb91483a69157fe989a1b1b9b9a8828e738a31deb06e462a24393efb11a08b73",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 357182
+          },
+          {
+            "id": "10 0",
+            "offset": 370808
+          },
+          {
+            "id": "100 0",
+            "offset": 666215
+          },
+          {
+            "id": "336 0",
+            "offset": 1763551
+          },
+          {
+            "id": "997 0",
+            "offset": 3370913
+          },
+          {
+            "id": "998 0",
+            "offset": 3371997
+          },
+          {
+            "id": "999 0",
+            "offset": 3373074
+          }
+        ],
+        "popplerPages": 206,
+        "producer": "Adobe PDF library 10.01",
+        "creator": "Adobe Illustrator CS6 (Windows)"
+      },
+      "features": [
+        "Adobe Illustrator CS6",
+        "206 pages",
+        "linearized",
+        "83804 compressed objects"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/Hopding/pdf-lib/blob/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/linearized_with_object_streams.pdf"
+    },
+    {
+      "id": "pdf-lib-missing_endobj_keyword",
+      "filename": "pdf-lib-missing_endobj_keyword.pdf",
+      "repository": "Hopding/pdf-lib",
+      "revision": "93dd36e85aa659a3bca09867d2d8fac172501fbe",
+      "path": "assets/pdfs/missing_endobj_keyword.pdf",
+      "url": "https://raw.githubusercontent.com/Hopding/pdf-lib/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/missing_endobj_keyword.pdf",
+      "sha256": "30f2536f754c14121b4596a50d95fc38592b8a0d81640e92c1fbe6553f482479",
+      "size": 1004,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 1,
+        "objects": 7,
+        "compressedObjects": 0,
+        "objectIdsSha256": "1add97b277350415cad73097c76f7f769336e94172ac91710877430a2d2b1af7",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 9
+          },
+          {
+            "id": "10 0",
+            "offset": 590
+          },
+          {
+            "id": "2 0",
+            "offset": 70
+          },
+          {
+            "id": "3 0",
+            "offset": 120
+          },
+          {
+            "id": "4 0",
+            "offset": 195
+          },
+          {
+            "id": "5 0",
+            "offset": 249
+          },
+          {
+            "id": "8 0",
+            "offset": 470
+          }
+        ],
+        "popplerPages": 1,
+        "producer": "null",
+        "creator": "Unspecified"
+      },
+      "features": [
+        "missing endobj",
+        "unknown provenance"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/Hopding/pdf-lib/blob/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/missing_endobj_keyword.pdf",
+      "expectedUnknownObjectIds": [
+        "10 0"
+      ]
+    },
+    {
+      "id": "pdf-lib-invalid_root_ref",
+      "filename": "pdf-lib-invalid_root_ref.pdf",
+      "repository": "Hopding/pdf-lib",
+      "revision": "93dd36e85aa659a3bca09867d2d8fac172501fbe",
+      "path": "assets/pdfs/invalid_root_ref.pdf",
+      "url": "https://raw.githubusercontent.com/Hopding/pdf-lib/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/invalid_root_ref.pdf",
+      "sha256": "bc0d5ec68433277d36aea4d80c3f8a97a85672b3ded52696118f69623f9a5114",
+      "size": 151088,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 1,
+        "objects": 27,
+        "compressedObjects": 17,
+        "objectIdsSha256": "7eb652c740212fe718fd0a2e15ddf065cd26c02a807f84c4c7f6ee496b87cbf7",
+        "sampleOffsets": [
+          {
+            "id": "1 0",
+            "offset": 1886
+          },
+          {
+            "id": "2 0",
+            "offset": 2044
+          },
+          {
+            "id": "3 0",
+            "offset": 2108
+          },
+          {
+            "id": "41 0",
+            "offset": 82487
+          },
+          {
+            "id": "43 0",
+            "offset": 149455
+          },
+          {
+            "id": "44 0",
+            "offset": 149496
+          },
+          {
+            "id": "5 0",
+            "offset": 10
+          }
+        ],
+        "producer": "Unspecified",
+        "creator": "Unspecified"
+      },
+      "features": [
+        "invalid root",
+        "bad object offsets",
+        "partial recovery"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "partial-recovery",
+      "sourcePage": "https://github.com/Hopding/pdf-lib/blob/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/invalid_root_ref.pdf"
+    },
+    {
+      "id": "pdf-lib-encrypted_new",
+      "filename": "pdf-lib-encrypted_new.pdf",
+      "repository": "Hopding/pdf-lib",
+      "revision": "93dd36e85aa659a3bca09867d2d8fac172501fbe",
+      "path": "assets/pdfs/encrypted_new.pdf",
+      "url": "https://raw.githubusercontent.com/Hopding/pdf-lib/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/encrypted_new.pdf",
+      "sha256": "a9b6d95fa1d4a18ba0a9da2fc1b58d9702582d4905006f94eaf7234d60233e8c",
+      "size": 19556,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": true,
+        "producer": "Unspecified",
+        "creator": "Unspecified"
+      },
+      "features": [
+        "encrypted",
+        "locked inspection"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "locked",
+      "sourcePage": "https://github.com/Hopding/pdf-lib/blob/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/encrypted_new.pdf"
+    },
+    {
+      "id": "pdf-lib-create_form",
+      "filename": "pdf-lib-create_form.pdf",
+      "repository": "Hopding/pdf-lib",
+      "revision": "93dd36e85aa659a3bca09867d2d8fac172501fbe",
+      "path": "assets/pdfs/examples/create_form.pdf",
+      "url": "https://raw.githubusercontent.com/Hopding/pdf-lib/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/examples/create_form.pdf",
+      "sha256": "a5e1af9813e57b7b6564c92e9a36af519599caffc79538d17cb36c1b8fd491c0",
+      "size": 18861,
+      "oracle": {
+        "reader": "pypdf 6.14.2",
+        "poppler": "pdfinfo 26.07.0",
+        "encrypted": false,
+        "pages": 1,
+        "objects": 88,
+        "compressedObjects": 31,
+        "objectIdsSha256": "729a509fe34ec0867b0d117ebfdd6d357f7a5761687827737ab6cb0228dbb479",
+        "sampleOffsets": [
+          {
+            "id": "13 0",
+            "offset": 440
+          },
+          {
+            "id": "16 0",
+            "offset": 808
+          },
+          {
+            "id": "17 0",
+            "offset": 1155
+          },
+          {
+            "id": "55 0",
+            "offset": 8590
+          },
+          {
+            "id": "86 0",
+            "offset": 16398
+          },
+          {
+            "id": "87 0",
+            "offset": 16903
+          },
+          {
+            "id": "88 0",
+            "offset": 18409
+          }
+        ],
+        "popplerPages": 1,
+        "producer": "pdf-lib (https://github.com/Hopding/pdf-lib)",
+        "creator": "pdf-lib (https://github.com/Hopding/pdf-lib)"
+      },
+      "features": [
+        "pdf-lib producer",
+        "AcroForm",
+        "compressed objects"
+      ],
+      "rights": "Remote upstream test asset; original document rights are not inferred from repository license. Downloaded only to ignored local cache, never bundled or redistributed by this project.",
+      "expectation": "oracle-match",
+      "sourcePage": "https://github.com/Hopding/pdf-lib/blob/93dd36e85aa659a3bca09867d2d8fac172501fbe/assets/pdfs/examples/create_form.pdf"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+%PDF-1.7
+%âãÏÓ
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R /Metadata 7 0 R /Names << /EmbeddedFiles << /Names [(notes.txt) 10 0 R] >> >> >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 /Resources << /Font << /F1 5 0 R >> /XObject << /Im1 6 0 R >> >> >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 90 /Filter /FlateDecode  >>
+stream
+xœÅ1
+€0À~_±¥V^‚’^T°TîÏBP1ÁÿK˜bzE39ú–z xêŽjµü|)ZævïLvX²;Z®©'FÅç…E9xv"Œšùr,ø.´Æ
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+6 0 obj
+<< /Length 3 /Type /XObject /Subtype /Image /Width 1 /Height 1 /ColorSpace /DeviceRGB /BitsPerComponent 8 >>
+stream
+ uÖ
+endstream
+endobj
+7 0 obj
+<< /Length 90 /Type /Metadata /Subtype /XML >>
+stream
+<?xml version="1.0"?><x:xmpmeta xmlns:x="adobe:ns:meta/">Project-owned fixture</x:xmpmeta>
+endstream
+endobj
+8 0 obj
+<< /Title (Resources and references) /Author (PDF Internals Viewer) /Producer (Project fixture generator) >>
+endobj
+9 0 obj
+<< /Length 52 /Type /EmbeddedFile >>
+stream
+This attachment is data. No scripts or remote links.
+endstream
+endobj
+10 0 obj
+<< /Type /Filespec /F (notes.txt) /EF << /F 9 0 R >> >>
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000015 00000 n 
+0000000142 00000 n 
+0000000264 00000 n 
+0000000351 00000 n 
+0000000513 00000 n 
+0000000583 00000 n 
+0000000728 00000 n 
+0000000898 00000 n 
+0000001022 00000 n 
+0000001144 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R /Info 8 0 R >>
+startxref
+1216
+%%EOF
