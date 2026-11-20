@@ -122,3 +122,36 @@ export function oversizedDecodedPdf() {
   objects[3][1] = Buffer.concat([ascii(`<< /Length ${data.length} /Filter /FlateDecode >>\nstream\n`), data, ascii('\nendstream')]);
   return classicPdf(objects);
 }
+
+/** Synthetic binary payloads: extraction tests do not install or render this font. */
+export function embeddedFilesPdf() {
+  const attachment = Buffer.from(Array.from({ length: 300_000 }, (_, i) => i % 256));
+  const font = Buffer.from([0, 1, 0, 0, 255, 128, 0, 17]);
+  const binaryStream = (bytes, dict) => {
+    const encoded = deflateSync(bytes);
+    return Buffer.concat([ascii(`<< /Length ${encoded.length} /Filter /FlateDecode ${dict} >>\nstream\n`), encoded, ascii('\nendstream')]);
+  };
+  return {
+    ...classicPdf([
+      [1, '<< /Type /Catalog /Pages 2 0 R /Names << /EmbeddedFiles 5 0 R >> >>'],
+      [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+      [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Resources << /Font << /F1 8 0 R >> >> >>'],
+      [5, '<< /Names [(report.txt) 6 0 R] >>'],
+      [6, '<< /Type /Filespec /F (fallback.txt) /UF (report.txt) /EF << /F 7 0 R /UF 7 0 R >> >>'],
+      [7, binaryStream(attachment, '/Type /EmbeddedFile')],
+      [8, '<< /Type /Font /Subtype /Type0 /BaseFont /ABCDEF+Example /Encoding /Identity-H /DescendantFonts [9 0 R] >>'],
+      [9, '<< /Type /Font /Subtype /CIDFontType2 /BaseFont /ABCDEF+Example /FontDescriptor 10 0 R >>'],
+      [10, '<< /Type /FontDescriptor /FontName /ABCDEF+Example /FontFile2 11 0 R >>'],
+      [11, binaryStream(font, '')],
+    ]), attachment, font,
+  };
+}
+
+export function imageExportPdf({ data, filter = 'FlateDecode', width = 400, height = 300, extra = '' } = {}) {
+  const pixels = data ?? Buffer.from(Array.from({length: width * height * 3}, (_, i) => [32, 117, 214][i % 3]));
+  const encoded = filter === 'FlateDecode' ? deflateSync(pixels) : pixels;
+  const objects = baseObjects();
+  objects[2][1] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> /XObject << /Im1 6 0 R >> >> /Contents 4 0 R >>';
+  objects.push([6, Buffer.concat([ascii(`<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Length ${encoded.length} /Filter /${filter} ${extra} >>\nstream\n`), encoded, ascii('\nendstream')])]);
+  return { ...classicPdf(objects), pixels };
+}

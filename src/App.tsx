@@ -64,6 +64,10 @@ import { ObjectComparison } from "@/components/object-comparison"
 import { PageTree, type PageTreeState } from "@/components/page-tree"
 import { ResourceBrowser } from "@/components/resource-browser"
 import {
+  resourceCatalog,
+  type ResourceCategory,
+} from "@/lib/pdf/resource-catalog"
+import {
   extendExplorationTrail,
   referencePathOwners,
   type ExplorationStep,
@@ -187,6 +191,9 @@ export default function App() {
   const [mobilePane, setMobilePane] = useState("inspector")
   const [pageTreeState, setPageTreeState] = useState(emptyPageTree)
   const [objectScroll, setObjectScroll] = useState(0)
+  const [resourceCategory, setResourceCategory] =
+    useState<ResourceCategory>("All")
+  const [resourceFilter, setResourceFilter] = useState("")
   const narrow = useNarrow()
   const selection = history[historyIndex]
   const section = selection.section
@@ -375,6 +382,8 @@ export default function App() {
     setBookmarksSaved(true)
     setBookmarks([])
     setPinnedId(null)
+    setResourceCategory("All")
+    setResourceFilter("")
   }, [])
   useEffect(
     () => () => {
@@ -501,6 +510,23 @@ export default function App() {
     if (!client.current)
       return Promise.reject(new Error("Open a PDF before reading a stream."))
     return client.current.readStream(id, mode)
+  }, [])
+  const extractStream = useCallback(
+    (id: string, purpose: "download" | "size" = "download") => {
+      if (!client.current)
+        return Promise.reject(
+          new Error("Open a PDF before downloading a file.")
+        )
+      return client.current.readStream(id, "decoded", purpose)
+    },
+    []
+  )
+  const extractImage = useCallback((id: string) => {
+    if (!client.current)
+      return Promise.reject(
+        new Error("Open a PDF before downloading an image.")
+      )
+    return client.current.readStream(id, "decoded", "image")
   }, [])
 
   async function search() {
@@ -644,9 +670,8 @@ export default function App() {
       navigate(document.catalogId, "properties", next)
     else visit({ ...selection, section: next })
   }
-  const resourceObjects = objects.filter((object) =>
-    ["Font", "Image", "XObject", "Form"].includes(object.kind)
-  )
+  const resourceEntries = useMemo(() => resourceCatalog(objectMap), [objectMap])
+  const resourceObjects = resourceEntries.map((entry) => entry.object)
   const listedObjects =
     section === "pages"
       ? (document?.pages ?? [])
@@ -1024,6 +1049,8 @@ export default function App() {
           ?.id ?? undefined
       }
       readStream={readStream}
+      extractStream={extractStream}
+      extractImage={extractImage}
     />
   ) : null
 
@@ -1154,7 +1181,13 @@ export default function App() {
         <ResourceBrowser
           document={document}
           objectMap={objectMap}
-          readStream={readStream}
+          extractStream={extractStream}
+          extractImage={extractImage}
+          resources={resourceEntries}
+          category={resourceCategory}
+          onCategoryChange={setResourceCategory}
+          filter={resourceFilter}
+          onFilterChange={setResourceFilter}
           onNavigate={(id) => navigate(id)}
         />
       ) : (
@@ -1237,20 +1270,17 @@ export default function App() {
               <BookOpen size={15} /> User guide
             </Button>
             {filename && (
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={busy ? "Cancel opening PDF" : "Close document"}
-                title={busy ? "Cancel opening PDF" : "Close document"}
-                onClick={close}
-              >
-                <X size={15} />
+              <Button variant="ghost" size="sm" onClick={close}>
+                <X size={15} aria-hidden="true" />
+                {busy ? "Cancel opening PDF" : "Close PDF"}
               </Button>
             )}
-            <Button onClick={() => input.current?.click()} size="sm">
-              <FolderOpen size={15} />
-              Open PDF
-            </Button>
+            {!filename && (
+              <Button onClick={() => input.current?.click()} size="sm">
+                <FolderOpen size={15} />
+                Open PDF
+              </Button>
+            )}
           </div>
         </header>
         {error && (
