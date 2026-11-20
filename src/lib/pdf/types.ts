@@ -49,11 +49,13 @@ export interface StreamResult {
   bytes: Uint8Array;
   text: string;
   truncated: boolean;
+  encoding?: 'jpeg';
+  byteLength?: number;
   error?: string;
 }
 export type ParserRequest =
   | { requestId: number; type: 'open'; password?: string; bytes: Uint8Array; filename: string }
-  | { requestId: number; type: 'stream'; objectId: string; mode: 'raw' | 'decoded' };
+  | { requestId: number; type: 'stream'; objectId: string; mode: 'raw' | 'decoded'; purpose?: 'preview' | 'download' | 'image' | 'size' };
 export type ParserResponse =
   | { requestId: number; type: 'opened'; document: PdfDocumentInfo }
   | { requestId: number; type: 'stream'; result: StreamResult }

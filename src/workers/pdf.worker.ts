@@ -8,7 +8,7 @@ self.onmessage = async (event: MessageEvent<ParserRequest>) => {
   try {
     response = request.type === 'open'
       ? { requestId: request.requestId, type: 'opened', document: await inspector.open(request.bytes, request.filename, request.password) }
-      : { requestId: request.requestId, type: 'stream', result: inspector.readStream(request.objectId, request.mode) };
+      : { requestId: request.requestId, type: 'stream', result: inspector.readStream(request.objectId, request.mode, request.purpose) };
   } catch (error) { response = { requestId: request.requestId, type: 'error', error: error instanceof Error ? error.message : String(error) }; }
   self.postMessage(response);
 };
