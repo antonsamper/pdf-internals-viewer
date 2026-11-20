@@ -36,7 +36,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -57,7 +57,6 @@ import {
   SessionBookmarks,
   type SessionBookmark,
 } from "@/components/session-bookmarks"
-import { UserGuide } from "@/components/user-guide"
 import {
   documentBookmarkKey,
   readBookmarks,
@@ -146,8 +145,6 @@ function useNarrow() {
 
 export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
   const { path, about, goHome, followLink } = useSiteRoute(initialPath)
-  const [guideOpen, setGuideOpen] = useState(false)
-  const guideOpener = useRef<HTMLElement | null>(null)
   const [limitationsOpen, setLimitationsOpen] = useState(false)
   const limitationsOpener = useRef<HTMLElement | null>(null)
   const input = useRef<HTMLInputElement>(null)
@@ -1317,20 +1314,16 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
             )}
           </div>
           <div className="header-actions">
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-haspopup="dialog"
+            <a
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+              href="/guide"
               aria-label="User guide"
               title="User guide"
-              onClick={(event) => {
-                guideOpener.current = event.currentTarget
-                setGuideOpen(true)
-              }}
+              onClick={followLink}
             >
               <BookOpen size={15} aria-hidden="true" />{" "}
               <span className="header-action-label">User guide</span>
-            </Button>
+            </a>
             {filename && (
               <Button
                 variant="ghost"
@@ -1778,12 +1771,6 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
             </span>
           </footer>
         )}
-        <UserGuide
-          onFollowLink={followLink}
-          open={guideOpen}
-          onOpenChange={setGuideOpen}
-          returnFocusRef={guideOpener}
-        />
         <LimitationsDialog
           returnFocusRef={limitationsOpener}
           open={limitationsOpen}

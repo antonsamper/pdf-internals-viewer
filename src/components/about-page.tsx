@@ -30,10 +30,10 @@ export function AboutPage({
         <section>
           <h2>Built for exploring</h2>
           <p>
-            A PDF stores page properties in dictionaries (lists of keys and
-            values). References link them to fonts, images, and streams of
-            drawing instructions. This workspace helps developers follow those
-            connections while keeping the original file bytes in view.
+            A PDF stores page properties in dictionaries (collections of
+            key–value pairs). References link them to fonts, images, and streams
+            of drawing instructions. This workspace helps developers follow
+            those connections while keeping the original file bytes in view.
           </p>
           <p>
             Open your own PDF or start with a bundled sample. Follow a page to
@@ -73,8 +73,8 @@ export function AboutPage({
           </p>
           <p>
             Some PDFs and features are only partially supported. The inspector
-            labels recovered structure and unavailable data; page rendering and
-            byte inspection have different capabilities.
+            labels recovered structure and unavailable data. Page preview may
+            display content that the inspector cannot decode.
           </p>
           <button
             className="about-text-button"
@@ -87,7 +87,7 @@ export function AboutPage({
           </button>
         </section>
         <section>
-          <h2>Learn with original examples</h2>
+          <h2>Explore the sample PDFs</h2>
           <p>
             Follow the{" "}
             <a href="/guide" onClick={onFollowLink}>

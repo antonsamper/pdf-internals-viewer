@@ -1,5 +1,10 @@
 import type { MouseEvent } from "react"
 import { ArrowLeft } from "lucide-react"
+import {
+  AttachmentsGuide,
+  SearchGuide,
+  SuspiciousFeaturesGuide,
+} from "./task-guides"
 import { BrandIcon } from "@/components/brand-artwork"
 import { SiteLinks } from "@/components/site-links"
 import {
@@ -32,91 +37,63 @@ function Guide() {
   return (
     <>
       <p className="about-lead">
-        Open a PDF, select a page, follow its references, and inspect the
-        original bytes. PDF Internals is a read-only browser workspace for
-        developers; PDF processing happens locally without uploading your
-        document.
+        Start with a sample, then choose a task. Your PDF stays on your device;
+        inspecting it does not change the file.
       </p>
-      <h2>Start with a known example</h2>
+      <h2>Try your first inspection</h2>
       <SampleLinks sample="minimal" label="A simple page" />
       <ol>
         <li>
-          Open <strong>A simple page</strong>, then choose{" "}
-          <strong>First page</strong> in the document overview.
+          Choose <strong>First page</strong> in the document overview.
         </li>
         <li>
-          In the Inspector, follow the page’s <code>/Contents</code> reference,{" "}
-          <code>4 0 R</code>.
+          Follow <code>/Contents</code> → <strong>4 0 R</strong> in the
+          Inspector.
         </li>
         <li>
-          Choose <strong>Decoded</strong> to read the text drawing commands,
-          including <code>Hello, PDF internals.</code>
-        </li>
-        <li>
-          Use <strong>Original bytes</strong> to see the selected object’s
-          location in the unchanged file. Open <strong>Page preview</strong> to
-          see the rendered page.
+          Select <strong>Decoded</strong> to find{" "}
+          <code>Hello, PDF internals.</code> in the drawing instructions. Open{" "}
+          <strong>Page preview</strong> to see the result, or{" "}
+          <strong>Original bytes</strong> to locate the selected object in the
+          file.
         </li>
       </ol>
-      <h2>Understand the three views</h2>
-      <dl>
-        <dt>Explorer</dt>
-        <dd>Choose pages, resources, file structure, or individual objects.</dd>
-        <dt>Inspector</dt>
-        <dd>
-          Read object properties, follow references, compare dictionaries (lists
-          of keys and values), and inspect source syntax or stream bytes.
-        </dd>
-        <dt>Original bytes</dt>
-        <dd>
-          Examine the unchanged file as hexadecimal values and text, with one
-          character per byte. For compressed objects, the inspector shows the
-          containing stream and the position within its decoded bytes. These
-          objects have no separate byte range in the original file.
-        </dd>
-      </dl>
-      <h2>Investigate a question</h2>
+      <h2>What would you like to do?</h2>
       <ul>
         <li>
           <a href="/guides/inspect-pdf-objects">
             Understand objects and references such as 3 0 R
           </a>
-          .
         </li>
         <li>
-          <a href="/guides/decode-pdf-streams">
-            Compare raw, decoded, and compressed stream representations
-          </a>
-          .
+          <a href="/guides/decode-pdf-streams">Read and decode PDF streams</a>
         </li>
         <li>
-          <a href="/guides/find-pdf-fonts-images">
-            Find font and image resources
+          <a href="/guides/find-pdf-fonts-images">Find fonts and images</a>
+        </li>
+        <li>
+          <a href="/guides/find-pdf-attachments">
+            Find and extract attachments
           </a>
-          .
+        </li>
+        <li>
+          <a href="/guides/search-bookmark-compare">
+            Search, bookmark, and compare objects
+          </a>
+        </li>
+        <li>
+          <a href="/guides/investigate-suspicious-features">
+            Investigate suspicious features
+          </a>
         </li>
       </ul>
-      <h2>Search, bookmark, and compare</h2>
       <p>
-        Search objects, dictionary keys, file byte text, hex, or decoded stream
-        byte text. Decoded search checks only the first 256 KiB of each stream;
-        it does not extract the text you see on a rendered page. Use Back and
-        Forward to retrace your inspection.
+        Use Ctrl/Cmd+O to open a PDF and Ctrl/Cmd+K to focus search. On a small
+        screen, switch between the Explorer, Inspector, and Original bytes tabs.
       </p>
       <p>
-        Bookmark an object or byte range and add a note. This browser saves
-        bookmarks for the next time you open the same PDF, when storage is
-        available. Pin one object, then select another to compare dictionary
-        values. The bytes stored in streams are not compared.
-      </p>
-      <p>
-        Use Ctrl/Cmd+O to open a PDF and Ctrl/Cmd+K to focus search. On narrow
-        screens, switch between Explorer, Inspector, and Original bytes tabs.
-      </p>
-      <p>
-        Before investigating your own document, review{" "}
-        <a href="/privacy">browser storage and privacy</a> and{" "}
-        <a href="/limitations">supported features and limits</a>.
+        See <a href="/privacy">privacy and browser storage</a> or{" "}
+        <a href="/limitations">supported features and limits</a> for details.
       </p>
     </>
   )
@@ -151,8 +128,9 @@ endobj`}</code>
         Here <code>/Parent 2 0 R</code> points to the page’s parent in the page
         tree. <code>/Contents 4 0 R</code> points to its content stream.{" "}
         <code>/MediaBox</code> is an array written directly in the page
-        dictionary. Its four numbers give the lower-left and upper-right corners
-        of the page boundary in PDF user-space units.
+        dictionary (a collection of key–value pairs). Its four numbers give the
+        lower-left and upper-right corners of the page boundary in PDF
+        user-space units.
       </p>
       <ol>
         <li>
@@ -573,7 +551,7 @@ export function PublicPage({
         {page.path.startsWith("/guides/") && (
           <p className="article-byline">
             By <a href="https://github.com/antonsamper">Anton Samper</a> ·
-            Reviewed <time dateTime="2026-11-14">14 November 2026</time>
+            Reviewed <time dateTime="2026-11-15">15 November 2026</time>
           </p>
         )}
         {page.path === "/guide" ? (
@@ -586,22 +564,30 @@ export function PublicPage({
           <ObjectsGuide />
         ) : page.path === "/guides/decode-pdf-streams" ? (
           <StreamsGuide />
+        ) : page.path === "/guides/find-pdf-attachments" ? (
+          <AttachmentsGuide />
+        ) : page.path === "/guides/search-bookmark-compare" ? (
+          <SearchGuide />
+        ) : page.path === "/guides/investigate-suspicious-features" ? (
+          <SuspiciousFeaturesGuide />
         ) : (
           <ResourcesGuide />
         )}
-        <aside className="article-related" aria-label="More documentation">
-          <h2>Keep exploring</h2>
-          <ul>
-            {SITE_PAGES.filter(
-              (p) =>
-                p.path !== "/" && p.path !== "/about" && p.path !== page.path
-            ).map((p) => (
-              <li key={p.path}>
-                <a href={p.path}>{p.heading}</a>
-              </li>
-            ))}
-          </ul>
-        </aside>
+        {page.path !== "/guide" && (
+          <aside className="article-related" aria-label="More documentation">
+            <h2>Keep exploring</h2>
+            <ul>
+              {SITE_PAGES.filter(
+                (p) =>
+                  p.path !== "/" && p.path !== "/about" && p.path !== page.path
+              ).map((p) => (
+                <li key={p.path}>
+                  <a href={p.path}>{p.heading}</a>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )}
       </article>
     </main>
   )

@@ -43,8 +43,7 @@ test('shows document status only in an active PDF workspace', async ({ page }) =
     await expect(page.locator('.status-bar')).toHaveCount(0)
     await openMinimal(page)
     await expect(page.getByRole('navigation', { name: 'Project', exact: true })).toHaveCount(0)
-    await page.getByRole('button', { name: 'User guide', exact: true }).click()
-    await page.getByRole('link', { name: 'Read the full guide', exact: true }).click()
+    await page.getByRole('link', { name: 'User guide', exact: true }).click()
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('How to inspect a PDF in your browser')
     await expect(page.locator('.status-bar')).toHaveCount(0)
     await expect(page.getByRole('navigation', { name: 'Project', exact: true })).toBeVisible()
@@ -808,16 +807,23 @@ test('navigates About with browser history and retains the local document', asyn
 })
 
 
-test('opens a short user guide and returns focus to its launcher', async ({ page }) => {
-  const opener = page.getByRole('button', { name: 'User guide', exact: true })
-  await opener.click()
-  const guide = page.getByRole('dialog', { name: 'User guide' })
-  await expect(guide.getByRole('heading', { name: 'Bookmark a finding' })).toBeVisible()
-  await expect(guide.getByRole('heading', { name: 'Pin to compare' })).toBeVisible()
-  await page.screenshot({ path: screenshotPath('user-guide.png'), fullPage: true, animations: 'disabled' })
-  await page.keyboard.press('Escape')
-  await expect(guide).toHaveCount(0)
-  await expect(opener).toBeFocused()
+test('opens task guides and returns to the selected PDF object', async ({ page }) => {
+  await openMinimal(page)
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  await page.getByRole('link', { name: 'User guide', exact: true }).click()
+  await expect(page).toHaveURL(/\/guide$/)
+  await expect(page.getByRole('main')).toBeFocused()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await page.getByRole('link', { name: 'Investigate suspicious features', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Investigate suspicious PDF features')
+  await expect(page.getByRole('main')).toContainText('An empty search does not establish safety')
+  await page.goBack()
+  await expect(page).toHaveURL(/\/guide$/)
+  await page.goForward()
+  await expect(page).toHaveURL(/\/guides\/investigate-suspicious-features$/)
+  await page.getByRole('link', { name: 'Back to the workspace', exact: true }).click()
+  await expect(page.locator('.filename')).toContainText('minimal.pdf')
+  await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
 })
 
 
@@ -1065,6 +1071,9 @@ test('serves public answers without JavaScript and keeps articles free of inspec
     ['/guides/inspect-pdf-objects', 'PDF objects and references: what does 3 0 R mean?'],
     ['/guides/decode-pdf-streams', 'How to inspect and decode PDF streams'],
     ['/guides/find-pdf-fonts-images', 'How to find fonts and images in a PDF'],
+    ['/guides/find-pdf-attachments', 'Find and extract PDF attachments'],
+    ['/guides/search-bookmark-compare', 'Search, bookmark, and compare PDF objects'],
+    ['/guides/investigate-suspicious-features', 'Investigate suspicious PDF features'],
     ['/privacy', 'Your PDFs and browser storage'],
     ['/limitations', 'Supported features and limitations'],
   ]) {
@@ -1072,7 +1081,7 @@ test('serves public answers without JavaScript and keeps articles free of inspec
     expect(response?.status()).toBe(200)
     await expect(reader.getByRole('heading', { level: 1 })).toHaveText(heading!)
     await expect(reader.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://pdf-internals-viewer.pages.dev${path}`)
-    await expect(reader.locator('main')).toContainText(path === '/privacy' ? 'Notes created while inspecting an encrypted PDF remain readable' : path === '/limitations' ? '64 MiB' : 'sample')
+    await expect(reader.locator('main')).toContainText(path === '/privacy' ? 'Notes created while inspecting an encrypted PDF remain readable' : path === '/limitations' ? '64 MiB' : path === '/guides/find-pdf-attachments' ? 'Download attachment' : path === '/guides/search-bookmark-compare' ? 'Pin to compare' : 'sample')
   }
   await context.close()
   const requests: string[] = []
@@ -1089,10 +1098,9 @@ test('serves public answers without JavaScript and keeps articles free of inspec
 test('keeps document state and route metadata across public content navigation', async ({ page }) => {
   await openMinimal(page)
   await page.getByRole('button', { name: 'First page', exact: true }).click()
-  await page.getByRole('button', { name: 'User guide', exact: true }).click()
-  await page.getByRole('link', { name: 'Read the full guide', exact: true }).click()
+  await page.getByRole('link', { name: 'User guide', exact: true }).click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('How to inspect a PDF in your browser')
-  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /Follow a PDF page/)
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /Start with a sample/)
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://pdf-internals-viewer.pages.dev/guide')
   await page.getByRole('link', { name: 'Understand objects and references such as 3 0 R' }).click()
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article')
