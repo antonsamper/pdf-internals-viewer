@@ -1,4 +1,4 @@
-export function BrandIcon() {
+export const BrandIcon = function BrandIcon() {
   return (
     <img
       className="brand-icon"
@@ -8,46 +8,35 @@ export function BrandIcon() {
       height={128}
       decoding="async"
     />
-  )
-}
-
-export function BrandArtwork({
-  className = "",
-  decorative = false,
-}: {
-  className?: string
-  decorative?: boolean
-}) {
+  );
+};
+export const BrandArtwork = function BrandArtwork({ className = '', decorative = false }: { className?: string; decorative?: boolean }) {
   return (
     <>
       {[
         {
-          mode: "light",
-          file: "pdf-internals-logo.png",
-          width: 1000,
+          file: 'pdf-internals-logo.png',
           height: 667,
+          mode: 'light',
+          width: 1000,
         },
         {
-          mode: "dark",
-          file: "pdf-internals-logo-dark.png",
-          width: 1535,
+          file: 'pdf-internals-logo-dark.png',
           height: 1024,
+          mode: 'dark',
+          width: 1535,
         },
       ].map(({ mode, file, width, height }) => (
         <img
           key={mode}
           className={`brand-artwork brand-artwork-${mode} ${className}`}
           src={`${import.meta.env.BASE_URL}brand/${file}`}
-          alt={
-            decorative
-              ? ""
-              : "PDF Internals — a detective exploring PDF objects, pages, fonts, and streams"
-          }
+          alt={decorative ? '' : 'PDF Internals — a detective exploring PDF objects, pages, fonts, and streams'}
           width={width}
           height={height}
           decoding="async"
         />
       ))}
     </>
-  )
-}
+  );
+};

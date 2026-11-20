@@ -1,19 +1,12 @@
-import type { PdfObjectRecord, PdfValue } from "./types"
-
-/** A visited route through the PDF graph, never a claim of unique ownership. */
-export interface ExplorationStep {
-  id: string | null
-  label: string
-}
-
-export function extendExplorationTrail(
+import type { PdfObjectRecord, PdfValue } from './types';
+export const extendExplorationTrail = function extendExplorationTrail(
   trail: ExplorationStep[],
   source: ExplorationStep,
   target: ExplorationStep,
   path: string[] = [],
   owners?: (string | null)[]
 ): ExplorationStep[] {
-  const prefix = trail.length ? trail : [source]
+  const prefix = trail.length ? trail : [source];
   return [
     ...prefix,
     ...path.map((label, index) => ({
@@ -21,35 +14,37 @@ export function extendExplorationTrail(
       label,
     })),
     target,
-  ]
-}
-
+  ];
+};
 /** Associate each path segment with the object that actually contains its key. */
-export function referencePathOwners(
+export const referencePathOwners = function referencePathOwners(
   value: PdfValue,
   path: string[],
   objects: Map<string, PdfObjectRecord>,
   sourceId: string | null
 ): (string | null)[] {
-  let current: PdfValue | undefined = value
-  let owner = sourceId
+  let current: PdfValue | undefined = value;
+  let owner = sourceId;
   return path.map((segment) => {
-    const seen = new Set<string>()
-    while (current?.type === "reference" && !seen.has(current.ref)) {
-      seen.add(current.ref)
-      owner = current.ref
-      current = objects.get(current.ref)?.value
+    const seen = new Set<string>();
+    while (current?.type === 'reference' && !seen.has(current.ref)) {
+      seen.add(current.ref);
+      owner = current.ref;
+      current = objects.get(current.ref)?.value;
     }
-    const segmentOwner = owner
-    if (current?.type === "dictionary" || current?.type === "stream") {
-      current = current.entries.find(
-        (entry) => entry.key.replace(/^\//, "") === segment.replace(/^\//, "")
-      )?.value
-    } else if (current?.type === "array") {
-      current = current.items[Number(segment.replace(/^\[|\]$/g, ""))]
+    const segmentOwner = owner;
+    if (current?.type === 'dictionary' || current?.type === 'stream') {
+      current = current.entries.find((entry) => entry.key.replace(/^\//, '') === segment.replace(/^\//, ''))?.value;
+    } else if (current?.type === 'array') {
+      current = current.items[Number(segment.replace(/^\[|\]$/g, ''))];
     } else {
-      current = undefined
+      current = undefined;
     }
-    return segmentOwner
-  })
+    return segmentOwner;
+  });
+};
+/** A visited route through the PDF graph, never a claim of unique ownership. */
+export interface ExplorationStep {
+  id: string | null;
+  label: string;
 }

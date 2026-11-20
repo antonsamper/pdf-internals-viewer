@@ -1,103 +1,76 @@
-import type { MouseEvent } from "react"
-import { ArrowLeft, ArrowUpRight } from "lucide-react"
-import { PROJECT_URL } from "@/components/site-links"
-import { PRIVACY_SUMMARY } from "@/lib/site-content"
-import { ContentNavigation, RelatedContent } from "./content-navigation"
-import { BrandArtwork } from "@/components/brand-artwork"
+import type { MouseEvent } from 'react';
 
-export function AboutPage({
-  onFollowLink,
-}: {
-  onFollowLink: (event: MouseEvent<HTMLAnchorElement>) => boolean
-}) {
+import { ArrowLeft, ArrowUpRight } from 'lucide-react';
+
+import { BrandArtwork } from '@/components/brand-artwork';
+import { PROJECT_URL } from '@/components/site-links';
+import { PRIVACY_SUMMARY } from '@/lib/site-content';
+
+import { ContentNavigation, RelatedContent } from './content-navigation';
+export const AboutPage = function AboutPage({ onFollowLink }: { onFollowLink: (event: MouseEvent<HTMLAnchorElement>) => boolean }) {
   return (
-    <main
-      className="about-page content-page"
-      tabIndex={-1}
-      aria-labelledby="about-title"
-    >
+    <main className="about-page content-page" tabIndex={-1} aria-labelledby="about-title">
       <div className="content-layout">
         <ContentNavigation path="/about" onFollowLink={onFollowLink} />
         <article>
-          <a
-            className="back-to-workspace"
-            href={import.meta.env.BASE_URL}
-            onClick={onFollowLink}
-          >
+          <a className="back-to-workspace" href={import.meta.env.BASE_URL} onClick={onFollowLink}>
             <ArrowLeft size={14} aria-hidden="true" /> Back to the workspace
           </a>
           <BrandArtwork className="about-artwork" />
           <h1 id="about-title">A closer look at PDF.</h1>
-          <p className="about-lead">
-            PDF Internals connects the document you see to the objects,
-            references, and bytes that make it work.
-          </p>
+          <p className="about-lead">PDF Internals connects the document you see to the objects, references, and bytes that make it work.</p>
           <section>
             <h2>Built for exploring</h2>
             <p>
-              A PDF stores page properties in dictionaries (collections of
-              key–value pairs). References link them to fonts, images, and
-              streams of drawing instructions. This workspace helps developers
-              follow those connections while keeping the original file bytes in
-              view.
+              A PDF stores page properties in dictionaries (collections of key–value pairs). References link them to fonts, images, and
+              streams of drawing instructions. This workspace helps developers follow those connections while keeping the original file
+              bytes in view.
             </p>
             <p>
-              Open your own PDF or start with a bundled sample. Follow a page to
-              its content stream, compare objects, or inspect the bytes behind a
-              value. The tool is read-only, so exploring leaves your file
-              unchanged.
+              Open your own PDF or start with a bundled sample. Follow a page to its content stream, compare objects, or inspect the bytes
+              behind a value. The tool is read-only, so exploring leaves your file unchanged.
             </p>
           </section>
           <section>
             <h2>Your files stay with you</h2>
             <p>
-              {PRIVACY_SUMMARY} Clearing site data removes saved bookmarks.
-              Notes from encrypted PDFs remain readable in browser storage. See{" "}
+              {PRIVACY_SUMMARY} Clearing site data removes saved bookmarks. Notes from encrypted PDFs remain readable in browser storage.
+              See{' '}
               <a href="/privacy" onClick={onFollowLink}>
                 privacy and browser storage
-              </a>{" "}
+              </a>{' '}
               for details.
             </p>
           </section>
           <section>
             <h2>An early, open-source project</h2>
             <p>
-              Built by{" "}
-              <a
-                href="https://github.com/antonsamper"
-                target="_blank"
-                rel="noreferrer"
-              >
+              Built by{' '}
+              <a href="https://github.com/antonsamper" target="_blank" rel="noreferrer">
                 @antonsamper
               </a>
-              . The application code is licensed under the Apache License 2.0, and the source is available on{" "}
+              . The application code is licensed under the Apache License 2.0, and the source is available on{' '}
               <a href={PROJECT_URL} target="_blank" rel="noreferrer">
                 GitHub
               </a>
               .
             </p>
             <p>
-              Some PDFs and features are only partially supported. The inspector
-              labels recovered structure and unavailable data. Page preview may
-              display content that the inspector cannot decode.
+              Some PDFs and features are only partially supported. The inspector labels recovered structure and unavailable data. Page
+              preview may display content that the inspector cannot decode.
             </p>
-            <a
-              className="about-text-button"
-              href="/limitations"
-              onClick={onFollowLink}
-            >
+            <a className="about-text-button" href="/limitations" onClick={onFollowLink}>
               Read the limitations <ArrowUpRight size={13} aria-hidden="true" />
             </a>
           </section>
           <section>
             <h2>Explore the sample PDFs</h2>
             <p>
-              Follow the{" "}
+              Follow the{' '}
               <a href="/guide" onClick={onFollowLink}>
                 workspace guide
-              </a>{" "}
-              to explore objects, decode streams, and find resources using the
-              bundled sample PDFs. Read the{" "}
+              </a>{' '}
+              to explore objects, decode streams, and find resources using the bundled sample PDFs. Read the{' '}
               <a href="/limitations" onClick={onFollowLink}>
                 supported features and limitations
               </a>
@@ -107,13 +80,8 @@ export function AboutPage({
           <section className="about-feedback">
             <h2>Help make it better</h2>
             <p>
-              Found a bug, have a question, or wish the viewer explained
-              something better?{" "}
-              <a
-                href={`${PROJECT_URL}/issues`}
-                target="_blank"
-                rel="noreferrer"
-              >
+              Found a bug, have a question, or wish the viewer explained something better?{' '}
+              <a href={`${PROJECT_URL}/issues`} target="_blank" rel="noreferrer">
                 Leave feedback on GitHub
               </a>
               . Please remove sensitive information from any examples you share.
@@ -123,5 +91,5 @@ export function AboutPage({
         </article>
       </div>
     </main>
-  )
-}
+  );
+};

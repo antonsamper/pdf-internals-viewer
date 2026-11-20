@@ -1,7 +1,10 @@
 import type { InspectionIndexes, DocumentTransferItem } from './document-transfer';
 
 /** Serializable inspection data. Ranges are zero-based and half-open. */
-export interface ByteRange { start: number; end: number }
+export interface ByteRange {
+  start: number;
+  end: number;
+}
 export type PdfValue =
   | { type: 'null'; text: string }
   | { type: 'boolean'; value: boolean; text: string }
@@ -9,10 +12,19 @@ export type PdfValue =
   | { type: 'name' | 'string' | 'raw'; value: string; text: string }
   | { type: 'reference'; ref: string; text: string }
   | { type: 'array'; items: PdfValue[]; text: string }
-  | { type: 'dictionary' | 'stream'; entries: { key: string; value: PdfValue }[]; text: string };
+  | {
+      type: 'dictionary' | 'stream';
+      entries: { key: string; value: PdfValue }[];
+      text: string;
+    };
 export type Provenance =
   | { type: 'file'; range: ByteRange }
-  | { type: 'decoded'; containerId: string; range: ByteRange; containerRange?: ByteRange }
+  | {
+      type: 'decoded';
+      containerId: string;
+      range: ByteRange;
+      containerRange?: ByteRange;
+    }
   | { type: 'unknown'; reason: string };
 export interface PdfObjectRecord {
   id: string;
@@ -57,10 +69,27 @@ export interface StreamResult {
   error?: string;
 }
 export type ParserRequest =
-  | { requestId: number; type: 'open'; password?: string; bytes: Uint8Array; filename: string }
+  | {
+      requestId: number;
+      type: 'open';
+      password?: string;
+      bytes: Uint8Array;
+      filename: string;
+    }
   | { requestId: number; type: 'open-next' }
-  | { requestId: number; type: 'stream'; objectId: string; mode: 'raw' | 'decoded'; purpose?: 'preview' | 'download' | 'image' | 'size' };
+  | {
+      requestId: number;
+      type: 'stream';
+      objectId: string;
+      mode: 'raw' | 'decoded';
+      purpose?: 'preview' | 'download' | 'image' | 'size';
+    };
 export type ParserResponse =
-  | { requestId: number; type: 'opened-batch'; items: DocumentTransferItem[]; done: boolean }
+  | {
+      requestId: number;
+      type: 'opened-batch';
+      items: DocumentTransferItem[];
+      done: boolean;
+    }
   | { requestId: number; type: 'stream'; result: StreamResult }
   | { requestId: number; type: 'error'; error: string };

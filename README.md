@@ -20,6 +20,7 @@ Open the URL printed by Vite. Installation prepares the pinned parser and previe
 ```sh
 pnpm run typecheck
 pnpm run lint
+pnpm run format:check
 pnpm test
 pnpm run build
 pnpm exec playwright install chromium firefox webkit
@@ -27,6 +28,10 @@ PLAYWRIGHT_PREVIEW=1 pnpm run test:e2e --browser=all
 ```
 
 The build generates the static site in `dist/` and checks public pages and licence notices. Browser tests use production assets; see [browser verification](docs/BROWSERS.md) for other modes. The optional [independent PDF corpus](docs/CORPUS.md) has separate download and test commands.
+
+Linting uses Oxlint and formatting uses Oxfmt, configured from [hive-mind-react](https://github.com/antonsamper/hive-mind-react). Run `pnpm run lint:fix` for automatic lint fixes and `pnpm run format` to format TypeScript/TSX files. CI checks linting and formatting. Husky installs the pre-commit hook during `pnpm install`: lint-staged fixes supported staged files, followed by TypeScript checking and React Doctor (`--scope changed --blocking warning`). The hook blocks commits when any step fails.
+
+The copied lint configuration introduces stricter rules, including sorted object keys, function expressions and kebab-case filenames. Existing lint violations need resolving before the full lint check passes.
 
 ## Project documentation
 

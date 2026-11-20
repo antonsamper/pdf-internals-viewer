@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "react", "react-perf"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "react/only-export-components": ["error", { "allowConstantExport": true }],
+    "react/react-in-jsx-scope": "off",
+    "typescript/no-explicit-any": "error",
+    "typescript/consistent-type-imports": "error",
+    "no-unused-vars": ["error", { "ignoreRestSiblings": true }],
+    "sort-keys": ["error", "asc", { "natural": true }],
+    "unicorn/filename-case": ["error", { "case": "kebabCase", "ignore": ["^__root\\.tsx$", "^_app(\\..+)?\\.tsx$"] }],
+    "func-style": ["error", "expression"]
+  },
+  "overrides": [
+    {
+      "files": ["src/routes/**"],
+      "rules": {
+        "react/only-export-components": "off"
+      }
+    }
+  ],
+  "env": {
+    "builtin": true,
+    "browser": true
+  },
+  "ignorePatterns": ["dist", "public/**/*.js", "src/routeTree.gen.ts"]
+}

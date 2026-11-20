@@ -10,7 +10,7 @@ const files = await readdir(assets)
 const groups = [
   { label: 'standalone worker', pattern: /^embedpdf-worker-[\w-]+\.js$/ },
   { label: 'inline transport', pattern: /^inline-transport-[\w-]+\.js$/ },
-  { label: 'embedded worker source', pattern: /^embedpdf-worker\.source-[\w.-]+\.js$/, embedded: true },
+  { embedded: true, label: 'embedded worker source', pattern: /^embedpdf-worker\.source-[\w.-]+\.js$/ },
 ]
 let checked = 0
 for (const group of groups) {
