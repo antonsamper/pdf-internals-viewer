@@ -38,8 +38,11 @@ export const SearchScopeSelect = function SearchScopeSelect({
           <Select.Popup className="search-scope-popup">
             <Select.List>
               {scopes.map((scope) => (
-                <Select.Item className="search-scope-option" key={scope.value} value={scope.value}>
-                  <Select.ItemText>{scope.label}</Select.ItemText>
+                <Select.Item className="search-scope-option" key={scope.value} value={scope.value} aria-label={scope.label}>
+                  <span className="search-scope-text">
+                    <Select.ItemText>{scope.label}</Select.ItemText>
+                    <span className="search-scope-hint">{scope.hint}</span>
+                  </span>
                   <Select.ItemIndicator>
                     <Check size={14} />
                   </Select.ItemIndicator>
@@ -53,10 +56,10 @@ export const SearchScopeSelect = function SearchScopeSelect({
   );
 };
 const scopes = [
-  { label: 'Objects', value: 'objects' },
-  { label: 'Keys', value: 'keys' },
-  { label: 'Page text', value: 'pageText' },
-  { label: 'File text', value: 'text' },
-  { label: 'File hex', value: 'hex' },
-  { label: 'Decoded streams', value: 'decoded' },
+  { hint: 'Object IDs, labels and types', label: 'Objects', value: 'objects' },
+  { hint: 'Dictionary key names', label: 'Keys', value: 'keys' },
+  { hint: 'Words as shown on pages', label: 'Page text', value: 'pageText' },
+  { hint: 'Raw file bytes as Latin-1 text', label: 'File text', value: 'text' },
+  { hint: 'Hexadecimal byte sequences', label: 'File hex', value: 'hex' },
+  { hint: 'Content after decompression', label: 'Decoded streams', value: 'decoded' },
 ];
