@@ -31,9 +31,30 @@ test('opens with an accessible empty workspace and sample choices', async ({ pag
   await expect(page.getByRole('button', { name: /^A simple page/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /^Fonts & resources/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /^Compressed objects/ })).toBeVisible()
-  await expect(page.locator('.status-bar')).toContainText('Files stay on your device')
+  await expect(page.locator('.status-bar')).toHaveCount(0)
+  await expect(page.getByRole('navigation', { name: 'Project', exact: true })).toBeVisible()
   await mkdir(resolve('.context'), { recursive: true })
   await page.screenshot({ path: screenshotPath('empty.png'), fullPage: true, animations: 'disabled' })
+})
+
+test('shows document status only in an active PDF workspace', async ({ page }) => {
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 844 })
+    await expect(page.locator('.status-bar')).toHaveCount(0)
+    await openMinimal(page)
+    await expect(page.getByRole('navigation', { name: 'Project', exact: true })).toHaveCount(0)
+    await page.getByRole('button', { name: 'User guide', exact: true }).click()
+    await page.getByRole('link', { name: 'Read the full guide', exact: true }).click()
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('How to inspect a PDF in your browser')
+    await expect(page.locator('.status-bar')).toHaveCount(0)
+    await expect(page.getByRole('navigation', { name: 'Project', exact: true })).toBeVisible()
+    await page.getByRole('link', { name: 'Back to the workspace', exact: true }).click()
+    await expect(page.locator('.status-bar')).toContainText('5 objects indexed')
+    await page.getByRole('button', { name: 'Close PDF', exact: true }).click()
+    await expect(page.getByRole('heading', { name: 'Look inside a PDF.' })).toBeVisible()
+    await expect(page.locator('.status-bar')).toHaveCount(0)
+    await expect(page.getByRole('navigation', { name: 'Project', exact: true })).toBeVisible()
+  }
 })
 
 test('follows page references, reads stream representations, and navigates history', async ({ page }) => {
@@ -1088,6 +1109,7 @@ test('prerenders home and About for readers without JavaScript', async ({ browse
   const reader = await context.newPage()
   await reader.goto('/')
   await expect(reader.getByRole('heading', { level: 1 })).toHaveText('Look inside a PDF.')
+  await expect(reader.locator('.status-bar')).toHaveCount(0)
   await reader.getByRole('navigation', { name: 'Project', exact: true }).getByRole('link', { name: 'About', exact: true }).click()
   await expect(reader.getByRole('heading', { level: 1 })).toHaveText('A closer look at PDF.')
   await expect(reader.locator('main')).toContainText('Bookmarks and notes are saved in this browser')

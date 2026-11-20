@@ -1725,44 +1725,46 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
         {(path !== "/" || (!bytes.length && !busy)) && (
           <SiteLinks onFollowLink={followLink} />
         )}
-        <footer className="status-bar">
-          <span>
-            <ShieldCheck size={13} />
-            Files stay on your device
-            <span className="status-divider" aria-hidden="true" />
-            <button
-              className="status-limitations-link"
-              aria-haspopup="dialog"
-              aria-controls="limitations-dialog"
-              onClick={(event) => {
-                limitationsOpener.current = event.currentTarget
-                setLimitationsOpen(true)
-              }}
-            >
-              About & limitations
-            </button>
-          </span>
-          <span>
-            {busy ? (
-              "Inspecting"
-            ) : document ? (
-              <>
-                <Check size={12} />
-                {document.locked
-                  ? "Locked document"
-                  : document.recovered
-                    ? "Recovered structure"
-                    : `${objects.length} objects indexed`}
-              </>
-            ) : (
-              "Read-only PDF exploration"
-            )}
-            <span className="status-divider" />
-            {bytes.length
-              ? `${bytes.length.toLocaleString()} bytes`
-              : "No file open"}
-          </span>
-        </footer>
+        {path === "/" && (bytes.length > 0 || busy) && (
+          <footer className="status-bar">
+            <span>
+              <ShieldCheck size={13} />
+              Files stay on your device
+              <span className="status-divider" aria-hidden="true" />
+              <button
+                className="status-limitations-link"
+                aria-haspopup="dialog"
+                aria-controls="limitations-dialog"
+                onClick={(event) => {
+                  limitationsOpener.current = event.currentTarget
+                  setLimitationsOpen(true)
+                }}
+              >
+                About & limitations
+              </button>
+            </span>
+            <span>
+              {busy ? (
+                "Inspecting"
+              ) : document ? (
+                <>
+                  <Check size={12} />
+                  {document.locked
+                    ? "Locked document"
+                    : document.recovered
+                      ? "Recovered structure"
+                      : `${objects.length} objects indexed`}
+                </>
+              ) : (
+                "Read-only PDF exploration"
+              )}
+              <span className="status-divider" />
+              {bytes.length
+                ? `${bytes.length.toLocaleString()} bytes`
+                : "No file open"}
+            </span>
+          </footer>
+        )}
         <UserGuide
           onFollowLink={followLink}
           open={guideOpen}
