@@ -26,3 +26,11 @@ dist-ssr
 src/generated/
 playwright-report/
 test-results/
+
+# Cloudflare local state and credentials
+.wrangler/
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+!.env.example

@@ -1,1 +1,4 @@
 *.pdf binary
+# Notice/source text hashes require the upstream bytes, including line endings.
+public/licenses/** -text -whitespace
+public/THIRD-PARTY-NOTICES.txt -text -whitespace
