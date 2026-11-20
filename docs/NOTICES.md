@@ -1,19 +1,19 @@
 # Third-party notices
 
-Updated 2026-11-12. Status: prepared and independently reviewed against the pinned sources and preview binary. Original application code is licensed under the Apache License 2.0. Dependency licenses remain separate.
+Updated 2026-11-12. Status: prepared and independently reviewed against the pinned sources and preview binary. Original application code is licensed under the Apache License 2.0. Dependency licences remain separate.
 
 ## Distributed materials
 
-- `public/THIRD-PARTY-NOTICES.txt` combines the JS/CSS/font inventory, upstream attribution texts and complete reconstructed native notice bundle. The app's About & limitations dialog links to this file.
+- `public/THIRD-PARTY-NOTICES.txt` combines the JS/CSS/font inventory, upstream attribution texts and complete reconstructed native notice bundle. The app's About & limitations dialogue links to this file.
 - `public/licenses/notice-sources.json` preserves the original 43 JS/font/CSS source-text hashes and references the native inventory.
-- `public/licenses/embedpdf-native-notices.txt` contains the native runtime notice bundle, including explicit FreeType and Independent JPEG Group acknowledgments.
+- `public/licenses/embedpdf-native-notices.txt` contains the native runtime notice bundle, including explicit FreeType and Independent JPEG Group acknowledgements.
 - `public/licenses/native-notice-manifest.json` records 20 component groups, 64 hashed public notice/evidence files, immutable source URLs, source and extracted-text hashes, extraction descriptions, and the exact WASM hash.
 - `public/licenses/native/` contains 61 text files. Three accompanying JSON indexes record Emscripten and HarfBuzz source comment provenance and the PDFium archive/source mapping.
-- `public/licenses/embedpdf-runtime-provenance.json` records the source/archive/payload chain below. The original runtime license and both matching CloudPDF NOTICE files remain separately available.
+- `public/licenses/embedpdf-runtime-provenance.json` records the source/archive/payload chain below. The original runtime licence and both matching CloudPDF NOTICE files remain separately available.
 
-Copied source license bytes, copyright/license comment blocks, required acknowledgments and per-component license choices are preserved. `.gitattributes` prevents newline conversion or cosmetic whitespace changes to these hash-pinned notice files. The app's Apache 2.0 licence does not replace any dependency license.
+Copied source licence bytes, copyright/licence comment blocks, required acknowledgements and per-component licence choices are preserved. `.gitattributes` prevents newline conversion or cosmetic whitespace changes to these hash-pinned notice files. The app's Apache 2.0 licence does not replace any dependency licence.
 
-## Exact native artifact
+## Exact native artefact
 
 - Installed package: `@embedpdf/engine-runtime-wasm32@3.1.0`.
 - WASM: 7,880,343 bytes, SHA-256 `7195838021c8318416117611b961614ab52eedcad585db5945681f86164e40f9`.
@@ -24,17 +24,17 @@ Copied source license bytes, copyright/license comment blocks, required acknowle
 
 ## How the missing inventory was reconstructed
 
-The supplier archives contained a top-level PDFium/Apache license but no consolidated native dependency notice bundle. The project gathered the missing texts from the fork's vendored code, DEPS-pinned repositories, and Emscripten toolchain sources, using the exact revisions for this binary.
+The supplier archives contained a top-level PDFium/Apache licence but no consolidated native dependency notice bundle. The project gathered the missing texts from the fork's vendored code, DEPS-pinned repositories, and Emscripten toolchain sources, using the exact revisions for this binary.
 
 The PDFium library contains 1,198 archive objects. Of these, 556 map to fork sources; all 597 distinct external object names among the remaining objects map to the pinned dependency trees. Basename collisions remain recorded as multiple candidates. Archive membership is not final linkage, and this mapping does not alone cover headers or amalgamated code.
 
-The review also checked component metadata and nested license exceptions: FreeType's delegated BDF/PCF/fthash, gzip and copied HarfBuzz notices; HarfBuzz's Microsoft USE-shaper license and per-source copyrights; the entire ICU data/dictionary notice; JPEG attribution; and Skia path-processing and conservative nested licenses. Disabling the Skia renderer does not remove the path-processing code found in the archive.
+The review also checked component metadata and nested licence exceptions: FreeType's delegated BDF/PCF/fthash, gzip and copied HarfBuzz notices; HarfBuzz's Microsoft USE-shaper licence and per-source copyrights; the entire ICU data/dictionary notice; JPEG attribution; and Skia path-processing and conservative nested licences. Disabling the Skia renderer does not remove the path-processing code found in the archive.
 
-The HarfBuzz supplement preserves 148 unique comment blocks from all 493 source/header/Ragel files in the pinned source scope. The Emscripten supplement preserves 1,768 unique blocks across system libraries, headers and JS glue, with 4,358 source occurrences checked against hashes, exact bytes and inclusive line spans. Its nine standalone license/authors files are also included.
+The HarfBuzz supplement preserves 148 unique comment blocks from all 493 source/header/Ragel files in the pinned source scope. The Emscripten supplement preserves 1,768 unique blocks across system libraries, headers and JS glue, with 4,358 source occurrences checked against hashes, exact bytes and inclusive line spans. Its nine standalone licence/authors files are also included.
 
 This conservative notice inventory covers the exact sources and toolchain, including optional or unlinked components. It is not a supplier-issued SBOM, a minimal list of linked code, or a claim that every included component runs in this app. An absent object name or disabled renderer flag is insufficient evidence to exclude a component. Source downloads remain in ignored `.context/`; only notices and provenance are distributed.
 
-Independent review verified all 64 public hashes, native source/excerpt hashes, HarfBuzz and Emscripten supplements, required acknowledgments and assembled-bundle inclusion. The review found no remaining concrete gap within this inventory's stated scope. The earlier supplier request is retained as historical draft; no message was sent or reply claimed.
+Independent review verified all 64 public hashes, native source/excerpt hashes, HarfBuzz and Emscripten supplements, required acknowledgements and assembled-bundle inclusion. The review found no remaining concrete gap within this inventory's stated scope. The earlier supplier request is retained as historical draft; no message was sent or reply claimed.
 
 ## Build and release checks
 
@@ -42,4 +42,4 @@ Independent review verified all 64 public hashes, native source/excerpt hashes, 
 
 The separate preview-notice check verifies that prominent modification banners survive minification in the standalone worker, inline transport and embedded-source wrapper/payload. Hashed assets are never rewritten after building.
 
-Any upgrade to EmbedPDF, its PDFium fork, its toolchain, or the WASM requires another review of provenance, dependency scope, licenses, and behavior. A compatible supplier-issued notice bundle could replace this reconstructed inventory after its source/build match is checked. A successful notice check does not suppress the separately documented Zod advisory or replace behavioral browser testing.
+Any upgrade to EmbedPDF, its PDFium fork, its toolchain, or the WASM requires another review of provenance, dependency scope, licences, and behaviour. A compatible supplier-issued notice bundle could replace this reconstructed inventory after its source/build match is checked. A successful notice check does not suppress the separately documented Zod advisory or replace behavioural browser testing.

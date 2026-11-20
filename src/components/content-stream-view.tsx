@@ -94,13 +94,13 @@ export function ContentStreamView({
             <p className="representation-note">
               {context?.label}.{" "}
               {!context?.resources &&
-                "Resource dictionary unavailable; resource names cannot be resolved."}
+                "The resource dictionary is unavailable, so resource names cannot be linked to objects."}
             </p>
           )}
           {contexts.length > 1 && !context && (
             <p className="warning-inline">
-              This stream is shared by multiple pages. Choose a context before
-              following resource names.
+              This stream is shared by multiple pages. Choose a page to look up
+              resource names in that page’s resource dictionary.
             </p>
           )}
           {(stream.truncated || parsed.incomplete) && (

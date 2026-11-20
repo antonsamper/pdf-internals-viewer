@@ -2,7 +2,7 @@
 
 ## Current status
 
-The Zod advisory remains visible in audits because the dependency retains its published version. A narrowly scoped, reproducible local backport addresses the tested oversized-constrained-collection behavior, including validator copies prebundled into the preview workers. The project does not suppress the advisory or change the package's declared version to hide it.
+The Zod advisory remains visible in audits because the dependency retains its published version. A reproducible local patch backports an upstream fix: it rejects arrays and Sets that exceed their schema’s size limit before validating every element. The patch also covers validator copies bundled into the preview workers. The project does not suppress the advisory or change the package's declared version to hide it.
 
 Re-run audits after updates; the recorded counts describe the checked lockfile, not a guarantee about future advisories.
 
@@ -12,7 +12,7 @@ Re-run audits after updates; the recorded counts describe the checked lockfile, 
 
 The application uses checked-in shadcn/ui components with Base UI. It does not need to install or execute the component-generation CLI during normal development, builds, or deployment. Removing the CLI removed its deepmerge, registry, MCP, and ts-morph dependency paths.
 
-The exact shadcn 4.23.0 `tailwind.css` file is vendored at `src/styles/shadcn.css`, with the original MIT notice. Its license is also served at `/licenses/shadcn.txt`. `src/index.css` imports that local file, preserving component variant behavior without the CLI package. Future component generation remains a separate developer operation and should include a fresh tooling/dependency review.
+The exact shadcn 4.23.0 `tailwind.css` file is vendored at `src/styles/shadcn.css`, with the original MIT notice. Its licence is also served at `/licenses/shadcn.txt`. `src/index.css` imports that local file, preserving component variant behaviour without the CLI package. Future component generation remains a separate developer operation and should include a fresh tooling/dependency review.
 
 This removes the project's path to [deepmerge prototype poisoning, GHSA-gcqx-w48m-w2h4](https://github.com/advisories/GHSA-gcqx-w48m-w2h4), which currently has no patched upstream release.
 
@@ -36,9 +36,9 @@ The project must maintain this local patch. It is not an upstream release and do
 
 Use pnpm 10.33.4, pinned in `package.json`, with `pnpm-lock.yaml` as the sole lockfile. Node.js 22.18+ is required. CI installs pnpm before enabling the Node action's pnpm store cache and uses `pnpm install --frozen-lockfile`.
 
-`pnpm-workspace.yaml` carries the three parent-scoped minimatch overrides. Consumer regression tests resolve packages through the actual ESLint/typescript-eslint dependency chains, avoiding assumptions about hoisting. The generated parser resolves every external import through LibPDF's own dependencies, including its browser-specific lru-cache entry.
+`pnpm-workspace.yaml` carries the three parent-scoped minimatch overrides. Consumer regression tests follow the actual ESLint/typescript-eslint dependency chains to find each package. They do not assume the package manager places it at the application root (hoisting). The generated parser resolves every external import through LibPDF's own dependencies, including its browser-specific lru-cache entry.
 
-Project-local `ignoreScripts: false` and `enablePrePostScripts: true` preserve installation and pre/post command hooks. Wrangler's exact esbuild 0.28.2 and workerd 1.20261110.1 platform-binary verification hooks are allowed. `strictDepBuilds: true` makes any new dependency build hook fail for explicit review instead of silently skipping it. The application's own preparation scripts still run.
+Project-local `ignoreScripts: false` and `enablePrePostScripts: true` let installation hooks and the hooks before and after commands run. Wrangler's exact esbuild 0.28.2 and workerd 1.20261110.1 platform-binary verification hooks are allowed. `strictDepBuilds: true` makes any new dependency build hook fail for explicit review instead of silently skipping it. The application's own preparation scripts still run.
 
 Because the preview preparation script modifies installed dependency files, `packageImportMethod: copy` and `sideEffectsCache: false` keep those modifications out of the shared content-addressed store. Copying files is slower than hard-linking them but keeps the patch isolated and reproducible. The existing lucide-react release-age exception is preserved.
 
@@ -48,5 +48,5 @@ Because the preview preparation script modifies installed dependency files, `pac
 - `pnpm test` includes the validation backport and scoped glob-compatibility regressions.
 - The production build must emit the patched worker assets, not stale prebuilt files. Build before browser tests; avoid testing a development server while other jobs rewrite generated modules and trigger HMR.
 - Preview remains lazy-loaded, uses local byte input and a worker, and serves WASM/workers from this application's build. Tests verify no external document requests in the tested preview flow.
-- Track an upstream-compatible EmbedPDF/Zod update so the local backport can be retired after its behavior tests pass against the replacement.
+- Track an upstream-compatible EmbedPDF/Zod update so the local backport can be retired after its behaviour tests pass against the replacement.
 - The project uses the Apache License 2.0. Complete third-party notices and validate hosting headers and worker/WASM loading before public deployment. Dependency changes do not publish the application.

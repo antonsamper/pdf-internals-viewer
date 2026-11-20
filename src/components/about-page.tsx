@@ -30,9 +30,9 @@ export function AboutPage({
         <section>
           <h2>Built for exploring</h2>
           <p>
-            A PDF is more than a collection of pages. It contains dictionaries,
-            fonts, images, and streams of drawing instructions, linked together
-            by references. This workspace helps developers follow those
+            A PDF stores page properties in dictionaries (lists of keys and
+            values). References link them to fonts, images, and streams of
+            drawing instructions. This workspace helps developers follow those
             connections while keeping the original file bytes in view.
           </p>
           <p>
@@ -93,8 +93,8 @@ export function AboutPage({
             <a href="/guide" onClick={onFollowLink}>
               workspace guide
             </a>{" "}
-            to explore objects, decode streams, and find resources using our
-            original sample PDFs. Read the{" "}
+            to explore objects, decode streams, and find resources using the
+            bundled sample PDFs. Read the{" "}
             <a href="/limitations" onClick={onFollowLink}>
               supported features and limitations
             </a>

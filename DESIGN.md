@@ -141,17 +141,17 @@ components:
 
 The interface brings the logo's dark purple ink, goggle red, violet layers, and warm orange into a compact developer workspace. A deep plum header anchors the application. White inspection surfaces, a pale lilac explorer, fine borders, and compact type leave room for PDF structure and original bytes.
 
-Geist supports navigation and explanations; system monospace distinguishes PDF syntax, object identifiers, offsets, and bytes. Color has a role: red actions, violet navigation, orange source and byte highlights. The existing pane layout, typefaces, and control sizes remain the foundation.
+Geist supports navigation and explanations; system monospace distinguishes PDF syntax, object identifiers, offsets, and bytes. Colour has a role: red actions, violet navigation, orange source and byte highlights. The existing pane layout, typefaces, and control sizes remain the foundation.
 
 The theme is implemented in `src/index.css`, `src/app.css`, `src/components/hex-view.css`, and the shared controls. Dark token mappings retain the same roles on plum surfaces; light mode is the public default.
 
 ## Brand artwork
 
-Use the supplied full-color PDF Internals illustration from `public/brand/pdf-internals-logo.png` on the welcome screen and About page. Keep its full aspect ratio and original colors, with responsive sizing on white. The compact workspace header frames the detective mascot from the same artwork as its brand mark.
+Use the supplied full-colour PDF Internals illustration from `public/brand/pdf-internals-logo.png` on the welcome screen and About page. Keep its full aspect ratio and original colours, with responsive sizing on white. The compact workspace header frames the detective mascot from the same artwork as its brand mark.
 
-## Colors
+## Colours
 
-Use the values in the frontmatter as the specification. Brand colors should communicate hierarchy and selection while keeping dense data readable.
+Use the values in the frontmatter as the specification. Brand colours should communicate hierarchy and selection while keeping dense data readable.
 
 ### Primary
 
@@ -205,7 +205,7 @@ The empty workspace places the logo by itself on the left and stacks the introdu
 
 The workspace is flat: backgrounds, subtle tonal changes, and single-pixel dividers establish hierarchy. Pane containers have no card elevation. Selected object rows add an inset border. Hex hover uses an inset border shadow. A rendered PDF page uses the shared small shadow against a muted canvas; shared default tabs also provide a small active shadow, while the implemented inspector uses the flat line variant.
 
-Keyboard focus uses visible ring or outline treatments. General interactive elements have a ring-colored outline (2px) and offset (2px); shared controls also provide their shadcn ring treatment. These treatments indicate interaction state.
+Keyboard focus uses visible ring or outline treatments. General interactive elements have a ring-coloured outline (2px) and offset (2px); shared controls also provide their shadcn ring treatment. These treatments indicate interaction state.
 
 ## Shapes
 
@@ -225,17 +225,17 @@ The shared Base UI input provides a bordered, rounded field with placeholder-mut
 
 ### Navigation
 
-Explorer rows sit on the near-white lilac sidebar. Default labels are muted; hover and active states use the lilac accent surface and purple text. Active rows gain medium weight. Object rows use the same selection colors with an inset border. They are 42px tall and truncate secondary labels. Mobile pane buttons use secondary for the current pane and ghost for others.
+Explorer rows sit on the near-white lilac sidebar. Default labels are muted; hover and active states use the lilac accent surface and purple text. Active rows gain medium weight. Object rows use the same selection colours with an inset border. They are 42px tall and truncate secondary labels. Mobile pane buttons use secondary for the current pane and ghost for others.
 
 Pages uses an indented list of expandable connections. Separate native buttons expand a branch and select its object. Rows wrap friendly labels and exact keys above monospace object IDs; inherited, shared, cyclic and unavailable connections use muted supporting text. Selected rows retain the explorer’s lilac inset border. Other sections keep the flat object index.
 
-Object headings include a short role explanation. Incoming and outgoing relationships use wrapping rows with dictionary/index paths and linked object IDs, preserving the existing reference color and global keyboard focus treatment.
+Object headings include a short role explanation. Incoming and outgoing relationships use wrapping rows with dictionary/index paths and linked object IDs, preserving the existing reference colour and global keyboard focus treatment.
 
-Comparison and object inspection use independently scrolling panels separated by a 12px neutral horizontal divider with a visible grip. Dragging or focusing the divider and using arrow keys resizes the panels. The header’s User guide opens a scrollable reading surface using the existing dialog typography and spacing.
+Comparison and object inspection use independently scrolling panels separated by a 12px neutral horizontal divider with a visible grip. Dragging or focusing the divider and using arrow keys resizes the panels. The header’s User guide opens a scrollable reading surface using the existing dialogue typography and spacing.
 
 ### Tabs
 
-Base UI tabs organize Properties, Source, Raw stream, and Decoded. The inspector uses a full-width transparent line list with a lower divider. An active tab uses violet text and a narrow red underline; inactive text is subdued. Compact text and horizontal gaps preserve inspector density.
+Base UI tabs organise Properties, Source, Raw stream, and Decoded. The inspector uses a full-width transparent line list with a lower divider. An active tab uses violet text and a narrow red underline; inactive text is subdued. Compact text and horizontal gaps preserve inspector density.
 
 ### Badges
 
@@ -251,9 +251,9 @@ Offsets, hex cells, and ASCII align in fixed-width columns. Hex cells are (23px)
 
 ### Notices, samples, and preview
 
-Notices and warnings use neutral surfaces, small explanatory type, icons, and borders. The empty state's sample choices are divider-separated rows with small violet, rose, and orange icon tiles; their trailing arrow moves slightly on hover (150ms, ease-out). Rendered preview has a compact toolbar and a muted canvas, keeping the document image visually distinct from the original-byte grid. Tooltips use inverse foreground/background colors, compact padding, and the shared medium radius.
+Notices and warnings use neutral surfaces, small explanatory type, icons, and borders. The empty state's sample choices are divider-separated rows with small violet, rose, and orange icon tiles; their trailing arrow moves slightly on hover (150ms, ease-out). Rendered preview has a compact toolbar and a muted canvas, keeping the document image visually distinct from the original-byte grid. Tooltips use inverse foreground/background colours, compact padding, and the shared medium radius.
 
-The application honors reduced-motion preferences by shortening transitions and animations; the preview loading icon also disables spinning under reduced motion.
+The application honours reduced-motion preferences by shortening transitions and animations; the preview loading icon also disables spinning under reduced motion.
 
 ## Usage rules
 
@@ -267,13 +267,13 @@ The application honors reduced-motion preferences by shortening transitions and 
 
 ### Restrictions
 
-- Keep saturated color tied to actions, navigation, or source/selection cues; avoid broad colored document surfaces.
+- Keep saturated colour tied to actions, navigation, or source/selection cues; avoid broad coloured document surfaces.
 - Do not replace the workspace panes with a dashboard of cards.
-- Do not use reference violet as a general decorative surface or byte selection color.
+- Do not use reference violet as a general decorative surface or byte selection colour.
 - Do not remove focus indicators or force desktop panes side by side on mobile.
 
 ## Public pages
 
 The homepage remains the tool entry point. Its introductory heading uses 32–48px Geist, with 15px supporting copy. At widths above 760px, the logo occupies the left column while the introduction and sample rows stack on the right; below that, the logo appears above the content. A quiet footer provides About, Feedback, and GitHub links, and disappears while inspecting a document.
 
-About is a reading surface at `/about`, using a 640px article measure, a 30–40px heading, 18px introductory copy, 16px section headings, and 14px body copy. It shares the plum workspace header, white reading surfaces, and existing limitations dialog. Navigating between public pages keeps the document state in memory; refreshing resets the open document and navigation; bookmarks and notes restore from browser storage when the same PDF is reopened.
+About is a reading surface at `/about`, using a 640px article measure, a 30–40px heading, 18px introductory copy, 16px section headings, and 14px body copy. It shares the plum workspace header, white reading surfaces, and existing limitations dialogue. Navigating between public pages keeps the document state in memory; refreshing resets the open document and navigation; bookmarks and notes restore from browser storage when the same PDF is reopened.

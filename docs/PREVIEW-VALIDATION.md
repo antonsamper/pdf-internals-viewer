@@ -8,7 +8,7 @@ EmbedPDF 3.1.0 requires Zod 3.25.76. There is no compatible upstream Zod 3 relea
 
 - Arrays with `.max()` or `.length()` reject excessive length before iterating elements or allocating per-element parse results.
 - Sets with `.max()` or `.size()` reject excessive size before iterating elements or scheduling async validation.
-- Valid collections and ordinary validation failures within the bound retain their previous behavior.
+- Valid collections and ordinary validation failures within the bound retain their previous behaviour.
 
 For oversized invalid collections, validation now returns the existing size error immediately, without collecting an error for every element. Zod 3 maps have no corresponding maximum-size API, so this is not a map-schema migration.
 
@@ -24,23 +24,23 @@ Patching the installed Zod modules alone is insufficient. EmbedPDF also ships pr
 6. `@embedpdf/engine/dist/embedpdf-worker.source-B-pv2k2b.js`, the ESM distribution chunk imported by the client.
 7. `@embedpdf/engine/dist/embedpdf-worker.source-DQ7ekBUy.cjs`, its CommonJS counterpart.
 
-The distribution chunks contain JavaScript string literals with raw tab characters. The preparation script normalizes those tabs for JSON decoding and verifies that each decoded payload matches the complete original worker hash before changing it. Original wrapper text and exports remain intact; the modified payload is serialized as a valid JSON string literal.
+The distribution chunks contain JavaScript string literals with raw tab characters. The preparation script normalises those tabs for JSON decoding and verifies that each decoded payload matches the complete original worker hash before changing it. Original wrapper text and exports remain intact; the modified payload is serialised as a valid JSON string literal.
 
 The Node transport wrapper is checked by its exact hash and contains imports rather than another vendored validator. The engine-resolved module patch covers those imports. The encoder worker does not contain Zod.
 
 The script requires EmbedPDF/core 3.1.0 and Zod 3.25.76. It resolves the installed engine, then that engine's core dependency, then that core's Zod dependency. Unrelated hoisted or tooling copies stay unchanged.
 
-Every modified artifact has recorded original and patched SHA-256 hashes. The script validates all candidates before writing and rejects unexpected input. Repeating it makes no further changes. Before patching the escaped worker, the script verifies that its decoded content matches the exact pinned standalone original.
+Every modified artefact has recorded original and patched SHA-256 hashes. The script validates all candidates before writing and rejects unexpected input. Running it again leaves already patched files unchanged. Before patching the escaped worker, the script verifies that its decoded content matches the exact pinned standalone original.
 
-This preparation step modifies installed dependency files; the inspection adapter generator leaves them unchanged. Use the project pnpm installation, development, test, and build scripts so it runs reproducibly. Dependency upgrades must review the hashes, minified anchors, regression evidence, and upstream support before changing these pins. The pnpm configuration copies installed files and disables side-effects caching so this patch cannot alter shared store contents. The project maintains this patch locally; it has not been released upstream.
+This preparation step modifies installed dependency files; the inspection adapter generator leaves them unchanged. Use the project pnpm installation, development, test, and build scripts so it runs reproducibly. Before changing these pins for a dependency upgrade, review file hashes, the code fragments used to locate patches in minified bundles, regression results, and upstream support. The pnpm configuration copies installed files and disables side-effects caching so this patch cannot alter shared store contents. The project maintains this patch locally; it has not been released upstream.
 
 ## Modified-file notices
 
 Every modified EmbedPDF worker, inline transport, and embedded-source module begins with a prominent `/*! Modified by PDF Internals Viewer: ... */` notice naming the validation-bound backport. Each decoded worker string also begins with the notice, so a Blob fallback carries its own modification notice inside the executable payload. Existing upstream wrapper text, exports, and notices are preserved.
 
-The banner uses a legal-comment form intended to survive bundling/minification. Check the emitted production workers and fallback payloads after building; static installation coverage alone does not establish notice retention in deployed files. Third-party license and notice distribution is handled separately from this change notice.
+The banner uses a legal-comment form intended to survive bundling/minification. Check the emitted production workers and fallback payloads after building; static installation coverage alone does not establish notice retention in deployed files. Third-party licence and notice distribution is handled separately from this change notice.
 
-The script accepts only the exact original hashes, the exact current banner-bearing patched hashes, or the explicitly recorded previous backport hashes that lacked banners. This narrow legacy migration restores the previous payload to the original by undoing only the two known guards and verifying its complete original hash, then reapplies the guards and notices. Unknown bytes remain an error. Fresh upstream installations and known previous installations produce the same pinned artifacts with banners. An installation that already matches requires no writes.
+The script accepts only the exact original hashes, the exact current banner-bearing patched hashes, or the explicitly recorded previous backport hashes that lacked banners. This narrow legacy migration restores the previous payload to the original by undoing only the two known guards and verifying its complete original hash, then reapplies the guards and notices. Unknown bytes remain an error. Fresh upstream installations and known previous installations produce the same pinned artefacts with banners. An installation that already matches requires no writes.
 
 ## Verification
 
@@ -52,7 +52,7 @@ All 54 validation tests passed for this change. Browser preview checks and a pro
 
 ## Scope and remaining audit state
 
-This is a targeted mitigation for oversized constrained collections. It does not impose a universal size limit on unbounded schemas, prove every engine operation safe, cap overall browser memory, or replace worker/file/resource limits.
+This patch rejects collections that exceed a size limit set by their schema. It does not impose a universal size limit on unbounded schemas, prove every engine operation safe, cap overall browser memory, or replace worker/file/resource limits.
 
 `pnpm audit` remains version-based: the installed dependency still reports Zod 3.25.76 and the report contains one high-severity advisory. The project does not suppress the advisory, falsify the package version, or report a clean audit. The local mitigation and regression tests are evidence separate from the registry's version assessment. Replace this backport with a compatible upstream fix when available; do not retain it indefinitely merely because its tests pass.
 

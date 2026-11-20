@@ -127,12 +127,12 @@ export function objectSummary(
       )}${unique.length > 5 ? ` and ${unique.length - 5} more pages` : ""}. Its decoded bytes contain page drawing instructions.`
   }
   if (object.stream)
-    return "A stream object: a dictionary followed by a byte payload. Raw stream shows stored bytes; Decoded applies supported filters. Its role depends on the references and dictionary below."
+    return "A stream object: a dictionary of properties followed by data bytes. Raw stream shows stored bytes; Decoded reverses supported encodings. Its role depends on the references and dictionary below."
   if (
     object.value.type === "dictionary" &&
     incoming.some((link) => link.path.at(-1) === "/Resources")
   )
-    return "A resource dictionary referenced through /Resources. It maps resource names to objects available in that context, rather than proving they are drawn."
+    return "A resource dictionary referenced through /Resources. It maps resource names to objects available in that context. A listed resource may never be drawn."
   const owner = incoming[0]
   return owner
     ? `This ${object.value.type} is referenced by ${objectName(owner.sourceId, objects, pages)} through ${owner.path.join(" → ") || "a direct reference"}. Inspect its properties and connections below to determine its role.`

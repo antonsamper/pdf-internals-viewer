@@ -208,7 +208,7 @@ test('keeps a clicked byte in place while selecting its containing object', asyn
   await viewport.press('Enter')
   await expect.poll(() => viewport.evaluate(element => element.scrollTop)).toBe(2600)
   // External object navigation should still reveal its original file range.
-  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Document catalog', exact: true }).click()
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Document catalogue', exact: true }).click()
   await expect(page.getByRole('heading', { name: /1 0\s+obj/ })).toBeVisible()
   await expect.poll(() => viewport.evaluate(element => element.scrollTop)).toBeLessThan(2600)
 })
@@ -355,7 +355,7 @@ test('uploads and replaces local PDFs while clearing stale navigation', async ({
 
 test('distinguishes compressed-object provenance and decodes filtered streams', async ({ page }) => {
   await upload(page, 'compressed.pdf')
-  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Document catalog', exact: true }).click()
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Document catalogue', exact: true }).click()
   await expect(page.getByRole('heading', { name: /1 0\s+obj/ })).toBeVisible()
   await expect(page.locator('.provenance')).toContainText('Decoded object stream')
   await expect(page.locator('.provenance')).toContainText('6 0')
@@ -492,7 +492,7 @@ test('restores sections and exact byte selections through history', async ({ pag
   const xrefSelection = await page.locator('.hex-status').innerText()
   expect(xrefSelection).toContain('32 bytes selected')
 
-  await sections.getByRole('button', { name: 'Document catalog', exact: true }).click()
+  await sections.getByRole('button', { name: 'Document catalogue', exact: true }).click()
   await expect(page.getByRole('heading', { name: /1 0\s+obj/ })).toBeVisible()
   await back.click()
   await expect(page.getByRole('heading', { name: 'Cross-reference entry point' })).toBeVisible()
@@ -877,7 +877,7 @@ test('downloads complete attachments and embedded subset fonts', async ({ page }
   const fixture = embeddedFilesPdf()
   await page.getByLabel('Open local PDF').setInputFiles({ name: 'embedded.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
   await expect(page.getByRole('heading', { name: 'Document overview', exact: true })).toBeVisible()
-  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Document catalog', exact: true }).click()
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Document catalogue', exact: true }).click()
   await page.getByRole('button', { name: '5 0 R', exact: true }).first().click()
   await page.getByRole('button', { name: '6 0 R', exact: true }).first().click()
   const [attachment] = await Promise.all([

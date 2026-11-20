@@ -20,7 +20,7 @@ const explanations: Record<string, string> = {
     "The decoding filters applied to this stream, in the order needed to decode it.",
   Length:
     "The stored length of the stream data, in bytes. May be an indirect reference.",
-  Root: "The document catalog: the starting point for exploring the logical document.",
+  Root: "The document catalogue: the starting point for exploring the logical document.",
   Pages: "The root of the page tree.",
   Prev: "The original byte offset of the preceding cross-reference section.",
   MediaBox: "The page boundary rectangle, measured in PDF user-space units.",

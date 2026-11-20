@@ -135,7 +135,7 @@ export function ResourceBrowser({
       <p className="my-3 text-xs text-muted-foreground" role="status">
         {matching.length} resource{matching.length === 1 ? "" : "s"}
         {access.incomplete
-          ? " · Page-resource indexing incomplete (bounded traversal or unavailable references)."
+          ? " · Some page-resource links may be missing: an inspection limit was reached or references were unavailable."
           : ""}
       </p>
       {category === "Attachment" && (
@@ -210,9 +210,9 @@ export function ResourceBrowser({
                 </>
               ) : kind === "Form" ? (
                 <p className="my-3 text-xs text-muted-foreground">
-                  Reusable form XObject. Follow the object to inspect its
-                  drawing instructions and resources; this is not an image
-                  thumbnail.
+                  A form XObject is a reusable group of drawing instructions.
+                  Open the object to inspect those instructions and its
+                  resources. Forms are not shown as image thumbnails.
                 </p>
               ) : null}
               {kind !== "Attachment" && (
@@ -243,8 +243,8 @@ export function ResourceBrowser({
                 </div>
               )}
               <p className="mt-2 text-xs text-muted-foreground">
-                Open the object for its dictionary, provenance, and original
-                bytes.
+                Open the object to see its dictionary, source location, and
+                original bytes.
               </p>
             </article>
           )

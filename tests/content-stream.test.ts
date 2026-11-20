@@ -58,7 +58,7 @@ describe("content instruction interpretation", () => {
   it("stops at opaque inline images instead of treating image bytes as instructions", () => {
     const parsed = contentInstructions("q BI /W 1 /H 1 ID /Fake 12 Tf EI Q")
     expect(parsed.instructions.map((row) => row.operator)).toEqual(["q", "BI"])
-    expect(parsed.instructions[1].warning).toContain("opaque")
+    expect(parsed.instructions[1].warning).toContain("stops at inline image data")
     expect(parsed.incomplete).toBe(true)
   })
   it("reports malformed/truncated values and unknown operators without claiming meaning", () => {

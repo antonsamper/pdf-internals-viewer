@@ -94,9 +94,10 @@ export function UserGuide({
               <div>
                 <h2>Find your way</h2>
                 <p>
-                  Search objects, dictionary keys, file text, hex, or decoded
-                  streams. Use Back and the trail above the panes to retrace
-                  your steps.
+                  Search objects, dictionary keys, file bytes as text, hex, or
+                  decoded streams. Decoded search checks the first 256 KiB per
+                  stream; it does not extract the text shown on a rendered page.
+                  Use Back and the trail above the panes to retrace your steps.
                 </p>
               </div>
             </div>
@@ -168,11 +169,11 @@ export function UserGuide({
                 <p>
                   In <strong>Resources → Images</strong>, click
                   <strong> Download image</strong> to export supported RGB or
-                  grayscale images as full-size PNGs, or embedded JPEGs as JPEG
+                  greyscale images as full-size PNGs, or embedded JPEGs as JPEG
                   files. The same button appears in the image’s inspector.
                   Exports do not include page transforms. JPEG exports also omit
-                  page masks and color adjustments; PNG export does not support
-                  masks or custom color spaces.
+                  page masks and colour adjustments; PNG export does not support
+                  masks or custom colour spaces.
                 </p>
                 <p>
                   Image previews appear automatically as you scroll. When a
@@ -183,9 +184,9 @@ export function UserGuide({
                 </p>
                 <p>
                   When a font file is embedded, its inspector offers
-                  <strong> Download font</strong>. Fonts may be partial and
-                  contain only the characters used in this PDF; extraction does
-                  not restore the complete original font.
+                  <strong> Download font</strong>. An embedded font may be a
+                  subset, containing only the characters used in this PDF;
+                  extraction does not restore the complete original font.
                 </p>
               </div>
             </details>
@@ -220,7 +221,7 @@ export function UserGuide({
                   list, or open its object to inspect it.
                 </p>
                 <p>
-                  In <strong>Document catalog</strong>, follow{" "}
+                  In <strong>Document catalogue</strong>, follow{" "}
                   <code>/Names</code> → <code>/EmbeddedFiles</code>. Follow the
                   name tree’s <code>/Kids</code> or <code>/Names</code> entries
                   to a file specification, then <code>/EF</code> to its embedded
@@ -260,11 +261,11 @@ export function UserGuide({
                   search for a known byte sequence.
                 </p>
                 <p>
-                  These features can have legitimate uses. Search matches are
-                  clues, not virus detections: there is no antivirus signature
-                  database, payload execution analysis, or safe-file verdict.
-                  Compression, encryption, unsupported filters, and obfuscation
-                  can hide content from searches.
+                  These features can have legitimate uses. A match identifies
+                  something to investigate. The app does not check an antivirus
+                  signature database, analyse what a payload would do when run,
+                  or declare a file safe. Compression, encryption, unsupported
+                  filters, and obfuscation can hide content from searches.
                 </p>
               </div>
             </details>
@@ -273,12 +274,13 @@ export function UserGuide({
             <summary>More about inspection, bookmarks, and comparison</summary>
             <p>
               <strong>Inspection:</strong> Properties shows values and
-              relationships; Source shows syntax. Streams also offer Raw stream
-              and Decoded tabs. Decoded offsets differ from original file
-              offsets. Click a byte or jump to an offset in Original bytes.
+              relationships; Source shows how an object is written. Streams also
+              offer Raw stream and Decoded tabs. Decoded offsets differ from
+              original file offsets. Click a byte or jump to an offset in
+              Original bytes.
             </p>
             <p>
-              <strong>Workspace:</strong> Overview summarizes the PDF; File
+              <strong>Workspace:</strong> Overview summarises the PDF; File
               structure shows trailer and cross-reference information; All
               objects lists indexed objects. Drag dividers to resize panes. On
               small screens, use Explorer, Inspector, and Original bytes tabs.
@@ -292,10 +294,10 @@ export function UserGuide({
               delete it.
             </p>
             <p>
-              <strong>Comparison:</strong> Checks dictionary values, not stream
-              payloads or original syntax. Drag the horizontal divider or focus
-              it and use arrow keys. Unpin object closes the comparison; closing
-              or replacing the PDF clears the pin.
+              <strong>Comparison:</strong> Checks dictionary values. Stream
+              bytes and original syntax are not compared. Drag the horizontal
+              divider or focus it and use arrow keys. Unpin object closes the
+              comparison; closing or replacing the PDF clears the pin.
             </p>
           </details>
         </div>

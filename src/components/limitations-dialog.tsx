@@ -74,17 +74,19 @@ export function LimitationsDialog({
           <section>
             <h2>Reading the results</h2>
             <p>
-              Original bytes are the source of truth. Readable properties may
-              normalize syntax or collapse duplicate dictionary keys. Objects in
-              compressed streams have decoded positions, not individual file
-              offsets. Recovered or unavailable source locations are labeled;
-              results from damaged files may be incomplete.
+              Use Original bytes to check the exact file contents. Properties
+              shows the parser’s interpretation: it may change how values are
+              written or keep only one value for duplicate dictionary keys.
+              Objects in compressed streams have decoded positions, not
+              individual file offsets. Recovered or unavailable source locations
+              are labelled; results from damaged files may be incomplete.
             </p>
             <p>
-              Stream text is a Latin-1 byte display, not extracted page text.
-              Source and stream previews show up to 256 KiB each. Decoded search
-              only checks that preview, so it can miss later content. Search
-              results stop at 500 matches.
+              Stream text displays one character per byte using Latin-1. It does
+              not extract the text shown on a rendered page. Source and stream
+              previews show up to 256 KiB each. Decoded search only checks that
+              preview, so it can miss later content. Search results stop at 500
+              matches.
             </p>
           </section>
           <section>
@@ -118,7 +120,7 @@ export function LimitationsDialog({
             </p>
           </section>
           <section>
-            <h2>Credits & licenses</h2>
+            <h2>Credits & licences</h2>
             <p>
               Original application code is licensed under the Apache License 2.0. See the{" "}
               <a
@@ -128,7 +130,7 @@ export function LimitationsDialog({
               >
                 third-party notices
               </a>{" "}
-              for dependency and font licenses.
+              for dependency and font licences.
             </p>
           </section>
           <p className="limitations-privacy">

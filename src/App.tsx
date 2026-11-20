@@ -741,7 +741,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
         {(
           [
             ["overview", LayoutDashboard, "Overview"],
-            ["catalog", FolderOpen, "Document catalog"],
+            ["catalog", FolderOpen, "Document catalogue"],
             ["pages", Files, "Pages"],
             ["resources", Layers, "Resources"],
             ["objects", Braces, "All objects"],
@@ -874,7 +874,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
               <dd>
                 {document.version}
                 {document.catalogVersion
-                  ? ` (catalog ${document.catalogVersion})`
+                  ? ` (catalogue ${document.catalogVersion})`
                   : ""}
               </dd>
             </div>
@@ -1014,7 +1014,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
                   }
                 >
                   <FolderOpen size={15} />
-                  Document catalog
+                  Document catalogue
                   <ArrowUpRight size={13} />
                 </Button>
                 <Button
