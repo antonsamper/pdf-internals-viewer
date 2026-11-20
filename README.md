@@ -23,7 +23,7 @@ Open the URL printed by Vite. The homepage opens directly to the workspace with 
 2. Choose **First page**, then follow its `/Contents` reference.
 3. Switch between **Properties**, **Source**, **Raw stream**, and **Decoded**.
 4. Inspect the highlighted original file bytes on the right. Objects inside compressed object streams instead identify their container and decoded offset.
-5. Use Back/Forward to retrace objects, inspector tabs, sections, and selected byte ranges; use **File structure** for the trailer/xref entry point, or **Preview** to render the selected page locally.
+5. Use Back/Forward to retrace objects, inspector tabs, sections, and selected byte ranges, restoring inspector and original-byte scroll positions for each visit; use **File structure** for the trailer/xref entry point, or **Preview** to render the selected page locally.
 
 Search supports object IDs/labels, dictionary keys, Latin-1 file bytes, hex bytes, and opt-in decoded stream byte text. The first match opens automatically. Use the result counter and previous/next arrows to step through matches, wrapping at either end, or select a match directly. Search results are capped at 500. Decoded search checks only the first 256 KiB of each stream and reports when results are incomplete. It searches stream bytes, so it does not extract rendered page text.
 

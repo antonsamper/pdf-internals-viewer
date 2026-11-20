@@ -95,6 +95,10 @@ import {
   type SitePath,
 } from "@/lib/site-content"
 import { useSiteRoute } from "@/lib/site-route"
+import {
+  useScrollRestoration,
+  type ScrollPosition,
+} from "@/lib/scroll-restoration"
 import "./app.css"
 
 const PdfPreview = lazy(() =>
@@ -115,6 +119,11 @@ const SAMPLES = SITE_SAMPLES.map((sample) => ({
 }))
 
 type Selection = BookmarkSelection
+const newViewports = () => ({
+  inspector: {} as ScrollPosition,
+  bytes: {} as ScrollPosition,
+  resourceLimit: 50,
+})
 type Section =
   "overview" | "catalog" | "pages" | "resources" | "objects" | "structure"
 type SearchResult = {
@@ -163,6 +172,9 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
     { id: null, tab: "properties", section: "overview" },
   ])
   const [historyIndex, setHistoryIndex] = useState(0)
+  const [viewportHistory, setViewportHistory] = useState(() => [newViewports()])
+  const viewports = viewportHistory[historyIndex]
+  const overviewScroll = useScrollRestoration(viewports.inspector)
   const [bookmarks, setBookmarks] = useState<SessionBookmark<Selection>[]>([])
   const activeBookmarkStorageKey = useRef<string | null>(null)
   const [bookmarkStorageKey, setBookmarkStorageKey] = useState<string | null>(
@@ -314,6 +326,9 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
       JSON.stringify(selection.trail) === JSON.stringify(next.trail)
     )
       return
+    setViewportHistory(
+      viewportHistory.slice(0, historyIndex + 1).concat(newViewports())
+    )
     setHistory(history.slice(0, historyIndex + 1).concat(next))
     setHistoryIndex(historyIndex + 1)
   }
@@ -380,6 +395,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
     setQuery("")
     setHistory([{ id: null, tab: "properties", section: "overview" }])
     setHistoryIndex(0)
+    setViewportHistory([newViewports()])
     setObjectScroll(0)
     setPreviewPage(1)
     setPageTreeState(emptyPageTree())
@@ -855,7 +871,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
   )
 
   const overview = (
-    <div className="overview inspector-scroll">
+    <div className="overview inspector-scroll" {...overviewScroll}>
       <div className="overview-heading">
         <FileCode2 size={25} />
         <h1>
@@ -1087,6 +1103,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
   const objectInspector = selected ? (
     <ObjectInspector
       object={selected}
+      scrollPositionRef={viewports.inspector}
       tab={selection.tab}
       resources={
         selected.kind === "Page"
@@ -1235,6 +1252,15 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
         </div>
       ) : section === "resources" && document ? (
         <ResourceBrowser
+          scrollPositionRef={viewports.inspector}
+          limit={viewports.resourceLimit}
+          onLimitChange={(resourceLimit) =>
+            setViewportHistory((entries) =>
+              entries.map((entry, index) =>
+                index === historyIndex ? { ...entry, resourceLimit } : entry
+              )
+            )
+          }
           document={document}
           objectMap={objectMap}
           extractStream={extractStream}
@@ -1373,7 +1399,11 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
             }}
           />
         ) : path !== "/" ? (
-          <PublicPage key={path} page={sitePage(path)!} onFollowLink={followLink} />
+          <PublicPage
+            key={path}
+            page={sitePage(path)!}
+            onFollowLink={followLink}
+          />
         ) : bytes.length || busy ? (
           <>
             <div className="workspace-toolbar">
@@ -1605,6 +1635,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
                   ) : mobilePane === "bytes" ? (
                     <HexView
                       bytes={bytes}
+                      scrollPositionRef={viewports.bytes}
                       range={selectedRange}
                       onByteSelect={selectByte}
                     />
@@ -1631,6 +1662,7 @@ export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
                   <ResizablePanel defaultSize="37%" minSize="290px">
                     <HexView
                       bytes={bytes}
+                      scrollPositionRef={viewports.bytes}
                       range={selectedRange}
                       onByteSelect={selectByte}
                     />

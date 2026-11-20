@@ -15,9 +15,15 @@ import {
 } from "@/lib/pdf/object-context"
 import type { PdfObjectRecord, PdfValue, StreamResult } from "@/lib/pdf/types"
 
+import {
+  useScrollRestoration,
+  type ScrollPosition,
+} from "@/lib/scroll-restoration"
+
 export type InspectorTab = "properties" | "source" | "raw" | "decoded"
 export function ObjectInspector({
   object,
+  scrollPositionRef,
   tab,
   onTabChange,
   onNavigate,
@@ -31,6 +37,7 @@ export function ObjectInspector({
   contextPageId,
 }: {
   object: PdfObjectRecord
+  scrollPositionRef: ScrollPosition
   resources?: { value: PdfValue; inheritedFrom?: string }
   objects?: Map<string, PdfObjectRecord>
   pages?: string[]
@@ -95,6 +102,10 @@ export function ObjectInspector({
   }, [object, tab, readStream])
   const safeTab =
     !object.stream && (tab === "raw" || tab === "decoded") ? "properties" : tab
+  const scroll = useScrollRestoration(
+    scrollPositionRef,
+    (safeTab !== "raw" && safeTab !== "decoded") || Boolean(stream || error)
+  )
   return (
     <section className="inspector" aria-label="Object inspector">
       <header className="object-heading">
@@ -175,7 +186,11 @@ export function ObjectInspector({
             </>
           )}
         </TabsList>
-        <TabsContent value="properties" className="inspector-scroll">
+        <TabsContent
+          value="properties"
+          className="inspector-scroll"
+          {...(safeTab === "properties" ? scroll : {})}
+        >
           <ValueView
             key={object.id}
             value={object.value}
@@ -290,7 +305,11 @@ export function ObjectInspector({
             )}
           </section>
         </TabsContent>
-        <TabsContent value="source" className="inspector-scroll">
+        <TabsContent
+          value="source"
+          className="inspector-scroll"
+          {...(safeTab === "source" ? scroll : {})}
+        >
           <p className="representation-note">
             {object.provenance.type === "file"
               ? "Original object syntax. Use Original bytes to check the exact bytes in the file."
@@ -303,7 +322,12 @@ export function ObjectInspector({
         {(["raw", "decoded"] as const).map(
           (mode) =>
             object.stream && (
-              <TabsContent key={mode} value={mode} className="inspector-scroll">
+              <TabsContent
+                key={mode}
+                value={mode}
+                className="inspector-scroll"
+                {...(safeTab === mode ? scroll : {})}
+              >
                 <div className="stream-info">
                   <span>
                     {mode === "raw"

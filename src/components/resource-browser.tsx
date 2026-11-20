@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import {
   Image as ImageIcon,
   Paperclip,
@@ -22,11 +22,19 @@ import type {
   StreamResult,
 } from "@/lib/pdf/types"
 
+import {
+  useScrollRestoration,
+  type ScrollPosition,
+} from "@/lib/scroll-restoration"
+
 function detail(object: PdfObjectRecord, key: string) {
   const value = property(object.value, key)
   return value?.text ?? "Not specified"
 }
 export function ResourceBrowser({
+  scrollPositionRef,
+  limit,
+  onLimitChange,
   document,
   objectMap,
   extractStream,
@@ -38,6 +46,9 @@ export function ResourceBrowser({
   onFilterChange,
   onNavigate,
 }: {
+  scrollPositionRef: ScrollPosition
+  limit: number
+  onLimitChange: (limit: number) => void
   document: PdfDocumentInfo
   objectMap: Map<string, PdfObjectRecord>
   extractStream: (
@@ -52,7 +63,7 @@ export function ResourceBrowser({
   onFilterChange: (filter: string) => void
   onNavigate: (id: string) => void
 }) {
-  const [limit, setLimit] = useState(50)
+  const scroll = useScrollRestoration(scrollPositionRef)
   const access = useMemo(
     () => resourcePageAccess(document, objectMap),
     [document, objectMap]
@@ -66,6 +77,7 @@ export function ResourceBrowser({
   )
   return (
     <section
+      {...scroll}
       aria-label="Visual resource browser"
       className="resource-browser min-h-0 flex-1 overflow-auto p-5"
     >
@@ -98,7 +110,7 @@ export function ResourceBrowser({
             aria-pressed={category === value}
             onClick={() => {
               onCategoryChange(value)
-              setLimit(50)
+              onLimitChange(50)
             }}
           >
             <Icon aria-hidden="true" size={14} />
@@ -117,7 +129,7 @@ export function ResourceBrowser({
         value={filter}
         onChange={(event) => {
           onFilterChange(event.target.value)
-          setLimit(50)
+          onLimitChange(50)
         }}
       />
       {filter && (
@@ -126,7 +138,7 @@ export function ResourceBrowser({
           size="sm"
           onClick={() => {
             onFilterChange("")
-            setLimit(50)
+            onLimitChange(50)
           }}
         >
           Clear search
@@ -265,7 +277,7 @@ export function ResourceBrowser({
               onClick={() => {
                 onFilterChange("")
                 onCategoryChange("All")
-                setLimit(50)
+                onLimitChange(50)
               }}
             >
               Clear filters
@@ -277,7 +289,7 @@ export function ResourceBrowser({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setLimit((count) => count + 50)}
+          onClick={() => onLimitChange(limit + 50)}
         >
           Show 50 more resources
         </Button>

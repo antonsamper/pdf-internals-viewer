@@ -536,6 +536,106 @@ test('restores byte-search results and unknown-byte selections', async ({ page }
   await expect(page.getByRole('status').filter({ hasText: 'no known containing object' })).toBeVisible()
 })
 
+test('restores inspector tabs and byte viewports per history visit', async ({ page }) => {
+  const stream = 'q Q\n'.repeat(2000)
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+    [3, '<< /Type /Page /Parent 2 0 R /Contents 4 0 R >>'],
+    [4, `<< /Length ${stream.length} >>\nstream\n${stream}endstream`],
+  ])
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'scroll.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  await page.getByRole('button', { name: '4 0 R', exact: true }).first().click()
+  const back = page.getByRole('button', { name: 'Back', exact: true })
+  const forward = page.getByRole('button', { name: 'Forward', exact: true })
+  const hex = page.locator('.hex-viewport')
+  const source = page.getByRole('tabpanel', { name: 'Source', exact: true })
+  await page.getByRole('tab', { name: 'Source', exact: true }).click()
+  await expect(source).toContainText('endstream')
+  await source.evaluate(el => { el.scrollTop = 1200 })
+  await hex.evaluate(el => { el.scrollTop = 2600 })
+  await expect.poll(() => source.evaluate(el => el.scrollTop)).toBe(1200)
+  await page.getByRole('tab', { name: 'Raw stream', exact: true }).click()
+  const raw = page.getByRole('tabpanel', { name: 'Raw stream', exact: true })
+  await expect(raw).toContainText('q Q')
+  await expect.poll(() => raw.evaluate(el => el.scrollTop)).toBe(0)
+  await raw.evaluate(el => { el.scrollTop = 1800 })
+  await hex.evaluate(el => { el.scrollTop = 5200 })
+  await back.click()
+  await expect(source).toBeVisible()
+  await expect.poll(() => source.evaluate(el => el.scrollTop)).toBe(1200)
+  await expect.poll(() => hex.evaluate(el => el.scrollTop)).toBe(2600)
+  await forward.click()
+  await expect(raw).toContainText('q Q')
+  await expect.poll(() => raw.evaluate(el => el.scrollTop)).toBe(1800)
+  await expect.poll(() => hex.evaluate(el => el.scrollTop)).toBe(5200)
+
+  // Decoded content arrives asynchronously too; switching away unmounts it.
+  await page.getByRole('tab', { name: 'Decoded', exact: true }).click()
+  const decoded = page.getByRole('tabpanel', { name: 'Decoded', exact: true })
+  await expect(decoded).toContainText('Decoded stream bytes')
+  await expect(decoded.getByRole('button', { name: 'Decoded byte text', exact: true })).toBeVisible()
+  await decoded.getByRole('button', { name: 'Decoded byte text', exact: true }).click()
+  await decoded.evaluate(el => { el.scrollTop = 1100 })
+  await back.click()
+  await expect.poll(() => raw.evaluate(el => el.scrollTop)).toBe(1800)
+  await forward.click()
+  await expect.poll(() => decoded.evaluate(el => el.scrollTop)).toBe(1100)
+  await back.click()
+
+  // A second visit to the same tab starts at the top and replaces Forward.
+  await back.click()
+  await page.getByRole('tab', { name: 'Raw stream', exact: true }).click()
+  await expect(raw).toContainText('q Q')
+  await expect.poll(() => raw.evaluate(el => el.scrollTop)).toBe(0)
+  await expect(forward).toBeDisabled()
+
+  // Mobile pane unmounts retain the current visit, including async streams.
+  await raw.evaluate(el => { el.scrollTop = 900 })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(raw).toContainText('q Q')
+  await expect.poll(() => raw.evaluate(el => el.scrollTop)).toBe(900)
+  const panes = page.getByRole('navigation', { name: 'Workspace pane' })
+  await panes.getByRole('button', { name: 'Original bytes', exact: true }).click()
+  await hex.evaluate(el => { el.scrollTop = 3900 })
+  await panes.getByRole('button', { name: 'Inspector', exact: true }).click()
+  await expect(raw).toContainText('q Q')
+  await expect.poll(() => raw.evaluate(el => el.scrollTop)).toBe(900)
+  await panes.getByRole('button', { name: 'Original bytes', exact: true }).click()
+  await expect.poll(() => hex.evaluate(el => el.scrollTop)).toBe(3900)
+
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.getByRole('button', { name: 'Close PDF', exact: true }).click()
+  await openMinimal(page)
+  await expect.poll(() => hex.evaluate(el => el.scrollTop)).toBe(0)
+  await expect(back).toBeDisabled()
+})
+
+test('restores the resource browser scroll and expanded list after inspecting an object', async ({ page }) => {
+  const fonts = Array.from({ length: 70 }, (_, index) => [index + 4, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'])
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+    [3, '<< /Type /Page /Parent 2 0 R >>'],
+    ...fonts,
+  ])
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'fonts.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await expect(page.locator('.status-bar')).toContainText('73 objects indexed')
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { name: 'Resources', exact: true }).click()
+  const browser = page.getByRole('region', { name: 'Visual resource browser' })
+  await browser.getByRole('button', { name: /Show.*more/i }).click()
+  const target = browser.getByRole('button', { name: '73 0 obj', exact: true })
+  await target.scrollIntoViewIfNeeded()
+  const top = await browser.evaluate(el => el.scrollTop)
+  expect(top).toBeGreaterThan(1200)
+  await target.click()
+  await expect(page.getByRole('heading', { name: /73 0\s+obj/ })).toBeVisible()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await expect(target).toBeVisible()
+  await expect.poll(() => browser.evaluate(el => el.scrollTop)).toBe(top)
+})
+
 test('keeps smaller object lists visible when history changes sections', async ({ page }) => {
   const fixture = classicPdf([
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
