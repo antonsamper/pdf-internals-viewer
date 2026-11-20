@@ -40,6 +40,12 @@ export const SearchForm = ({ busy, search }: { busy: boolean; search: ReturnType
         aria-label="Search document"
         placeholder="Search document…"
         value={query}
+        type="text"
+        enterKeyHint="search"
+        autoCapitalize="off"
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
         aria-expanded={results !== null && open}
         aria-haspopup="dialog"
         aria-controls={results !== null && open ? resultsId : undefined}
@@ -81,6 +87,7 @@ export const SearchForm = ({ busy, search }: { busy: boolean; search: ReturnType
         title="Run search"
         className="search-submit"
         disabled={searching || busy}
+        aria-busy={searching}
       >
         <ArrowRight size={14} />
         <span>Search</span>
@@ -97,10 +104,12 @@ export const SearchForm = ({ busy, search }: { busy: boolean; search: ReturnType
           aria-expanded={open}
           onClick={() => setOpen(!open)}
         >
-          Results{' '}
-          <span>
+          <span className="search-show-label">Results</span>{' '}
+          <span className="search-show-count">
             {results.length}{' '}
-            {resultsScope === 'pageText' ? (results.length === 1 ? 'page' : 'pages') : results.length === 1 ? 'match' : 'matches'}
+            <span className="search-show-unit">
+              {resultsScope === 'pageText' ? (results.length === 1 ? 'page' : 'pages') : results.length === 1 ? 'match' : 'matches'}
+            </span>
           </span>
           <ChevronDown size={12} />
         </Button>
