@@ -39,3 +39,7 @@ This run used pnpm 10.33.4's clean frozen-lockfile dependency tree and the compl
 ## Live Cloudflare verification: 2026-11-12
 
 This includes preview rendering without external requests, document writes/uploads or runtime errors in the tested flow. The managed local Cloudflare run also passed 27/27 in 32.6 seconds. The earlier stopped-server failure required no application changes. Actual Safari application testing remains separate.
+
+## Navigation context follow-up — 2026-11-12
+
+The production-preview suite now contains 12 scenarios per engine, including section and exact-byte-range history, unknown-byte messages, forward-branch replacement, and returning from a deeply scrolled object list to a smaller section. `CI=1 PLAYWRIGHT_PREVIEW=1 pnpm exec playwright test --browser=all` passed 36/36 checks across Chromium, Firefox and WebKit. This is local production-build evidence; the published deployment was not changed. Inspector and byte-pane scroll-position restoration remains deferred.
