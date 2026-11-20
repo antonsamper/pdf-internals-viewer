@@ -1,6 +1,6 @@
 # Public content and discovery
 
-PDF Internals uses React and Vite to generate a static site hosted on Cloudflare Pages. It needs no backend or HTML rendering when a visitor requests a page.
+PDF Internals uses React and Vite to generate a static site hosted on Cloudflare Pages. Pages are rendered at build time, so serving them needs no backend.
 
 ## Rendering and maintenance
 
@@ -34,7 +34,7 @@ Account-level work remains manual until the necessary access is available:
 1. Verify the production property in Google Search Console and Bing Webmaster Tools; submit `/sitemap.xml`.
 2. Inspect home, About and a representative tutorial for indexability and rendered content. Record indexed URLs, impressions, clicks and relevant queries before comparing later periods.
 3. Periodically sample a fixed set of questions, recording engine/mode, date, exact prompt, cited URL and factual accuracy. Suggested questions: “What does 3 0 R mean in a PDF?”, “How can I inspect PDF objects without uploading my file?”, “How do I decode a PDF content stream?”, and “How can I find embedded fonts and images in a PDF?” Treat repeated answer-engine observations as noisy qualitative evidence.
-4. Review actual verified crawler logs and hosting rules. Do not infer a block from an unsuccessful search-tool fetch alone.
+4. Review verified crawler logs and hosting rules. Do not infer a block from an unsuccessful search-tool fetch alone.
 5. Measure the current deployed landing pages on representative network/device conditions. The older `docs/PERFORMANCE.md` baseline describes a different build and document-opening workload.
 6. If aggregate activation analytics are later added, count guide visits, guide-to-inspector transitions, sample opens and successful PDF opens. Exclude filenames, PDF contents, document hashes, passwords, selections and notes. Referrer attribution can be incomplete.
 
@@ -51,6 +51,10 @@ Publish original worked examples and seek relevant editorial references after th
 ## Worked debugging examples
 
 `/examples` links to nine walkthroughs: file size, incorrect text, font embedding, attachments, repeated logos, rotation, inherited resources, opening actions, and a broken cross-reference. Each has exact object IDs, a downloadable PDF, and an allowlisted link into the inspector. These nine samples are separate from the three starter buttons. Run `node scripts/fixtures/generate.mjs` to regenerate all twelve PDFs using Node. The large sample stores 4,320,000 bytes of raw RGB data; the text sample maps source code `<31>` to Unicode `<0039>` while rendering the digit 1.
+
+The action walkthrough keeps `/examples/opening-action`: the descriptive URL matches its downloadable opening-action sample and existing links. Its title, description and introduction also explain the broader PDF actions topic, with common action types and triggers before the worked `/GoTo` inspection. Keep the distinction between a trigger (`/OpenAction`, `/A`, `/AA`) and an action type (`/S`); an opening destination is not necessarily an action dictionary or a script. Type definitions link to Adobe’s reference documentation.
+
+This URL choice follows [Google’s descriptive URL guidance](https://developers.google.com/search/docs/crawling-indexing/url-structure). Google’s [AI search guidance](https://developers.google.com/search/docs/appearance/ai-features) applies the same SEO fundamentals without special AI markup. Neither the path nor the expanded content guarantees indexing or citations.
 
 The font example uses the original geometric H glyph in `scripts/fixtures/assets/example-mark.ttf`. Its optional regeneration script, `python3 scripts/fixtures/make-example-font.py`, needs fonttools 4.63.0. The file has fixed timestamps so regeneration is deterministic; ordinary PDF regeneration reads the checked-in font without Python. No third-party font is bundled. The opening-action example uses a local `/GoTo` destination, with no JavaScript, launch action, or remote target.
 

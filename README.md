@@ -1,56 +1,19 @@
 # PDF Internals Viewer
 
-Explore PDF objects alongside their original bytes. Open a local file, follow references, and inspect raw or decoded streams. An optional EmbedPDF preview renders pages locally. The app is read-only and built with TypeScript, React, Vite, and shadcn/ui using Base UI.
+Explore PDF objects, references, and streams alongside their original bytes, with an optional page preview. Inspection is read-only and happens locally in your browser.
 
-**[Open the app](https://pdf-internals-viewer.pages.dev)**
+**[Open the app](https://pdf-internals-viewer.pages.dev)** · [User guide](https://pdf-internals-viewer.pages.dev/guide) · [Worked examples](https://pdf-internals-viewer.pages.dev/examples) · [Limitations](https://pdf-internals-viewer.pages.dev/limitations)
 
 ## Run locally
 
-Requires Node.js 22.18+ (or a compatible newer release) and pnpm 10.33.4 (pinned in `packageManager`). Install that version with `npm install --global pnpm@10.33.4` if needed.
+Requires Node.js 22.18+ and pnpm 10.33.4 (pinned in `packageManager`).
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm run dev
 ```
 
-`pnpm-lock.yaml` is the sole dependency lockfile. CI uses a frozen install and caches the pnpm store. Project settings enable preparation hooks and copy installed packages so the preview backport cannot modify the shared store. See [dependency setup](docs/DEPENDENCIES.md).
-
-Open the URL printed by Vite. The homepage opens directly to the workspace with a file picker and three starter sample PDFs. Nine worked examples provide original PDFs for investigating file size, text mappings, fonts, attachments, repeated images, rotation, inherited resources, opening actions, and a deliberately broken cross-reference. The footer links to About, the guide, examples, privacy, and the source on GitHub. Public pages have Overview, Guides and Examples header links, a grouped desktop sidebar or mobile “On this site” menu, and three related next steps. The Reference group links to supported features and limitations. Two overview pages explain who the inspector is for and when to use it instead of a normal PDF viewer. Six task guides cover objects/references, streams, fonts/images, attachments, search/bookmarks/comparison, and suspicious features. Visiting public pages within the app preserves the current document and selection in memory. You can also drop a PDF anywhere in the app. The app processes files in memory on your device. It does not upload or save them.
-
-## Explore a PDF
-
-1. Open a PDF or select **A simple page**.
-2. Choose **First page**, then follow its `/Contents` reference.
-3. Switch between **Properties**, **Source**, **Raw stream**, and **Decoded**.
-4. Inspect the highlighted original file bytes on the right. Objects inside compressed object streams instead identify their container and decoded offset.
-5. Use Back/Forward to retrace objects, inspector tabs, sections, and selected byte ranges, restoring inspector and original-byte scroll positions for each visit; use **File structure** for the trailer/xref entry point, or **Preview** to render the selected page locally.
-
-Search supports object IDs/labels, dictionary keys, Latin-1 file bytes, hex bytes, and opt-in decoded stream byte text. The first match opens automatically. Use the result counter and previous/next arrows to step through matches, wrapping at either end, or select a match directly. Search results are capped at 500. Decoded search checks only the first 256 KiB of each stream and reports when results are incomplete. It searches stream bytes, so it does not extract rendered page text.
-
-Keyboard: Ctrl/Cmd+O opens a file; Ctrl/Cmd+K focuses search. The hex viewer supports arrow keys, Home/End, and Enter to inspect a byte's containing object. Enter offsets as decimal or with a `0x` hex prefix.
-
-At narrower widths, use Explorer / Inspector / Original bytes tabs. Desktop panes can be resized with the separators, including via keyboard.
-
-## Investigation tools
-
-- **Issues** collects parser diagnostics and object warnings with error/warning counts, separate inspection limitations and information notes, and links to affected objects or file structure. The overview summarises the findings. Stream-read failures are added when inspecting raw/decoded streams or searching decoded bytes; other preview/download errors remain beside those actions. Checks do not validate every stream, page appearance, signatures or PDF conformance. A clean result means only that these checks detected no issues; locked and recovered documents identify incomplete coverage.
-
-- Resource image previews load locally as their rows become visible, including supported embedded JPEGs; unavailable previews explain the reason. Downloadable fonts and attachments show their complete decoded size. Images show the size of the exported PNG/JPEG and the stored stream size separately. Size calculation and image export obey the same decoding limits as downloads; unsupported sizes are labelled unavailable. Canvas work is serialised and full-size export buffers are released after calculating sizes/previews.
-- Download images directly from **Resources → Images** or the image object inspector. Supported 8-bit RGB/greyscale samples export at their full dimensions as PNG (up to 4 megapixels / 4096 pixels per side); standalone DCT/JPEG streams save as `.jpg` without re-encoding. Image payloads are limited to 32 MiB. Page transforms are not applied; JPEG extraction also omits PDF masks and colour adjustments. Unsupported codecs, filter chains, or PNG masks/custom colour spaces are explained in the UI rather than producing an incorrect file.
-- Download embedded attachments from their file specifications or embedded streams, and embedded fonts from their font objects, descriptors, or font streams. Downloads save complete decoded bytes, using supported filters, up to 32 MiB per file. Font downloads may be subsets containing only the PDF's used characters; they do not restore the full original font, and some font programs are not directly installable.
-- In **Resources**, use **Fonts**, **Attachments**, **Images**, or **Forms** to narrow the list. Category counts cover indexed resources; search includes attachment filenames and font names. Fonts and attachments offer downloads directly in the list. Filters persist when inspecting an object and returning, and reset when opening another PDF. Attachments are listed once per stream and filename, including identified embedded streams without file specifications; unavailable or unparsed objects may contain other files.
-- Open **Pages** in the explorer to expand a page’s content streams, resources, and annotations. Select an object to inspect it alongside its original bytes. Inherited resources identify their actual source; shared, cyclic, and unavailable references are labelled. Expansion stays open across history, section changes, and mobile pane switches, and clears on document replacement. Large lists show 50 entries at a time; expansion stops after six levels, with full object inspection still available.
-- Read the explanation beneath an object heading for its identified role. Known pages, content streams, fonts, images, forms, and page-tree objects have specific explanations; uncertain roles remain explicit. Resource availability does not establish that a resource is drawn.
-- Follow **References** and **Referenced by** links labelled with their dictionary keys and array indexes. Incoming links open the actual referring object; outgoing links preserve the key route in the exploration trail. Relationship details are bounded and incomplete results are labelled.
-- Follow the clickable exploration trail to revisit the objects and dictionary keys used along your route. Expand references inline to inspect a dictionary without leaving its surrounding object; cycles and unavailable references are labelled.
-- Use **Pin to compare**, then select another object to compare typed dictionary values and highlight added, removed, or changed keys. Stream payloads are not compared. Drag the horizontal divider between comparison and inspection to resize either section, or focus it and use the arrow keys. Each section scrolls independently.
-- In a content stream's **Decoded** tab, switch between **Readable instructions** and **Decoded byte text**. Instruction explanations and resource links use page/form resource context; ambiguous contexts require an explicit choice. These explanations do not extract text or establish rendered positions.
-- Open **Resources** for font details, image/form objects, and links to pages exposing those resources. Image thumbnails are generated locally on request for supported bounded images; unsupported formats retain dictionary and byte inspection.
-- **Bookmark** objects or explicit byte ranges and add notes in the explorer. Bookmarks and notes are saved in browser local storage using a SHA-256 hash of the PDF contents. Reopening the same PDF restores them, even under a different filename; different file contents have separate bookmarks. Clearing site data removes saved bookmarks. If browser storage is unavailable, bookmarks remain usable for the current open file and a status message explains that they are not saved. PDF files and passwords are not saved; bookmark notes from encrypted PDFs remain readable in browser storage. Pinned comparisons clear when the file is closed or replaced.
-
-Open **User guide** in the header for a short sample walkthrough and links to focused task guides. Use **Back to the workspace** to return to your open PDF and selection.
-
-Use the **sun/moon button** in the header to switch between light and dark mode. Before you choose, the app follows your device’s appearance setting. Your choice is saved in this browser for future visits and applies to the workspace and public pages.
+Open the URL printed by Vite. Installation prepares the pinned parser and preview dependencies automatically; see [dependency setup](docs/DEPENDENCIES.md).
 
 ## Verify
 
@@ -59,57 +22,18 @@ pnpm run typecheck
 pnpm run lint
 pnpm test
 pnpm run build
-pnpm exec playwright install chromium
-pnpm run test:e2e
+pnpm exec playwright install chromium firefox webkit
+PLAYWRIGHT_PREVIEW=1 pnpm run test:e2e --browser=all
 ```
 
-Browser tests run individual cases in parallel, with four workers locally and in CI.
-Use `pnpm run test:e2e --workers=1` for serial debugging or `--workers=N` to tune concurrency.
-Manual screenshots are saved under `.context/<browser>/` so concurrent engines do not overwrite each other.
+The build generates the static site in `dist/` and checks public pages and licence notices. Browser tests use production assets; see [browser verification](docs/BROWSERS.md) for other modes. The optional [independent PDF corpus](docs/CORPUS.md) has separate download and test commands.
 
-Tests cover the preview validation backport and scoped tooling compatibility. Parser tests cover classic, stream, and hybrid xrefs; compressed objects; incremental updates and free entries; exact object boundaries and deceptive binary markers; required filters; encryption; recovery; references; and bounded decompression. Browser tests cover the integrated exploration flow and local rendering. CI runs these against production builds in Chromium, Firefox, and WebKit. WebKit automation is not a full test of the Safari application. See [browser evidence and reproduction](docs/BROWSERS.md).
+## Project documentation
 
-`pnpm run build` produces the static site in `dist/`, including build-time React HTML for home/About, script-free overview articles, guides and example pages, and a generated sitemap. Public HTML checks run automatically after the build. See [public content and discovery](docs/AEO.md) for rendering, maintenance and post-publication verification. `pnpm run preview` serves the built site locally. Cloudflare Pages is configured in `wrangler.jsonc`; the public app is available at the link above. Once the repository's Cloudflare Actions secrets are configured, pushes/merges to `main` deploy automatically after all CI checks pass. Other branches and pull requests only run checks. See [Cloudflare setup and release steps](docs/HOSTING.md).
+- [Parser capabilities](docs/PARSER.md) and [preview engine](docs/PREVIEW.md)
+- [Dependencies and known advisory](docs/DEPENDENCIES.md), [preview backport](docs/PREVIEW-VALIDATION.md), and [third-party notices](docs/NOTICES.md)
+- [Public content and sample maintenance](docs/AEO.md)
+- [Cloudflare hosting and deployment](docs/HOSTING.md)
+- [Security policy and private vulnerability reports](SECURITY.md)
 
-## Independent PDF corpus
-
-```sh
-pnpm run corpus:fetch
-pnpm run test:corpus
-```
-
-This opt-in suite checks 15 upstream PDFs against observations from independent readers. Each PDF is pinned to a commit and hash. Downloads stay in ignored `.context/corpus/`; third-party documents are not bundled or redistributed. Coverage includes Word, Quartz, Adobe, TeX, a scan, forms, incremental updates, damaged cross-references, encryption, and a document containing over 85,000 objects. See [the corpus report](docs/CORPUS.md) for evidence and known partial results.
-
-## Public-facing limitations
-
-**Limitations** in the document status bar opens the static `/limitations` page while a PDF is loading or open, including on mobile. The About page and public content navigation also link to this page. Navigating back to the workspace retains the open document.
-
-## Parser and preview
-
-The inspection adapter uses @libpdf/core 0.5.3, a pinned TypeScript engine. Its low-level parsers are not public exports, so a deterministic build script exposes them in a generated, gitignored module. The script checks the exact source hash and preserves the upstream MIT licence. It does not mutate `node_modules` or rewrite the user's PDF. `pnpm install --frozen-lockfile` generates the adapter automatically; upgrades require explicit compatibility work. See [parser capability notes](docs/PARSER.md).
-
-Preview loads on demand through EmbedPDF 3.1.0. Its PDFium engine runs as WebAssembly in a worker. Worker/WASM assets are served by the application build, with no CDN or cloud engine. See [preview notes](docs/PREVIEW.md). Installation and build hooks also apply a version- and hash-checked validation backport to the pinned preview dependency and its bundled worker copies; see [the backport notes](docs/PREVIEW-VALIDATION.md).
-
-## Limits and current gaps
-
-- 64 MiB input limit, 100,000 indirect-object limit, 15-second worker-operation timeout.
-- 32 MiB decoded stream limit and 128 MiB total decoded allocation budget; displayed source/stream previews are capped at 256 KiB.
-- The worker currently indexes all objects when opening a PDF, then delivers complete records and shared resource/download indexes in acknowledged batches so the browser can paint between responses. It does not build the index in stages or load objects only when requested. Files with many objects and references can still use substantial memory beyond the decoded-data budget.
-- Encrypted PDFs with an empty opening password unlock automatically. Otherwise enter an opening or owner password for local structure inspection and preview. Original source and raw stream bytes stay encrypted; properties and decoded streams are decrypted. Unsupported encryption remains unavailable. Passwords stay in memory only until the document is closed or replaced.
-- Decoded inspection supports Flate (including tested PNG predictors), ASCIIHex, ASCII85, and chains of those filters. Unsupported filters keep raw inspection available.
-- Recovered structure and unknown positions are labelled. Decoded positions are never presented as original file offsets. Properties may change dictionary entry order, keep only one value for duplicate keys, or display strings differently from how they were written. Use Original bytes to check exact file syntax.
-- Historical object revisions, precise rendered-content-to-byte mapping, extracted text search, editing, repair, saving PDF files, and comparing stream payloads are deferred.
-- Tooling advisories have been removed from this lockfile. One high-severity advisory remains tied to EmbedPDF's upstream Zod version, despite the tested local backport. The audit report is not suppressed. See [dependency remediation and remaining obligations](docs/DEPENDENCIES.md) before release.
-- Automated browser checks target Chromium, Firefox, and WebKit; actual Safari and broader PDF/browser coverage still need validation. A desktop [production browser baseline](docs/PERFORMANCE.md) records opening responsiveness, navigation and separate heap snapshots; representative 10 MiB files and lower-memory devices remain unverified.
-
-## Sample provenance and licensing
-
-The bundled PDFs are generated from original fixture definitions in `scripts/fixtures/pdf-fixtures.mjs` and `scripts/fixtures/example-fixtures.mjs`; no third-party documents are included. Regenerate them with `node scripts/fixtures/generate.mjs`. The samples use standard PDF fonts; the font walkthrough also embeds an original geometric H glyph. Its checked-in TrueType program is generated by `scripts/fixtures/make-example-font.py`. Dependency licences remain with their respective authors; the generated adapter preserves the upstream licence. Original project code is licensed under the [Apache License 2.0](LICENSE). Third-party dependencies and assets retain their own licences.
-
-## UI tooling
-
-The generated shadcn/ui + Base UI components are checked in. Their supporting CSS is vendored from shadcn 4.23.0 with its MIT notice, so the component-generation CLI is not part of the installed build toolchain. See `public/licenses/shadcn.txt`.
-
-## Release work
-
-See [the security policy](SECURITY.md) for private vulnerability reports, the known dependency advisory, and credential handling.
+Built with TypeScript, React, Vite, and shadcn/ui using Base UI. Bundled sample PDFs are original fixtures; their generators and provenance are documented in [public content maintenance](docs/AEO.md#worked-debugging-examples).

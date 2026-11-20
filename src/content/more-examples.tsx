@@ -342,11 +342,96 @@ export function ActionExample() {
   return (
     <>
       <p className="about-lead">
-        This PDF asks a reader to show the first page when it opens. Trace the
-        catalogue's opening action to see how that request is stored. The action
-        is a local page destination and contains no script.
+        A PDF action is a stored instruction asking a reader to do something
+        when an event occurs, such as opening the document or clicking a link.
+        Actions can navigate to a page, open a website, work with form data, or
+        run JavaScript. This example uses an opening action to fit the first
+        page in the reader’s window, with no script or external target.
       </p>
       <ExampleActions sample="opening-action" />
+      <h2>What triggers a PDF action?</h2>
+      <p>
+        The trigger and the action type are separate. The catalogue’s{" "}
+        <code>/OpenAction</code> specifies what happens on opening; a link,
+        outline bookmark, or form widget can use <code>/A</code> for its action.
+        Additional-action dictionaries (<code>/AA</code>) associate actions with
+        events such as entering a field or opening a page. An action
+        dictionary’s <code>/S</code> entry identifies its type. An optional{" "}
+        <code>/Next</code> entry can chain further actions.
+      </p>
+      <p>
+        <code>/OpenAction</code> can also hold a destination directly, rather
+        than an action dictionary. Finding it does not by itself mean that the
+        PDF contains JavaScript.
+      </p>
+      <h2>Common PDF action types and what they do</h2>
+      <dl>
+        <dt>
+          <code>/GoTo</code>, <code>/GoToR</code>, <code>/GoToE</code>
+        </dt>
+        <dd>
+          Navigate to a destination in this PDF, another PDF, or an embedded
+          file respectively. Destinations can specify a page and viewing scale.
+        </dd>
+        <dt>
+          <code>/URI</code>
+        </dt>
+        <dd>Follow a URI, commonly a website address in a clickable link.</dd>
+        <dt>
+          <code>/Named</code>
+        </dt>
+        <dd>
+          Request a reader-defined operation, such as <code>/NextPage</code> or{" "}
+          <code>/PrevPage</code>.
+        </dd>
+        <dt>
+          <code>/JavaScript</code>
+        </dt>
+        <dd>
+          Run a script, for example to calculate or validate form values. The{" "}
+          <code>/JS</code> entry holds the script text or a stream reference.
+        </dd>
+        <dt>
+          <code>/SubmitForm</code>, <code>/ResetForm</code>,{" "}
+          <code>/ImportData</code>
+        </dt>
+        <dd>
+          Send form data to a target, restore fields to their defaults, or load
+          field values from a file respectively.
+        </dd>
+        <dt>
+          <code>/Launch</code>
+        </dt>
+        <dd>Request that the reader open a file or start an application.</dd>
+        <dt>
+          <code>/Hide</code>, <code>/SetOCGState</code>
+        </dt>
+        <dd>
+          Change annotation visibility or the state of optional content groups
+          (PDF layers) respectively.
+        </dd>
+        <dt>
+          <code>/Thread</code>, <code>/Rendition</code>,{" "}
+          <code>/GoTo3DView</code>
+        </dt>
+        <dd>
+          Start reading an article thread, control multimedia playback, or
+          select a view of 3D content respectively.
+        </dd>
+      </dl>
+      <p>
+        These are common types, not an exhaustive list. Support depends on the
+        reader, PDF version, and security settings; a stored instruction may be
+        ignored, blocked, or require permission. For definitions, see Adobe’s{" "}
+        <a href="https://developer.adobe.com/acrobat-pdfl-sdk/guides/pdfmark/pdfmark-actions">
+          actions and destinations
+        </a>{" "}
+        and the{" "}
+        <a href="https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/pdfreference1.7old.pdf">
+          PDF 1.7 reference, section 8.5
+        </a>
+        .
+      </p>
       <h2>1. Locate the opening action</h2>
       <p>
         Choose <strong>Document catalogue</strong>, object{" "}
@@ -376,9 +461,9 @@ export function ActionExample() {
       <h2>3. Check how readers handle the action</h2>
       <p>
         A reader may honour or ignore an opening action. PDF Internals exposes
-        the stored request; its page preview is not a test of whether another
-        reader executes it. This sample has no JavaScript, launch action, or
-        remote destination.
+        the stored request for inspection without executing the action. Its page
+        preview is not a test of whether another reader executes it. This sample
+        has no JavaScript, launch action, or remote destination.
       </p>
       <h2>Investigate other action types</h2>
       <p>

@@ -4,8 +4,8 @@ export function AudiencePage() {
       <p className="about-lead">
         PDF Internals is for developers and technically curious readers who need
         to understand how a PDF works. Follow objects, references, streams and
-        original bytes to explain a document’s behaviour, with your file staying
-        on your device.
+        original bytes to explain a document’s behaviour. Your file stays on
+        your device.
       </p>
       <p>
         You do not need to know the PDF format before starting. The{" "}
@@ -199,8 +199,7 @@ export function InspectorVsViewerPage() {
         The <a href="/examples/incorrect-text">worked investigation</a> follows
         the page’s drawing instructions to its font and <code>/ToUnicode</code>{" "}
         map. The map sends the source code for the visible digit 1 to the
-        Unicode character 9. Inspecting that relationship explains why the two
-        results disagree.
+        Unicode character 9.
       </p>
       <p className="article-actions">
         <a href="/?sample=incorrect-unicode">

@@ -109,10 +109,86 @@ function Guide() {
           </a>
         </li>
       </ul>
+      <h2>Find your way around the workspace</h2>
       <p>
-        Use Ctrl/Cmd+O to open a PDF and Ctrl/Cmd+K to focus search. On a small
-        screen, switch between the Explorer, Inspector, and Original bytes tabs.
+        Open a local PDF with the file picker, or drop it anywhere in the app.
+        Use <strong>Properties</strong> for parsed values,{" "}
+        <strong>Source</strong> for the object representation, and{" "}
+        <strong>Raw stream</strong> or <strong>Decoded</strong> for stream data.
+        Original bytes shows the file as stored, with the selected object's
+        range highlighted when its location is known.
       </p>
+      <p>
+        Use <strong>Back</strong> and <strong>Forward</strong> to retrace
+        objects, inspector tabs, sections, and selected byte ranges. Each visit
+        restores its scroll positions. <strong>File structure</strong> opens the
+        trailer and cross-reference entry point. Visiting a guide or example
+        keeps your open PDF and selection in memory; choose{" "}
+        <strong>Back to the workspace</strong> to continue.
+      </p>
+      <p>
+        Expand <strong>Pages</strong> to browse each page's content streams,
+        resources, and annotations. In the Inspector, follow{" "}
+        <strong>References</strong> and <strong>Referenced by</strong> links, or
+        expand a reference inline to keep its surrounding dictionary in view.
+        The clickable exploration trail records your route through objects and
+        dictionary keys. See the{" "}
+        <a href="/guides/inspect-pdf-objects">objects and references guide</a>{" "}
+        for a walkthrough.
+      </p>
+      <p>
+        On a small screen, switch between the <strong>Explorer</strong>,{" "}
+        <strong>Inspector</strong>, and <strong>Original bytes</strong> tabs. On
+        desktop, drag the pane separators to resize them. Use the sun/moon
+        button in the header to choose light or dark mode; your choice is saved
+        in this browser. Before you choose, the app follows your device's
+        appearance setting.
+      </p>
+      <h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
+      <p>
+        These shortcuts work in the workspace. Use <kbd>⌘</kbd> (Command) on
+        macOS or <kbd>Ctrl</kbd> on Windows and Linux. Press <kbd>Tab</kbd> or{" "}
+        <kbd>Shift</kbd> + <kbd>Tab</kbd> to move focus between controls.
+      </p>
+      <dl>
+        <dt>
+          <kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>O</kbd>
+        </dt>
+        <dd>Open the PDF file picker.</dd>
+        <dt>
+          <kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>K</kbd>
+        </dt>
+        <dd>Focus the workspace search field.</dd>
+        <dt>Arrow keys, with the Original bytes grid focused</dt>
+        <dd>
+          Move the byte cursor: left/right by one byte, or up/down by one row.
+        </dd>
+        <dt>
+          <kbd>Home</kbd> / <kbd>End</kbd>, with the byte grid focused
+        </dt>
+        <dd>
+          Move to the first/last byte of the row. Hold <kbd>⌘</kbd> or{" "}
+          <kbd>Ctrl</kbd> to move to the first/last byte of the file.
+        </dd>
+        <dt>
+          <kbd>Enter</kbd> or <kbd>Space</kbd>, with the byte grid focused
+        </dt>
+        <dd>
+          Select the current byte and inspect its containing object, if known.
+        </dd>
+        <dt>
+          <kbd>Enter</kbd>, in Go to offset
+        </dt>
+        <dd>
+          Jump to a zero-based file offset. Enter a decimal number or prefix a
+          hexadecimal value with <code>0x</code>.
+        </dd>
+        <dt>Arrow keys, with a pane separator focused</dt>
+        <dd>
+          Resize adjacent panes. Use left/right for the desktop columns and
+          up/down for the comparison and inspector sections.
+        </dd>
+      </dl>
       <p>
         See <a href="/privacy">privacy and browser storage</a> or{" "}
         <a href="/limitations">supported features and limits</a> for details.
@@ -404,8 +480,7 @@ function Privacy() {
       </p>
       <p>
         Notes created while inspecting an encrypted PDF remain readable in
-        browser storage. Do not put information in a note that you do not want
-        retained on this device.
+        browser storage. Only add information you want to keep on this device.
       </p>
       <p>
         If browser storage is unavailable, bookmarks work for the current open

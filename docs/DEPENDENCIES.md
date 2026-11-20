@@ -26,7 +26,7 @@ Version 11 is not generally a drop-in replacement: it removes APIs including `ma
 
 EmbedPDF 3.1.0 still depends on Zod 3.25.76; no compatible upstream Zod 3 patch was available for [GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5). A forced Zod 4 override would change APIs without an upstream compatibility guarantee, and would leave separately prebundled copies untouched.
 
-`scripts/prepare-preview.mjs` instead installs a narrow array/Set bound-check backport into the exact pinned ESM/CommonJS validators and preview bundles. It validates original and patched SHA-256 hashes, verifies package versions, is idempotent, and refuses unexpected files. All targets are validated before any writes. The lifecycle hooks run it before development, tests, and builds, as well as after installation.
+`scripts/prepare-preview.mjs` instead installs a narrow array/Set bound-check backport into the exact pinned ESM/CommonJS validators and preview bundles. It checks original and patched SHA-256 hashes and package versions, refuses unexpected files, and leaves already patched files unchanged. It validates every target before writing. The lifecycle hooks run it before development, tests, and builds, as well as after installation.
 
 The regression tests exercise the actual validators, including the validators inside installed worker bundles. With a 20,000-item input exceeding a schema bound, the original performs 20,000 element visits and records 20,001 issues; the backport rejects it before visiting any elements and records the existing size issue. Tests also preserve valid parsing/transforms and ordinary within-bound validation failures. See [backport scope and evidence](PREVIEW-VALIDATION.md).
 
