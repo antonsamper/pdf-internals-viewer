@@ -24,7 +24,7 @@ colors:
 typography:
   headline:
     fontFamily: '"Geist Variable", sans-serif'
-    fontSize: "clamp(26px, 3vw, 34px)"
+    fontSize: "clamp(32px, 3.8vw, 48px)"
     fontWeight: 550
     lineHeight: 1.2
     letterSpacing: "-0.035em"
@@ -200,7 +200,7 @@ On desktop, three horizontally resizable panes divide the workspace: explorer (2
 
 At 900px and below, Explorer, Inspector, and Bytes buttons switch between panes. Search takes the toolbar's full width, header spacing tightens, and fewer secondary status details appear. At 480px and below, header decorations and the secondary status group disappear, and the inspector uses the mobile content padding. Hex columns tighten further at 400px.
 
-The empty workspace centers an introduction and action vertically above a sample list with maximum width (435px). Its headline and top padding are responsive. Loaded inspector content uses the recorded inspector-content inset; pane headings and hex controls use the pane-heading inset. PDF dictionaries align keys and values in a two-column grid with a minimum key track (90px), proportion (32%), and gap (12px).
+The empty workspace places the introduction and sample list side by side within a 920px measure on desktop, stacking them within 440px on narrow screens. Its headline and top padding are responsive. Loaded inspector content uses the recorded inspector-content inset; pane headings and hex controls use the pane-heading inset. PDF dictionaries align keys and values in a two-column grid with a minimum key track (90px), proportion (32%), and gap (12px).
 
 ## Elevation and depth
 
@@ -270,3 +270,9 @@ The application honors reduced-motion preferences by shortening transitions and 
 - Do not replace the workspace panes with a dashboard of cards.
 - Do not use reference blue as a general decorative surface or byte selection color.
 - Do not remove focus indicators or force desktop panes side by side on mobile.
+
+## Public pages
+
+The homepage remains the tool entry point. Its introductory heading uses 32–48px Geist, with 15px supporting copy. At widths above 760px, the introduction and three sample rows share a two-column layout; below that, they stack in reading order. A quiet footer provides About, Feedback, and GitHub links, and disappears while inspecting a document.
+
+About is a reading surface at `/about`, using a 640px article measure, a 30–40px heading, 18px introductory copy, 16px section headings, and 14px body copy. It shares the workspace header, neutral surfaces, and existing limitations dialog. Navigating between public pages keeps the document state in memory; refreshing still resets the session.
