@@ -1,5 +1,6 @@
 import type { MouseEvent } from "react"
-import { BrandArtwork } from "@/components/brand-artwork"
+import { ArrowLeft } from "lucide-react"
+import { BrandIcon } from "@/components/brand-artwork"
 import { SiteLinks } from "@/components/site-links"
 import {
   PRIVACY_SUMMARY,
@@ -546,8 +547,8 @@ export function PublicPage({
       onClick={onFollowLink}
     >
       <article>
-        <a className="back-to-workspace" href="/">
-          <span aria-hidden="true">← </span>Back to the workspace
+        <a className="back-to-workspace" href={import.meta.env.BASE_URL}>
+          <ArrowLeft size={14} aria-hidden="true" /> Back to the workspace
         </a>
         <nav className="article-breadcrumbs" aria-label="Breadcrumb">
           <a href="/">PDF Internals</a>
@@ -613,7 +614,7 @@ export function StaticPublicPage({ page }: { page: SitePage }) {
       <header className="app-header">
         <a className="app-identity" href="/">
           <span className="app-mark">
-            <BrandArtwork decorative />
+            <BrandIcon />
           </span>
           <span>PDF Internals</span>
         </a>

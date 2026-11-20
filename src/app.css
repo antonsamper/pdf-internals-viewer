@@ -85,16 +85,14 @@ pre,
   width: 32px;
   height: 32px;
   overflow: hidden;
-  background: #fff;
+  background: transparent;
   border-radius: 6px;
 }
-/* Frame the detective from the original artwork without duplicating the asset. */
-.app-mark .brand-artwork {
-  position: absolute;
-  width: 340%;
-  max-width: none;
-  left: -16%;
-  top: -12%;
+.app-mark .brand-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .header-divider {
   height: 19px;
@@ -1513,7 +1511,7 @@ h2 {
   padding: 48px 24px 64px;
 }
 .about-page article {
-  max-width: 640px;
+  max-width: 720px;
   margin: 0 auto;
 }
 .back-to-workspace {
@@ -1921,17 +1919,15 @@ h2 {
 }
 .welcome-docs a { color: var(--reference); text-underline-offset: 3px; }
 .site-links > div { flex-wrap: wrap; gap: 12px 20px; }
-.public-page article { max-width: 720px; }
 .public-page :is(ol, ul, dl) { font-size: 14px; line-height: 1.85; color: var(--muted-foreground); }
 .public-page :is(ol, ul) { padding-left: 24px; margin: 16px 0 24px; }
 .public-page li { margin: 8px 0; }
-.public-page a { color: var(--reference); text-underline-offset: 3px; }
-.public-page a:hover { text-decoration: underline; }
+.public-page a:not(.back-to-workspace) { color: var(--reference); text-underline-offset: 3px; }
+.public-page a:not(.back-to-workspace):hover { text-decoration: underline; }
 .public-page strong { color: var(--foreground); font-weight: 600; }
 .public-page pre { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; background: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 24px 0; }
 .public-page dt { font-weight: 600; color: var(--foreground); margin-top: 12px; }
 .public-page dd { margin: 0; }
-.public-page .back-to-workspace { margin-bottom: 24px; }
 .article-breadcrumbs { color: var(--muted-foreground); font-size: 12px; margin-bottom: 24px; }
 .public-page .article-byline { font-size: 12px; margin-bottom: 32px; }
 .public-page .article-actions { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 24px 0; }

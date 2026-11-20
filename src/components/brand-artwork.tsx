@@ -1,3 +1,16 @@
+export function BrandIcon() {
+  return (
+    <img
+      className="brand-icon"
+      src={`${import.meta.env.BASE_URL}brand/pdf-internals-icon.png?v=c793e37b`}
+      alt=""
+      width={128}
+      height={128}
+      decoding="async"
+    />
+  )
+}
+
 export function BrandArtwork({
   className = "",
   decorative = false,
