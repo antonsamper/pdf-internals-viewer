@@ -83,7 +83,7 @@ export const EmptyWorkspace = ({
         </a>{' '}
         ·{' '}
         <a href="/examples" onClick={onFollowLink}>
-          Worked examples
+          Examples
         </a>{' '}
         ·{' '}
         <a href="/guides/inspect-pdf-objects" onClick={onFollowLink}>

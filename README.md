@@ -1,8 +1,15 @@
 # PDF Internals Viewer
 
-Explore PDF objects, references, and streams alongside their original bytes, with an optional page preview. Inspection is read-only and happens locally in your browser.
+Explore PDF objects, references and streams alongside their original bytes, with an optional page preview. Inspection is read-only and runs locally in your browser.
 
-**[Open the app](https://pdf-internals-viewer.pages.dev)** · [User guide](https://pdf-internals-viewer.pages.dev/guide) · [Worked examples](https://pdf-internals-viewer.pages.dev/examples) · [Limitations](https://pdf-internals-viewer.pages.dev/limitations)
+**[Open the app](https://pdf-internals-viewer.pages.dev)** · [User guide](https://pdf-internals-viewer.pages.dev/guide) · [Examples](https://pdf-internals-viewer.pages.dev/examples) · [Limitations](https://pdf-internals-viewer.pages.dev/limitations)
+
+## Product principles
+
+- Preserve source truth. Original bytes appear only where an exact source range exists, and decoded or reconstructed values are labelled as such.
+- Make relationships navigable. A page leads to its content stream, its resources and the objects that refer to it.
+- Keep files local. Documents are parsed in the browser and never uploaded.
+- Explain partial results. Parse failures and unsupported features are shown, and whatever was recovered stays usable.
 
 ## Run locally
 
@@ -13,32 +20,20 @@ pnpm install --frozen-lockfile
 pnpm run dev
 ```
 
-Open the URL printed by Vite. Installation prepares the pinned parser and preview dependencies automatically; see [dependency setup](docs/DEPENDENCIES.md).
-
-## Verify
-
-```sh
-pnpm run typecheck
-pnpm run lint
-pnpm run format:check
-pnpm test
-pnpm run build
-pnpm exec playwright install chromium firefox webkit
-PLAYWRIGHT_PREVIEW=1 pnpm run test:e2e --browser=all
-```
-
-The build generates the static site in `dist/` and checks public pages and licence notices. Browser tests use production assets; see [browser verification](docs/BROWSERS.md) for other modes. The optional [independent PDF corpus](docs/CORPUS.md) has separate download and test commands.
-
-Linting uses Oxlint and formatting uses Oxfmt, configured from [hive-mind-react](https://github.com/antonsamper/hive-mind-react). Run `pnpm run lint:fix` for automatic lint fixes and `pnpm run format` to format TypeScript/TSX files. CI checks linting and formatting. Husky installs the pre-commit hook during `pnpm install`: lint-staged fixes supported staged files, followed by TypeScript checking and React Doctor (`--scope changed --blocking warning`). The hook blocks commits when any step fails.
-
-The copied lint configuration introduces stricter rules, including sorted object keys, function expressions and kebab-case filenames. Existing lint violations need resolving before the full lint check passes.
+Open the URL printed by Vite. Installation prepares the pinned parser and preview dependencies; see [dependency setup](docs/DEPENDENCIES.md).
 
 ## Project documentation
 
+- [Contributor workflow](AGENTS.md) and [design system](DESIGN.md)
 - [Parser capabilities](docs/PARSER.md) and [preview engine](docs/PREVIEW.md)
-- [Dependencies and known advisory](docs/DEPENDENCIES.md), [preview backport](docs/PREVIEW-VALIDATION.md), and [third-party notices](docs/NOTICES.md)
-- [Public content and sample maintenance](docs/AEO.md)
+- [Dependencies](docs/DEPENDENCIES.md), [preview backport and known advisory](docs/PREVIEW-VALIDATION.md) and [third-party notices](docs/NOTICES.md)
+- [Public content and sample maintenance](docs/PUBLIC-CONTENT.md)
+- [Browser verification](docs/BROWSERS.md) and [performance](docs/PERFORMANCE.md)
 - [Cloudflare hosting and deployment](docs/HOSTING.md)
-- [Security policy and private vulnerability reports](SECURITY.md)
+- [Security policy](SECURITY.md)
 
-Built with TypeScript, React, Vite, and shadcn/ui using Base UI. Bundled sample PDFs are original fixtures; their generators and provenance are documented in [public content maintenance](docs/AEO.md#worked-debugging-examples).
+Built with TypeScript, React, Vite and shadcn/ui using Base UI. The bundled sample PDFs are original fixtures; [public content maintenance](docs/PUBLIC-CONTENT.md) documents their generators and provenance.
+
+## Deployment
+
+Merges to `main` deploy automatically to Cloudflare Pages after all checks pass. See [hosting](docs/HOSTING.md).

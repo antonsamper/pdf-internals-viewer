@@ -192,7 +192,7 @@ export const SITE_PAGES = [
   },
   {
     description:
-      'Nine worked PDF investigations covering structural errors, file size, text mappings, fonts, attachments, repeated images, rotation, inherited resources, and opening actions.',
+      'Ten PDF investigations covering structural errors, file size, text mappings, searching text to its source bytes, fonts, attachments, repeated images, rotation, inherited resources, and opening actions.',
     heading: 'PDF debugging examples',
     path: '/examples',
     title: 'PDF Debugging Examples · PDF Internals',
@@ -216,6 +216,13 @@ export const SITE_PAGES = [
     heading: 'Which font is this PDF actually using?',
     path: '/examples/embedded-font',
     title: 'Which font is this PDF actually using? · PDF Internals',
+  },
+  {
+    description:
+      'Search a PDF’s page text, find the match in the preview, then follow it to the decoded content stream bytes and character codes that draw it.',
+    heading: 'How to find the source bytes behind text in a PDF',
+    path: '/examples/find-text-source',
+    title: 'How to Find the Source Bytes Behind Text in a PDF · PDF Internals',
   },
   {
     description: 'Find an invoice’s CSV attachment, follow its file specification, and download the data that does not appear on the page.',
@@ -306,6 +313,11 @@ export const EXAMPLE_SAMPLES = [
     file: 'incorrect-unicode.pdf',
     id: 'incorrect-unicode',
     name: 'An incorrect text mapping',
+  },
+  {
+    file: 'find-text-source.pdf',
+    id: 'find-text-source',
+    name: 'Finding the bytes behind text',
   },
   {
     file: 'embedded-font.pdf',

@@ -2,137 +2,137 @@
 name: PDF Internals Viewer
 description: A logo-inspired, read-only workspace for navigating PDF objects and original bytes.
 colors:
-  background: "#ffffff"
-  foreground: "#281a3c"
-  primary: "#cc1746"
-  primary-foreground: "#ffffff"
-  secondary: "#f0e8fa"
-  secondary-foreground: "#54268e"
-  muted: "#f7f3fa"
-  muted-foreground: "#74667f"
-  accent: "#f0e8fa"
-  accent-foreground: "#54268e"
-  border: "#e7deed"
-  input: "#d7c9e3"
-  ring: "#6935ac"
-  sidebar: "#faf7fd"
-  destructive: "#ba2532"
-  reference: "#6935ac"
-  brand-orange: "#e97820"
-  brand-orange-ink: "#a24b12"
-  byte-selection: "#ffead1"
-  byte-selection-foreground: "#62300f"
-  pdf-string: "#386644"
-  selection-background: "#e9dafa"
-  selection-foreground: "#391d59"
+  background: '#ffffff'
+  foreground: '#281a3c'
+  primary: '#cc1746'
+  primary-foreground: '#ffffff'
+  secondary: '#f0e8fa'
+  secondary-foreground: '#54268e'
+  muted: '#f7f3fa'
+  muted-foreground: '#74667f'
+  accent: '#f0e8fa'
+  accent-foreground: '#54268e'
+  border: '#e7deed'
+  input: '#d7c9e3'
+  ring: '#6935ac'
+  sidebar: '#faf7fd'
+  destructive: '#ba2532'
+  reference: '#6935ac'
+  brand-orange: '#e97820'
+  brand-orange-ink: '#a24b12'
+  byte-selection: '#ffead1'
+  byte-selection-foreground: '#62300f'
+  pdf-string: '#386644'
+  selection-background: '#e9dafa'
+  selection-foreground: '#391d59'
 typography:
   headline:
     fontFamily: '"Geist Variable", sans-serif'
-    fontSize: "clamp(32px, 3.8vw, 48px)"
+    fontSize: 'clamp(32px, 3.8vw, 48px)'
     fontWeight: 550
     lineHeight: 1.2
-    letterSpacing: "-0.035em"
+    letterSpacing: '-0.035em'
   title:
     fontFamily: '"Geist Variable", sans-serif'
-    fontSize: "21px"
+    fontSize: '21px'
     fontWeight: 550
-    letterSpacing: "-0.025em"
+    letterSpacing: '-0.025em'
   body:
     fontFamily: '"Geist Variable", sans-serif'
-    fontSize: "13px"
+    fontSize: '13px'
   label:
     fontFamily: '"Geist Variable", sans-serif'
-    fontSize: "11px"
+    fontSize: '11px'
     fontWeight: 500
   metadata:
     fontFamily: '"Geist Variable", sans-serif'
-    fontSize: "10px"
+    fontSize: '10px'
   object-title:
     fontFamily: '"SFMono-Regular", Consolas, monospace'
-    fontSize: "18px"
+    fontSize: '18px'
     fontWeight: 500
   code:
     fontFamily: '"SFMono-Regular", Consolas, monospace'
-    fontSize: "11px"
+    fontSize: '11px'
   hex:
     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'
-    fontSize: "11px"
+    fontSize: '11px'
 rounded:
-  byte: "2px"
-  compact: "4px"
-  row: "5px"
-  field: "6px"
-  sm: "6px"
-  md: "8px"
-  lg: "10px"
+  byte: '2px'
+  compact: '4px'
+  row: '5px'
+  field: '6px'
+  sm: '6px'
+  md: '8px'
+  lg: '10px'
 spacing:
-  "1": "4px"
-  "1.5": "6px"
-  "2": "8px"
-  "2.5": "10px"
-  "3": "12px"
-  pane-heading: "14px"
-  mobile-content: "18px"
-  inspector-content: "22px"
+  '1': '4px'
+  '1.5': '6px'
+  '2': '8px'
+  '2.5': '10px'
+  '3': '12px'
+  pane-heading: '14px'
+  mobile-content: '18px'
+  inspector-content: '22px'
 components:
   button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "{colors.primary-foreground}"
-    rounded: "{rounded.lg}"
-    height: "32px"
-    padding: "0 10px"
+    backgroundColor: '{colors.primary}'
+    textColor: '{colors.primary-foreground}'
+    rounded: '{rounded.lg}'
+    height: '32px'
+    padding: '0 10px'
   button-outline:
-    backgroundColor: "{colors.background}"
-    textColor: "{colors.foreground}"
-    rounded: "{rounded.lg}"
-    height: "32px"
-    padding: "0 10px"
+    backgroundColor: '{colors.background}'
+    textColor: '{colors.foreground}'
+    rounded: '{rounded.lg}'
+    height: '32px'
+    padding: '0 10px'
   button-secondary:
-    backgroundColor: "{colors.secondary}"
-    textColor: "{colors.secondary-foreground}"
-    rounded: "{rounded.lg}"
-    height: "32px"
-    padding: "0 10px"
+    backgroundColor: '{colors.secondary}'
+    textColor: '{colors.secondary-foreground}'
+    rounded: '{rounded.lg}'
+    height: '32px'
+    padding: '0 10px'
   button-ghost:
-    backgroundColor: "transparent"
-    textColor: "{colors.foreground}"
-    rounded: "{rounded.lg}"
-    height: "32px"
-    padding: "0 10px"
+    backgroundColor: 'transparent'
+    textColor: '{colors.foreground}'
+    rounded: '{rounded.lg}'
+    height: '32px'
+    padding: '0 10px'
   search-field:
-    backgroundColor: "{colors.background}"
-    textColor: "{colors.foreground}"
-    rounded: "{rounded.field}"
-    height: "30px"
-    padding: "0 4px 0 9px"
+    backgroundColor: '{colors.background}'
+    textColor: '{colors.foreground}'
+    rounded: '{rounded.field}'
+    height: '30px'
+    padding: '0 4px 0 9px'
   explorer-item:
-    backgroundColor: "transparent"
-    textColor: "{colors.muted-foreground}"
-    rounded: "{rounded.row}"
-    typography: "{typography.label}"
-    padding: "8px 10px"
+    backgroundColor: 'transparent'
+    textColor: '{colors.muted-foreground}'
+    rounded: '{rounded.row}'
+    typography: '{typography.label}'
+    padding: '8px 10px'
   badge-kind:
-    backgroundColor: "{colors.secondary}"
-    textColor: "{colors.secondary-foreground}"
-    rounded: "{rounded.compact}"
-    height: "20px"
-    padding: "2px 8px"
+    backgroundColor: '{colors.secondary}'
+    textColor: '{colors.secondary-foreground}'
+    rounded: '{rounded.compact}'
+    height: '20px'
+    padding: '2px 8px'
   inspector-tabs:
-    backgroundColor: "transparent"
-    textColor: "{colors.foreground}"
-    height: "37px"
-    padding: "0 18px"
+    backgroundColor: 'transparent'
+    textColor: '{colors.foreground}'
+    height: '37px'
+    padding: '0 18px'
   reference:
-    backgroundColor: "transparent"
-    textColor: "{colors.reference}"
-    typography: "{typography.code}"
+    backgroundColor: 'transparent'
+    textColor: '{colors.reference}'
+    typography: '{typography.code}'
   hex-byte-selected:
-    backgroundColor: "{colors.byte-selection}"
-    textColor: "{colors.byte-selection-foreground}"
-    typography: "{typography.hex}"
-    rounded: "{rounded.byte}"
-    width: "23px"
-    padding: "3px 0"
+    backgroundColor: '{colors.byte-selection}'
+    textColor: '{colors.byte-selection-foreground}'
+    typography: '{typography.hex}'
+    rounded: '{rounded.byte}'
+    width: '23px'
+    padding: '3px 0'
 ---
 
 # Design system: PDF Internals Viewer
@@ -233,7 +233,7 @@ Pages uses an indented list of expandable connections. Separate native buttons e
 
 Object headings include a short role explanation. Incoming and outgoing relationships use wrapping rows with dictionary/index paths and linked object IDs, preserving the existing reference colour and global keyboard focus treatment.
 
-Comparison and object inspection use independently scrolling panels separated by a 12px neutral horizontal divider with a visible grip. Dragging or focusing the divider and using arrow keys resizes the panels. The header’s User guide links to `/guide`, a short worked example and task list. Detailed walkthroughs live on static guide pages rather than in a dialogue; in-app navigation retains the open PDF and selection.
+Comparison and object inspection use independently scrolling panels separated by a 12px neutral horizontal divider with a visible grip. Dragging or focusing the divider and using arrow keys resizes the panels. The header’s User guide links to `/guide`, a short example and task list. Detailed walkthroughs live on static guide pages rather than in a dialogue; in-app navigation retains the open PDF and selection.
 
 ### Tabs
 

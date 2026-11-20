@@ -99,7 +99,8 @@ export const SearchGuide = function SearchGuide() {
       <p>
         Page text source mapping currently supports common ASCII fonts and fixed-width ToUnicode character and range maps in direct page
         content streams. Source locations may differ from rendered reading order. Compressed content has exact decoded ranges, with only its
-        containing stream highlighted in the original file. Scanned pages without text need OCR.
+        containing stream highlighted in the original file. Scanned pages without text need OCR. For a step-by-step walkthrough, see{' '}
+        <a href="/examples/find-text-source">how to find the source bytes behind text</a>.
       </p>
       <p>
         Decoded search checks only the first {MAX_DISPLAY_BYTES / 1024} KiB of each stream. It reads bytes as characters, rather than
