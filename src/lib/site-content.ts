@@ -69,6 +69,69 @@ export const SITE_PAGES = [
       "Find JavaScript, automatic actions, launch actions, and embedded files. Follow references and interpret results without treating an empty search as proof of safety.",
   },
   {
+    path: "/examples",
+    title: "PDF Debugging Examples · PDF Internals",
+    heading: "PDF debugging examples",
+    description:
+      "Eight worked PDF investigations covering file size, text mappings, fonts, attachments, repeated images, rotation, inherited resources, and opening actions.",
+  },
+  {
+    path: "/examples/large-pdf",
+    title: "Why Is This One-page PDF So Large? · PDF Internals",
+    heading: "Why is this one-page PDF so large?",
+    description:
+      "Follow an invoice's image resource to find 4,320,000 bytes of uncompressed pixels, then inspect how the page draws it.",
+  },
+  {
+    path: "/examples/incorrect-text",
+    title: "Why Does Copied PDF Text Differ from the Page? · PDF Internals",
+    heading: "Why does copied PDF text differ from the page?",
+    description:
+      "Inspect an invoice's content stream, font and deliberately incorrect ToUnicode mapping to explain a changed amount in extracted text.",
+  },
+  {
+    path: "/examples/embedded-font",
+    title: "Which font is this PDF actually using? · PDF Internals",
+    heading: "Which font is this PDF actually using?",
+    description:
+      "Follow a text instruction to its font descriptor and embedded TrueType program. Compare it with a font that is named but not embedded.",
+  },
+  {
+    path: "/examples/hidden-attachment",
+    title: "Where is the attachment? · PDF Internals",
+    heading: "Where is the attachment?",
+    description:
+      "Find an invoice’s CSV attachment, follow its file specification, and download the data that does not appear on the page.",
+  },
+  {
+    path: "/examples/repeated-logo",
+    title: "Why is the same logo stored several times? · PDF Internals",
+    heading: "Why is the same logo stored several times?",
+    description:
+      "Compare three pages’ image references to distinguish shared artwork from a separate copy of the same logo.",
+  },
+  {
+    path: "/examples/page-rotation",
+    title: "Why is this page rotated? · PDF Internals",
+    heading: "Why is this page rotated?",
+    description:
+      "Trace inherited page rotation and compare it with a drawing matrix that turns text on a page with zero page rotation.",
+  },
+  {
+    path: "/examples/inherited-resources",
+    title: "Where did this page’s resources come from? · PDF Internals",
+    heading: "Where did this page’s resources come from?",
+    description:
+      "Follow a page’s parent to find the inherited font and image resources missing from its own dictionary.",
+  },
+  {
+    path: "/examples/opening-action",
+    title: "Does this PDF contain an automatic action? · PDF Internals",
+    heading: "Does this PDF contain an automatic action?",
+    description:
+      "Inspect a catalogue’s OpenAction reference and follow a local GoTo destination to the first page.",
+  },
+  {
     path: "/privacy",
     title: "Privacy and Browser Storage · PDF Internals",
     heading: "Your PDFs and browser storage",
@@ -114,6 +177,51 @@ export const SAMPLES = [
   },
 ] as const
 
+/** Walkthrough samples are allowlisted, without expanding the starter sample list. */
+export const EXAMPLE_SAMPLES = [
+  {
+    id: "oversized-image",
+    file: "oversized-image.pdf",
+    name: "An oversized image",
+  },
+  {
+    id: "incorrect-unicode",
+    file: "incorrect-unicode.pdf",
+    name: "An incorrect text mapping",
+  },
+  {
+    id: "embedded-font",
+    file: "embedded-font.pdf",
+    name: "Which font is this PDF actually using?",
+  },
+  {
+    id: "hidden-attachment",
+    file: "hidden-attachment.pdf",
+    name: "Where is the attachment?",
+  },
+  {
+    id: "repeated-logo",
+    file: "repeated-logo.pdf",
+    name: "Why is the same logo stored several times?",
+  },
+  {
+    id: "page-rotation",
+    file: "page-rotation.pdf",
+    name: "Why is this page rotated?",
+  },
+  {
+    id: "inherited-resources",
+    file: "inherited-resources.pdf",
+    name: "Where did this page’s resources come from?",
+  },
+  {
+    id: "opening-action",
+    file: "opening-action.pdf",
+    name: "Does this PDF contain an automatic action?",
+  },
+] as const
+export const ALL_SAMPLES = [...SAMPLES, ...EXAMPLE_SAMPLES]
+
 export function structuredData(page: SitePage) {
   const url = SITE_URL + page.path
   const author = {
@@ -152,15 +260,24 @@ export function structuredData(page: SitePage) {
         targetProduct: { "@id": `${SITE_URL}/#application` },
       },
       {
-        "@type": page.path.startsWith("/guides/") ? "TechArticle" : "WebPage",
+        "@type":
+          page.path.startsWith("/guides/") || page.path.startsWith("/examples/")
+            ? "TechArticle"
+            : "WebPage",
         "@id": `${url}#page`,
         url,
         name: page.title,
         description: page.description,
         isPartOf: { "@id": `${SITE_URL}/#website` },
         about: { "@id": `${SITE_URL}/#application` },
-        ...(page.path.startsWith("/guides/")
-          ? { author: { "@id": author["@id"] }, dateModified: "2026-11-14" }
+        ...(page.path.startsWith("/guides/") ||
+        page.path.startsWith("/examples/")
+          ? {
+              author: { "@id": author["@id"] },
+              dateModified: page.path.startsWith("/examples/")
+                ? "2026-11-15"
+                : "2026-11-14",
+            }
           : {}),
       },
       ...(page.path === "/"
@@ -176,19 +293,26 @@ export function structuredData(page: SitePage) {
                   name: "PDF Internals",
                   item: `${SITE_URL}/`,
                 },
-                ...(page.path.startsWith("/guides/")
+                ...(page.path.startsWith("/guides/") ||
+                page.path.startsWith("/examples/")
                   ? [
                       {
                         "@type": "ListItem",
                         position: 2,
-                        name: "Guide",
-                        item: `${SITE_URL}/guide`,
+                        name: page.path.startsWith("/examples/")
+                          ? "Examples"
+                          : "Guide",
+                        item: `${SITE_URL}${page.path.startsWith("/examples/") ? "/examples" : "/guide"}`,
                       },
                     ]
                   : []),
                 {
                   "@type": "ListItem",
-                  position: page.path.startsWith("/guides/") ? 3 : 2,
+                  position:
+                    page.path.startsWith("/guides/") ||
+                    page.path.startsWith("/examples/")
+                      ? 3
+                      : 2,
                   name: page.heading,
                   item: url,
                 },
@@ -212,7 +336,7 @@ export function pageHead(page: SitePage) {
 <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png?v=8e7cb0ea" />
 <meta name="description" content="${escapeHtml(page.description)}" />
 <link rel="canonical" href="${url}" />
-<meta property="og:type" content="${page.path.startsWith("/guides/") ? "article" : "website"}" />
+<meta property="og:type" content="${page.path.startsWith("/guides/") || page.path.startsWith("/examples/") ? "article" : "website"}" />
 <meta property="og:site_name" content="PDF Internals" />
 <meta property="og:title" content="${escapeHtml(page.title)}" />
 <meta property="og:description" content="${escapeHtml(page.description)}" />

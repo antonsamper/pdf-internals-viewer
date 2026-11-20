@@ -898,7 +898,10 @@ test('automatically inspects encrypted PDFs with an empty opening password', asy
 
 test('navigates About with browser history and retains the local document', async ({ page }) => {
   const projectLinks = page.getByRole('navigation', { name: 'Project', exact: true })
-  await expect(projectLinks.getByRole('link', { name: 'Feedback', exact: true })).toHaveAttribute('href', 'https://github.com/antonsamper/pdf-internals-viewer/issues')
+  await expect(projectLinks.getByRole('link', { name: 'Feedback', exact: true })).toHaveCount(0)
+  await expect(projectLinks.getByRole('link', { name: 'Limitations', exact: true })).toHaveCount(0)
+  await expect(projectLinks.getByRole('link', { name: 'Examples', exact: true })).toHaveAttribute('href', '/examples')
+  await expect(projectLinks.getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute('href', 'https://github.com/antonsamper/pdf-internals-viewer')
   await projectLinks.getByRole('link', { name: 'About', exact: true }).click()
   await expect(page).toHaveURL(/\/about$/)
   await expect(page).toHaveTitle('About · PDF Internals')
@@ -1194,6 +1197,15 @@ test('serves public answers without JavaScript and keeps articles free of inspec
     ['/guides/find-pdf-attachments', 'Find and extract PDF attachments'],
     ['/guides/search-bookmark-compare', 'Search, bookmark, and compare PDF objects'],
     ['/guides/investigate-suspicious-features', 'Investigate suspicious PDF features'],
+    ['/examples', 'PDF debugging examples'],
+    ['/examples/large-pdf', 'Why is this one-page PDF so large?'],
+    ['/examples/incorrect-text', 'Why does copied PDF text differ from the page?'],
+    ['/examples/embedded-font', 'Which font is this PDF actually using?'],
+    ['/examples/hidden-attachment', 'Where is the attachment?'],
+    ['/examples/repeated-logo', 'Why is the same logo stored several times?'],
+    ['/examples/page-rotation', 'Why is this page rotated?'],
+    ['/examples/inherited-resources', 'Where did this page’s resources come from?'],
+    ['/examples/opening-action', 'Does this PDF contain an automatic action?'],
     ['/privacy', 'Your PDFs and browser storage'],
     ['/limitations', 'Supported features and limitations'],
   ]) {
@@ -1326,3 +1338,124 @@ test('replaces a document during an acknowledged object transfer without exposin
   await expect(page.locator('.object-title h1')).toContainText('1 0')
   await expect(page.locator('.filename')).toContainText('minimal.pdf')
 })
+
+for (const [route, sample, instruction] of [
+  ['/examples/large-pdf', 'oversized-image', '/Im1 Do'],
+  ['/examples/incorrect-text', 'incorrect-unicode', 'Invoice total:'],
+]) {
+  test(`opens worked example ${sample} and follows its content evidence`, async ({ page }) => {
+    await page.goto(route!)
+    await expect(page.getByRole('link', { name: 'Download sample PDF', exact: true })).toHaveAttribute('href', `/samples/${sample}.pdf`)
+    await expect(page.locator('.example-preview img')).toBeVisible()
+    await page.screenshot({ path: screenshotPath(`${sample}-article.png`), fullPage: false })
+    await page.setViewportSize({ width: 390, height: 844 })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await page.screenshot({ path: screenshotPath(`${sample}-article-mobile.png`), fullPage: true })
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await page.getByRole('link', { name: 'Open this example', exact: true }).click()
+    await expect(page.locator('.filename')).toContainText(`${sample}.pdf`)
+    await expect(page.locator('.status-bar')).toContainText('6 objects indexed')
+    await page.getByRole('button', { name: 'First page', exact: true }).click()
+    await page.getByRole('button', { name: '4 0 R', exact: true }).first().click()
+    await page.getByRole('tab', { name: 'Decoded', exact: true }).click()
+    const decoded = page.getByRole('tabpanel', { name: 'Decoded', exact: true })
+    await decoded.getByRole('button', { name: 'Decoded byte text', exact: true }).click()
+    await expect(decoded.locator('pre')).toContainText(instruction!)
+    if (sample === 'incorrect-unicode') {
+      await decoded.getByRole('button', { name: 'Readable instructions', exact: true }).click()
+      await decoded.getByRole('button', { name: 'Inspect /F1 resource', exact: true }).first().click()
+      await page.getByRole('button', { name: '6 0 R', exact: true }).first().click()
+      await page.getByRole('tab', { name: 'Decoded', exact: true }).click()
+      await expect(page.getByRole('tabpanel', { name: 'Decoded', exact: true })).toContainText('<31> <0039>')
+    }
+  })
+}
+
+for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'page-rotation', 'inherited-resources', 'opening-action']) {
+  test(`opens worked example ${sample} and verifies its finding`, async ({ page }) => {
+    await page.goto(`/examples/${sample}`)
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    const image = page.locator('.example-preview img')
+    await expect(image).toBeVisible()
+    await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0)
+    await page.screenshot({ path: screenshotPath(`${sample}-article.png`), fullPage: false })
+    await page.setViewportSize({ width: 390, height: 844 })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await page.screenshot({ path: screenshotPath(`${sample}-article-mobile.png`), fullPage: true })
+    await expect(page.getByRole('complementary', { name: 'More documentation' }).getByRole('link', { name: 'Limitations', exact: true })).toBeVisible()
+    const footer = page.getByRole('navigation', { name: 'Project', exact: true })
+    await expect(footer.getByRole('link', { name: 'Limitations', exact: true })).toHaveCount(0)
+    await expect(footer.getByRole('link', { name: 'Feedback', exact: true })).toHaveCount(0)
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await page.getByRole('link', { name: 'Open this example', exact: true }).click()
+    await expect(page.locator('.filename')).toContainText(`${sample}.pdf`)
+    await expect(page.getByRole('heading', { name: 'Document overview', exact: true })).toBeVisible()
+    const ref = async (name: string) => {
+      if (/^\d+ \d+ R$/.test(name)) await page.getByRole('tab', { name: 'Properties', exact: true }).click()
+      await page.getByRole('button', { name, exact: true }).first().click()
+    }
+    const source = async () => {
+      await page.getByRole('tab', { name: 'Source', exact: true }).click()
+      return page.getByRole('tabpanel', { name: 'Source', exact: true })
+    }
+    const sections = page.getByRole('navigation', { name: 'Document sections' })
+    if (sample === 'embedded-font' || sample === 'hidden-attachment') {
+      await sections.getByRole('button', { name: 'Resources', exact: true }).click()
+      const resources = page.getByRole('region', { name: 'Visual resource browser' })
+      await resources.getByRole('button', { name: sample === 'embedded-font' ? /^Fonts 2$/ : /^Attachments 1$/ }).click()
+      const [download] = await Promise.all([
+        page.waitForEvent('download'),
+        resources.getByRole('button', { name: sample === 'embedded-font' ? 'Download font' : 'Download attachment', exact: true }).click(),
+      ])
+      if (sample === 'embedded-font') {
+        expect(await readFile((await download.path())!)).toEqual(await readFile('scripts/fixtures/assets/example-mark.ttf'))
+        await resources.getByRole('button', { name: '6 0 obj', exact: true }).click()
+        await ref('7 0 R')
+        await ref('8 0 R')
+        await expect(page.getByRole('heading', { name: /8 0\s+obj/ })).toBeVisible()
+      } else {
+        expect(download.suggestedFilename()).toBe('line-items.csv')
+        expect(await readFile((await download.path())!, 'utf8')).toBe('description,amount\nService charge,1250.00\n')
+        await resources.getByRole('button', { name: '6 0 obj', exact: true }).click()
+        await ref('7 0 R')
+        await page.getByRole('tab', { name: 'Decoded', exact: true }).click()
+        await expect(page.getByRole('tabpanel', { name: 'Decoded', exact: true })).toContainText('Service charge,1250.00')
+      }
+    } else if (sample === 'repeated-logo') {
+      await ref('First page')
+      await expect(await source()).toContainText('/Logo 7 0 R')
+      await ref('Pin to compare')
+      await sections.getByRole('button', { name: /^Pages/ }).click()
+      const tree = page.getByRole('navigation', { name: 'Page relationships' })
+      await tree.getByRole('button', { name: 'Page 3 5 0 obj', exact: true }).click()
+      await expect(await source()).toContainText('/Logo 8 0 R')
+    } else if (sample === 'page-rotation') {
+      await expect(page.locator('.document-facts')).toContainText('Mixed (0°, 90°)')
+      await ref('First page')
+      await ref('2 0 R')
+      await expect(await source()).toContainText('/Rotate 90')
+      await ref('4 0 R')
+      await expect(await source()).toContainText('/Rotate 0')
+      await ref('6 0 R')
+      await page.getByRole('tab', { name: 'Decoded', exact: true }).click()
+      const decoded = page.getByRole('tabpanel', { name: 'Decoded', exact: true })
+      await decoded.getByRole('button', { name: 'Decoded byte text', exact: true }).click()
+      await expect(decoded).toContainText('0 1 -1 0 450 80 cm')
+    } else if (sample === 'inherited-resources') {
+      await sections.getByRole('button', { name: /^Pages/ }).click()
+      const tree = page.getByRole('navigation', { name: 'Page relationships' })
+      await tree.getByRole('button', { name: 'Expand Page 1 3 0', exact: true }).click()
+      await expect(tree).toContainText('/Resources (inherited)')
+      await tree.getByRole('button', { name: 'Expand Resources · /Resources (inherited)', exact: true }).click()
+      await tree.getByRole('button', { name: 'Expand Fonts · /Font', exact: true }).click()
+      await tree.getByRole('button', { name: '/F1 5 0 obj', exact: true }).click()
+      await expect(page.getByRole('navigation', { name: 'Exploration trail' })).toContainText('Inherited from 2 0 obj')
+    } else {
+      await ref('Document catalogue')
+      await ref('6 0 R')
+      await expect(await source()).toContainText('/S /GoTo')
+      await ref('3 0 R')
+      await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
+    }
+  })
+}

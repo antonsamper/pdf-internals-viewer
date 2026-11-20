@@ -5,6 +5,15 @@ import {
   SearchGuide,
   SuspiciousFeaturesGuide,
 } from "./task-guides"
+import { Examples, LargePdfExample, IncorrectTextExample } from "./examples"
+import {
+  FontExample,
+  AttachmentExample,
+  LogoExample,
+  RotationExample,
+  InheritanceExample,
+  ActionExample,
+} from "./more-examples"
 import { BrandIcon } from "@/components/brand-artwork"
 import { SiteLinks } from "@/components/site-links"
 import {
@@ -58,6 +67,15 @@ function Guide() {
           file.
         </li>
       </ol>
+      <h2>Worked examples</h2>
+      <p>
+        Start with a symptom:{" "}
+        <a href="/examples/large-pdf">an unexpectedly large invoice</a> or{" "}
+        <a href="/examples/incorrect-text">
+          an amount that extracts incorrectly
+        </a>
+        . See <a href="/examples">all examples</a>.
+      </p>
       <h2>What would you like to do?</h2>
       <ul>
         <li>
@@ -501,9 +519,8 @@ function Limitations() {
       </p>
       <h2>Credits</h2>
       <p>
-        Application code is licensed under the Apache License 2.0. Parsing uses LibPDF; optional preview
-        uses EmbedPDF and PDFium locally. Dependencies retain their own
-        licences. Read the{" "}
+        Application code is licensed under the Apache License 2.0. Parsing uses LibPDF; optional preview uses EmbedPDF
+        and PDFium locally. Dependencies retain their own licences. Read the{" "}
         <a href="/THIRD-PARTY-NOTICES.txt">third-party notices</a>.
       </p>
     </>
@@ -537,24 +554,53 @@ export function PublicPage({
               <span aria-hidden="true"> / </span>
             </>
           )}
+          {page.path.startsWith("/examples/") && (
+            <>
+              <a href="/examples">Examples</a>
+              <span aria-hidden="true"> / </span>
+            </>
+          )}
           <span aria-current="page">
-            {page.path === "/guide"
-              ? "Guide"
-              : page.path === "/privacy"
-                ? "Privacy"
-                : page.path === "/limitations"
-                  ? "Limitations"
-                  : "Tutorial"}
+            {page.path === "/examples"
+              ? "Examples"
+              : page.path.startsWith("/examples/")
+                ? "Walkthrough"
+                : page.path === "/guide"
+                  ? "Guide"
+                  : page.path === "/privacy"
+                    ? "Privacy"
+                    : page.path === "/limitations"
+                      ? "Limitations"
+                      : "Tutorial"}
           </span>
         </nav>
         <h1 id="public-title">{page.heading}</h1>
-        {page.path.startsWith("/guides/") && (
+        {(page.path.startsWith("/guides/") ||
+          page.path.startsWith("/examples/")) && (
           <p className="article-byline">
             By <a href="https://github.com/antonsamper">Anton Samper</a> ·
             Reviewed <time dateTime="2026-11-15">15 November 2026</time>
           </p>
         )}
-        {page.path === "/guide" ? (
+        {page.path === "/examples" ? (
+          <Examples />
+        ) : page.path === "/examples/large-pdf" ? (
+          <LargePdfExample />
+        ) : page.path === "/examples/incorrect-text" ? (
+          <IncorrectTextExample />
+        ) : page.path === "/examples/embedded-font" ? (
+          <FontExample />
+        ) : page.path === "/examples/hidden-attachment" ? (
+          <AttachmentExample />
+        ) : page.path === "/examples/repeated-logo" ? (
+          <LogoExample />
+        ) : page.path === "/examples/page-rotation" ? (
+          <RotationExample />
+        ) : page.path === "/examples/inherited-resources" ? (
+          <InheritanceExample />
+        ) : page.path === "/examples/opening-action" ? (
+          <ActionExample />
+        ) : page.path === "/guide" ? (
           <Guide />
         ) : page.path === "/privacy" ? (
           <Privacy />
@@ -573,21 +619,21 @@ export function PublicPage({
         ) : (
           <ResourcesGuide />
         )}
-        {page.path !== "/guide" && (
-          <aside className="article-related" aria-label="More documentation">
-            <h2>Keep exploring</h2>
-            <ul>
-              {SITE_PAGES.filter(
-                (p) =>
-                  p.path !== "/" && p.path !== "/about" && p.path !== page.path
-              ).map((p) => (
-                <li key={p.path}>
-                  <a href={p.path}>{p.heading}</a>
-                </li>
-              ))}
-            </ul>
-          </aside>
-        )}
+        <aside className="article-related" aria-label="More documentation">
+          <h2>Keep exploring</h2>
+          <ul>
+            {SITE_PAGES.filter(
+              (p) =>
+                p.path !== "/" && p.path !== "/about" && p.path !== page.path
+            ).map((p) => (
+              <li key={p.path}>
+                <a href={p.path}>
+                  {p.path === "/limitations" ? "Limitations" : p.heading}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </aside>
       </article>
     </main>
   )

@@ -18,14 +18,11 @@ export function SiteLinks({
         <a href="/guide" onClick={onFollowLink}>
           Guide
         </a>
+        <a href="/examples" onClick={onFollowLink}>
+          Examples
+        </a>
         <a href="/privacy" onClick={onFollowLink}>
           Privacy
-        </a>
-        <a href="/limitations" onClick={onFollowLink}>
-          Limitations
-        </a>
-        <a href={`${PROJECT_URL}/issues`} target="_blank" rel="noreferrer">
-          Feedback
         </a>
         <a
           href={PROJECT_URL}

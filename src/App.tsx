@@ -93,6 +93,7 @@ import { MAX_INPUT_BYTES } from "@/lib/pdf/limits"
 import { PublicPage } from "@/content/public-page"
 import {
   SAMPLES as SITE_SAMPLES,
+  ALL_SAMPLES,
   sitePage,
   type SitePath,
 } from "@/lib/site-content"
@@ -568,7 +569,7 @@ function PdfWorkspace({
   useEffect(() => {
     if (!shouldOpenInitialSample) return
     const id = new URLSearchParams(window.location.search).get("sample")
-    const selectedSample = SITE_SAMPLES.find((item) => item.id === id)
+    const selectedSample = ALL_SAMPLES.find((item) => item.id === id)
     if (!selectedSample) return
     const timer = window.setTimeout(
       () => openInitialSample(selectedSample.file),
@@ -1793,6 +1794,10 @@ function PdfWorkspace({
               <span className="welcome-docs">
                 <a href="/guide" onClick={followLink}>
                   Learn how to inspect a PDF
+                </a>{" "}
+                ·{" "}
+                <a href="/examples" onClick={followLink}>
+                  Worked examples
                 </a>{" "}
                 ·{" "}
                 <a href="/guides/inspect-pdf-objects" onClick={followLink}>
