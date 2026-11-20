@@ -38,7 +38,7 @@ Independent review verified all 64 public hashes, native source/excerpt hashes, 
 
 ## Build and release checks
 
-`pnpm run check:native-notices` binds the reviewed inventory to the installed WASM hash and checks every recorded public file and bundle hash. `pnpm run deploy` runs this check before publishing. Production `postbuild` additionally checks the copied `dist/` manifest, files, combined notices, native bundle and built WASM.
+`pnpm run check:native-notices` binds the reviewed inventory to the installed WASM hash and checks every recorded public file and bundle hash. Production `postbuild` additionally checks the copied `dist/` manifest, files, combined notices, native bundle and built WASM.
 
 The separate preview-notice check verifies that prominent modification banners survive minification in the standalone worker, inline transport and embedded-source wrapper/payload. Hashed assets are never rewritten after building.
 
