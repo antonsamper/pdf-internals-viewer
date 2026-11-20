@@ -1,6 +1,7 @@
 import type { MouseEvent } from "react"
 import { ArrowLeft, ArrowUpRight } from "lucide-react"
 import { PROJECT_URL } from "@/components/site-links"
+import { BrandArtwork } from "@/components/brand-artwork"
 
 export function AboutPage({
   onFollowLink,
@@ -19,6 +20,7 @@ export function AboutPage({
         >
           <ArrowLeft size={14} aria-hidden="true" /> Back to the workspace
         </a>
+        <BrandArtwork className="about-artwork" />
         <h1 id="about-title">A closer look at PDF.</h1>
         <p className="about-lead">
           PDF Internals connects the document you see to the objects,
