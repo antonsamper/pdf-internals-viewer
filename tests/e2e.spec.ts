@@ -1268,3 +1268,41 @@ test('prerenders home and About for readers without JavaScript', async ({ browse
   await reader.screenshot({ path: screenshotPath('public-stream-guide-mobile.png'), fullPage: true })
   await context.close()
 })
+
+test('replaces a document during an acknowledged object transfer without exposing its partial graph', async ({ page }) => {
+  await page.evaluate(() => {
+    const NativeWorker = window.Worker
+    let first = true
+    window.Worker = class extends NativeWorker {
+      constructor(...args: ConstructorParameters<typeof Worker>) {
+        super(...args)
+        if (!first) return
+        first = false
+        const send = this.postMessage.bind(this)
+        this.postMessage = (...args: Parameters<Worker['postMessage']>) => {
+          if ((args[0] as { type?: string }).type === 'open-next') {
+            // Hold the acknowledgement deterministically, rather than racing parsing.
+            document.documentElement.dataset.batchPaused = 'true'
+            return
+          }
+          send(...args)
+        }
+      }
+    }
+  })
+  const objects: [number, string][] = [
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [] /Count 0 >>'],
+    ...Array.from({ length: 300 }, (_, i): [number, string] => [i + 3, '<< /Marker (old document) >>']),
+  ]
+  const fixture = classicPdf(objects)
+  await page.getByLabel('Open local PDF').setInputFiles({ name: 'batched.pdf', mimeType: 'application/pdf', buffer: Buffer.from(fixture.bytes) })
+  await expect(page.locator('html')).toHaveAttribute('data-batch-paused', 'true')
+  await expect(page.getByRole('heading', { name: 'Opening PDF…' })).toBeVisible()
+  await expect(page.locator('.status-bar')).not.toContainText('objects indexed')
+  await upload(page, 'minimal.pdf')
+  await expect(page.locator('.status-bar')).toContainText('5 objects indexed')
+  await page.getByRole('button', { name: 'Document catalogue', exact: true }).first().click()
+  await expect(page.locator('.object-title h1')).toContainText('1 0')
+  await expect(page.locator('.filename')).toContainText('minimal.pdf')
+})

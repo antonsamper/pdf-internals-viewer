@@ -11,9 +11,9 @@ export interface ResourceEntry {
 
 /** A single attachment row per embedded stream and filename, preferring its file specification. */
 export function resourceCatalog(
-  objects: Map<string, PdfObjectRecord>
+  objects: Map<string, PdfObjectRecord>,
+  downloads = embeddedDownloads(objects)
 ): ResourceEntry[] {
-  const downloads = embeddedDownloads(objects)
   const entries: ResourceEntry[] = []
   for (const object of objects.values()) {
     const kind = resourceKind(object)

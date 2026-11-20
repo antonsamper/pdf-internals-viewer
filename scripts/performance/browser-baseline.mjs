@@ -8,6 +8,8 @@ import { dirname, resolve } from 'node:path'
 
 const baseURL = process.env.PERFORMANCE_BASE_URL ?? 'http://127.0.0.1:5174'
 const output = resolve(process.env.PERFORMANCE_OUTPUT ?? '.context/browser-performance.json')
+const profileDirectory = process.env.PERFORMANCE_PROFILE_DIR ? resolve(process.env.PERFORMANCE_PROFILE_DIR) : null
+const probeMessages = process.env.PERFORMANCE_PROBE_MESSAGES === '1'
 const repetitions = Number(process.env.PERFORMANCE_RUNS ?? 3)
 if (!Number.isInteger(repetitions) || repetitions < 1 || repetitions > 10) throw new Error('PERFORMANCE_RUNS must be 1 through 10.')
 const manifest = JSON.parse(await readFile(new URL('../corpus/manifest.json', import.meta.url), 'utf8'))
@@ -55,7 +57,7 @@ async function workerHeap() {
 }
 const report = {
   recordedAt: new Date().toISOString(),
-  baseURL, repetitions, browser: await browser.version(), node: process.version,
+  baseURL, repetitions, profiling: Boolean(profileDirectory), messageProbe: probeMessages, browser: await browser.version(), node: process.version,
   platform: `${os.platform()}/${os.arch()}`, cpus: os.cpus().length,
   cpu: os.cpus()[0]?.model, totalSystemMemoryBytes: os.totalmem(),
   viewport: { width: 1440, height: 1000 }, headless: true, cpuThrottling: 'none', network: 'localhost, unthrottled',
@@ -74,10 +76,27 @@ try {
     page.setDefaultTimeout(25_000)
     const mainCDP = await context.newCDPSession(page)
     const pageErrors = []
+    let tracingActive = false
     page.on('pageerror', error => pageErrors.push(error.message))
-    await page.addInitScript(() => {
+    await page.addInitScript(({ probeMessages }) => {
       const state = { phase: 'startup', openingStart: null, indexedAt: null, longTasks: [], frameGaps: [], maxFrameGap: 0, lastFrame: 0, navigationStart: null, navigationReadyAt: null, lcp: [], longTaskSupported: PerformanceObserver.supportedEntryTypes.includes('longtask') }
+      state.messageReads = []
       globalThis.__pdfPerformance = state
+      // A separate diagnostic run: read data before the app listener to isolate
+      // Chromium's lazy structured-clone deserialisation. Never a baseline timing.
+      if (probeMessages) {
+        const NativeWorker = globalThis.Worker
+        globalThis.Worker = class extends NativeWorker {
+          constructor(...args) {
+            super(...args)
+            this.addEventListener('message', event => {
+              const start = performance.now()
+              const data = event.data
+              state.messageReads.push({ milliseconds: performance.now() - start, type: data.type, objectCount: data.document?.objects.length })
+            })
+          }
+        }
+      }
       try { new PerformanceObserver(list => { for (const entry of list.getEntries()) state.longTasks.push({ phase: state.phase, startTime: entry.startTime, duration: entry.duration }) }).observe({ type: 'longtask', buffered: true }) } catch { /* Chromium supports longtask; absence recorded in output. */ }
       function frame(time) {
         if (state.lastFrame && state.phase === 'opening') {
@@ -101,21 +120,51 @@ try {
         }
         if (state.phase === 'navigation' && document.querySelector('.object-title h1') && state.navigationStart !== null && state.navigationReadyAt === null) requestAnimationFrame(() => requestAnimationFrame(() => { state.navigationReadyAt ??= performance.now() }))
       }).observe(document, { childList: true, subtree: true, characterData: true })
-    })
+    }, { probeMessages })
     const result = { id: fixture.id, filename: fixture.filename, bytes: fixture.size, expectedObjects: fixture.oracle.objects, run }
     try {
       await page.goto(baseURL, { waitUntil: 'networkidle' })
       await page.getByRole('heading', { name: 'Look inside a PDF.' }).waitFor()
       result.startup = await page.evaluate(() => ({ navigation: performance.getEntriesByType('navigation')[0]?.toJSON(), lcp: globalThis.__pdfPerformance.lcp, longTaskSupported: globalThis.__pdfPerformance.longTaskSupported, paint: performance.getEntriesByType('paint').map(entry => entry.toJSON()), resources: performance.getEntriesByType('resource').map(entry => ({ name: new URL(entry.name).pathname, type: entry.initiatorType, transferSize: entry.transferSize, encodedBodySize: entry.encodedBodySize, duration: entry.duration })) }))
       result.mainHeapBefore = await mainCDP.send('Runtime.getHeapUsage')
+      if (profileDirectory) {
+        await mkdir(profileDirectory, { recursive: true })
+        await mainCDP.send('Profiler.enable')
+        await mainCDP.send('Profiler.start')
+        await mainCDP.send('Tracing.start', {
+          categories: 'devtools.timeline,v8,blink.user_timing,toplevel,disabled-by-default-devtools.timeline',
+          transferMode: 'ReturnAsStream',
+        })
+        tracingActive = true
+      }
       await page.getByLabel('Open local PDF').setInputFiles(resolve('.context/corpus', fixture.filename))
       await page.waitForFunction(() => globalThis.__pdfPerformance.indexedAt !== null, null, { timeout: 25_000 })
+      if (profileDirectory) {
+        const { profile } = await mainCDP.send('Profiler.stop')
+        const completed = new Promise(resolveTrace => mainCDP.once('Tracing.tracingComplete', resolveTrace))
+        await mainCDP.send('Tracing.end')
+        const { stream } = await completed
+        tracingActive = false
+        const tracePath = resolve(profileDirectory, `${fixture.id}-${run}.trace.json`)
+        const cpuPath = resolve(profileDirectory, `${fixture.id}-${run}.cpuprofile`)
+        const chunks = []
+        try {
+          while (true) {
+            const chunk = await mainCDP.send('IO.read', { handle: stream })
+            chunks.push(Buffer.from(chunk.data, chunk.base64Encoded ? 'base64' : 'utf8'))
+            if (chunk.eof) break
+          }
+        } finally { await mainCDP.send('IO.close', { handle: stream }) }
+        await writeFile(tracePath, Buffer.concat(chunks))
+        await writeFile(cpuPath, JSON.stringify(profile))
+        result.profile = { tracePath, cpuPath }
+      }
       result.statusText = await page.locator('.status-bar').innerText()
       result.mainHeapAfterOpen = await mainCDP.send('Runtime.getHeapUsage')
       result.workerHeapAfterOpen = await workerHeap()
       result.opening = await page.evaluate(() => {
         const state = globalThis.__pdfPerformance
-        return { milliseconds: state.indexedAt - state.openingStart, longTasks: state.longTasks.filter(task => task.startTime >= state.openingStart && task.startTime <= state.indexedAt), maxFrameGapMs: state.maxFrameGap, frameGaps: state.frameGaps }
+        return { messageReads: state.messageReads, milliseconds: state.indexedAt - state.openingStart, longTasks: state.longTasks.filter(task => task.startTime >= state.openingStart && task.startTime <= state.indexedAt), maxFrameGapMs: state.maxFrameGap, frameGaps: state.frameGaps }
       })
       const navigation = []
       for (let index = 0; index < 5; index++) {
@@ -136,6 +185,13 @@ try {
       result.alert = await page.getByRole('alert').allTextContents().catch(() => [])
       result.pageErrors = pageErrors
     } finally {
+      if (tracingActive) {
+        const completed = new Promise(resolveTrace => mainCDP.once('Tracing.tracingComplete', resolveTrace))
+        await mainCDP.send('Tracing.end')
+        const { stream } = await completed
+        await mainCDP.send('IO.close', { handle: stream })
+        await mainCDP.send('Profiler.stop').catch(() => undefined)
+      }
       report.results.push(result); await save(); await context.close()
     }
     console.log(JSON.stringify({ id: fixture.id, run, status: result.status, openingMs: result.opening?.milliseconds, navigationMs: result.cachedNavigationMs, error: result.error }))
