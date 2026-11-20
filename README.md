@@ -15,7 +15,7 @@ pnpm run dev
 
 `pnpm-lock.yaml` is the sole dependency lockfile. CI uses a frozen install and caches the pnpm store. Project settings enable preparation hooks and copy installed packages so the preview backport cannot modify the shared store. See [dependency setup](docs/DEPENDENCIES.md).
 
-Open the URL printed by Vite. The homepage opens directly to the workspace with a file picker and three original sample PDFs. The footer links to `/about`, project feedback, and the source on GitHub. Visiting About within the app preserves the current document in memory. You can also drop a PDF anywhere in the app. The app processes files in memory on your device. It does not upload or save them.
+Open the URL printed by Vite. The homepage opens directly to the workspace with a file picker and three original sample PDFs. The footer links to About, a public guide, privacy, limitations, project feedback, and the source on GitHub. Three worked tutorials explain objects/references, stream decoding, and font/image resources. Visiting About within the app preserves the current document in memory. You can also drop a PDF anywhere in the app. The app processes files in memory on your device. It does not upload or save them.
 
 ## Explore a PDF
 
@@ -65,7 +65,7 @@ Manual screenshots are saved under `.context/<browser>/` so concurrent engines d
 
 Tests cover the preview validation backport and scoped tooling compatibility. Parser tests cover classic, stream, and hybrid xrefs; compressed objects; incremental updates and free entries; exact object boundaries and deceptive binary markers; required filters; encryption; recovery; references; and bounded decompression. Browser tests cover the integrated exploration flow and local rendering. CI runs these against production builds in Chromium, Firefox, and WebKit. WebKit automation is not a full test of the Safari application. See [browser evidence and reproduction](docs/BROWSERS.md).
 
-`pnpm run build` produces the static site in `dist/`. `pnpm run preview` serves the built site locally. Cloudflare Pages is configured in `wrangler.jsonc`; the public app is available at the link above. Once the repository's Cloudflare Actions secrets are configured, pushes/merges to `main` deploy automatically after all CI checks pass. Other branches and pull requests only run checks. See [Cloudflare setup and release steps](docs/HOSTING.md).
+`pnpm run build` produces the static site in `dist/`, including build-time React HTML for home/About and six script-free documentation pages, plus a generated sitemap. Public HTML checks run automatically after the build. See [public content and discovery](docs/AEO.md) for rendering, maintenance and post-publication verification. `pnpm run preview` serves the built site locally. Cloudflare Pages is configured in `wrangler.jsonc`; the public app is available at the link above. Once the repository's Cloudflare Actions secrets are configured, pushes/merges to `main` deploy automatically after all CI checks pass. Other branches and pull requests only run checks. See [Cloudflare setup and release steps](docs/HOSTING.md).
 
 ## Independent PDF corpus
 

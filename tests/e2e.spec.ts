@@ -1019,3 +1019,85 @@ test('lists and downloads inline attachment file specifications', async ({ page 
   for await (const chunk of stream!) chunks.push(Buffer.from(chunk))
   expect(Buffer.concat(chunks).toString()).toBe('abc')
 })
+
+test('serves public answers without JavaScript and keeps articles free of inspector requests', async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, baseURL })
+  const reader = await context.newPage()
+  for (const [path, heading] of [
+    ['/guide', 'How to inspect a PDF in your browser'],
+    ['/guides/inspect-pdf-objects', 'PDF objects and references: what does 3 0 R mean?'],
+    ['/guides/decode-pdf-streams', 'How to inspect and decode PDF streams'],
+    ['/guides/find-pdf-fonts-images', 'How to find fonts and images in a PDF'],
+    ['/privacy', 'Your PDFs and browser storage'],
+    ['/limitations', 'Supported features and limitations'],
+  ]) {
+    const response = await reader.goto(path)
+    expect(response?.status()).toBe(200)
+    await expect(reader.getByRole('heading', { level: 1 })).toHaveText(heading!)
+    await expect(reader.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://pdf-internals-viewer.pages.dev${path}`)
+    await expect(reader.locator('main')).toContainText(path === '/privacy' ? 'Notes created while inspecting an encrypted PDF remain readable' : path === '/limitations' ? '64 MiB' : 'sample')
+  }
+  await context.close()
+  const requests: string[] = []
+  {
+    const article = await browser.newPage({ baseURL })
+    article.on('request', request => requests.push(request.url()))
+    await article.goto('/guides/decode-pdf-streams')
+    await expect(article.getByRole('heading', { level: 1 })).toBeVisible()
+    expect(requests.filter(url => /\.wasm|pdf\.worker|assets\/main-.*\.js/.test(url))).toEqual([])
+    await article.close()
+  }
+})
+
+test('keeps document state and route metadata across public content navigation', async ({ page }) => {
+  await openMinimal(page)
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  await page.getByRole('button', { name: 'User guide', exact: true }).click()
+  await page.getByRole('link', { name: 'Read the full guide', exact: true }).click()
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('How to inspect a PDF in your browser')
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /Follow a PDF page/)
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://pdf-internals-viewer.pages.dev/guide')
+  await page.getByRole('link', { name: 'Understand objects and references such as 3 0 R' }).click()
+  await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article')
+  await page.getByRole('link', { name: 'Back to the workspace', exact: true }).click()
+  await expect(page.locator('.filename')).toContainText('minimal.pdf')
+  await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /An open-source, read-only PDF inspector/)
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://pdf-internals-viewer.pages.dev/')
+})
+
+test('opens only bundled samples from tutorial links and reports no hydration errors', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
+  await page.goto('/guides/decode-pdf-streams')
+  await page.getByRole('link', { name: 'Explore Fonts & resources', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible()
+  await expect(page.locator('.filename')).toContainText('resources.pdf')
+  await page.goto('/?sample=compressed')
+  await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible()
+  await expect(page.locator('.filename')).toContainText('compressed.pdf')
+  await page.goto('/?sample=https://example.com/private.pdf')
+  await expect(page.getByRole('heading', { name: 'Look inside a PDF.' })).toBeVisible()
+  expect(errors).toEqual([])
+})
+
+test('prerenders home and About for readers without JavaScript', async ({ browser, baseURL }) => {
+  test.skip(!process.env.PLAYWRIGHT_CLOUDFLARE && !process.env.PLAYWRIGHT_PREVIEW && !process.env.PLAYWRIGHT_BASE_URL, 'Build-time HTML is checked against the production build')
+  const context = await browser.newContext({ baseURL, javaScriptEnabled: false })
+  const reader = await context.newPage()
+  await reader.goto('/')
+  await expect(reader.getByRole('heading', { level: 1 })).toHaveText('Look inside a PDF.')
+  await reader.getByRole('navigation', { name: 'Project', exact: true }).getByRole('link', { name: 'About', exact: true }).click()
+  await expect(reader.getByRole('heading', { level: 1 })).toHaveText('A closer look at PDF.')
+  await expect(reader.locator('main')).toContainText('Bookmarks and notes are saved in this browser')
+  await reader.getByRole('link', { name: 'workspace guide', exact: true }).click()
+  await expect(reader.getByRole('heading', { level: 1 })).toHaveText('How to inspect a PDF in your browser')
+  await reader.screenshot({ path: screenshotPath('public-guide-desktop.png'), fullPage: false })
+  await reader.setViewportSize({ width: 390, height: 844 })
+  await reader.goto('/guides/decode-pdf-streams')
+  await expect(reader.getByRole('heading', { level: 1 })).toBeVisible()
+  expect(await reader.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  await reader.screenshot({ path: screenshotPath('public-stream-guide-mobile.png'), fullPage: true })
+  await context.close()
+})

@@ -1,0 +1,5 @@
+# Public documentation is available to search crawlers, including AI search retrieval.
+User-agent: *
+Allow: /
+
+Sitemap: https://pdf-internals-viewer.pages.dev/sitemap.xml

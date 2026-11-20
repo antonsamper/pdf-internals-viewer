@@ -1,4 +1,4 @@
-import type { RefObject } from "react"
+import type { RefObject, MouseEvent } from "react"
 import {
   ArrowRight,
   Binary,
@@ -28,10 +28,12 @@ export function UserGuide({
   open,
   onOpenChange,
   returnFocusRef,
+  onFollowLink,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   returnFocusRef: RefObject<HTMLElement | null>
+  onFollowLink?: (event: MouseEvent<HTMLAnchorElement>) => boolean
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
@@ -298,6 +300,15 @@ export function UserGuide({
           </details>
         </div>
         <DialogFooter className="limitations-footer">
+          <a
+            className="full-guide-link"
+            href="/guide"
+            onClick={(event) => {
+              if (onFollowLink?.(event)) onOpenChange(false)
+            }}
+          >
+            Read the full guide
+          </a>
           <DialogClose render={<Button variant="outline" />}>Close</DialogClose>
         </DialogFooter>
       </DialogContent>

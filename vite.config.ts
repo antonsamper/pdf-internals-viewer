@@ -2,10 +2,11 @@ import { resolve } from "node:path"
 import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
+import { publicPages } from "./scripts/public-pages-plugin.ts"
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), publicPages()],
   optimizeDeps: {
     // The generated adapter uses engine-local dependency paths. Prebundle its
     // full dependency graph so native development workers never load raw CJS.
