@@ -2,10 +2,8 @@ import type { PdfDict, PdfObject, PdfRef as EngineRef, PdfStream } from '@libpdf
 import { InspectionDocumentParser, InspectionScanner, InspectionXRefParser, PdfRef, inspectionCompressedLocation, inspectionReadIndirect, inspectionResetDecodedCache, type XRefEntry } from 'pdf-internals-viewer/inspection';
 import type { ByteRange, PdfDocumentInfo, PdfObjectRecord, PdfValue, Provenance, StreamResult } from './types';
 
-export const MAX_INPUT_BYTES = 64 * 1024 * 1024;
-const MAX_DISPLAY_BYTES = 256 * 1024;
-const MAX_OBJECTS = 100_000;
-const MAX_DECODED_BYTES = 32 * 1024 * 1024;
+import { MAX_INPUT_BYTES, MAX_DISPLAY_BYTES, MAX_OBJECTS, MAX_DECODED_BYTES } from './limits';
+export { MAX_INPUT_BYTES } from './limits';
 const byteText = (bytes: Uint8Array) => { let text = ''; for (let i = 0; i < bytes.length; i += 8192) text += String.fromCharCode(...bytes.subarray(i, i + 8192)); return text; };
 const refId = (ref: EngineRef) => `${ref.objectNumber} ${ref.generation}`;
 const message = (error: unknown) => error instanceof Error ? error.message : String(error);

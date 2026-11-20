@@ -1,6 +1,7 @@
 import type { MouseEvent } from "react"
 import { ArrowLeft, ArrowUpRight } from "lucide-react"
 import { PROJECT_URL } from "@/components/site-links"
+import { PRIVACY_SUMMARY } from "@/lib/site-content"
 import { BrandArtwork } from "@/components/brand-artwork"
 
 export function AboutPage({
@@ -44,10 +45,12 @@ export function AboutPage({
         <section>
           <h2>Your files stay with you</h2>
           <p>
-            PDF processing and page rendering happen on your device. The app
-            does not upload or save your PDF. Documents, bookmarks, and notes
-            stay in memory for the current session and clear when you close or
-            replace the document.
+            {PRIVACY_SUMMARY} Clearing site data removes saved bookmarks. Notes
+            from encrypted PDFs remain readable in browser storage. See{" "}
+            <a href="/privacy" onClick={onFollowLink}>
+              privacy and browser storage
+            </a>{" "}
+            for details.
           </p>
         </section>
         <section>
@@ -82,6 +85,21 @@ export function AboutPage({
             Read the limitations and credits{" "}
             <ArrowUpRight size={13} aria-hidden="true" />
           </button>
+        </section>
+        <section>
+          <h2>Learn with original examples</h2>
+          <p>
+            Follow the{" "}
+            <a href="/guide" onClick={onFollowLink}>
+              workspace guide
+            </a>{" "}
+            to explore objects, decode streams, and find resources using our
+            original sample PDFs. Read the{" "}
+            <a href="/limitations" onClick={onFollowLink}>
+              supported features and limitations
+            </a>
+            .
+          </p>
         </section>
         <section className="about-feedback">
           <h2>Help make it better</h2>

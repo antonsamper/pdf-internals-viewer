@@ -1,11 +1,12 @@
 import type { MouseEvent } from "react"
 
-export const PROJECT_URL = "https://github.com/antonsamper/pdf-internals-viewer"
+import { PROJECT_URL } from "@/lib/site-content"
+export { PROJECT_URL } from "@/lib/site-content"
 
 export function SiteLinks({
   onFollowLink,
 }: {
-  onFollowLink: (event: MouseEvent<HTMLAnchorElement>) => boolean
+  onFollowLink?: (event: MouseEvent<HTMLAnchorElement>) => boolean
 }) {
   return (
     <nav className="site-links" aria-label="Project">
@@ -13,6 +14,15 @@ export function SiteLinks({
       <div>
         <a href={`${import.meta.env.BASE_URL}about`} onClick={onFollowLink}>
           About
+        </a>
+        <a href="/guide" onClick={onFollowLink}>
+          Guide
+        </a>
+        <a href="/privacy" onClick={onFollowLink}>
+          Privacy
+        </a>
+        <a href="/limitations" onClick={onFollowLink}>
+          Limitations
         </a>
         <a href={`${PROJECT_URL}/issues`} target="_blank" rel="noreferrer">
           Feedback

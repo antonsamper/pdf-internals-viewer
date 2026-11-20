@@ -1,3 +1,4 @@
+import { OPERATION_TIMEOUT_MS } from './limits';
 import type { ParserRequest, ParserResponse, PdfDocumentInfo, StreamResult } from './types';
 
 /** One client per document. dispose() cancels parsing by terminating its worker. */
@@ -20,7 +21,7 @@ export class PdfWorkerClient {
   private request(request: ParserRequest): Promise<ParserResponse> {
     if (this.disposed) return Promise.reject(new Error('PDF inspection was cancelled.'));
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => this.dispose(new Error('PDF operation exceeded 15 seconds. Original bytes are still available; try a smaller file.')), 15_000);
+      const timeout = setTimeout(() => this.dispose(new Error('PDF operation exceeded 15 seconds. Original bytes are still available; try a smaller file.')), OPERATION_TIMEOUT_MS);
       this.pending.set(request.requestId, { resolve, reject, timeout });
       this.worker.postMessage(request);
     });

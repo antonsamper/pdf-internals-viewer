@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/prerender.mjs",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc -b --pretty false",
@@ -26,11 +26,12 @@
     "test:corpus": "vitest run --config scripts/corpus/vitest.config.ts",
     "pretest:corpus": "pnpm run prepare:deps",
     "check:preview-notices": "node scripts/check-preview-notices.mjs dist",
-    "postbuild": "pnpm run check:preview-notices && pnpm run check:native-notices --dist",
+    "postbuild": "pnpm run check:preview-notices && pnpm run check:native-notices --dist && pnpm run check:public-pages",
     "deploy:check": "pnpm run build && pnpm run check:pages-assets",
     "preview:cloudflare": "wrangler pages dev dist --ip 127.0.0.1 --port 8787",
     "check:native-notices": "node scripts/check-native-notices.mjs",
-    "check:pages-assets": "node scripts/check-pages-assets.mjs"
+    "check:pages-assets": "node scripts/check-pages-assets.mjs",
+    "check:public-pages": "node scripts/check-public-pages.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

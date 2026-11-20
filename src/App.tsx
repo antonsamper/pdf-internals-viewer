@@ -3,6 +3,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useEffectEvent,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -86,6 +87,13 @@ import type {
 import { AboutPage } from "@/components/about-page"
 import { BrandArtwork } from "@/components/brand-artwork"
 import { SiteLinks } from "@/components/site-links"
+import { MAX_INPUT_BYTES } from "@/lib/pdf/limits"
+import { PublicPage } from "@/content/public-page"
+import {
+  SAMPLES as SITE_SAMPLES,
+  sitePage,
+  type SitePath,
+} from "@/lib/site-content"
 import { useSiteRoute } from "@/lib/site-route"
 import "./app.css"
 
@@ -96,29 +104,16 @@ const PdfPreview = lazy(() =>
 )
 const emptyPageTree = (): PageTreeState => ({ expanded: new Set(), limits: {} })
 const EMPTY = new Uint8Array()
-const SAMPLES = [
-  {
-    file: "minimal.pdf",
-    name: "A simple page",
-    detail: "Catalog, page tree, font, and drawing instructions",
-    icon: FileCode2,
-    tone: "purple",
-  },
-  {
-    file: "resources.pdf",
-    name: "Fonts & resources",
-    detail: "Explore page resources and their references",
-    icon: Layers,
-    tone: "red",
-  },
-  {
-    file: "compressed.pdf",
-    name: "Compressed objects",
-    detail: "See how objects live inside decoded streams",
-    icon: Braces,
-    tone: "orange",
-  },
-]
+const sampleIcons = {
+  minimal: FileCode2,
+  resources: Layers,
+  compressed: Braces,
+}
+const SAMPLES = SITE_SAMPLES.map((sample) => ({
+  ...sample,
+  icon: sampleIcons[sample.id],
+}))
+
 type Selection = BookmarkSelection
 type Section =
   "overview" | "catalog" | "pages" | "resources" | "objects" | "structure"
@@ -136,20 +131,20 @@ const size = (value: number) =>
       : `${(value / 1024 / 1024).toFixed(1)} MB`
 
 function useNarrow() {
-  const [narrow, setNarrow] = useState(
-    () => window.matchMedia("(max-width: 900px)").matches
-  )
+  // Match the build-time render; adapt after hydration on narrow screens.
+  const [narrow, setNarrow] = useState(false)
   useEffect(() => {
     const query = window.matchMedia("(max-width: 900px)")
     const update = () => setNarrow(query.matches)
+    update()
     query.addEventListener("change", update)
     return () => query.removeEventListener("change", update)
   }, [])
   return narrow
 }
 
-export default function App() {
-  const { about, goHome, followLink } = useSiteRoute()
+export default function App({ initialPath = "/" }: { initialPath?: SitePath }) {
+  const { path, about, goHome, followLink } = useSiteRoute(initialPath)
   const [guideOpen, setGuideOpen] = useState(false)
   const guideOpener = useRef<HTMLElement | null>(null)
   const [limitationsOpen, setLimitationsOpen] = useState(false)
@@ -423,7 +418,7 @@ export default function App() {
     goHome()
     close()
     const token = requestId.current
-    if (file.size > 64 * 1024 * 1024) {
+    if (file.size > MAX_INPUT_BYTES) {
       setError(
         "This file exceeds the current 64 MiB limit. Choose a smaller PDF."
       )
@@ -519,6 +514,19 @@ export default function App() {
       }
     }
   }
+  const openInitialSample = useEffectEvent((file: string) => {
+    void sample(file)
+  })
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("sample")
+    const selectedSample = SITE_SAMPLES.find((item) => item.id === id)
+    if (!selectedSample) return
+    const timer = window.setTimeout(
+      () => openInitialSample(selectedSample.file),
+      0
+    )
+    return () => window.clearTimeout(timer)
+  }, [])
   const readStream = useCallback((id: string, mode: "raw" | "decoded") => {
     if (!client.current)
       return Promise.reject(new Error("Open a PDF before reading a stream."))
@@ -1358,6 +1366,8 @@ export default function App() {
               setLimitationsOpen(true)
             }}
           />
+        ) : path !== "/" ? (
+          <PublicPage page={sitePage(path)!} onFollowLink={followLink} />
         ) : bytes.length || busy ? (
           <>
             <div className="workspace-toolbar">
@@ -1636,8 +1646,9 @@ export default function App() {
                     Look <span>inside</span> a PDF.
                   </h1>
                   <p>
-                    A browser workspace for developers to explore PDF objects,
-                    follow references, and inspect the original bytes.
+                    An open-source, read-only PDF inspector for developers.
+                    Explore PDF objects, follow references, and inspect raw or
+                    decoded streams alongside the original bytes.
                   </p>
                   <Button size="lg" onClick={() => input.current?.click()}>
                     <FilePlus2 size={16} />
@@ -1691,10 +1702,27 @@ export default function App() {
               From a page to its content stream to the bytes behind it.
               <br />
               Read-only exploration, with the source always in view.
+              <span className="welcome-docs">
+                <a href="/guide" onClick={followLink}>
+                  Learn how to inspect a PDF
+                </a>{" "}
+                ·{" "}
+                <a href="/guides/inspect-pdf-objects" onClick={followLink}>
+                  Objects &amp; references
+                </a>{" "}
+                ·{" "}
+                <a href="/guides/decode-pdf-streams" onClick={followLink}>
+                  Decode streams
+                </a>{" "}
+                ·{" "}
+                <a href="/guides/find-pdf-fonts-images" onClick={followLink}>
+                  Fonts &amp; images
+                </a>
+              </span>
             </p>
           </main>
         )}
-        {(about || (!bytes.length && !busy)) && (
+        {(path !== "/" || (!bytes.length && !busy)) && (
           <SiteLinks onFollowLink={followLink} />
         )}
         <footer className="status-bar">
@@ -1736,6 +1764,7 @@ export default function App() {
           </span>
         </footer>
         <UserGuide
+          onFollowLink={followLink}
           open={guideOpen}
           onOpenChange={setGuideOpen}
           returnFocusRef={guideOpener}

@@ -1907,3 +1907,41 @@ h2 {
   width: 18px;
   height: 18px;
 }
+
+/* Public reference pages share the app typography, with room for long reading. */
+.welcome-docs {
+  display: block;
+  margin-top: 16px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.welcome-docs a { color: var(--reference); text-underline-offset: 3px; }
+.site-links > div { flex-wrap: wrap; gap: 12px 20px; }
+.public-page article { max-width: 720px; }
+.public-page :is(ol, ul, dl) { font-size: 14px; line-height: 1.85; color: var(--muted-foreground); }
+.public-page :is(ol, ul) { padding-left: 24px; margin: 16px 0 24px; }
+.public-page li { margin: 8px 0; }
+.public-page a { color: var(--reference); text-underline-offset: 3px; }
+.public-page a:hover { text-decoration: underline; }
+.public-page strong { color: var(--foreground); font-weight: 600; }
+.public-page pre { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; background: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 24px 0; }
+.public-page dt { font-weight: 600; color: var(--foreground); margin-top: 12px; }
+.public-page dd { margin: 0; }
+.public-page .back-to-workspace { margin-bottom: 24px; }
+.article-breadcrumbs { color: var(--muted-foreground); font-size: 12px; margin-bottom: 24px; }
+.public-page .article-byline { font-size: 12px; margin-bottom: 32px; }
+.public-page .article-actions { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 24px 0; }
+.article-actions a { display: inline-block; border-bottom: 1px solid currentColor; font-weight: 550; }
+.public-page .article-source { font-size: 12px; margin-top: 32px; }
+.article-related { border-top: 1px solid var(--border); margin-top: 40px; }
+.static-open-link { margin-left: auto; font-size: 12px; color: inherit; text-underline-offset: 4px; }
+.static-public-shell { height: auto; min-height: 100dvh; overflow: visible; }
+.static-public-shell .public-page { overflow: visible; }
+@media (max-width: 760px) {
+  .site-links > div { justify-content: center; }
+  .public-page { padding: 32px 24px 48px; }
+  .public-page pre { padding: 14px; }
+}
+.full-guide-link { margin-right: auto; align-self: center; color: var(--reference); text-decoration: underline; text-underline-offset: 3px; font-size: 13px; }
+.public-page ol { list-style: decimal; }
+.public-page ul { list-style: disc; }
