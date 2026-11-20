@@ -7,10 +7,8 @@ import { BrandArtwork } from "@/components/brand-artwork"
 
 export function AboutPage({
   onFollowLink,
-  onLimitations,
 }: {
   onFollowLink: (event: MouseEvent<HTMLAnchorElement>) => boolean
-  onLimitations: (event: MouseEvent<HTMLButtonElement>) => void
 }) {
   return (
     <main
@@ -83,15 +81,13 @@ export function AboutPage({
               labels recovered structure and unavailable data. Page preview may
               display content that the inspector cannot decode.
             </p>
-            <button
+            <a
               className="about-text-button"
-              aria-haspopup="dialog"
-              aria-controls="limitations-dialog"
-              onClick={onLimitations}
+              href="/limitations"
+              onClick={onFollowLink}
             >
-              Read the limitations and credits{" "}
-              <ArrowUpRight size={13} aria-hidden="true" />
-            </button>
+              Read the limitations <ArrowUpRight size={13} aria-hidden="true" />
+            </a>
           </section>
           <section>
             <h2>Explore the sample PDFs</h2>

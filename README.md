@@ -82,7 +82,7 @@ This opt-in suite checks 15 upstream PDFs against observations from independent 
 
 ## Public-facing limitations
 
-**About & limitations** is available in the document status bar while a PDF is loading or open, including on mobile. The empty homepage shows the site navigation footer. Public pages also provide header and grouped content navigation. The opening screen links to limitations before a file is loaded. The scrollable dialogue describes supported files/filters, encrypted-file behaviour, source fidelity, preview/search truncation, browser coverage, resource limits, and local processing. It never opens automatically or requires acknowledgement.
+**Limitations** in the document status bar opens the static `/limitations` page while a PDF is loading or open, including on mobile. The About page and public content navigation also link to this page. Navigating back to the workspace retains the open document.
 
 ## Parser and preview
 

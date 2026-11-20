@@ -35,6 +35,7 @@ import {
   LockKeyhole,
   Search,
   ShieldCheck,
+  Shield,
   X,
 } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -46,7 +47,6 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
-import { LimitationsDialog } from "@/components/limitations-dialog"
 import { HexView } from "@/components/hex-view"
 import {
   ObjectInspector,
@@ -198,8 +198,6 @@ function PdfWorkspace({
   onSessionEnd: () => void
 }) {
   const { path, about, goHome, followLink } = useSiteRoute(initialPath)
-  const [limitationsOpen, setLimitationsOpen] = useState(false)
-  const limitationsOpener = useRef<HTMLElement | null>(null)
   const input = useRef<HTMLInputElement>(null)
   const searchInput = useRef<HTMLInputElement>(null)
   const client = useRef<PdfWorkerClient | null>(null)
@@ -1556,13 +1554,7 @@ function PdfWorkspace({
           </div>
         )}
         {about ? (
-          <AboutPage
-            onFollowLink={followLink}
-            onLimitations={(event) => {
-              limitationsOpener.current = event.currentTarget
-              setLimitationsOpen(true)
-            }}
-          />
+          <AboutPage onFollowLink={followLink} />
         ) : path !== "/" ? (
           <PublicPage
             key={path}
@@ -1855,28 +1847,25 @@ function PdfWorkspace({
                     Explore PDF objects, follow references, and inspect raw or
                     decoded streams alongside the original bytes.
                   </p>
-                  <Button size="lg" onClick={() => input.current?.click()}>
-                    <FilePlus2 size={16} />
-                    Open a PDF<span className="shortcut">⌘ O</span>
-                  </Button>
-                  <span className="drop-hint">
-                    or drop a file anywhere · up to 64 MiB
-                  </span>
-                  <span className="welcome-privacy">
-                    <ShieldCheck size={14} aria-hidden="true" /> Processed
-                    locally. No uploads.
-                  </span>
-                  <button
-                    className="empty-limitations-link"
-                    aria-haspopup="dialog"
-                    aria-controls="limitations-dialog"
-                    onClick={(event) => {
-                      limitationsOpener.current = event.currentTarget
-                      setLimitationsOpen(true)
-                    }}
-                  >
-                    Early version · View limitations
-                  </button>
+                  <div className="welcome-open-row">
+                    <Button size="lg" onClick={() => input.current?.click()}>
+                      <FilePlus2 size={16} />
+                      Open a PDF<span className="shortcut">⌘ O</span>
+                    </Button>
+                    <span className="drop-hint">
+                      or drop a file anywhere · up to 64 MiB
+                    </span>
+                  </div>
+                  <div className="welcome-trust">
+                    <span className="welcome-trust-badge welcome-trust-local">
+                      <Shield size={16} aria-hidden="true" />
+                      Processed locally
+                    </span>
+                    <span className="welcome-trust-badge">
+                      <LockKeyhole size={16} aria-hidden="true" />
+                      Read-only inspection
+                    </span>
+                  </div>
                 </div>
                 <section className="samples">
                   <h2>Start with a sample</h2>
@@ -1940,17 +1929,13 @@ function PdfWorkspace({
               <ShieldCheck size={13} />
               Files stay on your device
               <span className="status-divider" aria-hidden="true" />
-              <button
+              <a
                 className="status-limitations-link"
-                aria-haspopup="dialog"
-                aria-controls="limitations-dialog"
-                onClick={(event) => {
-                  limitationsOpener.current = event.currentTarget
-                  setLimitationsOpen(true)
-                }}
+                href="/limitations"
+                onClick={followLink}
               >
-                About & limitations
-              </button>
+                Limitations
+              </a>
             </span>
             <span>
               {busy ? (
@@ -1974,16 +1959,22 @@ function PdfWorkspace({
             </span>
           </footer>
         )}
-        <LimitationsDialog
-          returnFocusRef={limitationsOpener}
-          open={limitationsOpen}
-          onOpenChange={setLimitationsOpen}
-        />
         {dragging && (
           <div className="drop-overlay">
-            <FolderOpen size={36} />
-            <p>Drop your PDF to explore</p>
-            <span>Processed locally in your browser</span>
+            <div className="drop-target">
+              <div className="drop-mascot" aria-hidden="true">
+                <BrandIcon />
+              </div>
+              <span className="drop-eyebrow">Ready to investigate</span>
+              <p>Let’s look inside.</p>
+              <span className="drop-instruction">
+                Drop your PDF anywhere on this window
+              </span>
+              <div className="drop-overlay-privacy">
+                <ShieldCheck size={14} aria-hidden="true" />
+                Processed locally · up to 64 MiB
+              </div>
+            </div>
           </div>
         )}
       </div>
