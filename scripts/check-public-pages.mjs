@@ -15,6 +15,8 @@ for (const url of urls) {
   assert.match(html, /<html lang="en">/)
   assert.equal([...html.matchAll(/<h1\b/g)].length, 1, `${url.pathname}: one readable main heading`)
   assert.match(html, /<main\b/)
+  assert.ok(html.includes('<script src="/theme.js"></script>'), 'All pages initialise appearance before rendering')
+  assert.ok(html.includes('data-theme-control=""'), 'All pages provide an appearance button')
   assert.doesNotMatch(html, /<div id="root"><\/div>/)
   assert.doesNotMatch(html, /noindex|nosnippet/i)
   assert.equal([...html.matchAll(/<title>/g)].length, 1)
@@ -24,7 +26,7 @@ for (const url of urls) {
   const schema = JSON.parse(html.match(/<script type="application\/ld\+json" id="site-schema">([\s\S]*?)<\/script>/)?.[1] ?? 'null')
   assert.ok(schema?.['@graph'].some(node => node.url === url.href))
   if (url.pathname !== '/' && url.pathname !== '/about') {
-    assert.doesNotMatch(html, /<script[^>]*\bsrc=/, 'Static articles must not require inspector JavaScript')
+    assert.doesNotMatch(html.replace('<script src="/theme.js"></script>', ''), /<script[^>]*\bsrc=/, 'Static articles must not require inspector JavaScript')
     assert.ok(html.includes('Back to the workspace'))
     assert.match(html, /aria-label="Main navigation"/)
     assert.match(html, /<summary>On this site<\/summary>/)

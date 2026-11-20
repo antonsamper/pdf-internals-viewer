@@ -18,7 +18,7 @@ try {
       if (html.includes('<div id="root"></div>')) throw new Error(`Prerender failed: ${file}`)
       await writeFile(file, html)
     } else {
-      html = `<!doctype html>\n<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">${pageHead(page)}\n${styles}</head><body><div id="root">${renderPage(page)}</div></body></html>\n`
+      html = `<!doctype html>\n<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script src="/theme.js"></script>${pageHead(page)}\n${styles}</head><body><div id="root">${renderPage(page)}</div></body></html>\n`
       // Match Pages' extensionless HTML routing, with no SPA fallback required.
       const file = join('dist', `${page.path.slice(1)}.html`)
       await mkdir(dirname(file), { recursive: true })

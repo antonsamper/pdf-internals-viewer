@@ -1591,3 +1591,127 @@ test('opens the broken cross-reference example and follows both findings to evid
   await page.getByRole('button', { name: 'Preview', exact: true }).click()
   await expect(page.getByRole('img', { name: 'broken-xref.pdf, page 1' })).toBeVisible()
 })
+
+test('appearance button toggles modes and remembers the choice across visits and pages', async ({ page }) => {
+  const root = page.locator('html')
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible()
+  await expect(root).toHaveClass('dark')
+  await page.emulateMedia({ colorScheme: 'light' })
+  const darkButton = page.getByRole('button', { name: 'Switch to dark mode' })
+  await expect(darkButton).toBeVisible()
+  await darkButton.focus()
+  await page.keyboard.press('Enter')
+  await expect(root).toHaveClass('dark')
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('pdf-internals-theme'))).toBe('dark')
+  await page.reload()
+  await expect(root).toHaveClass('dark')
+  await page.goto('/guide')
+  await expect(root).toHaveClass('dark')
+  await page.getByRole('button', { name: 'Switch to light mode' }).click()
+  await page.emulateMedia({ colorScheme: 'dark' })
+  await expect(root).not.toHaveClass('dark')
+  await page.goto('/about')
+  await expect(darkButton).toBeVisible()
+  await expect(root).not.toHaveClass('dark')
+  await darkButton.click()
+  await page.goto('/')
+  await openMinimal(page)
+  await expect(root).toHaveClass('dark')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeInViewport()
+  await expect(page.getByRole('button', { name: 'Close PDF', exact: true })).toBeInViewport()
+  await page.screenshot({ path: screenshotPath('dark-workspace-mobile.png'), animations: 'disabled' })
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.screenshot({ path: screenshotPath('dark-workspace.png'), animations: 'disabled' })
+})
+
+test('appearance remains usable when browser storage is blocked', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', {
+      get() { throw new DOMException('Blocked', 'SecurityError') },
+    })
+  })
+  await page.emulateMedia({ colorScheme: 'light' })
+  await page.reload()
+  await page.getByRole('button', { name: 'Switch to dark mode' }).click()
+  await expect(page.locator('html')).toHaveClass('dark')
+  await page.getByRole('link', { name: 'User guide', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible()
+  await page.getByRole('button', { name: 'Switch to light mode' }).click()
+  await expect(page.locator('html')).not.toHaveClass('dark')
+})
+
+test('appearance synchronises across tabs and falls back to system for invalid saved choices', async ({ page, context }) => {
+  await page.evaluate(() => localStorage.setItem('pdf-internals-theme', 'invalid'))
+  await page.emulateMedia({ colorScheme: 'light' })
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Switch to dark mode' })).toBeVisible()
+  const other = await context.newPage()
+  await other.emulateMedia({ colorScheme: 'light' })
+  await other.goto('/guide')
+  await other.getByRole('button', { name: 'Switch to dark mode' }).click()
+  await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible()
+  await expect(page.locator('html')).toHaveClass('dark')
+  await other.evaluate(() => localStorage.removeItem('pdf-internals-theme'))
+  await expect(page.getByRole('button', { name: 'Switch to dark mode' })).toBeVisible()
+  await expect(page.locator('html')).not.toHaveClass('dark')
+  await other.close()
+})
+
+test('theme button keeps its position across workspace and public headers', async ({ page }) => {
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 844 })
+    await page.goto('/')
+    const button = page.locator('.theme-control')
+    const workspace = await button.boundingBox()
+    expect(workspace).not.toBeNull()
+    await openMinimal(page)
+    const checkPosition = async () => {
+      await expect(button).toBeInViewport()
+      const actual = await button.boundingBox()
+      expect(actual).not.toBeNull()
+      for (const dimension of ['x', 'y', 'width', 'height'] as const) {
+        expect(actual![dimension]).toBeCloseTo(workspace![dimension], 0)
+      }
+    }
+    await checkPosition()
+    // In-app navigation uses the public header while retaining the open PDF.
+    await page.getByRole('link', { name: 'User guide', exact: true }).click()
+    await checkPosition()
+    // Direct visits render static articles and the prerendered About page.
+    for (const route of ['/guide', '/about']) {
+      await page.goto(route)
+      await checkPosition()
+    }
+  }
+})
+
+test('public headers match the workspace height and align the mobile identity row', async ({ page }) => {
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 844 })
+    await page.goto('/')
+    const header = page.locator('.app-header')
+    const identity = page.locator('.app-identity')
+    const workspace = await header.boundingBox()
+    const workspaceIdentity = await identity.boundingBox()
+    expect(workspace!.height).toBe(58)
+    const checkHeader = async () => {
+      const actual = await header.boundingBox()
+      if (width > 600) expect(actual!.height).toBe(workspace!.height)
+      const actualIdentity = await identity.boundingBox()
+      expect(actualIdentity!.y + actualIdentity!.height / 2).toBeCloseTo(
+        workspaceIdentity!.y + workspaceIdentity!.height / 2, 0,
+      )
+      await expect(page.getByRole('link', { name: 'Open the inspector →', exact: true })).toBeInViewport()
+    }
+    // Cover public navigation with an active PDF as well as direct static visits.
+    await openMinimal(page)
+    await page.getByRole('link', { name: 'User guide', exact: true }).click()
+    await checkHeader()
+    for (const route of ['/guide', '/about']) {
+      await page.goto(route)
+      await checkHeader()
+    }
+  }
+})
