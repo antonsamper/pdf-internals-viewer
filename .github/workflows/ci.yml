@@ -75,6 +75,8 @@ jobs:
       - run: pnpm run test:e2e --browser=${{ matrix.browser }}
         env:
           PLAYWRIGHT_CLOUDFLARE: '1'
+      - name: Verify parser in native development workers
+        run: pnpm run test:e2e --browser=${{ matrix.browser }} --grep 'follows page references|uploads and replaces|distinguishes compressed'
   deploy:
     name: Deploy production
     needs: [secrets, check, browsers]
