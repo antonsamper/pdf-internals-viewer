@@ -1,0 +1,46 @@
+%PDF-1.7
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R /Metadata 6 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >>  >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 327  >>
+stream
+0.12 0.16 0.24 rg
+BT /F1 28 Tf 72 708 Td (Example invoice) Tj ET
+BT /F1 14 Tf 72 660 Td (A readable page can still contain a structural error.) Tj ET
+BT /F1 12 Tf 72 628 Td (Open Issues to inspect the broken metadata cross-reference.) Tj ET
+0.4 0.4 0.4 rg
+BT /F1 10 Tf 72 72 Td (Original learning sample - PDF Internals) Tj ET
+
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Length 58 /Type /Metadata /Subtype /XML >>
+stream
+<?xml version="1.0"?><x:xmpmeta xmlns:x="adobe:ns:meta/"/>
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000080 00000 n 
+0000000137 00000 n 
+0000000264 00000 n 
+0000000643 00000 n 
+0000999999 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R  >>
+startxref
+878
+%%EOF

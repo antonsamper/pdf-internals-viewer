@@ -6,7 +6,13 @@ export type BookmarkSelection = {
   id: string | null
   tab: "properties" | "source" | "raw" | "decoded"
   section:
-    "overview" | "catalog" | "pages" | "resources" | "objects" | "structure"
+    | "overview"
+    | "catalog"
+    | "pages"
+    | "resources"
+    | "objects"
+    | "structure"
+    | "issues"
   range?: ByteRange
   notice?: string
   trail?: ExplorationStep[]
@@ -45,6 +51,7 @@ function validBookmark(
       "resources",
       "objects",
       "structure",
+      "issues",
     ].includes(s.section) &&
     (s.notice === undefined || typeof s.notice === "string") &&
     (s.range === undefined ||

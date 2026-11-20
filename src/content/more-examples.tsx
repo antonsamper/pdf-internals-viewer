@@ -394,3 +394,77 @@ export function ActionExample() {
     </>
   )
 }
+
+export function BrokenXrefExample() {
+  return (
+    <>
+      <p className="about-lead">
+        This sample deliberately points one cross-reference entry outside the
+        file. The page objects remain intact, but the metadata object is
+        unavailable to the inspector. Open Issues to see a red error and the
+        related amber warning.
+      </p>
+      <ExampleActions sample="broken-xref" />
+      <h2>1. Open Issues</h2>
+      <p>
+        Open the example, then choose <strong>Issues</strong> in the explorer or
+        <strong> View issues and coverage</strong> in Overview. The summary
+        shows
+        <strong> 1 error</strong> and <strong>1 warning</strong>.
+      </p>
+      <p>
+        The red <strong>Invalid cross-reference target</strong> error reports
+        that object <code>6 0</code> has an invalid offset of{" "}
+        <code>999999</code>. This byte offset is beyond the end of this small
+        PDF.
+      </p>
+      <figure className="example-preview">
+        <img
+          src="/examples/broken-xref.png"
+          width="619"
+          height="926"
+          loading="lazy"
+          alt="Issues panel showing one red invalid cross-reference error and one amber unresolved reference warning for the broken metadata object."
+        />
+        <figcaption>
+          Both findings come from the deliberately damaged metadata index entry.
+        </figcaption>
+      </figure>
+      <h2>2. Inspect the broken index entry</h2>
+      <p>
+        Under the error, choose <strong>Inspect file structure</strong>. Follow
+        <strong> startxref → …</strong> to highlight the original index bytes.
+        The table starts with <code>0 7</code>: seven entries, beginning with
+        object zero. The last row, for object six, is:
+      </p>
+      <pre>
+        <code>0000999999 00000 n</code>
+      </pre>
+      <p>
+        The first field should locate object six in the file; it has
+        deliberately been replaced with <code>999999</code>. The metadata stream
+        still exists in the original bytes, but the index does not point to it.
+        The inspector does not silently invent a replacement object or repair
+        the PDF.
+      </p>
+      <h2>3. Follow the related warning</h2>
+      <p>
+        Return to <strong>Issues</strong>. The amber{" "}
+        <strong>Unresolved object reference</strong> warning reports{" "}
+        <code>6 0 R</code>. Choose
+        <strong> Inspect 1 0 obj</strong> to see the referring catalogue's
+        <code> /Metadata 6 0 R</code> entry. The warning and error have the same
+        underlying cause: the metadata target could not be indexed.
+      </p>
+      <h2>A visible page does not prove the structure is sound</h2>
+      <p>
+        Choose <strong>Preview</strong> to try rendering the page. Its drawing
+        instructions and font are intact, so a reader can display the page while
+        handling the broken metadata reference differently. Readers may recover,
+        ignore the metadata or report a problem. This example demonstrates one
+        specific structural defect; Issues is not a complete PDF conformance
+        validator. PDF Internals keeps the original bytes unchanged.
+      </p>
+    </>
+  )
+}

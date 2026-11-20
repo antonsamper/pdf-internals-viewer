@@ -106,6 +106,19 @@ export function openingActionPdf() {
   return classicPdf(objects);
 }
 
+/** Damage only the metadata object's xref entry; the page objects remain intact. */
+export function brokenXrefPdf() {
+  const objects = invoice('BT /F1 14 Tf 72 660 Td (A readable page can still contain a structural error.) Tj ET\nBT /F1 12 Tf 72 628 Td (Open Issues to inspect the broken metadata cross-reference.) Tj ET');
+  objects[0][1] = '<< /Type /Catalog /Pages 2 0 R /Metadata 6 0 R >>';
+  objects.push([6, stream('<?xml version="1.0"?><x:xmpmeta xmlns:x="adobe:ns:meta/"/>', '/Type /Metadata /Subtype /XML')]);
+  const fixture = classicPdf(objects);
+  const bytes = Buffer.from(fixture.bytes);
+  const entry = bytes.indexOf(ascii(`${String(fixture.offsets.get(6)).padStart(10, '0')} 00000 n`), fixture.xref);
+  if (entry < 0) throw new Error('Metadata xref entry not found');
+  bytes.set(ascii('0000999999'), entry);
+  return { ...fixture, bytes: new Uint8Array(bytes) };
+}
+
 export const ADDITIONAL_EXAMPLES = [
   ['embedded-font', embeddedFontPdf],
   ['hidden-attachment', hiddenAttachmentPdf],
@@ -113,4 +126,5 @@ export const ADDITIONAL_EXAMPLES = [
   ['page-rotation', pageRotationPdf],
   ['inherited-resources', inheritedResourcesPdf],
   ['opening-action', openingActionPdf],
+  ['broken-xref', brokenXrefPdf],
 ];

@@ -16,8 +16,9 @@ export function Examples() {
     <>
       <p className="about-lead">
         Investigate file size, text mappings, fonts, attachments, and page
-        behaviour with eight worked examples. Each walkthrough includes an
-        original sample PDF you can open in the inspector or download.
+        behaviour with nine worked examples, including a deliberately damaged
+        PDF. Each walkthrough includes an original sample PDF you can open in
+        the inspector or download.
       </p>
       <h2>
         <a href="/examples/large-pdf">Why is this one-page PDF so large?</a>

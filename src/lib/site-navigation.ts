@@ -28,6 +28,7 @@ export const CONTENT_GROUPS: ReadonlyArray<{
     label: "Examples",
     items: [
       ["/examples", "All worked examples"],
+      ["/examples/broken-xref", "A PDF with an error"],
       ["/examples/large-pdf", "An unexpectedly large PDF"],
       ["/examples/incorrect-text", "Incorrect copied text"],
       ["/examples/embedded-font", "Embedded fonts"],
@@ -137,6 +138,11 @@ const RELATED: Partial<Record<SitePath, readonly SitePath[]>> = {
   "/examples/opening-action": [
     "/guides/investigate-suspicious-features",
     "/examples/hidden-attachment",
+    "/limitations",
+  ],
+  "/examples/broken-xref": [
+    "/guides/inspect-pdf-objects",
+    "/guides/search-bookmark-compare",
     "/limitations",
   ],
   "/privacy": ["/limitations", "/guides/search-bookmark-compare", "/guide"],
