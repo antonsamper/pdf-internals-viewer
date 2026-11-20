@@ -1,0 +1,31 @@
+# AGENTS.md
+
+PDF Internals Viewer is a static Vite/React app for inspecting the structure of PDF files in the browser.
+
+## Product rules
+
+- PDFs are read-only. Never modify or rewrite the input file.
+- Files are processed in the browser. No network request may contain document content.
+- Show original bytes only when an exact source range exists. Label decoded or reconstructed values as such.
+- Show parse failures and unsupported features. Partial results stay usable.
+
+## Workflow
+
+- Every change starts with a GitHub issue created from a template. Titles are plain imperative sentences ("Add page-text search"). Bug titles describe the symptom.
+- Each issue gets one type label (`feature`, `bug`, `chore`, `docs`, `ci`, `test`, `perf`, `epic`) and at least one area label (`inspector`, `site`, `search`, `infra`, `brand`).
+- Work that needs 3 or more PRs gets a parent issue labelled `epic`, with each ticket as a sub-issue. Close the epic when its goal is met. Later work in the same area gets a new epic or a standalone issue.
+- Branch: `PIV-<issue>`, for example `PIV-34`.
+- Commit subjects and PR titles: `[PIV-<issue>] type(scope): summary`, for example `[PIV-34] feat(search): add page-text search`. Types: `feat`, `fix`, `chore`, `docs`, `ci`, `test`, `perf`, `refactor`. The scope is an area label; leave it out when none fits. The summary is all lowercase, including names and acronyms (`pdf`, `eslint`), imperative, with no full stop. 72 characters at most.
+- Fill in the PR template. `Closes #<issue>` must match the number in the title. Description bullets are 72 characters at most. Add screenshots for UI changes.
+- Before opening a PR, run gstack `/review` and `/verify`. Don't use `/ship` or `/document-release`.
+- PRs are squash-merged into `main`.
+
+## Docs
+
+- Docs and code comments describe the current state. History belongs in git, issues and PRs.
+- Update the repo docs and the user-facing site content (guides, examples, limitations) in the same PR as the code change.
+- Follow `DESIGN.md` for UI work, and update it when the design changes.
+
+## Deployment
+
+Merging to `main` deploys to production through GitHub Actions. Never deploy manually.
