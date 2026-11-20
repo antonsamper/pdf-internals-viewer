@@ -123,6 +123,15 @@ for (const optional of ['@google-cloud/kms', '@google-cloud/secret-manager']) {
   if (browserSource.split(expression).length !== 2) throw new Error(`Unexpected optional cloud import shape: ${optional}`);
   browserSource = browserSource.replace(expression, `Promise.reject(new Error(${JSON.stringify('Cloud signing is excluded from this read-only browser inspection adapter.')}))`);
 }
+// R6 /Perms stores a 32-bit bit pattern. Producers may write /P unsigned;
+// compare both sides as signed int32 instead of rejecting valid passwords.
+const permsComparison = '(decrypted[0] | decrypted[1] << 8 | decrypted[2] << 16 | decrypted[3] << 24) !== expectedPermissions';
+if (browserSource.split(permsComparison).length !== 2) throw new Error('Unexpected R6 permissions comparison');
+browserSource = browserSource.replace(permsComparison, permsComparison.replace('!== expectedPermissions', '!== (expectedPermissions | 0)'));
+// Never silently fall back to ciphertext after a decryption error.
+const decryptFallback = 'console.warn(`Failed to decrypt object ${objNum} ${genNum}:`, error);\n\t\t\t\treturn obj;';
+if (browserSource.split(decryptFallback).length !== 2) throw new Error('Unexpected decryption fallback');
+browserSource = browserSource.replace(decryptFallback, 'throw new Error(`Failed to decrypt object ${objNum} ${genNum}: ${error instanceof Error ? error.message : "decryption failed"}`);');
 // Relocating the bundle must preserve every dependency's engine-local resolution.
 // The complete upstream source is hash-pinned above; only static bare imports move.
 const relocated = browserSource.replace(/^(import .+? from )"([^".][^"]*)";/gm, (_, prefix, specifier) => {
@@ -134,9 +143,9 @@ await writeFile(new URL('libpdf-inspection.mjs', out), relocated.replace(/\/\/# 
 await writeFile(new URL('libpdf-inspection.d.mts', out), `
 import type { PdfDict, PdfObject, PdfRef, PdfStream } from '@libpdf/core';
 export type XRefEntry = { type:'free'; generation:number; nextFree:number } | { type:'uncompressed'; generation:number; offset:number } | { type:'compressed'; streamObjNum:number; indexInStream:number };
-export interface ParsedDocument { version:string; trailer:PdfDict; xref:Map<number,XRefEntry>; warnings:string[]; recoveredViaBruteForce:boolean; isEncrypted:boolean; isAuthenticated:boolean; getObject(ref:PdfRef):PdfObject|null; getCatalog():PdfDict|null; getPageCount():number; getPages():PdfRef[] }
+export interface ParsedDocument { version:string; trailer:PdfDict; xref:Map<number,XRefEntry>; warnings:string[]; recoveredViaBruteForce:boolean; isEncrypted:boolean; isAuthenticated:boolean; securityHandler:object|null; getObject(ref:PdfRef):PdfObject|null; getCatalog():PdfDict|null; getPageCount():number; getPages():PdfRef[] }
 export class InspectionScanner { constructor(bytes:Uint8Array); position:number }
-export class InspectionDocumentParser { constructor(scanner:InspectionScanner, options?:{lenient?:boolean}); parse():ParsedDocument }
+export class InspectionDocumentParser { constructor(scanner:InspectionScanner, options?:{lenient?:boolean;credentials?:string}); parse():ParsedDocument }
 export class InspectionXRefParser { constructor(scanner:InspectionScanner); findStartXRef():number }
 export function inspectionResetDecodedCache():void;
 export function inspectionReadIndirect(bytes:Uint8Array, offset:number, lengthResolver?:(ref:PdfRef)=>number|null):{objNum:number;genNum:number;value:PdfObject;end?:number};
