@@ -1,10 +1,12 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react'
 import { ArrowDownToLine, Check, Copy, FileCode2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import type { ScrollPosition } from '@/lib/scroll-restoration'
 import './hex-view.css'
 
 interface HexViewProps {
   bytes: Uint8Array
+  scrollPositionRef: ScrollPosition
   range?: { start: number; end: number }
   onByteSelect?: (offset: number) => void
 }
@@ -17,7 +19,7 @@ function printable(byte: number) {
   return byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '.'
 }
 
-export function HexView({ bytes, range, onByteSelect }: HexViewProps) {
+export function HexView({ bytes, range, onByteSelect, scrollPositionRef }: HexViewProps) {
   const viewportRef = useRef<HTMLDivElement>(null)
   const [viewport, setViewport] = useState({ width: 600, height: 500, top: 0 })
   const [decimal, setDecimal] = useState(false)
@@ -59,18 +61,21 @@ export function HexView({ bytes, range, onByteSelect }: HexViewProps) {
     // above the viewport. Preserve the clicked byte's position and cursor.
     if (local?.bytes === bytes && rangeStart !== undefined && rangeEnd !== undefined && local.offset >= rangeStart && local.offset < rangeEnd) {
       localSelection.current = null
+      scrollPositionRef.current = { top: viewportElement.scrollTop, left: viewportElement.scrollLeft }
       setMessage('')
       setCopying(false)
       return
     }
-    viewportElement.scrollTop = Math.floor(start / columns) * ROW_HEIGHT
+    viewportElement.scrollTop = scrollPositionRef.current?.top ?? Math.floor(start / columns) * ROW_HEIGHT
+    viewportElement.scrollLeft = scrollPositionRef.current?.left ?? 0
+    setViewport(current => ({ ...current, top: viewportElement.scrollTop }))
     const frame = requestAnimationFrame(() => {
       setCursor(null)
       setMessage('')
       setCopying(false)
     })
     return () => cancelAnimationFrame(frame)
-  }, [rangeStart, rangeEnd, columns, bytes])
+  }, [rangeStart, rangeEnd, columns, bytes, scrollPositionRef])
 
   useEffect(() => () => {
     clearTimeout(copyTimer.current)
@@ -173,6 +178,7 @@ export function HexView({ bytes, range, onByteSelect }: HexViewProps) {
       </div>
       <div ref={viewportRef} className="hex-viewport" tabIndex={0} role="region" aria-label="Hexadecimal bytes. Use arrow keys to move; Enter to inspect the object containing the byte." onScroll={event => {
         const top = event.currentTarget.scrollTop
+        scrollPositionRef.current = { top, left: event.currentTarget.scrollLeft }
         setViewport(current => ({ ...current, top }))
       }} onKeyDown={moveCursor}>
         {bytes.length ? <div className="hex-spacer" style={{ height: totalRows * ROW_HEIGHT, '--hex-columns': columns } as CSSProperties}>

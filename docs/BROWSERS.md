@@ -42,7 +42,7 @@ This includes preview rendering without external requests, document writes/uploa
 
 ## Navigation context follow-up — 2026-11-12
 
-The production-preview suite now contains 12 scenarios per engine, including section and exact-byte-range history, unknown-byte messages, forward-branch replacement, and returning from a deeply scrolled object list to a smaller section. `CI=1 PLAYWRIGHT_PREVIEW=1 pnpm exec playwright test --browser=all` passed 36/36 checks across Chromium, Firefox and WebKit. This is local production-build evidence; the published deployment was not changed. Inspector and byte-pane scroll-position restoration remains deferred.
+The production-preview suite now contains 12 scenarios per engine, including section and exact-byte-range history, unknown-byte messages, forward-branch replacement, and returning from a deeply scrolled object list to a smaller section. `CI=1 PLAYWRIGHT_PREVIEW=1 pnpm exec playwright test --browser=all` passed 36/36 checks across Chromium, Firefox and WebKit. This is local production-build evidence; the published deployment was not changed. Inspector and byte-pane scroll-position restoration was deferred at this stage; see the 2026-11-15 follow-up below.
 
 ## Exploration features — 2026-11-12
 
@@ -59,3 +59,9 @@ The production-preview suite passes 72/72 checks (24 scenarios each in Chromium,
 The production build served by local Cloudflare Pages passed 102/102 browser checks: 34 scenarios each in Chromium, Firefox, and WebKit. Coverage now includes attachment and subset-font downloads, direct downloads through category filters, filename search and filter retention, full-size PNG dimensions/pixels, unchanged JPEG bytes, automatic previews, accurate export sizes, and explicit unsupported-image reasons. Desktop/mobile layouts were also inspected under `.context/`.
 
 Pre-landing review then found that inline file specifications could be missed when their embedded streams omitted `/Type /EmbeddedFile`. Bounded dictionary/array traversal now discovers those file specifications. Three parser-backed unit regressions cover name trees, associated files and attachment annotations; an additional browser scenario verifies filename, size and downloaded contents. After this correction, the rebuilt Pages assets passed all 18 focused resource/download checks across the three engines. The integrated suite now has 35 scenarios per engine. All 137 unit tests, typecheck, lint, production build, native/preview notices and static Pages asset validation pass. These are local checks; actual Safari and the published site were not changed or tested in this run.
+
+## Inspector and byte scroll restoration — 2026-11-15
+
+The new history-restoration regression passes against the production build in Chromium, Firefox and WebKit. It covers source/raw/decoded tab scroll positions, repeated visits and Forward-branch replacement, mobile pane unmounts, responsive transitions and document replacement. Another 15 checks across the same engines pass for byte clicks, keyboard navigation, bookmarks, comparisons and smaller object lists (18/18 combined). All 147 unit tests, lint and the production build/type and emitted-notice checks pass. These are local checks; actual Safari and publication remain separate.
+
+Pre-landing verification additionally covers the resource-browser inspector branch, including restoring a 70-font list expanded beyond the initial 50 resources. The rebuilt production assets pass 21/21 focused checks across the three engines; see `.context/ship-browsers.log`. Independent follow-up review found no remaining issues.
