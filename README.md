@@ -84,3 +84,7 @@ The bundled PDFs are generated from original fixture definitions in `scripts/fix
 ## UI tooling
 
 The generated shadcn/ui + Base UI components are checked in. Their supporting CSS is vendored from shadcn 4.23.0 with its MIT notice, so the component-generation CLI is not part of the installed build toolchain. See `public/licenses/shadcn.txt`.
+
+## Release work
+
+See [the security policy](SECURITY.md) for private vulnerability reports, the known dependency advisory, and credential handling.
