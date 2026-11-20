@@ -197,7 +197,7 @@ The app fills the viewport (`100dvh`). A 58px header and 29px bottom status bar 
 
 On desktop, three horizontally resizable panes divide the workspace: explorer (20%), inspector (43%), and original bytes (37%). The explorer ranges from 180px to 35% wide. The inspector is at least 300px wide; original bytes is at least 290px wide. Thin handles separate the panes, which scroll independently.
 
-At 900px and below, Explorer, Inspector, and Bytes buttons switch between panes. Search takes the toolbar's full width, header spacing tightens, and fewer secondary status details appear. At 480px and below, header decorations and the secondary status group disappear, and the inspector uses the mobile content padding. Hex columns tighten further at 400px.
+At 900px and below, Explorer, Inspector, and Bytes buttons switch between panes. Search takes the toolbar's full width, header spacing tightens, and fewer secondary status details appear. At 600px and below, the header stays on a single 58px row with icon-only actions and an ellipsis-truncated filename. Header buttons are 36px square; the search field is 36px tall, and results are capped at 160px high to preserve workspace space. At 480px and below, header decorations and the secondary status group disappear, and the inspector uses the mobile content padding. Hex columns tighten further at 400px.
 
 The empty workspace places the logo by itself on the left and stacks the introduction and sample list on the right within a 1040px measure on desktop. On narrow screens, the logo appears above the content within 440px. Its headline and top padding are responsive. Loaded inspector content uses the recorded inspector-content inset; pane headings and hex controls use the pane-heading inset. PDF dictionaries align keys and values in a two-column grid with a minimum key track (90px), proportion (32%), and gap (12px).
 
@@ -221,7 +221,7 @@ Primary hover uses solid darker red `#ad1039`. Outline and ghost hover use muted
 
 ### Inputs and fields
 
-The shared Base UI input provides a bordered, rounded field with placeholder-muted text, focus ring, and invalid/disabled states. The workspace search composes it into a bordered search group, locally removing the inner border, radius, and shadow. Search text is (11px); the adjacent scope select is (10px). The offset jump field uses a compact monospace input, the row radius, and an explicit focus outline.
+The shared Base UI input provides a bordered, rounded field with placeholder-muted text, focus ring, and invalid/disabled states. The workspace search composes it into a bordered search group, locally removing the inner border, radius, and shadow. Search text is (11px); the adjacent scope select is (10px). Results show the current match number and previous/next icon buttons, which wrap at either end. The active match uses the lilac accent surface and a violet border; the result navigation stays visible while scrolling. The offset jump field uses a compact monospace input, the row radius, and an explicit focus outline.
 
 ### Navigation
 

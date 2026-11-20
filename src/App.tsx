@@ -3,6 +3,7 @@ import {
   Suspense,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -17,6 +18,8 @@ import {
   Braces,
   Check,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   File as FileIcon,
   FileCode2,
   FilePlus2,
@@ -185,6 +188,16 @@ export default function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[] | null>(
     null
   )
+  const [activeSearchResult, setActiveSearchResult] = useState<number | null>(
+    null
+  )
+  const activeSearchMatch = useRef<HTMLButtonElement | null>(null)
+  useEffect(() => {
+    activeSearchMatch.current?.scrollIntoView({
+      block: "nearest",
+      inline: "nearest",
+    })
+  }, [activeSearchResult, searchResults])
   const [searching, setSearching] = useState(false)
   const [resultsScope, setResultsScope] = useState("objects")
   const [searchMessage, setSearchMessage] = useState("")
@@ -529,6 +542,29 @@ export default function App() {
     return client.current.readStream(id, "decoded", "image")
   }, [])
 
+  function selectSearchResult(
+    result: SearchResult,
+    index: number,
+    resultScope = resultsScope
+  ) {
+    setActiveSearchResult(index)
+    if (result.id)
+      navigate(result.id, resultScope === "decoded" ? "decoded" : "properties")
+    else if (result.range) selectRange(result.range)
+  }
+  const selectLatestSearchResult = useRef(selectSearchResult)
+  useLayoutEffect(() => {
+    selectLatestSearchResult.current = selectSearchResult
+  })
+  function moveSearchResult(direction: number) {
+    if (!searchResults?.length) return
+    const index =
+      ((activeSearchResult ?? (direction > 0 ? -1 : 0)) +
+        direction +
+        searchResults.length) %
+      searchResults.length
+    selectSearchResult(searchResults[index], index)
+  }
   async function search() {
     const token = ++searchId.current
     const term = query.trim()
@@ -537,6 +573,7 @@ export default function App() {
       return
     }
     setSearching(true)
+    setActiveSearchResult(null)
     setSearchResults([])
     setSearchMessage("")
     setResultsScope(scope)
@@ -634,6 +671,7 @@ export default function App() {
       }
       if (token === searchId.current) {
         setSearchResults(found)
+        if (found.length) selectLatestSearchResult.current(found[0], 0, scope)
         if (found.length === 500)
           setSearchMessage("Showing the first 500 matches. Narrow your search.")
         setSearching(false)
@@ -1262,23 +1300,39 @@ export default function App() {
               variant="ghost"
               size="sm"
               aria-haspopup="dialog"
+              aria-label="User guide"
+              title="User guide"
               onClick={(event) => {
                 guideOpener.current = event.currentTarget
                 setGuideOpen(true)
               }}
             >
-              <BookOpen size={15} /> User guide
+              <BookOpen size={15} aria-hidden="true" />{" "}
+              <span className="header-action-label">User guide</span>
             </Button>
             {filename && (
-              <Button variant="ghost" size="sm" onClick={close}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={close}
+                aria-label={busy ? "Cancel opening PDF" : "Close PDF"}
+                title={busy ? "Cancel opening PDF" : "Close PDF"}
+              >
                 <X size={15} aria-hidden="true" />
-                {busy ? "Cancel opening PDF" : "Close PDF"}
+                <span className="header-action-label">
+                  {busy ? "Cancel opening PDF" : "Close PDF"}
+                </span>
               </Button>
             )}
             {!filename && (
-              <Button onClick={() => input.current?.click()} size="sm">
-                <FolderOpen size={15} />
-                Open PDF
+              <Button
+                onClick={() => input.current?.click()}
+                size="sm"
+                aria-label="Open PDF"
+                title="Open PDF"
+              >
+                <FolderOpen size={15} aria-hidden="true" />
+                <span className="header-action-label">Open PDF</span>
               </Button>
             )}
           </div>
@@ -1428,12 +1482,43 @@ export default function App() {
             {searchResults !== null && (
               <section className="search-results" aria-label="Search results">
                 <div className="search-results-header">
-                  <span>
+                  <span role="status">
                     {searching
                       ? "Searching…"
                       : `${searchResults.length} match${searchResults.length === 1 ? "" : "es"}`}
                     {` · ${resultsScope === "text" ? "Latin-1 file bytes" : resultsScope === "decoded" ? "decoded streams" : resultsScope}`}
                   </span>
+                  <div
+                    className="search-result-navigation"
+                    aria-label="Search result navigation"
+                    role="group"
+                  >
+                    <span aria-live="polite" aria-atomic="true">
+                      {searchResults.length
+                        ? `${(activeSearchResult ?? 0) + 1} of ${searchResults.length}`
+                        : "0 of 0"}
+                    </span>
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label="Previous search result"
+                      title="Previous result"
+                      disabled={searching || !searchResults.length}
+                      onClick={() => moveSearchResult(-1)}
+                    >
+                      <ChevronUp size={14} />
+                    </Button>
+                    <Button
+                      size="icon-sm"
+                      variant="ghost"
+                      aria-label="Next search result"
+                      title="Next result"
+                      disabled={searching || !searchResults.length}
+                      onClick={() => moveSearchResult(1)}
+                    >
+                      <ChevronDown size={14} />
+                    </Button>
+                  </div>
                   {searching && (
                     <Button
                       size="xs"
@@ -1457,18 +1542,15 @@ export default function App() {
                   {searchResults.map((result, index) => (
                     <button
                       key={index}
-                      onClick={() => {
-                        if (result.id)
-                          navigate(
-                            result.id,
-                            resultsScope === "decoded"
-                              ? "decoded"
-                              : "properties"
-                          )
-                        else if (result.range) {
-                          selectRange(result.range)
-                        }
-                      }}
+                      ref={
+                        index === activeSearchResult
+                          ? activeSearchMatch
+                          : undefined
+                      }
+                      aria-current={
+                        index === activeSearchResult ? "true" : undefined
+                      }
+                      onClick={() => selectSearchResult(result, index)}
                     >
                       <code>{result.label}</code>
                       <span>{result.detail}</span>

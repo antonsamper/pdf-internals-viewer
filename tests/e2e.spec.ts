@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test'
 import { resolve } from 'node:path'
-import { mkdir } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 // @ts-expect-error local JavaScript fixture helpers have no declaration file
 import { classicPdf, encryptedPdf, embeddedFilesPdf, imageExportPdf } from '../scripts/fixtures/pdf-fixtures.mjs'
 
@@ -348,6 +348,99 @@ test('searches keys and original hex bytes with distinct navigation', async ({ p
   await expect(results).toContainText('1 match')
   await results.getByRole('button', { name: /0x0/ }).click()
   await expect(page.locator('.hex-status')).toContainText('4 bytes selected')
+})
+
+test('steps through search results, wraps, and resets for a new search', async ({ page }) => {
+  await openMinimal(page)
+  const search = page.getByRole('textbox', { name: 'Search document', exact: true })
+  const results = page.getByRole('region', { name: 'Search results', exact: true })
+  await search.fill('0')
+  await search.press('Enter')
+  const matches = results.locator('.search-matches button')
+  const count = await matches.count()
+  expect(count).toBeGreaterThan(1)
+  await expect(results.getByRole('group')).toContainText(`1 of ${count}`)
+  await expect(matches.first()).toHaveAttribute('aria-current', 'true')
+  await results.getByRole('button', { name: 'Next search result', exact: true }).click()
+  await expect(results.getByRole('group')).toContainText(`2 of ${count}`)
+  await expect(matches.nth(1)).toHaveAttribute('aria-current', 'true')
+  await expect(page.getByRole('heading', { name: /2 0\s+obj/ })).toBeVisible()
+  await matches.last().click()
+  await results.getByRole('button', { name: 'Next search result', exact: true }).click()
+  await expect(matches.first()).toHaveAttribute('aria-current', 'true')
+  await results.getByRole('button', { name: 'Previous search result', exact: true }).click()
+  await expect(matches.last()).toHaveAttribute('aria-current', 'true')
+  await search.fill('no-such-object')
+  await search.press('Enter')
+  await expect(results.getByRole('group')).toContainText('0 of 0')
+  await expect(results.getByRole('button', { name: 'Next search result', exact: true })).toBeDisabled()
+  await page.getByRole('combobox', { name: 'Search scope', exact: true }).selectOption('text')
+  await search.fill('obj')
+  await search.press('Enter')
+  await expect(results.getByRole('group')).toContainText('1 of 10')
+  await expect(page.locator('.hex-status')).toContainText('3 bytes selected')
+  await results.getByRole('button', { name: 'Next search result', exact: true }).click()
+  await expect(results.getByRole('group')).toContainText('2 of 10')
+  await expect(matches.nth(1)).toHaveAttribute('aria-current', 'true')
+})
+
+test('preserves intervening navigation when an asynchronous search finishes', async ({ page }) => {
+  await page.addInitScript(() => {
+    const postMessage = Worker.prototype.postMessage
+    const pending: { worker: Worker; message: unknown }[] = []
+    let released = false
+    Worker.prototype.postMessage = function (message) {
+      if (!released && message?.type === 'stream') pending.push({ worker: this, message })
+      else postMessage.call(this, message, [])
+    }
+    window.addEventListener('release-search', () => {
+      released = true
+      for (const { worker, message } of pending) postMessage.call(worker, message, [])
+    })
+  })
+  await page.reload()
+  await openMinimal(page)
+  await page.getByRole('combobox', { name: 'Search scope', exact: true }).selectOption('decoded')
+  await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('Hello')
+  await page.getByRole('button', { name: 'Run search', exact: true }).click()
+  await expect(page.getByRole('region', { name: 'Search results', exact: true })).toContainText('Searching…')
+  await page.getByRole('button', { name: 'First page', exact: true }).click()
+  await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
+  await page.evaluate(() => window.dispatchEvent(new Event('release-search')))
+  await expect(page.getByRole('heading', { name: /4 0\s+obj/ })).toBeVisible()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible()
+})
+
+test('keeps the mobile header compact with a long filename and search results', async ({ page }) => {
+  for (const width of [320, 390, 600]) {
+    await page.setViewportSize({ width, height: 844 })
+    await page.getByLabel('Open local PDF').setInputFiles({
+      name: 'a-very-long-document-filename-for-mobile-layout-testing.pdf',
+      mimeType: 'application/pdf',
+      buffer: await readFile(samplePath('minimal.pdf')),
+    })
+    await expect(page.locator('.status-bar')).toContainText('objects indexed')
+    const header = page.locator('.app-header')
+    const identity = await header.locator('.app-identity').boundingBox()
+    const actions = await header.locator('.header-actions').boundingBox()
+    expect(Math.abs(identity!.y - actions!.y)).toBeLessThan(10)
+    const filename = await header.locator('.filename').boundingBox()
+    expect(Math.abs(filename!.y + filename!.height / 2 - actions!.y - actions!.height / 2)).toBeLessThan(2)
+    expect(filename!.x).toBeGreaterThanOrEqual(identity!.x + identity!.width)
+    expect(filename!.x + filename!.width).toBeLessThanOrEqual(actions!.x)
+    expect((await header.boundingBox())!.height).toBe(58)
+    if (width <= 390) expect(await header.locator('.filename > span[title]').evaluate(element => element.scrollWidth > element.clientWidth)).toBe(true)
+    await expect(header.getByRole('button', { name: 'Close PDF', exact: true })).toBeVisible()
+    await expect(header.locator('.header-action-label').first()).toBeHidden()
+    await page.getByRole('textbox', { name: 'Search document', exact: true }).fill('0')
+    await page.getByRole('button', { name: 'Run search', exact: true }).click()
+    await expect(page.getByRole('button', { name: 'Next search result', exact: true })).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await expect(page.locator('.mobile-workspace')).toBeVisible()
+  }
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.screenshot({ path: screenshotPath('mobile-search.png'), animations: 'disabled' })
 })
 
 test('restores sections and exact byte selections through history', async ({ page }) => {
