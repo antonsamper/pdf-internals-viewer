@@ -147,7 +147,7 @@ The theme is implemented in `src/index.css`, `src/app.css`, `src/components/hex-
 
 ## Brand artwork
 
-Use the supplied full-colour PDF Internals illustration from `public/brand/pdf-internals-logo.png` on the welcome screen and About page. Keep its full aspect ratio and original colours, with responsive sizing on white. The compact workspace and public-page headers use the separate square detective mascot from `public/brand/pdf-internals-icon.png`, contained within the 32px brand mark. Use `public/favicon.png` for the browser favicon across all public pages.
+Use the supplied full-colour PDF Internals illustration on the welcome screen and About page: `public/brand/pdf-internals-logo.png` in light mode and the transparent `public/brand/pdf-internals-logo-dark.png` in dark mode. Keep each image's full aspect ratio and original colours, with responsive sizing. The compact workspace and public-page headers use the separate square detective mascot from `public/brand/pdf-internals-icon.png`, contained within the 32px brand mark. Use `public/favicon.png` for the browser favicon across all public pages.
 
 ## Colours
 
@@ -200,6 +200,8 @@ On desktop, three horizontally resizable panes divide the workspace: explorer (2
 At 900px and below, Explorer, Inspector, and Bytes buttons switch between panes. Search takes the toolbar's full width, header spacing tightens, and fewer secondary status details appear. At 600px and below, the header stays on a single 58px row with icon-only actions and an ellipsis-truncated filename. Header buttons are 36px square; the search field is 36px tall, and results are capped at 160px high to preserve workspace space. At 480px and below, header decorations and the secondary status group disappear, and the inspector uses the mobile content padding. Hex columns tighten further at 400px.
 
 The empty workspace places the logo by itself on the left and stacks the introduction and sample list on the right within a 1040px measure on desktop. On narrow screens, the logo appears above the content within 440px. Its headline and top padding are responsive. Loaded inspector content uses the recorded inspector-content inset; pane headings and hex controls use the pane-heading inset. PDF dictionaries align keys and values in a two-column grid with a minimum key track (90px), proportion (32%), and gap (12px).
+
+The welcome action pairs the file picker with its drop hint, followed by soft purple badges for local processing and read-only inspection. Dragging a file shows a translucent, blurred backdrop and a dashed target with the existing detective mascot, a short invitation, and the local-processing/file-size badge. The overlay does not intercept pointer events; dropping anywhere in the window opens the file.
 
 ## Elevation and depth
 
@@ -276,4 +278,4 @@ The application honours reduced-motion preferences by shortening transitions and
 
 The homepage remains the tool entry point. Its introductory heading uses 32–48px Geist, with 15px supporting copy. At widths above 760px, the logo occupies the left column while the introduction and sample rows stack on the right; below that, the logo appears above the content. A quiet footer provides About, Feedback, and GitHub links, and disappears while inspecting a document.
 
-About is a reading surface at `/about`, using the shared 720px article measure, a 30–40px heading, 18px introductory copy, 16px section headings, and 14px body copy. It shares the plum workspace header, white reading surfaces, and existing limitations dialogue. Navigating between public pages keeps the document state in memory; refreshing resets the open document and navigation; bookmarks and notes restore from browser storage when the same PDF is reopened.
+About is a reading surface at `/about`, using the shared 720px article measure, a 30–40px heading, 18px introductory copy, 16px section headings, and 14px body copy. It shares the plum workspace header, white reading surfaces, and the static limitations page. Navigating between public pages keeps the document state in memory; refreshing resets the open document and navigation; bookmarks and notes restore from browser storage when the same PDF is reopened.

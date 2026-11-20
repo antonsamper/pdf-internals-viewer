@@ -249,9 +249,17 @@ pre,
   margin: 0 0 28px;
   max-width: 42ch;
 }
-.empty-introduction > button:not(.empty-limitations-link) {
+.welcome-open-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  width: 100%;
+}
+.welcome-open-row > button {
   padding: 0 16px;
   height: 40px;
+  flex-shrink: 0;
 }
 .shortcut {
   margin-left: 20px;
@@ -259,20 +267,33 @@ pre,
   opacity: 0.9;
 }
 .drop-hint {
-  margin-top: 12px;
+  flex: 1 1 150px;
   color: var(--muted-foreground);
   font-size: 11px;
 }
-.welcome-privacy > svg {
-  color: var(--brand-purple);
-}
-.welcome-privacy {
+.welcome-trust {
   display: flex;
   align-items: center;
-  gap: 7px;
-  margin-top: 24px;
-  color: var(--muted-foreground);
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin-top: 20px;
   font-size: 12px;
+  line-height: 1.5;
+}
+.welcome-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand-purple-soft) 65%, var(--background));
+  color: var(--secondary-foreground);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.welcome-trust-local {
+  color: var(--brand-purple);
+  font-weight: 600;
 }
 .samples {
   min-width: 0;
@@ -281,6 +302,13 @@ pre,
   display: block;
   max-width: 100%;
   height: auto;
+}
+.brand-artwork-dark,
+.dark .brand-artwork-light {
+  display: none;
+}
+.dark .brand-artwork-dark {
+  display: block;
 }
 .welcome-artwork {
   width: 100%;
@@ -1129,25 +1157,76 @@ h2 {
 }
 .drop-overlay {
   position: fixed;
-  inset: 9px;
+  inset: 0;
   z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 32px;
+  background: color-mix(in srgb, var(--background) 78%, transparent);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+.drop-target {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 14px;
-  background: var(--background);
-  border: 2px dashed var(--ring);
-  border-radius: 8px;
-  pointer-events: none;
+  width: min(100%, 520px);
+  padding: 76px 24px 36px;
+  border: 2px dashed color-mix(in srgb, var(--brand-purple) 60%, transparent);
+  border-radius: 28px;
+  background: radial-gradient(ellipse at top, color-mix(in srgb, var(--brand-purple-soft) 80%, transparent), transparent 75%);
+  text-align: center;
 }
-.drop-overlay p {
-  font-size: 22px;
-  font-weight: 500;
+.drop-mascot {
+  position: absolute;
+  top: -62px;
+  width: 120px;
+  height: 120px;
+  transform: rotate(-8deg);
+  filter: drop-shadow(0 8px 16px color-mix(in srgb, var(--brand-purple) 20%, transparent));
 }
-.drop-overlay span {
-  font-size: 13px;
+.drop-mascot .brand-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.drop-eyebrow {
+  color: var(--brand-purple);
+  font: 500 10px "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.drop-target p {
+  margin: 14px 0 12px;
+  font-size: clamp(28px, 4vw, 38px);
+  font-weight: 550;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+.drop-instruction {
+  max-width: 28ch;
   color: var(--muted-foreground);
+  font-size: 14px;
+  line-height: 1.6;
+  text-wrap: balance;
+}
+.drop-overlay-privacy {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 28px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--background);
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.drop-overlay-privacy > svg {
+  color: var(--brand-purple);
+  flex-shrink: 0;
 }
 .mobile-pane-nav {
   display: flex;
@@ -1250,14 +1329,6 @@ h2 {
   }
 }
 
-.empty-limitations-link {
-  margin-top: 10px;
-  background: none;
-  color: var(--muted-foreground);
-  font-size: 11px;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
 .status-limitations-link {
   background: none;
   color: var(--muted-foreground);
@@ -1265,99 +1336,9 @@ h2 {
   white-space: nowrap;
   text-underline-offset: 3px;
 }
-.empty-limitations-link:hover,
 .status-limitations-link:hover {
   color: var(--foreground);
   text-decoration: underline;
-}
-.limitations-dialog {
-  display: flex;
-  flex-direction: column;
-  width: calc(100% - 32px);
-  max-width: 600px;
-  max-height: calc(100dvh - 32px);
-  gap: 0;
-  padding: 0;
-}
-.limitations-heading {
-  padding: 24px 40px 18px 22px;
-  flex-shrink: 0;
-}
-.limitations-heading [data-slot="dialog-title"] {
-  font-size: 18px;
-  line-height: 1.3;
-}
-.limitations-heading [data-slot="dialog-description"] {
-  font-size: 12px;
-  line-height: 1.7;
-}
-.limitations-body {
-  min-height: 0;
-  overflow-y: auto;
-  padding: 0 22px 20px;
-  font-size: 12px;
-  line-height: 1.75;
-}
-.limitations-body h2 {
-  margin: 22px 0 8px;
-  font-size: 12px;
-}
-.limitations-body section:first-child h2 {
-  margin-top: 0;
-}
-.limitations-body p,
-.limitations-body ul {
-  color: var(--muted-foreground);
-}
-.limitations-body p + p {
-  margin-top: 10px;
-}
-.limitations-body ul {
-  list-style: disc;
-  padding-left: 17px;
-}
-.limitations-body li + li {
-  margin-top: 8px;
-}
-.limitations-body strong {
-  color: var(--foreground);
-  font-weight: 500;
-}
-.limitations-limits {
-  margin: 0 0 10px;
-  font-size: 11px;
-}
-.limitations-limits > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border);
-}
-.limitations-limits dt {
-  color: var(--muted-foreground);
-}
-.limitations-limits dd {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-.limitations-privacy {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  border-top: 1px solid var(--border);
-  margin-top: 22px;
-  padding-top: 16px;
-  font-size: 11px;
-}
-.limitations-privacy svg {
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-.limitations-footer {
-  flex-shrink: 0;
-  margin: 0;
-  padding: 12px 22px;
 }
 @media (max-width: 480px) {
   .status-bar {

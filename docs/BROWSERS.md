@@ -14,6 +14,8 @@ In WebKit, closing a controlled dialogue did not return focus to the clicked ope
 
 Early development-server failures caused by simultaneous dependency changes and generated-module rewrites are excluded from these results. Production assets isolate browser tests from HMR. After the Firefox/WebKit runs, an additional embedded worker-source fallback was patched and verified with the bundled-validator behaviour tests; the final Chromium run used that complete build. The standard worker rendering path passed in all three engines.
 
+The limitations dialogue described in this historical run has since been replaced by the static `/limitations` page. Current browser coverage checks navigation to that page and retention of the open PDF when returning to the workspace.
+
 CI is configured to run all three engines against production builds. For local reproduction:
 
 ```sh
