@@ -59,6 +59,10 @@ pnpm exec playwright install chromium
 pnpm run test:e2e
 ```
 
+Browser tests run individual cases in parallel, with four workers locally and in CI.
+Use `pnpm run test:e2e --workers=1` for serial debugging or `--workers=N` to tune concurrency.
+Manual screenshots are saved under `.context/<browser>/` so concurrent engines do not overwrite each other.
+
 Tests cover the preview validation backport and scoped tooling compatibility. Parser tests cover classic, stream, and hybrid xrefs; compressed objects; incremental updates and free entries; exact object boundaries and deceptive binary markers; required filters; encryption; recovery; references; and bounded decompression. Browser tests cover the integrated exploration flow and local rendering. CI runs these against production builds in Chromium, Firefox, and WebKit. WebKit automation is not a full test of the Safari application. See [browser evidence and reproduction](docs/BROWSERS.md).
 
 `pnpm run build` produces the static site in `dist/`. `pnpm run preview` serves the built site locally. Cloudflare Pages is configured in `wrangler.jsonc`; the public app is available at the link above. Once the repository's Cloudflare Actions secrets are configured, pushes/merges to `main` deploy automatically after all CI checks pass. Other branches and pull requests only run checks. See [Cloudflare setup and release steps](docs/HOSTING.md).

@@ -7,8 +7,9 @@ const localBaseURL = cloudflarePreview ? 'http://127.0.0.1:8787' : 'http://127.0
 export default defineConfig({
   testDir: './tests',
   testMatch: 'e2e.spec.ts',
-  fullyParallel: false,
-  workers: 1,
+  // Tests use isolated browser contexts, so cases in the same file can run together.
+  fullyParallel: true,
+  workers: 4,
   timeout: 45_000,
   expect: { timeout: 12_000 },
   reporter: 'list',
