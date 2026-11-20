@@ -398,11 +398,31 @@ pre,
   background: var(--sidebar);
 }
 .search-results-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--sidebar);
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 11px;
   color: var(--muted-foreground);
+}
+.search-result-navigation {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.search-result-navigation > span {
+  margin-right: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.search-matches button[aria-current="true"] {
+  background: var(--accent);
+  border-color: var(--reference);
+  color: var(--reference);
 }
 .search-results > p {
   margin: 8px 0;
@@ -415,6 +435,7 @@ pre,
   margin-top: 9px;
 }
 .search-matches button {
+  scroll-margin-block: 36px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1686,15 +1707,76 @@ h2 {
 }
 @media (max-width: 600px) {
   .app-header {
-    height: auto;
-    flex-wrap: wrap;
-    padding-block: 10px;
-    row-gap: 8px;
+    height: 58px;
+    min-height: 58px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding-block: 8px;
+    gap: 8px;
+  }
+  .header-divider {
+    display: none;
   }
   .header-actions {
-    width: 100%;
-    justify-content: flex-end;
+    grid-column: 3;
+    grid-row: 1;
   }
+  .header-actions button {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+  }
+  .header-action-label {
+    display: none;
+  }
+  .filename {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 11px;
+  }
+  .filename:has(.muted) {
+    display: none;
+  }
+  .filename > span[title] {
+    max-width: none;
+  }
+  .filename > svg,
+  .file-size {
+    display: none;
+  }
+  .search-results {
+    max-height: 160px;
+    padding: 6px 10px;
+    flex-shrink: 0;
+  }
+  .search-results-header {
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+  .search-matches button {
+    max-width: 100%;
+    min-width: 0;
+  }
+  .search-matches button > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .search-form {
+    height: 36px;
+  }
+  .search-form > svg,
+  .search-form > button {
+    flex-shrink: 0;
+  }
+  .search-form select {
+    max-width: 112px;
+  }
+  .search-form > button {
+    width: 32px;
+    height: 32px;
+  }
+
   .guide-map {
     grid-template-columns: 1fr;
     gap: 12px;
