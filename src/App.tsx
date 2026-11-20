@@ -69,6 +69,9 @@ import type {
   PdfObjectRecord,
   PdfValue,
 } from "@/lib/pdf/types"
+import { AboutPage } from "@/components/about-page"
+import { SiteLinks } from "@/components/site-links"
+import { useSiteRoute } from "@/lib/site-route"
 import "./app.css"
 
 const PdfPreview = lazy(() =>
@@ -135,6 +138,7 @@ function useNarrow() {
 }
 
 export default function App() {
+  const { about, goHome, followLink } = useSiteRoute()
   const [limitationsOpen, setLimitationsOpen] = useState(false)
   const limitationsOpener = useRef<HTMLElement | null>(null)
   const input = useRef<HTMLInputElement>(null)
@@ -343,6 +347,7 @@ export default function App() {
   }, [])
 
   async function open(file: File) {
+    goHome()
     close()
     const token = requestId.current
     if (file.size > 64 * 1024 * 1024) {
@@ -1111,9 +1116,9 @@ export default function App() {
         <header className="app-header">
           <a
             className="app-identity"
-            href="#"
+            href={import.meta.env.BASE_URL}
             onClick={(event) => {
-              event.preventDefault()
+              if (!followLink(event)) return
               if (document) {
                 navigate(null, "properties", "overview")
               }
@@ -1167,7 +1172,15 @@ export default function App() {
             </Button>
           </div>
         )}
-        {bytes.length || busy ? (
+        {about ? (
+          <AboutPage
+            onFollowLink={followLink}
+            onLimitations={(event) => {
+              limitationsOpener.current = event.currentTarget
+              setLimitationsOpen(true)
+            }}
+          />
+        ) : bytes.length || busy ? (
           <>
             <div className="workspace-toolbar">
               <div className="history-controls">
@@ -1405,56 +1418,69 @@ export default function App() {
             )}
           </>
         ) : (
-          <main className="empty-workspace">
-            <div className="empty-introduction">
-              <span className="empty-file">
-                <FileCode2 size={30} strokeWidth={1.25} />
-              </span>
-              <h1>Look inside a PDF.</h1>
-              <p>
-                Explore objects, follow references, and connect
-                <br className="desktop-break" /> the structure to the original
-                bytes.
-              </p>
-              <Button size="lg" onClick={() => input.current?.click()}>
-                <FilePlus2 size={16} />
-                Open a PDF<span className="shortcut">⌘ O</span>
-              </Button>
-              <span className="drop-hint">
-                or drop a file anywhere · up to 64 MiB
-              </span>
-              <button
-                className="empty-limitations-link"
-                aria-haspopup="dialog"
-                aria-controls="limitations-dialog"
-                onClick={(event) => {
-                  limitationsOpener.current = event.currentTarget
-                  setLimitationsOpen(true)
-                }}
-              >
-                Early version · View limitations
-              </button>
-            </div>
-            <section className="samples">
-              <h2>Or explore a sample</h2>
-              {SAMPLES.map(({ file, name, detail, icon: Icon }) => (
+          <main className="empty-workspace" tabIndex={-1}>
+            <div className="welcome-layout">
+              <div className="empty-introduction">
+                <h1>Look inside a PDF.</h1>
+                <p>
+                  A browser workspace for developers to explore PDF objects,
+                  follow references, and inspect the original bytes.
+                </p>
+                <Button size="lg" onClick={() => input.current?.click()}>
+                  <FilePlus2 size={16} />
+                  Open a PDF<span className="shortcut">⌘ O</span>
+                </Button>
+                <span className="drop-hint">
+                  or drop a file anywhere · up to 64 MiB
+                </span>
+                <span className="welcome-privacy">
+                  <ShieldCheck size={14} aria-hidden="true" /> Processed
+                  locally. No uploads.
+                </span>
                 <button
-                  className="sample-row"
-                  key={file}
-                  onClick={() => void sample(file)}
+                  className="empty-limitations-link"
+                  aria-haspopup="dialog"
+                  aria-controls="limitations-dialog"
+                  onClick={(event) => {
+                    limitationsOpener.current = event.currentTarget
+                    setLimitationsOpen(true)
+                  }}
                 >
-                  <span className="sample-icon">
-                    <Icon size={19} strokeWidth={1.5} />
-                  </span>
-                  <span>
-                    <strong>{name}</strong>
-                    <span>{detail}</span>
-                  </span>
-                  <ArrowUpRight size={15} />
+                  Early version · View limitations
                 </button>
-              ))}
-            </section>
+              </div>
+              <section className="samples">
+                <h2>Start with a sample</h2>
+                <p className="samples-description">
+                  No file handy? Explore a PDF made for learning.
+                </p>
+                {SAMPLES.map(({ file, name, detail, icon: Icon }) => (
+                  <button
+                    className="sample-row"
+                    key={file}
+                    onClick={() => void sample(file)}
+                  >
+                    <span className="sample-icon">
+                      <Icon size={19} strokeWidth={1.5} />
+                    </span>
+                    <span>
+                      <strong>{name}</strong>
+                      <span>{detail}</span>
+                    </span>
+                    <ArrowUpRight size={15} />
+                  </button>
+                ))}
+              </section>
+            </div>
+            <p className="welcome-note">
+              From a page to its content stream to the bytes behind it.
+              <br />
+              Read-only exploration, with the source always in view.
+            </p>
           </main>
+        )}
+        {(about || (!bytes.length && !busy)) && (
+          <SiteLinks onFollowLink={followLink} />
         )}
         <footer className="status-bar">
           <span>
