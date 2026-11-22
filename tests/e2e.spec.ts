@@ -598,8 +598,11 @@ for (const width of [1440, 390]) {
     await expect(scope).toHaveJSProperty('tagName', 'BUTTON');
     await scope.press('ArrowDown');
     await expect(page.getByRole('listbox')).toBeVisible();
-    // Wait for the list to highlight an option, otherwise a slow runner can drop the End key.
-    await expect(page.getByRole('option', { exact: true, name: 'Objects' })).toHaveAttribute('data-highlighted', '');
+    const first = page.getByRole('option', { exact: true, name: 'Objects' });
+    await expect(first).toHaveAttribute('data-highlighted', '');
+    // Base UI highlights the first option a few milliseconds before it moves focus there.
+    // Wait for focus, otherwise a slow runner sends End to the trigger, which ignores it.
+    await expect(first).toBeFocused();
     await page.keyboard.press('End');
     await expect(page.getByRole('option', { exact: true, name: 'Decoded streams' })).toHaveAttribute('data-highlighted', '');
     await page.keyboard.press('Enter');
