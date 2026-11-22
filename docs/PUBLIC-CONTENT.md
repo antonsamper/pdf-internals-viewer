@@ -4,15 +4,15 @@ Besides the inspector, the site has an About page, overview pages, task guides, 
 
 ## Where the content lives
 
-| File | Contents |
-| --- | --- |
-| `src/lib/site-content.ts` | `SITE_PAGES` (every route with its title and description), page metadata and structured data, and the sample allowlists `SAMPLES` and `EXAMPLE_SAMPLES` |
-| `src/lib/site-navigation.ts` | `CONTENT_GROUPS` (navigation groups and labels) and the three related pages for each route |
-| `src/content/public-page.tsx` | The article shell, `/guide`, the objects, streams and fonts guides, `/privacy` and `/limitations` |
-| `src/content/task-guides.tsx` | The attachments, search and suspicious-features guides |
-| `src/content/overview-pages.tsx` | `/who-its-for` and `/pdf-inspector-vs-viewer` |
-| `src/content/examples.tsx`, `more-examples.tsx` | `/examples` and the ten examples |
-| `src/components/about-page.tsx` | The About page |
+| File                                            | Contents                                                                                                                                                |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/lib/site-content.ts`                       | `SITE_PAGES` (every route with its title and description), page metadata and structured data, and the sample allowlists `SAMPLES` and `EXAMPLE_SAMPLES` |
+| `src/lib/site-navigation.ts`                    | `CONTENT_GROUPS` (navigation groups and labels) and the three related pages for each route                                                              |
+| `src/content/public-page.tsx`                   | The article shell, `/guide`, the objects, streams and fonts guides, `/privacy` and `/limitations`                                                       |
+| `src/content/task-guides.tsx`                   | The attachments, search and suspicious-features guides                                                                                                  |
+| `src/content/overview-pages.tsx`                | `/who-its-for` and `/pdf-inspector-vs-viewer`                                                                                                           |
+| `src/content/examples.tsx`, `more-examples.tsx` | `/examples` and the ten examples                                                                                                                        |
+| `src/components/about-page.tsx`                 | The About page                                                                                                                                          |
 
 ## Adding a page
 
@@ -39,4 +39,4 @@ pdftoppm -scale-to 900 -singlefile -png public/samples/<name>.pdf public/example
 
 ## Search engines
 
-`robots.txt` allows all crawling, and the site has no analytics or third-party scripts. `public/google12102f9747494f61.html` and `public/BingSiteAuth.xml` verify the site with Google Search Console and Bing Webmaster Tools; keep them in `public/`.
+`robots.txt` allows all crawling. The only third-party script is Cloudflare Web Analytics, which Cloudflare adds when it serves the pages; see [hosting](HOSTING.md#analytics). `public/google12102f9747494f61.html` and `public/BingSiteAuth.xml` verify the site with Google Search Console and Bing Webmaster Tools; keep them in `public/`.

@@ -481,11 +481,22 @@ const Privacy = function Privacy() {
       <p>
         Your browser requests the application, fonts, worker assets, and any bundled sample you choose from the site host. The site host may
         process ordinary request information. Loading the website requires these network requests; processing your PDF happens on your
-        device.
+        device. Your browser also loads an analytics script from Cloudflare, described below.
       </p>
       <p>
-        The application has no analytics integration. Please remove sensitive information before sharing examples in{' '}
-        <a href={`${PROJECT_URL}/issues`}>GitHub feedback</a>.
+        Please remove sensitive information before sharing examples in <a href={`${PROJECT_URL}/issues`}>GitHub feedback</a>.
+      </p>
+      <h2>Analytics</h2>
+      <p>
+        The site uses Cloudflare Web Analytics to count page views and measure how quickly pages load. Its script sends Cloudflare the page
+        address, the page you came from, and performance data from your browser, including which page elements were slow to appear.
+        Cloudflare also receives your browser, operating system, device type and country with the request. It says it discards your IP
+        address and does not track visitors across sites. The script sets no cookies and stores nothing in your browser.{' '}
+        <a href="https://developers.cloudflare.com/speed/observatory/rum-beacon/">Cloudflare lists the data the script collects</a>.
+      </p>
+      <p>
+        Your PDF never reaches the analytics. The address bar only shows public page addresses and the names of bundled samples, never a
+        local file, its name or anything inside it.
       </p>
       <p className="article-source">
         Implementation: <a href={`${PROJECT_URL}/blob/main/src/lib/pdf/bookmark-storage.ts`}>bookmark storage</a> and{' '}
