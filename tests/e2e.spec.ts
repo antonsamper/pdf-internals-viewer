@@ -1285,6 +1285,14 @@ test('navigates About with browser history and retains the local document', asyn
   await expect(page.getByRole('main')).toBeFocused();
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Your files stay with you' })).toBeVisible();
+  const contact = page.locator('section').filter({ has: page.getByRole('heading', { name: 'Feedback and contact' }) });
+  for (const [name, href] of [
+    ['GitHub issues', 'https://github.com/antonsamper/pdf-internals-viewer/issues'],
+    ['GitHub Discussions', 'https://github.com/antonsamper/pdf-internals-viewer/discussions'],
+    ['security policy', 'https://github.com/antonsamper/pdf-internals-viewer/security/policy'],
+  ]) {
+    await expect(contact.getByRole('link', { exact: true, name })).toHaveAttribute('href', href!);
+  }
   await page.getByRole('link', { exact: true, name: 'Read the limitations' }).click();
   await expect(page).toHaveURL(/\/limitations$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);

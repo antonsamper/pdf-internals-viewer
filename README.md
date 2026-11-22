@@ -4,6 +4,8 @@ Explore PDF objects, references and streams alongside their original bytes, with
 
 **[Open the app](https://pdf-internals-viewer.pages.dev)** · [User guide](https://pdf-internals-viewer.pages.dev/guide) · [Examples](https://pdf-internals-viewer.pages.dev/examples) · [Limitations](https://pdf-internals-viewer.pages.dev/limitations)
 
+Questions and ideas: [Discussions](https://github.com/antonsamper/pdf-internals-viewer/discussions). Bugs: [issues](https://github.com/antonsamper/pdf-internals-viewer/issues).
+
 ## Product principles
 
 - Preserve source truth. Original bytes appear only where an exact source range exists, and decoded or reconstructed values are labelled as such.

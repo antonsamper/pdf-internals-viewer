@@ -78,14 +78,23 @@ export const AboutPage = function AboutPage({ onFollowLink }: { onFollowLink: (e
             </p>
           </section>
           <section className="about-feedback">
-            <h2>Help make it better</h2>
+            <h2>Feedback and contact</h2>
             <p>
-              Found a bug, have a question, or wish the viewer explained something better?{' '}
+              Found a bug or wish the viewer explained something better? Report it in{' '}
               <a href={`${PROJECT_URL}/issues`} target="_blank" rel="noreferrer">
-                Leave feedback on GitHub
+                GitHub issues
               </a>
-              . Please remove sensitive information from any examples you share.
+              . Ask a question or share an idea in{' '}
+              <a href={`${PROJECT_URL}/discussions`} target="_blank" rel="noreferrer">
+                GitHub Discussions
+              </a>
+              . Report security problems privately, as described in the{' '}
+              <a href={`${PROJECT_URL}/security/policy`} target="_blank" rel="noreferrer">
+                security policy
+              </a>
+              .
             </p>
+            <p>Issues and discussions are public, so remove sensitive information from any examples you share.</p>
           </section>
           <RelatedContent path="/about" onFollowLink={onFollowLink} />
         </article>
