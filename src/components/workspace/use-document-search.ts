@@ -54,14 +54,32 @@ export const useDocumentSearch = (deps: SearchDeps) => {
   const [message, setMessage] = useState('');
   useEffect(() => {
     if (!open) return;
-    const frame = requestAnimationFrame(() =>
-      activeMatchRef.current?.closest('.search-result-item')?.scrollIntoView({
-        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+    let settle: ReturnType<typeof setTimeout> | undefined;
+    const frame = requestAnimationFrame(() => {
+      const item = activeMatchRef.current?.closest<HTMLElement>('.search-result-item');
+      if (!item) return;
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      item.scrollIntoView({
+        behavior: reduced ? 'instant' : 'smooth',
         block: 'nearest',
         inline: 'nearest',
-      })
-    );
-    return () => cancelAnimationFrame(frame);
+      });
+      if (reduced) return;
+      // WebKit sometimes drops a smooth scroll without moving the list at all, so finish the job instantly.
+      const body = item.closest('.search-results-body');
+      const start = body?.scrollTop;
+      settle = setTimeout(() => {
+        if (!body || body.scrollTop !== start) return;
+        const card = item.getBoundingClientRect();
+        const frameBox = body.getBoundingClientRect();
+        if (card.top < frameBox.top || card.bottom > frameBox.bottom)
+          item.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'nearest' });
+      }, 600);
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(settle);
+    };
     // oxlint-disable-next-line react/exhaustive-effect-dependencies -- scroll the active result into view when results or the active index change.
   }, [activeResult, results, open]);
   useEffect(() => {
