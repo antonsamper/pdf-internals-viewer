@@ -12,6 +12,10 @@ The job needs two repository Actions secrets: `CLOUDFLARE_API_TOKEN`, an API tok
 
 Rerunning an old `main` workflow run publishes that old commit again, so retry from the latest run.
 
+## Analytics
+
+Cloudflare Web Analytics is turned on in the Pages project's settings in the Cloudflare dashboard. Cloudflare adds its beacon script to each HTML page as it serves it, so the script is not in the repository or in `dist/`, and local builds and the browser tests run without it. The privacy page describes what the beacon collects; update it if this setting changes.
+
 ## Checking locally
 
 After `pnpm run build`:
