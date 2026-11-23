@@ -6,6 +6,11 @@ Explore PDF objects, references and streams alongside their original bytes, with
 
 Questions and ideas: [Discussions](https://github.com/antonsamper/pdf-internals-viewer/discussions). Bugs: [issues](https://github.com/antonsamper/pdf-internals-viewer/issues).
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/inspector-dark.png">
+  <img src="docs/images/inspector-light.png" width="1440" alt="The inspector showing a font's ToUnicode stream, reached from page 1 through its content stream and font. The highlighted entry, &lt;31&gt; &lt;0039&gt;, maps the digit 1 to the digit 9, so an invoice that shows £1,250.00 extracts as £9,250.00.">
+</picture>
+
 ## Product principles
 
 - Preserve source truth. Original bytes appear only where an exact source range exists, and decoded or reconstructed values are labelled as such.
