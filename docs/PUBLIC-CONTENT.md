@@ -37,6 +37,15 @@ Each example has a preview image in `public/examples/`, rendered with Poppler (e
 pdftoppm -scale-to 900 -singlefile -png public/samples/<name>.pdf public/examples/<name>
 ```
 
+## README screenshots
+
+`docs/images/inspector-light.png` and `inspector-dark.png` show the [incorrect Unicode example](https://pdf-internals-viewer.pages.dev/examples/incorrect-text) in the inspector. After a visible change to the workspace, start the development server and regenerate both:
+
+```sh
+pnpm run dev --host 127.0.0.1 --port 5173 --strictPort
+node scripts/readme-screenshots.mjs
+```
+
 ## Search engines
 
 `robots.txt` allows all crawling. The only third-party script is Cloudflare Web Analytics, which Cloudflare adds when it serves the pages; see [hosting](HOSTING.md#analytics). `public/google12102f9747494f61.html` and `public/BingSiteAuth.xml` verify the site with Google Search Console and Bing Webmaster Tools; keep them in `public/`.

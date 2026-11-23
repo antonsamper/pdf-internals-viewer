@@ -4,6 +4,11 @@ Explore PDF objects, references and streams alongside their original bytes, with
 
 **[Open the app](https://pdf-internals-viewer.pages.dev)** · [User guide](https://pdf-internals-viewer.pages.dev/guide) · [Examples](https://pdf-internals-viewer.pages.dev/examples) · [Limitations](https://pdf-internals-viewer.pages.dev/limitations)
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/inspector-dark.png">
+  <img src="docs/images/inspector-light.png" width="1440" alt="The inspector showing a font's ToUnicode stream, reached from page 1 through its content stream and font. The highlighted entry, &lt;31&gt; &lt;0039&gt;, maps the digit 1 to the digit 9, so an invoice that shows £1,250.00 extracts as £9,250.00.">
+</picture>
+
 Questions and ideas: [Discussions](https://github.com/antonsamper/pdf-internals-viewer/discussions). Bugs: [issues](https://github.com/antonsamper/pdf-internals-viewer/issues).
 
 ## Product principles
