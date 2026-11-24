@@ -12,6 +12,7 @@ PDF Internals Viewer is a static Vite/React app for inspecting the structure of 
 ## Workflow
 
 - Every change starts with a GitHub issue created from a template. Titles are plain imperative sentences ("Add page-text search"). Bug titles describe the symptom.
+- Keep issue bodies short: context, a one-line description and acceptance criteria. Don't list files, renames or implementation steps. The PR diff shows those.
 - Each issue gets one type label (`feature`, `bug`, `chore`, `docs`, `ci`, `test`, `perf`, `epic`) and at least one area label (`inspector`, `site`, `search`, `infra`, `brand`).
 - Work that needs 3 or more PRs gets a parent issue labelled `epic`, with each ticket as a sub-issue. Close the epic when its goal is met. Later work in the same area gets a new epic or a standalone issue.
 - Branch: `PIV-<issue>`, for example `PIV-34`.
