@@ -214,7 +214,8 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
             />
             {highlights.length > 0 && rendered?.transform && (
               <svg
-                className="pdf-preview-search-highlights pointer-events-none absolute inset-0 h-full w-full"
+                className="pointer-events-none absolute inset-0 h-full w-full"
+                data-pdf-search-highlights
                 viewBox={`0 0 ${rendered.transform.width} ${rendered.transform.height}`}
                 aria-hidden="true"
               >

@@ -6,6 +6,18 @@ import type { ByteRange, PdfDocumentInfo, PdfObjectRecord } from '@/lib/pdf/type
 import type { ScrollPosition } from '@/lib/scroll-restoration';
 
 import { InspectionUnavailable } from '@/components/inspection-unavailable';
+import {
+  ACTION_BUTTON,
+  ACTION_ROW,
+  BODY_MUTED,
+  INSPECTOR_SCROLL,
+  OVERVIEW_ICON,
+  OVERVIEW_SUBTITLE,
+  OVERVIEW_TITLE,
+  REPRESENTATION_NOTE,
+  SECTION_HEADING,
+  WARNING_INLINE,
+} from '@/components/inspector-styles';
 import { IssueSummary } from '@/components/issues-panel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,16 +54,16 @@ export interface OverviewPaneProps {
 type DocumentProps = OverviewPaneProps & { document: PdfDocumentInfo };
 
 const Fact = ({ children, label }: { children: ReactNode; label: string }) => (
-  <div>
-    <dt>{label}</dt>
-    <dd>{children}</dd>
+  <div className="flex justify-between gap-3 border-b py-[11px] text-[11px]">
+    <dt className="text-muted-foreground">{label}</dt>
+    <dd className="tabular-nums">{children}</dd>
   </div>
 );
 
 const DocumentFacts = ({ byteCount, document, objectMap, objects }: DocumentProps) => {
   const pageRotation = useMemo(() => (document.locked ? 'Locked' : pageRotationSummary(document.pages, objectMap)), [document, objectMap]);
   return (
-    <dl className="document-facts">
+    <dl data-document-facts>
       <Fact label="PDF version">
         {document.version}
         {document.catalogVersion ? ` (catalogue ${document.catalogVersion})` : ''}
@@ -104,7 +116,7 @@ const EncryptionNotice = (props: DocumentProps) => {
   const { document, unlockError } = props;
   if (document.locked)
     return (
-      <div className="warning-inline">
+      <div className={WARNING_INLINE}>
         <LockKeyhole size={16} />
         <div className="min-w-0 flex-1 space-y-3">
           <p>
@@ -132,7 +144,7 @@ const EncryptionNotice = (props: DocumentProps) => {
 
 const StructureSection = ({ byteCount, document, onFollowReference, onSelectRange }: DocumentProps) => (
   <>
-    <h2>Cross-reference entry point</h2>
+    <h2 className={SECTION_HEADING}>Cross-reference entry point</h2>
     {document.startXref !== undefined ? (
       <Button
         variant="outline"
@@ -148,24 +160,30 @@ const StructureSection = ({ byteCount, document, onFollowReference, onSelectRang
         <ArrowUpRight size={14} />
       </Button>
     ) : (
-      <p className="muted">No reliable startxref location available.</p>
+      <p className={BODY_MUTED}>No reliable startxref location available.</p>
     )}
-    <h2>Trailer dictionary</h2>
+    <h2 className={SECTION_HEADING}>Trailer dictionary</h2>
     <ValueView value={document.trailer} onNavigate={onFollowReference} />
   </>
 );
 
 const ExploreSection = ({ document, objects, resourceObjects, onNavigate, onPreview }: DocumentProps) => (
   <>
-    <h2>Start exploring</h2>
-    <div className="overview-actions">
-      <Button variant="outline" disabled={!document.catalogId} onClick={() => document.catalogId && onNavigate(document.catalogId)}>
+    <h2 className={SECTION_HEADING}>Start exploring</h2>
+    <div className={ACTION_ROW}>
+      <Button
+        variant="outline"
+        className={ACTION_BUTTON}
+        disabled={!document.catalogId}
+        onClick={() => document.catalogId && onNavigate(document.catalogId)}
+      >
         <FolderOpen size={15} />
         Document catalogue
         <ArrowUpRight size={13} />
       </Button>
       <Button
         variant="outline"
+        className={ACTION_BUTTON}
         disabled={!document.pages.length}
         onClick={() => {
           onNavigate(document.pages[0], 'properties', 'pages');
@@ -175,30 +193,34 @@ const ExploreSection = ({ document, objects, resourceObjects, onNavigate, onPrev
         First page
         <ArrowUpRight size={13} />
       </Button>
-      <Button variant="outline" disabled={document.locked} onClick={onPreview}>
+      <Button variant="outline" className={ACTION_BUTTON} disabled={document.locked} onClick={onPreview}>
         <Image size={15} />
         Page preview
       </Button>
     </div>
-    <p className="overview-tip">
+    <p className="mt-4 text-[11px] leading-[1.8] text-muted-foreground">
       Follow a reference such as <code>4 0 R</code> to inspect another object. Its source bytes highlight in the hex view.
     </p>
-    <h2>Resources</h2>
-    <p className="muted">
+    <h2 className={SECTION_HEADING}>Resources</h2>
+    <p className={BODY_MUTED}>
       {resourceObjects.filter((object) => object.kind === 'Font').length} font objects ·{' '}
       {resourceObjects.filter((object) => hasSubtype(object, 'Image')).length} image objects ·{' '}
       {objects.filter((object) => object.stream).length} streams
     </p>
-    <p className="representation-note">
+    <p className={REPRESENTATION_NOTE}>
       Counts describe the indexed object set, including unreferenced objects. They are not a content inventory.
     </p>
   </>
 );
 
 const IssuesOverview = ({ document, issues, onChooseSection }: DocumentProps) => (
-  <section className="issues-overview">
-    <h2>Issues</h2>
-    {document.locked ? <p>Structure checks unavailable while locked.</p> : <IssueSummary issues={issues} />}
+  <section className="mt-5 border-t py-3.5 text-[12px] leading-[1.7]">
+    <h2 className={SECTION_HEADING}>Issues</h2>
+    {document.locked ? (
+      <p className="my-2 text-muted-foreground">Structure checks unavailable while locked.</p>
+    ) : (
+      <IssueSummary issues={issues} className="my-2 text-muted-foreground" />
+    )}
     <Button variant="outline" size="sm" onClick={() => onChooseSection('issues')}>
       View issues and coverage
     </Button>
@@ -209,11 +231,11 @@ export const OverviewPane = (props: OverviewPaneProps) => {
   const { document, filename, inspectionError, scrollPositionRef, section, onOpenFile, onShowBytes } = props;
   const scroll = useScrollRestoration(scrollPositionRef);
   return (
-    <div className="overview inspector-scroll" {...scroll}>
-      <div className="overview-heading">
-        <FileCode2 size={25} />
-        <h1>{section === 'structure' ? 'File structure' : 'Document overview'}</h1>
-        <p>{filename}</p>
+    <div className={INSPECTOR_SCROLL} {...scroll}>
+      <div>
+        <FileCode2 size={25} className={OVERVIEW_ICON} />
+        <h1 className={OVERVIEW_TITLE}>{section === 'structure' ? 'File structure' : 'Document overview'}</h1>
+        <p className={OVERVIEW_SUBTITLE}>{filename}</p>
       </div>
       {document ? (
         <>

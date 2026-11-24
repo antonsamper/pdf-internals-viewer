@@ -1,9 +1,18 @@
+import { cn } from 'cn';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 import type { PdfDocumentInfo, PdfObjectRecord, PdfValue } from '@/lib/pdf/types';
 
 import { effectiveResources, property } from '@/lib/pdf/navigation';
+const TREE_INTRO = 'mx-1.5 mt-1.5 mb-3 text-[11px] leading-[1.6] text-muted-foreground';
+const TREE_DETAIL = 'mr-[5px] mb-[7px] ml-[26px] text-[10px] leading-[1.5] text-muted-foreground [overflow-wrap:anywhere]';
+const TREE_ROW = 'flex min-h-[34px] items-center rounded-[5px] hover:bg-accent';
+const TREE_ROW_SELECTED = 'bg-accent shadow-[inset_0_0_0_1px_var(--border)]';
+const TREE_TOGGLE = 'h-[30px] w-[26px] flex-[0_0_26px]';
+const TREE_SELECT = 'flex min-w-0 flex-1 flex-col items-start py-[5px] pr-[5px] text-left text-[11px]! [overflow-wrap:anywhere]';
+const TREE_MORE = 'm-1.5 p-[5px] text-[11px]! text-reference underline underline-offset-[3px]';
+
 export const PageTree = ({
   document,
   objects,
@@ -96,10 +105,10 @@ export const PageTree = ({
         : '';
     return (
       <li key={key}>
-        <div className={`page-tree-row ${ref && selectedId === ref ? 'selected' : ''}`}>
+        <div className={cn(TREE_ROW, ref && selectedId === ref && TREE_ROW_SELECTED)}>
           {expandable ? (
             <button
-              className="tree-toggle"
+              className={cn(TREE_TOGGLE, 'grid place-items-center rounded-[4px]')}
               aria-label={`${expanded ? 'Collapse' : 'Expand'} ${label}${ref ? ` ${ref}` : ''}`}
               aria-expanded={expanded}
               onClick={() => toggle(key)}
@@ -107,26 +116,26 @@ export const PageTree = ({
               {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
             </button>
           ) : (
-            <span className="tree-toggle-spacer" />
+            <span className={TREE_TOGGLE} />
           )}
           {ref && object ? (
             <button
-              className="tree-select"
+              className={TREE_SELECT}
               aria-current={selectedId === ref ? 'true' : undefined}
               onClick={() => onNavigate(ref, pageRoot ? [{ id: ref, label }] : nextTrail)}
             >
               <span>{label}</span>
-              <code>{ref} obj</code>
+              <code className="text-[10px]! text-muted-foreground">{ref} obj</code>
             </button>
           ) : (
-            <span className="tree-select">
+            <span className={TREE_SELECT}>
               <span>{label}</span>
-              {ref && <code>{ref} R</code>}
+              {ref && <code className="text-[10px]! text-muted-foreground">{ref} R</code>}
             </span>
           )}
         </div>
         {(detail || cycle || (ref && !object) || bounded || (object && object.referencedBy.length > 1 && !pageRoot)) && (
-          <p className="tree-detail">
+          <p className={TREE_DETAIL}>
             {[
               detail,
               cycle ? 'Already in this path' : '',
@@ -139,7 +148,7 @@ export const PageTree = ({
           </p>
         )}
         {expanded && expandable && (
-          <ul>
+          <ul className="ml-2.5 border-l pl-[7px]">
             {children.slice(0, limit).map((child, index) =>
               node(
                 child.value,
@@ -165,7 +174,7 @@ export const PageTree = ({
             {children.length > limit && (
               <li>
                 <button
-                  className="tree-more"
+                  className={TREE_MORE}
                   onClick={() =>
                     onStateChange({
                       ...state,
@@ -180,7 +189,7 @@ export const PageTree = ({
           </ul>
         )}
         {pageRoot && object && !children.length && (
-          <p className="tree-detail">No content, resources, or annotations found in this page dictionary.</p>
+          <p className={TREE_DETAIL}>No content, resources, or annotations found in this page dictionary.</p>
         )}
       </li>
     );
@@ -188,8 +197,8 @@ export const PageTree = ({
   // Root pagination is cheap and does not affect expanded branches.
   const rootLimit = state.limits.root ?? 50;
   return (
-    <nav className="page-tree" aria-label="Page relationships">
-      <p className="tree-intro">Expand a page to explore its connections. Shared objects can appear on several paths.</p>
+    <nav className="min-h-0 flex-1 overflow-auto px-2 pb-3" aria-label="Page relationships">
+      <p className={TREE_INTRO}>Expand a page to explore its connections. Shared objects can appear on several paths.</p>
       <ul>
         {document.pages
           .slice(0, rootLimit)
@@ -199,7 +208,7 @@ export const PageTree = ({
       </ul>
       {document.pages.length > rootLimit && (
         <button
-          className="tree-more"
+          className={TREE_MORE}
           onClick={() =>
             onStateChange({
               ...state,
@@ -210,7 +219,7 @@ export const PageTree = ({
           Show {Math.min(50, document.pages.length - rootLimit)} more pages
         </button>
       )}
-      {!document.pages.length && <p className="tree-intro">No pages available in the indexed structure.</p>}
+      {!document.pages.length && <p className={TREE_INTRO}>No pages available in the indexed structure.</p>}
     </nav>
   );
 };

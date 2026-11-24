@@ -1,5 +1,7 @@
+import { cn } from 'cn';
 import { Bookmark, Trash2 } from 'lucide-react';
 
+import { REFERENCE } from '@/components/inspector-styles';
 import { Button } from '@/components/ui/button';
 export const SessionBookmarks = function SessionBookmarks<T>({
   bookmarks,
@@ -15,8 +17,8 @@ export const SessionBookmarks = function SessionBookmarks<T>({
   onRemove: (key: number) => void;
 }) {
   return (
-    <section className="session-bookmarks border-t px-3 py-3" aria-label="Bookmarks">
-      <h2 className="mb-2 flex items-center gap-2 text-xs font-medium">
+    <section className="max-h-[35%] shrink-0 overflow-auto border-t px-3 py-3" aria-label="Bookmarks">
+      <h2 className="mb-3 flex items-center gap-2 text-xs font-[550]">
         <Bookmark size={13} />
         Bookmarks <span className="text-muted-foreground">{bookmarks.length}</span>
       </h2>
@@ -32,7 +34,10 @@ export const SessionBookmarks = function SessionBookmarks<T>({
         {bookmarks.map((bookmark) => (
           <li key={bookmark.key} className="min-w-0">
             <div className="flex items-start gap-1">
-              <button className="reference min-w-0 flex-1 text-left text-xs break-words" onClick={() => onVisit(bookmark.selection)}>
+              <button
+                className={cn(REFERENCE, 'min-w-0 flex-1 text-left break-words whitespace-normal')}
+                onClick={() => onVisit(bookmark.selection)}
+              >
                 {bookmark.label}
               </button>
               <Button

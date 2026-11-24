@@ -136,7 +136,7 @@ test('ends sample sessions without reopening them and preserves the current publ
 });
 test('summarizes page rotation in the document overview', async ({ page }) => {
   const rotation = page
-    .locator('.document-facts > div')
+    .locator('[data-document-facts] > div')
     .filter({ has: page.getByText('Page rotation', { exact: true }) })
     .locator('dd');
   await openMinimal(page);
@@ -252,7 +252,7 @@ test('distinguishes confirmed encryption from an unknown parsing failure', async
     name: 'encrypted.pdf',
   });
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
-  await expect(page.locator('.warning-inline')).toContainText('This PDF is encrypted');
+  await expect(page.getByText('This PDF is encrypted')).toBeVisible();
   await expect(page.getByLabel('PDF password', { exact: true })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Why structure is unavailable' })).toHaveCount(0);
   await expect(page.getByRole('button', { exact: true, name: 'First page' })).toBeDisabled();
@@ -473,8 +473,8 @@ test('explains split text and returns from the guide to the loaded PDF', async (
   await page.getByRole('tab', { exact: true, name: 'Decoded' }).click();
   const decoded = page.getByRole('tabpanel', { exact: true, name: 'Decoded' });
   // A plain Tj instruction does not need the split-string explanation.
-  await expect(decoded.locator('.content-instructions')).toBeVisible();
-  await expect(decoded.locator('.content-text-help')).toHaveCount(0);
+  await expect(decoded.getByRole('list', { name: 'Content stream instructions' })).toBeVisible();
+  await expect(decoded.locator('[data-text-help]')).toHaveCount(0);
   const content = 'BT /F1 12 Tf [(lor) 17 (em)] TJ ET';
   const fixture = classicPdf([
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
@@ -492,7 +492,7 @@ test('explains split text and returns from the guide to the loaded PDF', async (
   await page.getByRole('button', { exact: true, name: 'First page' }).click();
   await page.getByRole('button', { exact: true, name: '4 0 R' }).first().click();
   await page.getByRole('tab', { exact: true, name: 'Decoded' }).click();
-  const help = decoded.locator('.content-text-help');
+  const help = decoded.locator('[data-text-help]');
   await help.locator('summary').click();
   await expect(help).toContainText('17 shifts where “em” starts');
   const reference = decoded.getByRole('link', {
@@ -514,7 +514,9 @@ test('explains split text and returns from the guide to the loaded PDF', async (
   await expect(page.getByRole('link', { exact: true, name: 'PDF operator reference' })).toHaveAttribute('target', '_blank');
   await page.getByRole('link', { exact: true, name: 'Back to the workspace' }).click();
   await expect(page.locator('.filename')).toContainText('split-text.pdf');
-  await expect(decoded.locator('.content-syntax').filter({ hasText: '[(lor) 17 (em)] TJ' })).toBeVisible();
+  await expect(
+    decoded.getByRole('list', { name: 'Content stream instructions' }).locator('code').filter({ hasText: '[(lor) 17 (em)] TJ' })
+  ).toBeVisible();
 });
 test('browses font details, generates local image thumbnails and follows using pages', async ({ page }) => {
   const remote: string[] = [];
@@ -568,8 +570,8 @@ test('distinguishes compressed-object provenance and decodes filtered streams', 
     .getByRole('button', { exact: true, name: 'Document catalogue' })
     .click();
   await expect(page.getByRole('heading', { name: /1 0\s+obj/ })).toBeVisible();
-  await expect(page.locator('.provenance')).toContainText('Decoded object stream');
-  await expect(page.locator('.provenance')).toContainText('6 0');
+  await expect(page.locator('[data-provenance]')).toContainText('Decoded object stream');
+  await expect(page.locator('[data-provenance]')).toContainText('6 0');
   await page.getByRole('tab', { exact: true, name: 'Source' }).click();
   await expect(page.getByRole('tabpanel', { exact: true, name: 'Source' })).toContainText('These are not original file bytes.');
   await upload(page, 'resources.pdf');
@@ -837,7 +839,7 @@ test('keeps the mobile header compact with a long filename and search results', 
     await page.getByRole('button', { exact: true, name: 'Run search' }).click();
     await expect(page.getByRole('button', { exact: true, name: 'Next search result' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    await expect(page.locator('.mobile-workspace')).toBeVisible();
+    await expect(page.locator('[data-workspace="mobile"]')).toBeVisible();
   }
   await page.setViewportSize({ height: 844, width: 390 });
   await page.screenshot({
@@ -1032,17 +1034,17 @@ test('keeps smaller object lists visible when history changes sections', async (
     page.getByRole('navigation', { name: 'Page relationships' }).getByRole('button', { exact: true, name: 'Page 1 3 0 obj' })
   ).toBeVisible();
   await sections.getByRole('button', { exact: true, name: 'All objects' }).click();
-  await page.locator('.object-list').evaluate((element) => {
+  await page.locator('[data-object-list]').evaluate((element) => {
     element.scrollTop = 3000;
   });
-  await expect(page.locator('.object-row').first()).not.toContainText('1 0');
+  await expect(page.locator('[data-object-list] button').first()).not.toContainText('1 0');
   await page.getByRole('button', { exact: true, name: 'Back' }).click();
   await expect(
     page.getByRole('navigation', { name: 'Page relationships' }).getByRole('button', { exact: true, name: 'Page 1 3 0 obj' })
   ).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Page relationships' })).toContainText('3 0 obj');
   await page.getByRole('button', { exact: true, name: 'Forward' }).click();
-  await expect(page.locator('.object-row').first()).toContainText('1 0');
+  await expect(page.locator('[data-object-list] button').first()).toContainText('1 0');
 });
 test('renders a local EmbedPDF preview without external requests or runtime errors', async ({ page }) => {
   test.setTimeout(90000);
@@ -1135,8 +1137,8 @@ test('explores a page tree with inherited resources, explanations and labelled c
       name: 'Content streams · /Contents 4 0 obj',
     })
     .click();
-  await expect(page.locator('.object-explanation')).toContainText('content stream referenced by Page 1');
-  await expect(page.locator('.relationship-links').last()).toContainText('via /Contents');
+  await expect(page.locator('[data-object-explanation]')).toContainText('content stream referenced by Page 1');
+  await expect(page.locator('[data-relationship-links]').last()).toContainText('via /Contents');
   await expect(page.getByRole('navigation', { name: 'Exploration trail' })).toContainText('/Contents');
   await page.getByRole('button', { exact: true, name: 'Back' }).click();
   await expect(tree.getByRole('button', { exact: true, name: 'Collapse Page 1 3 0' })).toBeVisible();
@@ -1148,8 +1150,8 @@ test('explores a page tree with inherited resources, explanations and labelled c
     .click();
   await tree.getByRole('button', { exact: true, name: 'Expand Fonts · /Font' }).click();
   await tree.getByRole('button', { exact: true, name: '/F1 5 0 obj' }).click();
-  await expect(page.locator('.object-explanation')).toContainText('font dictionary for Helvetica');
-  await expect(page.locator('.relationship-links').last()).toContainText('via /Resources → /Font → /F1');
+  await expect(page.locator('[data-object-explanation]')).toContainText('font dictionary for Helvetica');
+  await expect(page.locator('[data-relationship-links]').last()).toContainText('via /Resources → /Font → /F1');
   await expect(page.getByRole('navigation', { name: 'Exploration trail' })).toContainText('Inherited from 2 0 obj');
   await page.screenshot({
     animations: 'disabled',
@@ -1157,7 +1159,7 @@ test('explores a page tree with inherited resources, explanations and labelled c
     path: screenshotPath('page-tree-desktop.png'),
   });
   // Reverse links select the actual owning object, without inventing a forward path.
-  await page.locator('.relationship-link').filter({ hasText: 'via /Resources' }).click();
+  await page.locator('[data-relationship-links] button').filter({ hasText: 'via /Resources' }).click();
   await expect(page.getByRole('heading', { name: /2 0\s+obj/ })).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Exploration trail' })).not.toContainText('/F1');
   await sections.getByRole('button', { exact: true, name: 'All objects' }).click();
@@ -1168,7 +1170,7 @@ test('explores a page tree with inherited resources, explanations and labelled c
   const panes = page.getByRole('navigation', { name: 'Workspace pane' });
   await panes.getByRole('button', { exact: true, name: 'Explorer' }).click();
   await tree.getByRole('button', { exact: true, name: '/F1 5 0 obj' }).click();
-  await expect(page.locator('.object-explanation')).toContainText('font dictionary');
+  await expect(page.locator('[data-object-explanation]')).toContainText('font dictionary');
   await panes.getByRole('button', { exact: true, name: 'Explorer' }).click();
   await expect(tree.getByRole('button', { exact: true, name: '/F1 5 0 obj' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -1234,7 +1236,7 @@ test('pages large trees and preserves later-page expansion through navigation', 
   await tree.getByRole('button', { exact: true, name: 'Show 2 more pages' }).click();
   await tree.getByRole('button', { exact: true, name: 'Expand Page 52 54 0' }).click();
   await tree.getByRole('button', { exact: true, name: 'Page 52 54 0 obj' }).click();
-  await expect(page.locator('.object-explanation')).toContainText('Page 52 of 52');
+  await expect(page.locator('[data-object-explanation]')).toContainText('Page 52 of 52');
   await sections.getByRole('button', { exact: true, name: 'All objects' }).click();
   await page.getByRole('button', { exact: true, name: 'Back' }).click();
   await expect(tree.getByRole('button', { exact: true, name: 'Collapse Page 52 54 0' })).toBeVisible();
@@ -1535,8 +1537,8 @@ test('downloads full-size PNG images from Resources and the object inspector', a
     width: 400,
   });
   await expect(resources.getByRole('img', { exact: true, name: 'Image object 6 0' })).toBeVisible();
-  await expect(resources.locator('.image-file-size')).toHaveAttribute('title', `${png.length.toLocaleString()} bytes`);
-  await expect(resources.locator('.image-file-size')).toContainText('In PDF:');
+  await expect(resources.locator('[data-image-file-size]')).toHaveAttribute('title', `${png.length.toLocaleString()} bytes`);
+  await expect(resources.locator('[data-image-file-size]')).toContainText('In PDF:');
   await page.screenshot({
     animations: 'disabled',
     fullPage: true,
@@ -1587,7 +1589,7 @@ test('extracts embedded JPEG bytes unchanged and explains unsupported image expo
   for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
   expect(Buffer.concat(chunks)).toEqual(jpeg);
   await expect(resources.getByRole('img', { exact: true, name: 'Image object 6 0' })).toBeVisible();
-  await expect(resources.locator('.image-file-size')).toHaveAttribute('title', `${jpeg.length.toLocaleString()} bytes`);
+  await expect(resources.locator('[data-image-file-size]')).toHaveAttribute('title', `${jpeg.length.toLocaleString()} bytes`);
   await page.getByLabel('Open local PDF').setInputFiles({
     buffer: Buffer.from(imageExportPdf({ extra: '/SMask 5 0 R' }).bytes),
     mimeType: 'application/pdf',
@@ -1837,7 +1839,7 @@ test('replaces a document during an acknowledged object transfer without exposin
   await upload(page, 'minimal.pdf');
   await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   await page.getByRole('button', { exact: true, name: 'Document catalogue' }).first().click();
-  await expect(page.locator('.object-title h1')).toContainText('1 0');
+  await expect(page.getByRole('heading', { level: 1, name: /1 0\s+obj/ })).toBeVisible();
   await expect(page.locator('.filename')).toContainText('minimal.pdf');
 });
 for (const [route, sample, instruction] of [
@@ -1957,7 +1959,7 @@ for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'pa
       await tree.getByRole('button', { exact: true, name: 'Page 3 5 0 obj' }).click();
       await expect(await source()).toContainText('/Logo 8 0 R');
     } else if (sample === 'page-rotation') {
-      await expect(page.locator('.document-facts')).toContainText('Mixed (0°, 90°)');
+      await expect(page.locator('[data-document-facts]')).toContainText('Mixed (0°, 90°)');
       await ref('First page');
       await ref('2 0 R');
       await expect(await source()).toContainText('/Rotate 90');
@@ -2023,7 +2025,7 @@ test('opens example find-text-source and follows a page-text match to its source
   const hex = page.getByRole('region', { exact: true, name: 'Decoded stream bytes' });
   await expect(hex.locator('button.hex-selected')).toHaveCount(9);
   await expect(hex.locator('.hex-status')).toContainText('9 bytes selected in 2 ranges');
-  await expect(page.locator('.content-instruction.text-match')).toContainText('TJ');
+  await expect(page.locator('[data-text-match]')).toContainText('TJ');
 });
 test('navigates grouped public content without JavaScript on desktop and mobile', async ({ browser, baseURL }) => {
   for (const width of [1440, 390, 320]) {
@@ -2157,7 +2159,7 @@ test('records unsupported stream inspection as a limitation and deduplicates ret
   });
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
   for (let retry = 0; retry < 2; retry++) {
-    await page.locator('.object-list').getByRole('button').filter({ hasText: '3 0' }).click();
+    await page.locator('[data-object-list]').getByRole('button').filter({ hasText: '3 0' }).click();
     await page.getByRole('tab', { name: 'Decoded' }).click();
     await expect(page.getByRole('region', { name: 'Object inspector' })).toContainText('does not support /RunLengthDecode');
     await page.getByRole('button', { name: /^Issues/ }).click();
@@ -2377,11 +2379,11 @@ for (const compressed of [false, true]) {
     });
     await expect(hex.locator('button.hex-selected')).toHaveCount(5);
     await expect(hex.locator('.hex-status')).toContainText('5 bytes selected in 2 ranges');
-    await expect(page.locator('.content-instruction.text-match')).toContainText('TJ');
+    await expect(page.locator('[data-text-match]')).toContainText('TJ');
     if (compressed) {
       await page.keyboard.press('Escape');
       await page.getByRole('button', { exact: true, name: 'Original bytes' }).click();
-      await expect(page.locator('.text-source-note')).toContainText('Containing stream only');
+      await expect(page.locator('[data-text-source-note]')).toContainText('Containing stream only');
       const original = page.getByRole('region', {
         exact: true,
         name: 'Original file bytes',
@@ -2403,13 +2405,13 @@ for (const compressed of [false, true]) {
       exact: true,
       name: 'Rendered page preview',
     });
-    await expect(preview.locator('.pdf-preview-search-highlights polygon')).toHaveCount(1);
+    await expect(preview.locator('[data-pdf-search-highlights] polygon')).toHaveCount(1);
     await expect(preview.getByRole('status')).toHaveText('1 text match on this page for “Hello”');
     await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('not-present');
     await page.getByRole('button', { exact: true, name: 'Run search' }).click();
     await expect(results).toContainText('0 pages');
-    await expect(page.locator('.text-source-bytes')).toHaveCount(0);
-    await expect(preview.locator('.pdf-preview-search-highlights')).toHaveCount(0);
+    await expect(page.locator('[data-text-source-bytes]')).toHaveCount(0);
+    await expect(preview.locator('[data-pdf-search-highlights]')).toHaveCount(0);
   });
 }
 test('preview search highlights follow page rotation, zoom and page navigation', async ({ page }) => {
@@ -2438,7 +2440,7 @@ test('preview search highlights follow page rotation, zoom and page navigation',
     exact: true,
     name: 'Rendered page preview',
   });
-  const polygons = preview.locator('.pdf-preview-search-highlights polygon');
+  const polygons = preview.locator('[data-pdf-search-highlights] polygon');
   const image = preview.getByRole('img');
   await expect(polygons).toHaveCount(2);
   await expect(polygons.first()).toBeInViewport();
@@ -2495,14 +2497,14 @@ test('page text search labels unsupported font mappings as candidate streams on 
   });
   await expect(results).toContainText('1 page');
   await expect(results.getByRole('button', { name: /Inspect content stream/i })).toHaveCount(1);
-  await expect(page.locator('.text-source-note')).toContainText('Exact text bytes could not be mapped');
+  await expect(page.locator('[data-text-source-note]')).toContainText('Exact text bytes could not be mapped');
   await expect(results).toContainText('Exact word bytes could not be mapped');
   const original = page.getByRole('region', {
     exact: true,
     name: 'Original file bytes',
   });
   await expect(original.locator('button.hex-selected').first()).toBeVisible();
-  await expect(page.locator('.text-source-note')).toContainText('not an exact word match');
+  await expect(page.locator('[data-text-source-note]')).toContainText('not an exact word match');
   await page.keyboard.press('Escape');
   await page.getByRole('button', { exact: true, name: 'Decoded bytes' }).click();
   await expect(page.getByRole('region', { exact: true, name: 'Decoded stream bytes' }).locator('button.hex-selected')).toHaveCount(0);
@@ -2513,11 +2515,11 @@ test('page text search labels unsupported font mappings as candidate streams on 
     exact: true,
     name: 'Rendered page preview',
   });
-  await expect(preview.locator('.pdf-preview-search-highlights polygon')).toHaveCount(1);
+  await expect(preview.locator('[data-pdf-search-highlights] polygon')).toHaveCount(1);
   await expect(preview.getByRole('status')).toHaveText('1 text match on this page for “Hello”');
   await page.getByRole('button', { exact: true, name: 'Clear search' }).click();
-  await expect(page.locator('.text-source-bytes')).toHaveCount(0);
-  await expect(preview.locator('.pdf-preview-search-highlights')).toHaveCount(0);
+  await expect(page.locator('[data-text-source-bytes]')).toHaveCount(0);
+  await expect(preview.locator('[data-pdf-search-highlights]')).toHaveCount(0);
 });
 test('page text search uses the unlock password and keeps encrypted source bytes distinct', async ({ page }) => {
   await page.getByLabel('Open local PDF').setInputFiles(resolve('tests/fixtures/encryption/AES-256-password.pdf'));
@@ -2532,7 +2534,7 @@ test('page text search uses the unlock password and keeps encrypted source bytes
   await expect(page.getByRole('region', { exact: true, name: 'Decoded stream bytes' }).locator('button.hex-selected')).toHaveCount(5);
   await page.keyboard.press('Escape');
   await page.getByRole('button', { exact: true, name: 'Original bytes' }).click();
-  await expect(page.locator('.text-source-note')).toContainText('Containing stream only');
+  await expect(page.locator('[data-text-source-note]')).toContainText('Containing stream only');
 });
 test('cancels a pending page text search when the document is replaced', async ({ page }) => {
   await openMinimal(page);
@@ -2554,7 +2556,7 @@ test('cancels a pending page text search when the document is replaced', async (
   release();
   await page.unrouteAll({ behavior: 'wait' });
   await expect(page.getByRole('region', { exact: true, name: 'Search results' })).toHaveCount(0);
-  await expect(page.locator('.text-source-bytes')).toHaveCount(0);
+  await expect(page.locator('[data-text-source-bytes]')).toHaveCount(0);
   await selectSearchScope(page, 'pageText');
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('internals');
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
@@ -2762,7 +2764,7 @@ for (const width of [1440, 390]) {
   test(`shows a vertical search popover without shifting the workspace at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ height: 1000, width });
     await openMinimal(page);
-    const workspace = page.locator(width < 900 ? '.mobile-workspace' : '.desktop-workspace');
+    const workspace = page.locator(width < 900 ? '[data-workspace="mobile"]' : '[data-workspace="desktop"]');
     const before = await workspace.boundingBox();
     const search = page.getByRole('textbox', {
       exact: true,
@@ -2966,7 +2968,7 @@ for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
       // Selecting a text result again must reveal the word even after inspecting
       // the compressed original container with the representation switch.
       await page.getByRole('button', { exact: true, name: 'Original bytes' }).click();
-      await expect(page.locator('.text-source-note')).toContainText('Containing stream only');
+      await expect(page.locator('[data-text-source-note]')).toContainText('Containing stream only');
       await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
       await results.locator('[data-search-result]').click();
       await expect(bytes).toBeVisible();

@@ -25,8 +25,8 @@ export const TextSourceBytes = function TextSourceBytes({
   const [decoded, setDecoded] = useState(!source.originalRanges && source.bytes.length > 0 && (exact || !originalRange));
   const decodedScroll = useRef<ScrollPosition['current']>(undefined);
   return (
-    <div className="text-source-bytes">
-      <div className="text-source-toolbar" role="group" aria-label="Text match byte representation">
+    <div className="flex h-full min-h-0 flex-col [&>.hex-view]:flex-1" data-text-source-bytes>
+      <div className="flex flex-wrap gap-1.5 border-b px-3 py-2" role="group" aria-label="Text match byte representation">
         <Button size="xs" variant={decoded ? 'ghost' : 'secondary'} aria-pressed={!decoded} onClick={() => setDecoded(false)}>
           Original bytes
         </Button>
@@ -40,7 +40,7 @@ export const TextSourceBytes = function TextSourceBytes({
           Decoded bytes
         </Button>
       </div>
-      <p className="text-source-note" role="status">
+      <p className="m-0 border-b px-3 py-2 text-[11px] text-muted-foreground" data-text-source-note role="status">
         {decoded
           ? exact
             ? 'Highlighted bytes encode matching source text. Offsets are within this decoded stream.'

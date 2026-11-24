@@ -1,14 +1,19 @@
+import { cn } from 'cn';
 import { Download, LoaderCircle, ImageOff } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import type { PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 
+import { WARNING_INLINE } from '@/components/inspector-styles';
 import { Button } from '@/components/ui/button';
 import { fileSize } from '@/lib/file-size';
 import { buildImageFile, imageThumbnail, queueImageWork } from '@/lib/image-export';
 import { imageDownloadPlan } from '@/lib/pdf/image-download';
 import { saveFile } from '@/lib/save-file';
 import { useVisible } from '@/lib/use-visible';
+/** Notes under an image keep a readable measure. */
+const IMAGE_NOTE = 'max-w-[54ch] leading-[1.6]';
+
 export const ImageDownload = ({
   object,
   extractImage,
@@ -97,26 +102,37 @@ export const ImageDownload = ({
   const downloadError = error ?? state.exportError;
   const showDownloadError = downloadError && downloadError !== unavailable && (!showPreview || downloadError !== previewError);
   return (
-    <div className="image-download" ref={ref}>
+    <div ref={ref}>
       {showPreview &&
         (state.image ? (
-          <img src={state.image} alt={`Image object ${object.id}`} className="resource-image-preview" />
+          <img
+            src={state.image}
+            alt={`Image object ${object.id}`}
+            className="my-3 block size-40 max-w-full rounded-[8px] border bg-background object-contain p-2"
+          />
         ) : (
-          <div className="resource-image-placeholder" role="status">
+          <div
+            className="my-3 flex items-center gap-2.5 rounded-[8px] border border-dashed bg-sidebar p-3.5 text-[11px] text-muted-foreground"
+            role="status"
+          >
             {previewError ? (
               <>
-                <ImageOff aria-hidden="true" />
-                <p>Preview unavailable: {previewError}</p>
+                <ImageOff aria-hidden="true" className="size-[18px] shrink-0" />
+                <p className={IMAGE_NOTE}>Preview unavailable: {previewError}</p>
               </>
             ) : (
               <>
-                <LoaderCircle aria-hidden="true" className="animate-spin motion-reduce:animate-none" />
-                <p>Loading image preview…</p>
+                <LoaderCircle aria-hidden="true" className="size-[18px] shrink-0 animate-spin motion-reduce:animate-none" />
+                <p className={IMAGE_NOTE}>Loading image preview…</p>
               </>
             )}
           </div>
         ))}
-      <div className="image-file-size" title={state.size !== undefined ? `${state.size.toLocaleString()} bytes` : undefined}>
+      <div
+        className="my-2.5 text-[11px] leading-[1.6] text-muted-foreground tabular-nums"
+        data-image-file-size
+        title={state.size !== undefined ? `${state.size.toLocaleString()} bytes` : undefined}
+      >
         {state.size !== undefined
           ? `Download: ${fileSize(state.size)}`
           : unavailable || state.exportError
@@ -132,7 +148,7 @@ export const ImageDownload = ({
         )}
         {pending ? 'Exporting image…' : 'Download image'}
       </Button>
-      <p className="mt-2 text-xs text-muted-foreground">
+      <p className={cn('mt-2 text-xs text-muted-foreground', IMAGE_NOTE)}>
         {unavailable
           ? `Image export unavailable: ${unavailable}`
           : plan?.format === 'jpeg'
@@ -140,7 +156,7 @@ export const ImageDownload = ({
             : 'PNG · full image dimensions, without page transforms. Up to 4 megapixels / 4096 pixels per side.'}
       </p>
       {showDownloadError && (
-        <p role="alert" className="warning-inline">
+        <p role="alert" className={cn(WARNING_INLINE, IMAGE_NOTE)}>
           {downloadError}
         </p>
       )}
