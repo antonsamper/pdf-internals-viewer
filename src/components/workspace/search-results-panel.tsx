@@ -154,7 +154,7 @@ const SourceButtons = ({
             setOpen(false);
             requestAnimationFrame(() =>
               formRef.current
-                ?.closest('.app-shell')
+                ?.closest('[data-app-shell]')
                 ?.querySelector<HTMLElement>('.text-source-bytes .hex-viewport')
                 ?.focus({ preventScroll: true })
             );

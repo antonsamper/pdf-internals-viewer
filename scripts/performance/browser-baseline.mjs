@@ -171,7 +171,7 @@ try {
                         state.navigationStart = performance.now();
                 }, true);
                 new MutationObserver(() => {
-                    if (state.phase === 'opening' && /\d+ objects indexed/.test(document.querySelector('.status-bar')?.textContent ?? '')) {
+                    if (state.phase === 'opening' && /\d+ objects indexed/.test(document.querySelector('footer')?.textContent ?? '')) {
                         requestAnimationFrame(() => requestAnimationFrame(() => { if (state.phase === 'opening') {
                             state.indexedAt = performance.now();
                             state.phase = 'opened';
@@ -225,7 +225,7 @@ try {
                     await writeFile(cpuPath, JSON.stringify(profile));
                     result.profile = { cpuPath, tracePath };
                 }
-                result.statusText = await page.locator('.status-bar').innerText();
+                result.statusText = await page.getByRole('contentinfo').innerText();
                 result.mainHeapAfterOpen = await mainCDP.send('Runtime.getHeapUsage');
                 result.workerHeapAfterOpen = await workerHeap();
                 result.opening = await page.evaluate(() => {
@@ -277,7 +277,7 @@ try {
             catch (error) {
                 result.status = 'failed';
                 result.error = error.message;
-                result.statusText = await page.locator('.status-bar').innerText().catch(() => '');
+                result.statusText = await page.getByRole('contentinfo').innerText().catch(() => '');
                 result.alert = await page.getByRole('alert').allTextContents().catch(() => []);
                 result.pageErrors = pageErrors;
             }

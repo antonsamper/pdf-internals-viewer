@@ -1,0 +1,12 @@
+/* A plum surface that looks the same in light and dark mode. It redefines the
+   colour tokens, so everything inside follows it. */
+@utility surface-dark {
+  --background: #281a3c;
+  --foreground: #fff8ff;
+  --muted-foreground: #d3c2e1;
+  --muted: #412b59;
+  --border: #584366;
+  --ring: #c5a0f5;
+  background: var(--background);
+  color: var(--foreground);
+}

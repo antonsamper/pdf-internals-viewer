@@ -2,10 +2,9 @@ import type { MouseEvent } from 'react';
 
 import { ArrowLeft } from 'lucide-react';
 
-import { BrandIcon } from '@/components/brand-artwork';
 import { ContentNavigation, ContentHeaderLinks, RelatedContent } from '@/components/content-navigation';
+import { SiteHeader } from '@/components/site-header';
 import { SiteLinks } from '@/components/site-links';
-import { ThemeControl } from '@/components/theme-control';
 import { MAX_INPUT_BYTES, MAX_DISPLAY_BYTES, MAX_OBJECTS, MAX_DECODED_BYTES, OPERATION_TIMEOUT_MS } from '@/lib/pdf/limits';
 import { PRIVACY_SUMMARY, PROJECT_URL, type SitePage } from '@/lib/site-content';
 import { navigationLabel } from '@/lib/site-navigation';
@@ -686,17 +685,10 @@ export const PublicPage = function PublicPage({
 /** Direct article requests are complete documents and do not load the inspector. */
 export const StaticPublicPage = function StaticPublicPage({ page }: { page: SitePage }) {
   return (
-    <div className="app-shell static-public-shell">
-      <header className="app-header content-header">
-        <a className="app-identity" href="/">
-          <span className="app-mark">
-            <BrandIcon />
-          </span>
-          <span>PDF Internals</span>
-        </a>
+    <div className="static-public-shell flex h-dvh flex-col overflow-hidden bg-background text-foreground">
+      <SiteHeader content href="/">
         <ContentHeaderLinks path={page.path} />
-        <ThemeControl />
-      </header>
+      </SiteHeader>
       <PublicPage page={page} />
       <SiteLinks />
     </div>

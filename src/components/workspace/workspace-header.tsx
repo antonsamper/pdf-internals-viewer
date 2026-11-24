@@ -2,9 +2,8 @@ import type { MouseEvent } from 'react';
 
 import { BookOpen, File as FileIcon, FolderOpen, X } from 'lucide-react';
 
-import { BrandIcon } from '@/components/brand-artwork';
 import { ContentHeaderLinks } from '@/components/content-navigation';
-import { ThemeControl } from '@/components/theme-control';
+import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { sitePage, type SitePath } from '@/lib/site-content';
@@ -127,19 +126,13 @@ export const WorkspaceHeader = ({
   onHome: () => void;
   onOpenFile: () => void;
 }) => (
-  <header className={path !== '/' ? 'app-header content-header' : 'app-header'}>
-    <a
-      className="app-identity"
-      href={import.meta.env.BASE_URL}
-      onClick={(event) => {
-        if (onFollowLink(event)) onHome();
-      }}
-    >
-      <span className="app-mark">
-        <BrandIcon />
-      </span>
-      <span>PDF Internals</span>
-    </a>
+  <SiteHeader
+    content={path !== '/'}
+    href={import.meta.env.BASE_URL}
+    onIdentityClick={(event) => {
+      if (onFollowLink(event)) onHome();
+    }}
+  >
     {path !== '/' ? (
       <PublicPageActions busy={busy} filename={filename} path={path} onClose={onClose} onFollowLink={onFollowLink} />
     ) : (
@@ -152,6 +145,5 @@ export const WorkspaceHeader = ({
         onOpenFile={onOpenFile}
       />
     )}
-    <ThemeControl />
-  </header>
+  </SiteHeader>
 );

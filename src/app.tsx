@@ -276,7 +276,7 @@ const PdfWorkspace = ({
 
   return (
     <TooltipProvider delay={250}>
-      <div className="app-shell" {...drop.handlers}>
+      <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground" data-app-shell="" {...drop.handlers}>
         <input
           ref={input}
           type="file"

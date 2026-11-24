@@ -1,7 +1,7 @@
-export const BrandIcon = function BrandIcon() {
+export const BrandIcon = function BrandIcon({ className }: { className?: string }) {
   return (
     <img
-      className="brand-icon"
+      className={className}
       src={`${import.meta.env.BASE_URL}brand/pdf-internals-icon.png?v=c793e37b`}
       alt=""
       width={128}
