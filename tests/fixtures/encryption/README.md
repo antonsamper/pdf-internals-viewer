@@ -1,7 +1,7 @@
 Original project-owned PDFs encrypted with independent pypdf 6.14.2.
 
-The script encrypts `public/samples/minimal.pdf`, so run `node scripts/fixtures/generate.mjs` first.
-Then regenerate from the repository root with `python3 scripts/fixtures/generate-encrypted.py`
+The script encrypts `public/samples/minimal.pdf`, so run `node scripts/fixtures/generate-samples.mjs` first.
+Then regenerate from the repository root with `python3 scripts/fixtures/generate-encryption-fixtures.py`
 (requires `pypdf[crypto]==6.14.2`). Python is only a fixture-generation tool.
 
 - `*-empty.pdf`: empty opening password, owner password `owner-secret`, copying restricted.

@@ -37,6 +37,7 @@ Open the URL printed by Vite. Installation prepares the pinned parser and previe
 - [Public content and sample maintenance](docs/PUBLIC-CONTENT.md)
 - [Browser verification](docs/BROWSERS.md) and [performance](docs/PERFORMANCE.md)
 - [Cloudflare hosting and deployment](docs/HOSTING.md)
+- [Build, check and fixture scripts](docs/SCRIPTS.md)
 - [Security policy](SECURITY.md)
 
 Built with TypeScript, React, Vite and shadcn/ui using Base UI. The bundled sample PDFs are original fixtures; [public content maintenance](docs/PUBLIC-CONTENT.md) documents their generators and provenance.

@@ -21,7 +21,7 @@ Besides the inspector, the site has an About page, overview pages, task guides, 
 3. Render it from `public-page.tsx`.
 4. Update the sitemap URL count asserted in `scripts/check-public-pages.mjs`.
 
-`pnpm run build` prerenders every route (`scripts/prerender.mjs`) and generates `sitemap.xml`. `/` and `/about` are hydrated by the app, so their first render must not use browser APIs; read browser state in effects. Every other route is static HTML with no app JavaScript. After each build, `check:public-pages` checks the metadata, structured data, navigation and links of every page.
+`pnpm run build` prerenders every route (`scripts/build-prerender.mjs`) and generates `sitemap.xml`. `/` and `/about` are hydrated by the app, so their first render must not use browser APIs; read browser state in effects. Every other route is static HTML with no app JavaScript. After each build, `check:public-pages` checks the metadata, structured data, navigation and links of every page.
 
 Guides and examples show a "Reviewed" date and a `dateModified` value. Change them only after checking the content against the current app.
 
@@ -29,7 +29,7 @@ Guides and examples show a "Reviewed" date and a `dateModified` value. Change th
 
 `/?sample=<id>` opens a bundled sample. Only IDs in `SAMPLES` or `EXAMPLE_SAMPLES` are accepted, and local files, notes and passwords never go into a URL.
 
-The thirteen sample PDFs in `public/samples/` are original fixtures, defined in `scripts/fixtures/pdf-fixtures.mjs` (three starters) and `scripts/fixtures/example-fixtures.mjs` (ten examples). Regenerate them with `node scripts/fixtures/generate.mjs`; `tests/example-fixtures.test.ts` checks the object relationships the examples rely on. The example font is regenerated with `python3 scripts/fixtures/make-example-font.py` (fonttools 4.63.0).
+The thirteen sample PDFs in `public/samples/` are original fixtures, defined in `scripts/fixtures/pdf-fixtures.mjs` (three starters) and `scripts/fixtures/example-fixtures.mjs` (ten examples). Regenerate them with `node scripts/fixtures/generate-samples.mjs`; `tests/example-fixtures.test.ts` checks the object relationships the examples rely on. The example font is regenerated with `python3 scripts/fixtures/generate-example-font.py` (fonttools 4.63.0).
 
 Each example has a preview image in `public/examples/`, rendered with Poppler (except `broken-xref.png`, a screenshot of the Issues panel). After changing a fixture, refresh its image:
 

@@ -1,6 +1,6 @@
 """Regenerate original encryption fixtures with independent pypdf 6.14.2.
 Requires pypdf[crypto]. Only fixture generation uses Python, never the app.
-Run after: node scripts/fixtures/generate.mjs
+Run after: node scripts/fixtures/generate-samples.mjs
 """
 from pathlib import Path
 from io import BytesIO
