@@ -2,15 +2,15 @@
 
 ## Tech stack
 
-| Area | Packages |
-| --- | --- |
-| App | React 19, Vite 8, TypeScript 6 |
-| UI | Tailwind CSS 4, shadcn/ui components on Base UI, Lucide icons, Geist font |
-| PDF inspection | `@libpdf/core` 0.5.3, pinned exactly |
-| Page preview | `@embedpdf/engine` 3.1.0 (PDFium compiled to WebAssembly), pinned exactly |
-| Tests | Vitest, Playwright |
-| Code quality | Oxlint, Oxfmt, React Doctor, Husky and lint-staged for the pre-commit hook |
-| Hosting | Wrangler 4.160.1 for Cloudflare Pages, pinned exactly |
+| Area           | Packages                                                                   |
+| -------------- | -------------------------------------------------------------------------- |
+| App            | React 19, Vite 8, TypeScript 7                                             |
+| UI             | Tailwind CSS 4, shadcn/ui components on Base UI, Lucide icons, Geist font  |
+| PDF inspection | `@libpdf/core` 0.5.3, pinned exactly                                       |
+| Page preview   | `@embedpdf/engine` 3.1.0 (PDFium compiled to WebAssembly), pinned exactly  |
+| Tests          | Vitest, Playwright                                                         |
+| Code quality   | Oxlint, Oxfmt, React Doctor, Husky and lint-staged for the pre-commit hook |
+| Hosting        | Wrangler 4.160.1 for Cloudflare Pages, pinned exactly                      |
 
 These three packages are pinned exactly because the preparation scripts below check those versions by hash. Upgrading `@embedpdf/engine` also needs the [notice review](NOTICES.md#upgrading-embedpdf), and upgrading `@libpdf/core` needs the [instrumentation review](PARSER.md#instrumentation-and-reproducibility).
 

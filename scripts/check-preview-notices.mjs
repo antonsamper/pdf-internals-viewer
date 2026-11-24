@@ -1,7 +1,7 @@
 /** Read-only assertion over already-built output; never rewrites hashed files. */
 import { readFile, readdir } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
-import ts from 'typescript'
+import { parse } from 'acorn'
 
 const dist = resolve(process.argv[2] ?? 'dist')
 const assets = join(dist, 'assets')
@@ -18,23 +18,31 @@ for (const group of groups) {
   if (matches.length === 0) throw new Error(`No emitted ${group.label} asset found in ${assets}; review build layout.`)
   for (const file of matches) {
     const code = await readFile(join(assets, file), 'utf8')
-    // Lex actual comments: a notice only inside an encoded string is not an
-    // outer-module modification notice. The scanner excludes string literals.
-    const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, ts.LanguageVariant.Standard, code)
+    // Lex actual comments and string tokens: a notice only inside an encoded
+    // string is not an outer-module modification notice.
     let outerNotice = false
-    for (let token = scanner.scan(); token !== ts.SyntaxKind.EndOfFileToken; token = scanner.scan()) {
-      if (token === ts.SyntaxKind.MultiLineCommentTrivia && scanner.getTokenText() === notice) outerNotice = true
+    const tokens = []
+    try {
+      parse(code, {
+        ecmaVersion: 'latest',
+        onComment: (block, text) => {
+          if (block && `/*${text}*/` === notice) outerNotice = true
+        },
+        onToken: token => tokens.push(token),
+        sourceType: 'module',
+      })
+    } catch (error) {
+      throw new Error(`${file}: could not parse the built asset: ${error.message}`, { cause: error })
     }
+    // A string literal, or a template with no substitutions (one chunk between two backquotes).
+    const isPayloadNotice = (token, index) => {
+      const plainTemplate = token.type.label === 'template' && tokens[index - 1]?.type.label === '`' && tokens[index + 1]?.type.label === '`'
+      return (token.type.label === 'string' || plainTemplate) && token.value.startsWith(notice + '\n')
+    }
+    const workerPayloadNotice = tokens.some(isPayloadNotice)
     if (!outerNotice) throw new Error(`${file}: missing executable file modification notice.`)
-    if (group.embedded) {
-      const source = ts.createSourceFile(file, code, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS)
-      let workerPayloadNotice = false
-      const visit = node => {
-        if ((ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) && node.text.startsWith(notice + '\n')) workerPayloadNotice = true
-        ts.forEachChild(node, visit)
-      }
-      visit(source)
-      if (!workerPayloadNotice) throw new Error(`${file}: embedded Blob-worker payload lost its own modification notice.`)
+    if (group.embedded && !workerPayloadNotice) {
+      throw new Error(`${file}: embedded Blob-worker payload lost its own modification notice.`)
     }
     console.log(`Verified modification notice: ${file}`)
     checked++
