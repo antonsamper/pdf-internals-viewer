@@ -1,0 +1,10 @@
+/* Each value is the first width where the layout stops being the smaller one,
+   so `max-w900:` and `width < theme(--breakpoint-w900)` mean 900px and below. */
+@theme {
+  --breakpoint-w360: 361px;
+  --breakpoint-w400: 401px;
+  --breakpoint-w480: 481px;
+  --breakpoint-w600: 601px;
+  --breakpoint-w760: 761px;
+  --breakpoint-w900: 901px;
+}

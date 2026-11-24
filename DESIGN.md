@@ -1,6 +1,6 @@
 # Design system
 
-The exact values (colours, type sizes, spacing, radii and dark-mode mappings) live in `src/index.css`, `src/app.css` and `src/components/hex-view.css`. This document describes how to use them. Use the semantic tokens and shadcn controls on Base UI rather than hard-coded values.
+The exact values (colours, type sizes, spacing, radii and dark-mode mappings) live in `src/index.css`, `src/app.css` and `src/components/hex-view.css`. Breakpoints are theme tokens in `src/styles/breakpoints.css`. `src/app.css` and `src/components/hex-view.css` are imported into the `legacy` layer, which sits above Tailwind's utilities, so their rules still win over them. This document describes how to use them. Use the semantic tokens and shadcn controls on Base UI rather than hard-coded values.
 
 ## Look and feel
 
@@ -24,7 +24,7 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 ## Layout
 
 - The workspace fills the viewport: header, three resizable panes (explorer, inspector, original bytes) that scroll independently, and a status bar.
-- At 900px and below, buttons switch between panes instead, and the header stays on one row with icon-only actions.
+- At 900px and below, buttons switch between panes instead, and the header stays on one row with icon-only actions. Breakpoints use the `w360`, `w400`, `w480`, `w600`, `w760` and `w900` tokens: `max-w900:` and `width < theme(--breakpoint-w900)` both match widths below 901px.
 - Search fits on one row on mobile, dropping to two rows at 360px and below. Touch targets are at least 44px.
 - Public pages use a white reading layout with a section sidebar that becomes an expandable menu on narrow screens. Their footer shows only when no document is open.
 
