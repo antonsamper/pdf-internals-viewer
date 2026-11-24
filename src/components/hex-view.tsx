@@ -5,7 +5,6 @@ import type { ScrollPosition } from '@/lib/scroll-restoration';
 
 import { Button } from '@/components/ui/button';
 
-import './hex-view.css';
 const printable = (byte: number) => {
   return byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '.';
 };

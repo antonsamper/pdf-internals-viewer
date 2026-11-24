@@ -1,3 +1,9 @@
+@reference "./styles/breakpoints.css";
+
+/* Hand-written styles that have not moved to Tailwind utilities. index.css
+   imports this file into the `legacy` layer, which sits above the utilities
+   layer, so these rules still win over utilities. Breakpoints come from the
+   theme. */
 * {
   box-sizing: border-box;
 }
@@ -1234,7 +1240,7 @@ pre,
   margin-left: 8px;
   scrollbar-width: thin;
 }
-@media (max-width: 900px) {
+@media (width < theme(--breakpoint-w900)) {
   .main-inspector > .pane-heading {
     height: auto;
     min-height: 42px;
@@ -1541,7 +1547,7 @@ h2 {
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
-@media (max-width: 900px) {
+@media (width < theme(--breakpoint-w900)) {
   .app-header {
     --header-inline-padding: 14px;
     gap: 12px;
@@ -1573,7 +1579,7 @@ h2 {
     max-width: 25vw;
   }
 }
-@media (max-width: 480px) {
+@media (width < theme(--breakpoint-w480)) {
   .header-divider,
   .filename > svg {
     display: none;
@@ -1630,7 +1636,7 @@ h2 {
   color: var(--foreground);
   text-decoration: underline;
 }
-@media (max-width: 480px) {
+@media (width < theme(--breakpoint-w480)) {
   .status-bar {
     height: 34px;
     min-height: 34px;
@@ -1881,7 +1887,7 @@ h2 {
   border-top: 1px solid var(--border);
   margin-top: 32px;
 }
-@media (max-width: 760px) {
+@media (width < theme(--breakpoint-w760)) {
   .empty-workspace {
     padding: 44px 24px 24px;
   }
@@ -1906,7 +1912,7 @@ h2 {
   }
 }
 
-@media (max-width: 600px) {
+@media (width < theme(--breakpoint-w600)) {
   .app-header {
     --theme-control-size: 36px;
     height: 58px;
@@ -2148,7 +2154,7 @@ h2 {
 .static-public-shell .public-page {
   overflow: visible;
 }
-@media (max-width: 760px) {
+@media (width < theme(--breakpoint-w760)) {
   .site-links > div {
     justify-content: center;
   }
@@ -2353,7 +2359,7 @@ h2 {
   align-items: center;
   gap: 10px 16px;
 }
-@media (max-width: 900px) {
+@media (width < theme(--breakpoint-w900)) {
   .content-layout {
     display: block;
     max-width: 720px;
@@ -2377,7 +2383,7 @@ h2 {
     padding: 4px 16px 20px;
   }
 }
-@media (max-width: 760px) {
+@media (width < theme(--breakpoint-w760)) {
   .app-header.content-header {
     --theme-control-size: 36px;
     gap: 8px;
@@ -2467,7 +2473,7 @@ h2 {
     background: var(--muted);
   }
 }
-@media (max-width: 360px) {
+@media (width < theme(--breakpoint-w360)) {
   .content-header .app-identity > span:last-child {
     position: absolute;
     width: 1px;
@@ -2478,7 +2484,7 @@ h2 {
     white-space: nowrap;
   }
 }
-@media (max-width: 600px) {
+@media (width < theme(--breakpoint-w600)) {
   .site-links > div {
     gap: 12px;
   }
@@ -2650,7 +2656,7 @@ h2 {
   line-height: 1.5;
 }
 
-@media (max-width: 900px) {
+@media (width < theme(--breakpoint-w900)) {
   .workspace-toolbar {
     gap: 2px;
     padding: 4px 10px 8px;
@@ -2781,7 +2787,7 @@ h2 {
 
 /* iOS Safari zooms into inputs below 16px. */
 @supports (-webkit-touch-callout: none) {
-  @media (max-width: 900px) {
+  @media (width < theme(--breakpoint-w900)) {
     .search-form .search-query {
       font-size: 16px;
     }
@@ -2794,7 +2800,7 @@ h2 {
   }
 }
 
-@media (max-width: 400px) {
+@media (width < theme(--breakpoint-w400)) {
   .search-source-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2819,7 +2825,7 @@ h2 {
 }
 
 /* One row once there is room: scope chip and icon-only Search beside the query, result count inside the field. */
-@media (min-width: 361px) and (max-width: 900px) {
+@media (width >= theme(--breakpoint-w360)) and (width < theme(--breakpoint-w900)) {
   .search-form,
   .search-form:not(:has(.search-show)) {
     grid-template-columns: 18px minmax(0, 1fr) auto auto;
@@ -2878,7 +2884,7 @@ h2 {
   }
 }
 
-@media (max-width: 360px) {
+@media (width < theme(--breakpoint-w360)) {
   .search-form .search-submit {
     padding: 0 10px;
   }

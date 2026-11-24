@@ -12,7 +12,7 @@ export const publicPages = (): Plugin => {
         if (!page || page.path === '/' || page.path === '/about') return next();
         try {
           const { renderPage } = await server.ssrLoadModule('/src/prerender.ts');
-          const html = `<!doctype html><html lang="en"><head><meta charset="UTF-8"><script src="/theme.js"></script><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/src/index.css"><link rel="stylesheet" href="/src/app.css"></head><body><div id="root">${renderPage(page)}</div></body></html>`;
+          const html = `<!doctype html><html lang="en"><head><meta charset="UTF-8"><script src="/theme.js"></script><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/src/index.css"></head><body><div id="root">${renderPage(page)}</div></body></html>`;
           response.setHeader('Content-Type', 'text/html; charset=utf-8');
           response.end(await server.transformIndexHtml(page.path, html));
         } catch (error) {

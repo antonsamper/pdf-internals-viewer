@@ -29,12 +29,12 @@ import { WorkspaceToolbar } from '@/components/workspace/workspace-toolbar';
 import { sitePage, type SitePath } from '@/lib/site-content';
 import { useSiteRoute } from '@/lib/site-route';
 
-import './app.css';
 const useNarrow = () => {
   // Match the build-time render; adapt after hydration on narrow screens.
   const [narrow, setNarrow] = useState(false);
   useEffect(() => {
-    const query = window.matchMedia('(max-width: 900px)');
+    // Same range as the `w900` breakpoint token: widths below 901px.
+    const query = window.matchMedia('(width < 901px)');
     const update = () => setNarrow(query.matches);
     update();
     query.addEventListener('change', update);
