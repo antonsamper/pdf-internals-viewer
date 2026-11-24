@@ -17,6 +17,7 @@ PDF Internals Viewer is a static Vite/React app for inspecting the structure of 
 - Branch: `PIV-<issue>`, for example `PIV-34`.
 - Commit subjects and PR titles: `[PIV-<issue>] type(scope): summary`, for example `[PIV-34] feat(search): add page-text search`. Types: `feat`, `fix`, `chore`, `docs`, `ci`, `test`, `perf`, `refactor`. The scope is an area label; leave it out when none fits. The summary is all lowercase, including names and acronyms (`pdf`, `eslint`), imperative, with no full stop. 72 characters at most.
 - Fill in the PR template. `Closes #<issue>` must match the number in the title. Description bullets are 72 characters at most. Add screenshots for UI changes.
+- Description bullets say what changed and why, in terms of behaviour. Don't list files, tests or test results: the diff shows the files and CI reports the results. Mention a test only when it is the point of the PR (a `test` PR), and say what it covers, not its filename or whether it passed.
 - Before opening a PR, run gstack `/review` and `/verify`. Don't use `/ship` or `/document-release`.
 - PRs are squash-merged into `main`.
 
