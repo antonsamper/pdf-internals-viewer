@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/prerender.mjs",
+    "build": "tsc -b && vite build && node scripts/build-prerender.mjs",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "format": "oxfmt --write \"**/*.{ts,tsx}\"",
@@ -25,7 +25,7 @@
     "test:e2e": "playwright test",
     "prepare:deps": "pnpm run prepare:preview && pnpm run prepare:parser",
     "prepare:preview": "node scripts/prepare-preview.mjs",
-    "corpus:fetch": "node scripts/corpus/fetch.mjs",
+    "corpus:fetch": "node scripts/corpus/fetch-corpus.mjs",
     "test:corpus": "vitest run --config scripts/corpus/vitest.config.ts",
     "pretest:corpus": "pnpm run prepare:deps",
     "check:preview-notices": "node scripts/check-preview-notices.mjs dist",

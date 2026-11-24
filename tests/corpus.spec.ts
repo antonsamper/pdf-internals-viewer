@@ -17,7 +17,7 @@ describe('opt-in, pinned upstream PDF corpus', () => {
         bytes = readFileSync(filename);
       } catch {
         throw new Error(
-          `Missing ${fixture.filename}. Run node scripts/corpus/fetch.mjs first; corpus tests never download files implicitly.`
+          `Missing ${fixture.filename}. Run node scripts/corpus/fetch-corpus.mjs first; corpus tests never download files implicitly.`
         );
       }
       expect(bytes.length).toBe(fixture.size);
@@ -28,7 +28,7 @@ describe('opt-in, pinned upstream PDF corpus', () => {
         [
           '--max-old-space-size=384',
           '--experimental-strip-types',
-          'scripts/corpus/probe.ts',
+          'scripts/corpus/probe-document.ts',
           filename,
           JSON.stringify(offsets.map((item) => item.id)),
         ],

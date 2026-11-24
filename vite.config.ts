@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 
-import { publicPages } from './scripts/public-pages-plugin.ts';
+import { publicPages } from './vite/public-pages-plugin.ts';
 
 // https://vite.dev/config/
 export default defineConfig({
