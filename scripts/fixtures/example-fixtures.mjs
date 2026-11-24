@@ -26,7 +26,7 @@ export const incorrectUnicodePdf = () => {
     objects.push([6, stream(cmap)]);
     return classicPdf(objects);
 };
-// This tiny font contains an original geometric H, made by make-example-font.py.
+// This tiny font contains an original geometric H, made by generate-example-font.py.
 // Normal PDF regeneration reads the checked-in asset and needs only Node.
 export const embeddedFontPdf = () => {
     const objects = invoice('BT /F1 12 Tf 72 660 Td (Two font resources, only one embedded program.) Tj ET\nBT /F2 48 Tf 72 540 Td (HHHH) Tj ET', undefined);
