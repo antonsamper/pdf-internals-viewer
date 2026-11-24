@@ -56,7 +56,7 @@ export const useDocumentSearch = (deps: SearchDeps) => {
     if (!open) return;
     let settle: ReturnType<typeof setTimeout> | undefined;
     const frame = requestAnimationFrame(() => {
-      const item = activeMatchRef.current?.closest<HTMLElement>('.search-result-item');
+      const item = activeMatchRef.current?.closest<HTMLElement>('[data-search-result-item]');
       if (!item) return;
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       item.scrollIntoView({
@@ -66,7 +66,7 @@ export const useDocumentSearch = (deps: SearchDeps) => {
       });
       if (reduced) return;
       // WebKit sometimes drops a smooth scroll without moving the list at all, so finish the job instantly.
-      const body = item.closest('.search-results-body');
+      const body = item.closest('[data-search-results-body]');
       const start = body?.scrollTop;
       settle = setTimeout(() => {
         if (!body || body.scrollTop !== start) return;

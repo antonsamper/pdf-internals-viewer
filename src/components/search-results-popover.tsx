@@ -1,7 +1,8 @@
 import { Popover } from '@base-ui/react/popover';
 import { useLayoutEffect, useState, type CSSProperties, type ReactNode, type RefObject } from 'react';
 const isSearchControl = (target: EventTarget | null, anchor: RefObject<HTMLFormElement | null>) =>
-  (target instanceof Node && anchor.current?.contains(target)) || (target instanceof Element && target.closest('.search-scope-popup'));
+  (target instanceof Node && anchor.current?.contains(target)) ||
+  (target instanceof Element && target.closest('[data-search-scope-popup]'));
 /** Non-modal search: inspecting the document remains possible behind the results. */
 export const SearchResultsPopover = ({
   open,
@@ -24,7 +25,7 @@ export const SearchResultsPopover = ({
   const [height, setHeight] = useState(180);
   useLayoutEffect(() => {
     if (!open || busy) return;
-    const section = popup?.querySelector<HTMLElement>('.search-results');
+    const section = popup?.querySelector<HTMLElement>('[data-search-results]');
     if (!section) return;
     const observer = new ResizeObserver(() => setHeight(section.getBoundingClientRect().height));
     observer.observe(section);
@@ -60,7 +61,7 @@ export const SearchResultsPopover = ({
           sideOffset={8}
           collisionPadding={12}
           positionMethod="fixed"
-          className="search-results-positioner"
+          className="z-50"
         >
           <Popover.Popup
             id={id}
@@ -68,7 +69,7 @@ export const SearchResultsPopover = ({
             style={{ '--search-loading-height': `${height}px` } as CSSProperties}
             initialFocus={false}
             finalFocus={false}
-            className="search-results-popover"
+            className="w-[min(560px,calc(100vw-24px))] overflow-hidden rounded-lg border bg-background shadow-[0_12px_40px_rgb(25_12_40_/_18%),0_2px_8px_rgb(25_12_40_/_8%)] outline-none"
             aria-label="Document search"
           >
             {children}
