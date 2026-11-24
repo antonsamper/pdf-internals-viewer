@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import { ChevronDown, ChevronRight, ChevronUp, Eye, FileCode2, Search } from 'lucide-react';
 
 import type { PageTextLocation, TextSource } from '@/lib/pdf/page-text';
@@ -39,8 +40,18 @@ const statusText = ({ displayedScope, interrupted, results, resultsScope, search
   return `${headline} · ${SCOPE_LABELS[displayedScope] ?? displayedScope}`;
 };
 
+/** Buttons inside a result card: compact, left aligned, and tall enough to tap on small and touch screens. */
+const CARD_BUTTON =
+  'h-auto min-h-6 max-w-full justify-start rounded-[4px] px-1.5 py-0.5 text-left text-[11px]! whitespace-normal max-w900:min-h-8 pointer-coarse:min-h-11';
+
+/** Header buttons grow to a 44px touch target on small screens. */
+const HEADER_BUTTON = 'max-w900:min-h-11 max-w900:min-w-11';
+
+/** Notes above and below the result cards. */
+const BODY_NOTE = 'px-3.5 py-2.5 text-[12px] [overflow-wrap:anywhere]';
+
 const focusSearchToggle = (search: Search) =>
-  search.formRef.current?.querySelector<HTMLButtonElement>('.search-show')?.focus({ preventScroll: true });
+  search.formRef.current?.querySelector<HTMLButtonElement>('[data-search-show]')?.focus({ preventScroll: true });
 
 const ResultsHeader = ({ search }: { search: Search }) => {
   const {
@@ -59,18 +70,23 @@ const ResultsHeader = ({ search }: { search: Search }) => {
   const results = search.results ?? [];
   const pageText = resultsScope === 'pageText';
   return (
-    <div className="search-results-header">
-      <span role="status" title={searching || interrupted ? searchingQuery : (resultsQuery ?? undefined)}>
+    <div className="flex shrink-0 items-center gap-2 border-b bg-sidebar px-3 py-2 text-[12px] text-muted-foreground max-w900:px-2 max-w900:py-1.5">
+      <span
+        className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap max-w900:leading-[1.4] max-w900:whitespace-normal"
+        role="status"
+        title={searching || interrupted ? searchingQuery : (resultsQuery ?? undefined)}
+      >
         {statusText(search)}
       </span>
-      <div className="search-result-navigation" aria-label="Search result navigation" role="group">
-        <span aria-live="polite" aria-atomic="true">
+      <div className="ml-auto flex items-center gap-0.5 whitespace-nowrap" aria-label="Search result navigation" role="group">
+        <span className="mr-1.5 text-[11px]" aria-live="polite" aria-atomic="true">
           {pageText ? 'Page ' : 'Match '}
           {results.length ? `${(activeResult ?? 0) + 1} of ${results.length}` : '0 of 0'}
         </span>
         <Button
           size="icon-sm"
           variant="ghost"
+          className={HEADER_BUTTON}
           aria-label="Previous search result"
           title={pageText ? 'Previous matching page' : 'Previous match'}
           disabled={searching || results.length < 2}
@@ -81,6 +97,7 @@ const ResultsHeader = ({ search }: { search: Search }) => {
         <Button
           size="icon-sm"
           variant="ghost"
+          className={HEADER_BUTTON}
           aria-label="Next search result"
           title={pageText ? 'Next matching page' : 'Next match'}
           disabled={searching || results.length < 2}
@@ -93,6 +110,7 @@ const ResultsHeader = ({ search }: { search: Search }) => {
         <Button
           size="xs"
           variant="ghost"
+          className={HEADER_BUTTON}
           aria-label="Cancel search"
           title="Cancel search"
           onClick={() => {
@@ -106,6 +124,7 @@ const ResultsHeader = ({ search }: { search: Search }) => {
       <Button
         size="xs"
         variant="ghost"
+        className={HEADER_BUTTON}
         aria-label="Hide search results"
         title="Hide results (Esc)"
         onClick={() => {
@@ -137,13 +156,13 @@ const SourceButtons = ({
   const keys = uniqueKeys(sources, (source) => `${source.id}:${source.ranges[0]?.start ?? 'candidate'}`);
   const mapped = location.sources.some((source) => source.ranges.length);
   return (
-    <div className="search-source-list">
-      <span className="search-source-label">{mapped ? 'Bytes' : 'Streams'}</span>
+    <div className="flex flex-wrap items-center gap-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1">
+      <span className="mr-0.5 text-[11px] text-muted-foreground max-w400:col-span-full max-w400:m-0">{mapped ? 'Bytes' : 'Streams'}</span>
       {sources.map((source, sourceIndex) => (
         <Button
           key={keys[sourceIndex]}
           size="xs"
-          className="search-source-location"
+          className={cn(CARD_BUTTON, 'max-w400:min-w-0 max-w400:justify-self-start')}
           variant={textSource === source ? 'secondary' : 'ghost'}
           aria-label={`${source.ranges.length ? 'Show bytes' : 'Inspect content stream'} · ${source.id} obj${source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}`}
           title={source.ranges.length ? 'Show matching bytes' : 'Inspect candidate content stream'}
@@ -161,7 +180,7 @@ const SourceButtons = ({
           }}
         >
           <FileCode2 size={12} />
-          <code>
+          <code className="text-[11px]! font-normal max-w400:[overflow-wrap:anywhere]">
             {source.ranges.length ? source.id : `Candidate ${source.id}`}
             {source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}
           </code>
@@ -188,19 +207,19 @@ const PageTextLinks = ({
   const expanded = sourceLocationsPage === location.pageId;
   const mapped = location.sources.some((source) => source.ranges.length);
   return (
-    <div className="text-source-links" role="group" aria-label="Page text source locations">
+    <div className="mx-3 mb-2.5 flex flex-col items-stretch gap-1.5 border-t pt-2" role="group" aria-label="Page text source locations">
       {!mapped && (
-        <span className="search-help">
+        <span className="mb-0.5 text-[11px] leading-normal text-muted-foreground">
           Exact word bytes could not be mapped. Stream inspection highlights a candidate container, not the word.
         </span>
       )}
       {location.sources.length > 0 && <SourceButtons index={index} location={location} search={search} textSource={textSource} />}
-      <div className="search-result-actions">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-2">
         {location.sources.length > 1 && (
           <Button
             size="xs"
-            variant="ghost"
-            className="search-source-toggle"
+            variant="link"
+            className={cn(CARD_BUTTON, 'px-0 text-muted-foreground underline-offset-[3px]')}
             disabled={searching}
             aria-expanded={expanded}
             onClick={() => toggleSources(location.pageId)}
@@ -211,7 +230,8 @@ const PageTextLinks = ({
         )}
         <Button
           size="xs"
-          variant="ghost"
+          variant="link"
+          className={cn(CARD_BUTTON, 'px-0 text-(--reference) underline-offset-[3px]')}
           disabled={searching}
           onClick={() => {
             openResultPreview(result, index);
@@ -232,21 +252,27 @@ const ResultSummary = ({ result, resultsScope }: { result: SearchResult; results
   if (!snippet)
     return (
       <>
-        <code>{result.label}</code>
-        <span>{result.detail}</span>
+        <code className="col-start-1 text-[12px]! font-semibold text-foreground">{result.label}</code>
+        <span className="col-start-1 text-[12px] leading-normal [overflow-wrap:anywhere] text-muted-foreground">{result.detail}</span>
       </>
     );
   return (
     <>
-      <span className={`search-result-context ${resultsScope === 'pageText' ? '' : 'search-byte-context'}`}>
+      <span
+        className={cn(
+          'col-start-1 text-[13px] leading-normal [overflow-wrap:anywhere] text-foreground',
+          resultsScope !== 'pageText' && '[font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace]'
+        )}
+        data-search-result-context=""
+      >
         {snippet.before}
-        <mark>{snippet.match}</mark>
+        <mark className="rounded-[2px] bg-(--byte-selection) px-px text-(--byte-selection-foreground)">{snippet.match}</mark>
         {snippet.after}
       </span>
       {!result.pageText && (
-        <code className="search-result-meta">
+        <code className="col-start-1 text-[11px]! font-normal text-muted-foreground" data-search-result-meta="">
           {result.label}
-          <span> · {result.detail}</span>
+          <span className="font-sans"> · {result.detail}</span>
         </code>
       )}
     </>
@@ -266,9 +292,13 @@ const ResultItem = ({
 }) => {
   const { activeMatchRef, activeResult, inputRef, resultsScope, searching, selectResult, setOpen } = search;
   return (
-    <div className="search-result-item">
+    <div
+      className="scroll-my-2 overflow-hidden rounded-[8px] border bg-background has-[[aria-current=true]]:border-(--reference) has-[[aria-current=true]]:shadow-[0_0_0_1px_var(--reference)]"
+      data-search-result-item=""
+    >
       <button
-        className="search-result"
+        className="grid w-full grid-cols-[minmax(0,1fr)_18px] gap-x-3 gap-y-1 bg-transparent px-3.5 py-3 text-left hover:bg-muted focus-visible:-outline-offset-2! aria-[current=true]:bg-accent"
+        data-search-result=""
         ref={index === activeResult ? activeMatchRef : undefined}
         aria-current={index === activeResult ? 'true' : undefined}
         disabled={searching}
@@ -287,13 +317,16 @@ const ResultItem = ({
         }}
       >
         {result.pageText && (
-          <span className="search-result-page">
-            <strong>{result.label}</strong>
-            <span>{result.detail}</span>
+          <span className="col-start-1 flex items-baseline justify-between gap-3 text-[12px] leading-normal [overflow-wrap:anywhere] text-foreground">
+            <strong className="text-[12px] font-semibold">{result.label}</strong>
+            <span className="text-[11px] whitespace-nowrap text-muted-foreground">{result.detail}</span>
           </span>
         )}
         <ResultSummary result={result} resultsScope={resultsScope} />
-        <ChevronRight size={15} />
+        <ChevronRight
+          className={cn('col-start-2 self-center text-muted-foreground', result.pageText ? 'row-start-2' : 'row-span-2 row-start-1')}
+          size={15}
+        />
       </button>
       {resultsScope === 'pageText' && result.pageText && (
         <PageTextLinks index={index} location={result.pageText} result={result} search={search} textSource={textSource} />
@@ -305,12 +338,12 @@ const ResultItem = ({
 const EmptyResults = ({ search }: { search: Search }) => {
   const { resultsQuery, resultsScope, searchAsPageText } = search;
   return (
-    <div className="search-empty">
+    <div className="flex min-h-[100px] flex-col items-center justify-center gap-2.5 p-5 text-center text-muted-foreground">
       <Search size={22} aria-hidden="true" />
-      <p>No results for “{resultsQuery}”</p>
-      <span>{EMPTY_HINTS[resultsScope] ?? 'Try a shorter sequence of complete hexadecimal bytes.'}</span>
+      <p className="text-[13px] [overflow-wrap:anywhere] text-foreground">No results for “{resultsQuery}”</p>
+      <span className="text-[12px]">{EMPTY_HINTS[resultsScope] ?? 'Try a shorter sequence of complete hexadecimal bytes.'}</span>
       {['objects', 'keys', 'text', 'decoded'].includes(resultsScope) && (
-        <Button size="sm" variant="secondary" onClick={searchAsPageText}>
+        <Button className="max-w900:min-h-11" size="sm" variant="secondary" onClick={searchAsPageText}>
           Search page text instead
         </Button>
       )}
@@ -320,12 +353,12 @@ const EmptyResults = ({ search }: { search: Search }) => {
 
 const CoverageNote = ({ message, resultsScope }: { message: string; resultsScope: string }) =>
   resultsScope === 'pageText' ? (
-    <details className="search-help" open={message.startsWith('Showing')}>
-      <summary>Search coverage</summary>
-      <p>{message}</p>
+    <details className="border-t px-3.5 py-2.5 text-[11px] text-muted-foreground" open={message.startsWith('Showing')}>
+      <summary className="cursor-pointer">Search coverage</summary>
+      <p className="mt-2 leading-normal">{message}</p>
     </details>
   ) : (
-    <p className="search-help">{message}</p>
+    <p className={cn(BODY_NOTE, 'text-muted-foreground')}>{message}</p>
   );
 
 export const SearchResultsPanel = ({ search, textSource }: { search: Search; textSource: TextSource | null }) => {
@@ -357,12 +390,13 @@ export const SearchResultsPanel = ({ search, textSource }: { search: Search; tex
       input={inputRef}
     >
       <section
-        className="search-results"
+        className="group/results flex max-h-[min(480px,60dvh,var(--available-height,480px))] min-h-[100px] flex-col overflow-hidden bg-background data-hold-height:h-[var(--search-loading-height,180px)]"
         aria-label="Search results"
+        data-search-results=""
         data-searching={searching || undefined}
         data-hold-height={searching || showPrevious || undefined}
         onKeyDown={(event) => {
-          if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && (event.target as HTMLElement).classList.contains('search-result')) {
+          if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && (event.target as HTMLElement).matches('[data-search-result]')) {
             event.preventDefault();
             move(event.key === 'ArrowDown' ? 1 : -1);
             requestAnimationFrame(() =>
@@ -374,10 +408,18 @@ export const SearchResultsPanel = ({ search, textSource }: { search: Search; tex
         }}
       >
         <ResultsHeader search={search} />
-        <div className="search-results-body" aria-busy={searching}>
-          {showPrevious && <p className="search-previous">Previous results for “{resultsQuery}”</p>}
-          {interrupted === 'failed' && message && <p role="status">{message}</p>}
-          <div className="search-matches">
+        <div className="min-h-0 flex-1 overflow-auto overscroll-contain" data-search-results-body="" aria-busy={searching}>
+          {showPrevious && (
+            <p className={cn(BODY_NOTE, 'text-muted-foreground')} data-search-previous="">
+              Previous results for “{resultsQuery}”
+            </p>
+          )}
+          {interrupted === 'failed' && message && (
+            <p className={BODY_NOTE} role="status">
+              {message}
+            </p>
+          )}
+          <div className="flex flex-col gap-3 bg-muted p-3 group-data-searching/results:opacity-55" data-search-matches="">
             {results.map((result, index) => (
               <ResultItem key={keys[index]} index={index} result={result} search={search} textSource={textSource} />
             ))}

@@ -591,7 +591,7 @@ for (const width of [1440, 390]) {
       exact: true,
       name: 'Search document',
     });
-    const form = page.locator('.search-form');
+    const form = page.locator('form', { has: page.getByRole('textbox', { name: 'Search document' }) });
     const empty = (await form.boundingBox())!;
     const submit = (await page.getByRole('button', { exact: true, name: 'Run search' }).boundingBox())!;
     expect(empty.x + empty.width - submit.x - submit.width).toBeLessThan(12);
@@ -626,7 +626,7 @@ for (const width of [1440, 390]) {
       name: 'Search results',
     });
     await expect(results).toContainText('1 match');
-    await results.locator('.search-result').first().focus();
+    await results.locator('[data-search-result]').first().focus();
     await scope.click();
     await expect(page.getByRole('listbox')).toBeVisible();
     await expect(results).toBeVisible();
@@ -636,7 +636,7 @@ for (const width of [1440, 390]) {
     await expect(results).toBeVisible();
     await expect(search).toHaveValue('Hello');
     await expect(results).toContainText('1 page');
-    await expect(results.locator('.search-result mark')).toHaveText('Hello');
+    await expect(results.locator('[data-search-result] mark')).toHaveText('Hello');
   });
 }
 for (const width of [1440, 390]) {
@@ -655,13 +655,19 @@ for (const width of [1440, 390]) {
       name: 'Search document',
     });
     await query.fill('Hello');
-    await expect.poll(() => page.locator('.search-form').evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe('none');
+    await expect
+      .poll(() =>
+        page
+          .locator('form', { has: page.getByRole('textbox', { name: 'Search document' }) })
+          .evaluate((el) => getComputedStyle(el).boxShadow)
+      )
+      .toContain('0px 0px 0px 2px');
     await query.press('Enter');
     const results = page.getByRole('region', {
       exact: true,
       name: 'Search results',
     });
-    const row = results.locator('.search-result');
+    const row = results.locator('[data-search-result]');
     await expect(row).toHaveCount(1);
     await expect(
       results.getByRole('group', {
@@ -747,7 +753,7 @@ test('steps through search results, wraps, and resets for a new search', async (
   });
   await search.fill('0');
   await search.press('Enter');
-  const matches = results.locator('.search-matches button');
+  const matches = results.locator('[data-search-matches] button');
   const count = await matches.count();
   expect(count).toBeGreaterThan(1);
   await expect(results.getByRole('group')).toContainText(`1 of ${count}`);
@@ -2586,7 +2592,7 @@ for (const width of [1440, 390]) {
     });
     await search.fill('0');
     await search.press('Enter');
-    const matches = results.locator('.search-matches button');
+    const matches = results.locator('[data-search-matches] button');
     await expect(matches).toHaveCount(5);
     const height = (await results.boundingBox())!.height;
     expect(height).toBeGreaterThan(200);
@@ -2596,15 +2602,15 @@ for (const width of [1440, 390]) {
     await selectSearchScope(page, 'decoded');
     await expect(results).toContainText('Searching for “Hello”…');
     await expect(matches).toHaveCount(5);
-    await expect(results.locator('.search-previous')).toHaveText('Previous results for “0”');
-    await expect(results.locator('.search-matches')).toHaveCSS('opacity', '0.55');
+    await expect(results.locator('[data-search-previous]')).toHaveText('Previous results for “0”');
+    await expect(results.locator('[data-search-matches]')).toHaveCSS('opacity', '0.55');
     expect((await results.boundingBox())!.height).toBe(height);
     await expect(matches.first()).toBeDisabled();
     await page.evaluate(() => window.dispatchEvent(new Event('release-search')));
     await expect(matches).toHaveCount(1);
     await expect(results).toContainText('1 match');
     expect((await results.boundingBox())!.height).toBeLessThan(height);
-    expect(await panel!.evaluate((element) => element === document.querySelector('.search-results'))).toBe(true);
+    expect(await panel!.evaluate((element) => element === document.querySelector('[data-search-results]'))).toBe(true);
     await search.fill('no-such-text');
     await search.press('Enter');
     await expect(results).toContainText('0 matches');
@@ -2696,7 +2702,7 @@ for (const width of [1440, 390]) {
       exact: true,
       name: 'Search results',
     });
-    const matches = results.locator('.search-matches button');
+    const matches = results.locator('[data-search-matches] button');
     await search.fill('0');
     await search.press('Enter');
     await expect(matches).toHaveCount(5);
@@ -2720,7 +2726,7 @@ for (const width of [1440, 390]) {
     await page.clock.resume();
     await search.fill('edited while searching');
     await expect(results).toContainText('Searching for “Hello”…');
-    await expect(results.locator('.search-previous')).toHaveText('Previous results for “0”');
+    await expect(results.locator('[data-search-previous]')).toHaveText('Previous results for “0”');
     await expect(matches.first()).toBeDisabled();
     await mkdir(resolve('.context'), { recursive: true });
     await results.screenshot({
@@ -2731,23 +2737,23 @@ for (const width of [1440, 390]) {
     await results.getByRole('button', { exact: true, name: 'Cancel search' }).click();
     await expect(results).toContainText('Search cancelled for “Hello”');
     await expect(search).toBeFocused();
-    await expect(results.locator('.search-previous')).toHaveText('Previous results for “0”');
+    await expect(results.locator('[data-search-previous]')).toHaveText('Previous results for “0”');
     await expect(matches).toHaveCount(5);
     await expect(matches.first()).toBeEnabled();
-    await expect(results.locator('.search-matches')).toHaveCSS('opacity', '1');
+    await expect(results.locator('[data-search-matches]')).toHaveCSS('opacity', '1');
     await page.evaluate(() => window.dispatchEvent(new Event('release-search')));
     await selectSearchScope(page, 'hex');
     await search.fill('ZZ');
     await search.press('Enter');
     await expect(results).toContainText('Search failed for “ZZ”');
     await expect(results).toContainText('Enter complete hex bytes');
-    await expect(results.locator('.search-previous')).toHaveText('Previous results for “0”');
+    await expect(results.locator('[data-search-previous]')).toHaveText('Previous results for “0”');
     await expect(matches).toHaveCount(5);
     await selectSearchScope(page, 'objects');
     await search.fill('not-present');
     await search.press('Enter');
     await expect(results).toContainText('0 matches');
-    await expect(results.locator('.search-previous')).toHaveCount(0);
+    await expect(results.locator('[data-search-previous]')).toHaveCount(0);
     expect((await results.boundingBox())!.height).toBeLessThan(400);
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   });
@@ -2769,7 +2775,7 @@ for (const width of [1440, 390]) {
       exact: true,
       name: 'Search results',
     });
-    const rows = results.locator('.search-result');
+    const rows = results.locator('[data-search-result]');
     await expect(results).toBeVisible();
     expect(await rows.count()).toBeGreaterThan(10);
     const after = await workspace.boundingBox();
@@ -2780,7 +2786,7 @@ for (const width of [1440, 390]) {
     expect(second.x).toBe(first.x);
     expect(second.y).toBeGreaterThanOrEqual(first.y + first.height);
     expect(first.height).toBeGreaterThan(40);
-    const body = results.locator('.search-results-body');
+    const body = results.locator('[data-search-results-body]');
     expect(await body.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
     const bounds = (await results.boundingBox())!;
     expect(bounds.x).toBeGreaterThanOrEqual(0);
@@ -2839,17 +2845,17 @@ for (const width of [1440, 390, 320]) {
     await search.fill('Hello');
     await search.press('Enter');
     await expect(results).toContainText('1 match');
-    await expect(results.locator('.search-result mark')).toHaveText('Hello');
-    await expect(results.locator('.search-result-context')).toContainText('PDF internals.');
-    await expect(results.locator('.search-result-meta')).toContainText('5 original file bytes');
+    await expect(results.locator('[data-search-result] mark')).toHaveText('Hello');
+    await expect(results.locator('[data-search-result-context]')).toContainText('PDF internals.');
+    await expect(results.locator('[data-search-result-meta]')).toContainText('5 original file bytes');
     expect((await results.boundingBox())!.height).toBeLessThan(width < 900 ? 280 : 240);
-    await results.locator('.search-result').click();
+    await results.locator('[data-search-result]').click();
     await expect(results).toHaveCount(0);
     await expect(page.getByRole('group', { exact: true, name: 'Current search match' })).toHaveCount(0);
     await search.fill('0');
     await search.press('Enter');
     await expect(results).toContainText('89 matches');
-    await results.locator('.search-result').first().click();
+    await results.locator('[data-search-result]').first().click();
     await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
     const previousSelection = await page.locator('.hex-status').textContent();
     await current.getByRole('button', { exact: true, name: 'Next search result' }).click();
@@ -2860,7 +2866,7 @@ for (const width of [1440, 390, 320]) {
     await expect(current).toContainText('1 of 89');
     await current.getByRole('button', { exact: true, name: 'Previous search result' }).click();
     await expect(current).toContainText('89 of 89');
-    await expect(results.locator('.search-result').last()).toBeInViewport();
+    await expect(results.locator('[data-search-result]').last()).toBeInViewport();
     await selectSearchScope(page, 'objects');
     await search.fill('Hello');
     await search.press('Enter');
@@ -2869,7 +2875,7 @@ for (const width of [1440, 390, 320]) {
     await expect(results).toContainText('1 page');
     await expect(page.getByRole('combobox', { exact: true, name: 'Search scope' })).toContainText('Page text');
     await expect(search).toHaveValue('Hello');
-    await expect(results.locator('.search-result mark')).toHaveText('Hello');
+    await expect(results.locator('[data-search-result] mark')).toHaveText('Hello');
     await expect(results.getByRole('button', { exact: true, name: 'Open page preview' })).toBeVisible();
     if (width < 900) {
       expect((await search.boundingBox())!.width).toBeGreaterThan(180);
@@ -2925,8 +2931,8 @@ for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
       exact: true,
       name: 'Search results',
     });
-    await expect(results.locator('.search-result')).toHaveCount(1);
-    await results.locator('.search-result').click();
+    await expect(results.locator('[data-search-result]')).toHaveCount(1);
+    await results.locator('[data-search-result]').click();
     const bytes = page.getByRole('region', {
       exact: true,
       name: compressed ? 'Decoded stream bytes' : 'Original file bytes',
@@ -2937,7 +2943,7 @@ for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
     });
     await expect(bytes.locator('button.hex-selected')).toHaveCount(0);
     await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
-    await results.locator('.search-result').click();
+    await results.locator('[data-search-result]').click();
     await expect(bytes.locator('button.hex-selected')).toHaveCount(5);
     await expect(bytes.locator('button.hex-selected').first()).toBeInViewport();
     await bytes.locator('.hex-viewport').evaluate((element) => {
@@ -2947,7 +2953,7 @@ for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
     await page.getByRole('button', { exact: true, name: 'Back' }).click();
     await page.getByRole('button', { exact: true, name: 'Forward' }).click();
     await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
-    await results.locator('.search-result').click();
+    await results.locator('[data-search-result]').click();
     await expect(bytes.locator('button.hex-selected')).toHaveCount(5);
     await expect(bytes.locator('button.hex-selected').first()).toBeInViewport();
     if (compressed) {
@@ -2962,7 +2968,7 @@ for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
       await page.getByRole('button', { exact: true, name: 'Original bytes' }).click();
       await expect(page.locator('.text-source-note')).toContainText('Containing stream only');
       await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
-      await results.locator('.search-result').click();
+      await results.locator('[data-search-result]').click();
       await expect(bytes).toBeVisible();
       await expect(bytes.locator('button.hex-selected')).toHaveCount(5);
       await expect(bytes.locator('button.hex-selected').first()).toBeInViewport();
@@ -3002,14 +3008,14 @@ for (const width of [1440, 390]) {
       exact: true,
       name: 'Search results',
     });
-    const cards = results.locator('.search-result-item');
+    const cards = results.locator('[data-search-result-item]');
     await expect(cards).toHaveCount(6);
     const expectWholeCard = async (index: number) => {
-      await expect(cards.nth(index).locator('.search-result')).toHaveAttribute('aria-current', 'true');
+      await expect(cards.nth(index).locator('[data-search-result]')).toHaveAttribute('aria-current', 'true');
       await expect
         .poll(async () => {
           const card = (await cards.nth(index).boundingBox())!;
-          const body = (await results.locator('.search-results-body').boundingBox())!;
+          const body = (await results.locator('[data-search-results-body]').boundingBox())!;
           return card.y >= body.y && card.y + card.height <= body.y + body.height + 1;
         })
         .toBe(true);
@@ -3024,7 +3030,7 @@ for (const width of [1440, 390]) {
     });
     const move = async (direction: 'next' | 'previous') => {
       if (width < 900) {
-        await results.locator('.search-result[aria-current="true"]').press(direction === 'next' ? 'ArrowDown' : 'ArrowUp');
+        await results.locator('[data-search-result][aria-current="true"]').press(direction === 'next' ? 'ArrowDown' : 'ArrowUp');
       } else {
         await (direction === 'next' ? next : previous).click();
       }
@@ -3037,10 +3043,10 @@ for (const width of [1440, 390]) {
     await expectWholeCard(2);
     // Keyboard focus must not override the card's scroll position with the snippet's.
     await search.press('ArrowDown');
-    await expect(cards.nth(2).locator('.search-result')).toBeFocused();
-    await cards.nth(2).locator('.search-result').press('ArrowDown');
+    await expect(cards.nth(2).locator('[data-search-result]')).toBeFocused();
+    await cards.nth(2).locator('[data-search-result]').press('ArrowDown');
     await expectWholeCard(3);
-    await cards.nth(3).locator('.search-result').press('ArrowUp');
+    await cards.nth(3).locator('[data-search-result]').press('ArrowUp');
     await expectWholeCard(2);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await move('previous');
@@ -3075,8 +3081,8 @@ test('page result actions are visible before choosing an unselected page', async
     exact: true,
     name: 'Search results',
   });
-  await expect(results.locator('.search-result')).toHaveCount(2);
-  const second = results.locator('.search-result-item').nth(1);
+  await expect(results.locator('[data-search-result]')).toHaveCount(2);
+  const second = results.locator('[data-search-result-item]').nth(1);
   await expect(second.getByRole('button', { name: /Show bytes/ })).toBeVisible();
   await expect(second.getByRole('button', { exact: true, name: 'Open page preview' })).toBeVisible();
   await second.getByRole('button', { name: /Show bytes/ }).click();
