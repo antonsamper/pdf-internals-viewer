@@ -8,7 +8,7 @@ const upload = async (page: Page, name: string) => {
   await page.getByLabel('Open local PDF').setInputFiles(samplePath(name));
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
   await expect(page.locator('.filename')).toContainText(name);
-  await expect(page.locator('.status-bar')).toContainText('objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('objects indexed');
 };
 const selectSearchScope = async (page: Page, value: string) => {
   const labels: Record<string, string> = {
@@ -25,7 +25,7 @@ const selectSearchScope = async (page: Page, value: string) => {
 const openMinimal = async (page: Page) => {
   await page.getByRole('button', { name: /^A simple page/ }).click();
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
-  await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
 };
 const samplePath = (name: string) => resolve('public/samples', name);
 // Keep artifacts separate when --browser=all runs engines concurrently.
@@ -39,7 +39,7 @@ test('opens with an accessible empty workspace and sample choices', async ({ pag
   await expect(page.getByRole('button', { name: /^A simple page/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /^Fonts & resources/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /^Compressed objects/ })).toBeVisible();
-  await expect(page.locator('.status-bar')).toHaveCount(0);
+  await expect(page.getByRole('contentinfo')).toHaveCount(0);
   await expect(page.getByRole('navigation', { exact: true, name: 'Project' })).toBeVisible();
   await mkdir(resolve('.context'), { recursive: true });
   await page.screenshot({
@@ -74,8 +74,8 @@ test('shows the mascot drop target, dismisses on leaving, and opens a dropped PD
     },
     [...(await readFile(samplePath('minimal.pdf')))]
   );
-  const shell = page.locator('.app-shell');
-  const overlay = page.locator('.drop-overlay');
+  const shell = page.getByRole('main');
+  const overlay = page.getByTestId('drop-overlay');
   for (const mode of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme: mode });
     await shell.dispatchEvent('dragover', { dataTransfer });
@@ -89,42 +89,42 @@ test('shows the mascot drop target, dismisses on leaving, and opens a dropped PD
   }
   await page.setViewportSize({ height: 844, width: 390 });
   await shell.dispatchEvent('dragover', { dataTransfer });
-  await expect(page.locator('.drop-target')).toBeInViewport();
+  await expect(page.getByTestId('drop-target')).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   await shell.dispatchEvent('drop', { dataTransfer });
   await expect(overlay).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
   await expect(page.locator('.filename')).toContainText('minimal.pdf');
-  await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
 });
 test('shows document status only in an active PDF workspace', async ({ page }) => {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ height: 844, width });
-    await expect(page.locator('.status-bar')).toHaveCount(0);
+    await expect(page.getByRole('contentinfo')).toHaveCount(0);
     await openMinimal(page);
     await expect(page.getByRole('navigation', { exact: true, name: 'Project' })).toHaveCount(0);
     await page.getByRole('link', { exact: true, name: 'User guide' }).click();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('How to inspect a PDF in your browser');
-    await expect(page.locator('.status-bar')).toHaveCount(0);
+    await expect(page.getByRole('contentinfo')).toHaveCount(0);
     await expect(page.getByRole('navigation', { exact: true, name: 'Project' })).toBeVisible();
     await page.getByRole('link', { exact: true, name: 'Back to the workspace' }).click();
-    await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+    await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
     await page.getByRole('button', { exact: true, name: 'Close PDF' }).click();
     await expect(page.getByRole('heading', { name: 'Look inside a PDF.' })).toBeVisible();
-    await expect(page.locator('.status-bar')).toHaveCount(0);
+    await expect(page.getByRole('contentinfo')).toHaveCount(0);
     await expect(page.getByRole('navigation', { exact: true, name: 'Project' })).toBeVisible();
   }
 });
 test('ends sample sessions without reopening them and preserves the current public route', async ({ page }) => {
   await page.goto('/?sample=compressed');
   await expect(page.locator('.filename')).toContainText('compressed.pdf');
-  await expect(page.locator('.status-bar')).toContainText('7 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('7 objects indexed');
   await page.getByRole('button', { exact: true, name: 'Close PDF' }).click();
   await expect(page.getByRole('heading', { name: 'Look inside a PDF.' })).toBeVisible();
   await expect(page.getByRole('button', { exact: true, name: 'Close PDF' })).toHaveCount(0);
   // A new session can open normally, even though the initial sample query remains.
   await upload(page, 'minimal.pdf');
-  await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   await page.getByRole('link', { exact: true, name: 'User guide' }).click();
   await expect(page).toHaveURL(/\/guide$/);
   await page.getByRole('button', { exact: true, name: 'Close PDF' }).click();
@@ -132,7 +132,7 @@ test('ends sample sessions without reopening them and preserves the current publ
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('How to inspect a PDF in your browser');
   await page.getByRole('link', { exact: true, name: 'Back to the workspace' }).click();
   await expect(page.getByRole('heading', { name: 'Look inside a PDF.' })).toBeVisible();
-  await expect(page.locator('.status-bar')).toHaveCount(0);
+  await expect(page.getByRole('contentinfo')).toHaveCount(0);
 });
 test('summarizes page rotation in the document overview', async ({ page }) => {
   const rotation = page
@@ -299,7 +299,7 @@ test('keeps a clicked byte in place while selecting its containing object', asyn
     mimeType: 'application/pdf',
     name: 'long-stream.pdf',
   });
-  await expect(page.locator('.status-bar')).toContainText('4 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('4 objects indexed');
   const viewport = page.locator('.hex-viewport');
   await viewport.evaluate((element) => {
     element.scrollTop = 2600;
@@ -547,7 +547,7 @@ test('uploads and replaces local PDFs while clearing stale navigation', async ({
   await page.getByRole('button', { exact: true, name: 'First page' }).click();
   await expect(page.getByRole('button', { exact: true, name: 'Back' })).toBeEnabled();
   await upload(page, 'resources.pdf');
-  await expect(page.locator('.status-bar')).toContainText('10 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('10 objects indexed');
   await expect(page.getByRole('button', { exact: true, name: 'Back' })).toBeDisabled();
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toHaveCount(0);
   await page.getByRole('button', { exact: true, name: 'Close PDF' }).click();
@@ -648,7 +648,7 @@ for (const width of [1440, 390]) {
       mimeType: 'application/pdf',
       name: 'focus-search.pdf',
     });
-    await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+    await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
     await selectSearchScope(page, 'pageText');
     const query = page.getByRole('textbox', {
       exact: true,
@@ -813,9 +813,9 @@ test('keeps the mobile header compact with a long filename and search results', 
       mimeType: 'application/pdf',
       name: 'a-very-long-document-filename-for-mobile-layout-testing.pdf',
     });
-    await expect(page.locator('.status-bar')).toContainText('objects indexed');
-    const header = page.locator('.app-header');
-    const identity = await header.locator('.app-identity').boundingBox();
+    await expect(page.getByRole('contentinfo')).toContainText('objects indexed');
+    const header = page.getByRole('banner');
+    const identity = await header.getByRole('link', { exact: true, name: 'PDF Internals' }).boundingBox();
     const actions = await header.locator('.header-actions').boundingBox();
     expect(Math.abs(identity!.y - actions!.y)).toBeLessThan(10);
     const filename = await header.locator('.filename').boundingBox();
@@ -993,7 +993,7 @@ test('restores the resource browser scroll and expanded list after inspecting an
     mimeType: 'application/pdf',
     name: 'fonts.pdf',
   });
-  await expect(page.locator('.status-bar')).toContainText('73 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('73 objects indexed');
   await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { exact: true, name: 'Resources' }).click();
   const browser = page.getByRole('region', { name: 'Visual resource browser' });
   await browser.getByRole('button', { name: /Show.*more/i }).click();
@@ -1019,7 +1019,7 @@ test('keeps smaller object lists visible when history changes sections', async (
     mimeType: 'application/pdf',
     name: 'many-objects.pdf',
   });
-  await expect(page.locator('.status-bar')).toContainText('203 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('203 objects indexed');
   const sections = page.getByRole('navigation', { name: 'Document sections' });
   await sections.getByRole('button', { name: /^Pages/ }).click();
   await expect(
@@ -1096,7 +1096,7 @@ test('links to the static limitations page without a modal and retains the docum
   await expect(page.getByText('Early preview', { exact: false })).toHaveCount(0);
   await expect(page.getByRole('button', { name: /View limitations/ })).toHaveCount(0);
   await openMinimal(page);
-  const footerLink = page.locator('.status-bar').getByRole('link', { exact: true, name: 'Limitations' });
+  const footerLink = page.getByRole('contentinfo').getByRole('link', { exact: true, name: 'Limitations' });
   await expect(footerLink).toHaveAttribute('href', '/limitations');
   await footerLink.click();
   await expect(page).toHaveURL(/\/limitations$/);
@@ -1108,7 +1108,7 @@ test('links to the static limitations page without a modal and retains the docum
   ).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goBack();
-  await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   await expect(page.locator('.filename')).toContainText('minimal.pdf');
 });
 test('explores a page tree with inherited resources, explanations and labelled connections', async ({ page }) => {
@@ -1190,7 +1190,7 @@ test('labels cyclic, shared and unavailable page connections', async ({ page }) 
     mimeType: 'application/pdf',
     name: 'graph.pdf',
   });
-  await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   await page
     .getByRole('navigation', { name: 'Document sections' })
     .getByRole('button', { name: /^Pages/ })
@@ -1220,7 +1220,7 @@ test('pages large trees and preserves later-page expansion through navigation', 
     mimeType: 'application/pdf',
     name: 'pages.pdf',
   });
-  await expect(page.locator('.status-bar')).toContainText('55 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('55 objects indexed');
   const sections = page.getByRole('navigation', { name: 'Document sections' });
   await sections.getByRole('button', { name: /^Pages/ }).click();
   const tree = page.getByRole('navigation', { name: 'Page relationships' });
@@ -1309,7 +1309,7 @@ test('navigates About with browser history and retains the local document', asyn
   await page.goForward();
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
   await expect(page.locator('.filename')).toContainText('minimal.pdf');
-  await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   await page.goBack();
   await page.getByLabel('Open local PDF').setInputFiles(samplePath('resources.pdf'));
   await expect(page).toHaveURL(/\/$/);
@@ -1767,7 +1767,7 @@ test('prerenders home and About for readers without JavaScript', async ({ browse
   const reader = await context.newPage();
   await reader.goto('/');
   await expect(reader.getByRole('heading', { level: 1 })).toHaveText('Look inside a PDF.');
-  await expect(reader.locator('.status-bar')).toHaveCount(0);
+  await expect(reader.getByRole('contentinfo')).toHaveCount(0);
   await reader.getByRole('navigation', { exact: true, name: 'Project' }).getByRole('link', { exact: true, name: 'About' }).click();
   await expect(reader.getByRole('heading', { level: 1 })).toHaveText('A closer look at PDF.');
   await expect(reader.locator('main')).toContainText('Bookmarks and notes are saved in this browser');
@@ -1827,9 +1827,9 @@ test('replaces a document during an acknowledged object transfer without exposin
   });
   await expect(page.locator('html')).toHaveAttribute('data-batch-paused', 'true');
   await expect(page.getByRole('heading', { name: 'Opening PDF…' })).toBeVisible();
-  await expect(page.locator('.status-bar')).not.toContainText('objects indexed');
+  await expect(page.getByRole('contentinfo')).not.toContainText('objects indexed');
   await upload(page, 'minimal.pdf');
-  await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   await page.getByRole('button', { exact: true, name: 'Document catalogue' }).first().click();
   await expect(page.locator('.object-title h1')).toContainText('1 0');
   await expect(page.locator('.filename')).toContainText('minimal.pdf');
@@ -1855,7 +1855,7 @@ for (const [route, sample, instruction] of [
     await page.setViewportSize({ height: 1000, width: 1440 });
     await page.getByRole('link', { exact: true, name: 'Open this example' }).click();
     await expect(page.locator('.filename')).toContainText(`${sample}.pdf`);
-    await expect(page.locator('.status-bar')).toContainText('6 objects indexed');
+    await expect(page.getByRole('contentinfo')).toContainText('6 objects indexed');
     await page.getByRole('button', { exact: true, name: 'First page' }).click();
     await page.getByRole('button', { exact: true, name: '4 0 R' }).first().click();
     await page.getByRole('tab', { exact: true, name: 'Decoded' }).click();
@@ -2003,7 +2003,7 @@ test('opens example find-text-source and follows a page-text match to its source
   await page.setViewportSize({ height: 1000, width: 1440 });
   await page.getByRole('link', { exact: true, name: 'Open this example' }).click();
   await expect(page.locator('.filename')).toContainText('find-text-source.pdf');
-  await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   await selectSearchScope(page, 'decoded');
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('reference');
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
@@ -2047,7 +2047,7 @@ test('navigates grouped public content without JavaScript on desktop and mobile'
       path: screenshotPath(`inspector-vs-viewer-${width}.png`),
     });
     if (width !== 1440) {
-      expect((await reader.locator('.content-header').boundingBox())!.height).toBe(58);
+      expect((await reader.getByRole('banner').boundingBox())!.height).toBe(58);
       const menu = reader.locator('.content-header-menu summary');
       await menu.focus();
       await reader.keyboard.press('Enter');
@@ -2071,17 +2071,17 @@ test('keeps public header controls separate with a PDF open on narrow screens', 
   await openMinimal(page);
   await page.getByRole('link', { exact: true, name: 'User guide' }).click();
   for (const fontFamily of ['inherit', 'monospace']) {
-    await page.locator<HTMLElement>('.content-header').evaluate((header, font) => {
+    await page.getByRole('banner').evaluate((header, font) => {
       header.style.fontFamily = font;
     }, fontFamily);
     for (const width of [320, 361, 375, 600, 760]) {
       await page.setViewportSize({ height: 812, width });
       const navigation = await page.locator('.content-header-links').boundingBox();
       const close = await page.getByRole('button', { exact: true, name: 'Close PDF' }).boundingBox();
-      const theme = await page.locator('.theme-control').boundingBox();
+      const theme = await page.getByRole('button', { name: /^Switch to (dark|light) mode$/ }).boundingBox();
       expect(navigation!.x + navigation!.width).toBeLessThanOrEqual(close!.x);
       expect(close!.x + close!.width).toBeLessThanOrEqual(theme!.x);
-      await expect(page.locator('.content-header')).toHaveJSProperty('offsetHeight', 58);
+      await expect(page.getByRole('banner')).toHaveJSProperty('offsetHeight', 58);
     }
   }
   await page.locator('.content-open-link').click();
@@ -2297,7 +2297,7 @@ test('theme button keeps its position across workspace and public headers', asyn
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ height: 844, width });
     await page.goto('/');
-    const button = page.locator('.theme-control');
+    const button = page.getByRole('button', { name: /^Switch to (dark|light) mode$/ });
     const workspace = await button.boundingBox();
     expect(workspace).not.toBeNull();
     await openMinimal(page);
@@ -2324,8 +2324,8 @@ test('public headers match the workspace height and align the mobile identity ro
   for (const width of [1440, 768, 390]) {
     await page.setViewportSize({ height: 844, width });
     await page.goto('/');
-    const header = page.locator('.app-header');
-    const identity = page.locator('.app-identity');
+    const header = page.getByRole('banner');
+    const identity = header.getByRole('link', { exact: true, name: 'PDF Internals' });
     const workspace = await header.boundingBox();
     const workspaceIdentity = await identity.boundingBox();
     expect(workspace!.height).toBe(58);
@@ -2354,7 +2354,7 @@ for (const compressed of [false, true]) {
       mimeType: 'application/pdf',
       name: 'split-text.pdf',
     });
-    await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+    await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
     await selectSearchScope(page, 'pageText');
     await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Hello');
     await page.getByRole('button', { exact: true, name: 'Run search' }).click();
@@ -2423,7 +2423,7 @@ test('preview search highlights follow page rotation, zoom and page navigation',
     mimeType: 'application/pdf',
     name: 'rotated-search.pdf',
   });
-  await expect(page.locator('.status-bar')).toContainText('7 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('7 objects indexed');
   await selectSearchScope(page, 'pageText');
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('hello');
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
@@ -2479,7 +2479,7 @@ test('page text search labels unsupported font mappings as candidate streams on 
     mimeType: 'application/pdf',
     name: 'custom-font.pdf',
   });
-  await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   await selectSearchScope(page, 'pageText');
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Hello');
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
@@ -2544,7 +2544,7 @@ test('cancels a pending page text search when the document is replaced', async (
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   await loading;
   await page.getByLabel('Open local PDF').setInputFiles(samplePath('minimal.pdf'));
-  await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   release();
   await page.unrouteAll({ behavior: 'wait' });
   await expect(page.getByRole('region', { exact: true, name: 'Search results' })).toHaveCount(0);
@@ -2917,7 +2917,7 @@ for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
       mimeType: 'application/pdf',
       name: 'long-text-stream.pdf',
     });
-    await expect(page.locator('.status-bar')).toContainText('5 objects indexed');
+    await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
     await selectSearchScope(page, compressed ? 'pageText' : scope);
     await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Hello');
     await page.getByRole('button', { exact: true, name: 'Run search' }).click();
@@ -2990,7 +2990,7 @@ for (const width of [1440, 390]) {
       mimeType: 'application/pdf',
       name: 'six-pages.pdf',
     });
-    await expect(page.locator('.status-bar')).toContainText('15 objects indexed');
+    await expect(page.getByRole('contentinfo')).toContainText('15 objects indexed');
     await selectSearchScope(page, 'pageText');
     const search = page.getByRole('textbox', {
       exact: true,
@@ -3067,7 +3067,7 @@ test('page result actions are visible before choosing an unselected page', async
     mimeType: 'application/pdf',
     name: 'two-pages.pdf',
   });
-  await expect(page.locator('.status-bar')).toContainText('7 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('7 objects indexed');
   await selectSearchScope(page, 'pageText');
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Hello');
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
@@ -3100,7 +3100,7 @@ test('page text search highlights bytes encoded through a Unicode range font map
     mimeType: 'application/pdf',
     name: 'range-font.pdf',
   });
-  await expect(page.locator('.status-bar')).toContainText('6 objects indexed');
+  await expect(page.getByRole('contentinfo')).toContainText('6 objects indexed');
   await selectSearchScope(page, 'pageText');
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Hello');
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();

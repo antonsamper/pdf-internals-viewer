@@ -67,8 +67,8 @@ export const useSiteRoute = (initialPath: SitePath = '/') => {
   useEffect(() => {
     updateMetadata(path);
     const focusTarget =
-      document.querySelector<HTMLElement>(path !== '/' ? '.about-page' : '.empty-workspace') ??
-      document.querySelector<HTMLElement>('.app-identity');
+      document.querySelector<HTMLElement>(path !== '/' ? '.about-page' : '[data-welcome]') ??
+      document.querySelector<HTMLElement>('[data-app-identity]');
     focusTarget?.focus();
   }, [path]);
   return { about: path === '/about', followLink, goHome, path };

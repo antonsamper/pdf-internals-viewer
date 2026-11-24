@@ -3,6 +3,7 @@
 @import './styles/shadcn.css';
 @import '@fontsource-variable/geist';
 @import './styles/breakpoints.css';
+@import './styles/surfaces.css';
 @import './components/hex-view.css' layer(legacy);
 @import './app.css' layer(legacy);
 

@@ -1,10 +1,10 @@
 # Design system
 
-The exact values (colours, type sizes, spacing, radii and dark-mode mappings) live in `src/index.css`, `src/app.css` and `src/components/hex-view.css`. Breakpoints are theme tokens in `src/styles/breakpoints.css`. `src/app.css` and `src/components/hex-view.css` are imported into the `legacy` layer, which sits above Tailwind's utilities, so their rules still win over them. This document describes how to use them. Use the semantic tokens and shadcn controls on Base UI rather than hard-coded values.
+The exact values (colours, type sizes, spacing, radii and dark-mode mappings) live in `src/index.css`, `src/app.css` and `src/components/hex-view.css`. Breakpoints are theme tokens in `src/styles/breakpoints.css`. The `surface-dark` utility in `src/styles/surfaces.css` gives an element the plum header colours in both themes by redefining the colour tokens, so everything inside follows it. `src/app.css` and `src/components/hex-view.css` are imported into the `legacy` layer, which sits above Tailwind's utilities, so their rules still win over them. This document describes how to use them. Use the semantic tokens and shadcn controls on Base UI rather than hard-coded values.
 
 ## Look and feel
 
-A compact developer workspace in the logo's colours: a deep plum header, white inspection surfaces, a pale lilac explorer, fine borders and small type that leave room for PDF structure and bytes. Geist is used for interface text and explanations; system monospace for PDF syntax, object IDs, offsets and bytes.
+A compact developer workspace in the logo's colours: a deep plum header (`surface-dark`), white inspection surfaces, a pale lilac explorer, fine borders and small type that leave room for PDF structure and bytes. Geist is used for interface text and explanations; system monospace for PDF syntax, object IDs, offsets and bytes.
 
 The app follows the device's light or dark setting until the visitor picks one with the header's sun and moon button. `public/theme.js` applies the choice before the first render. Dark mode keeps every colour role on plum surfaces.
 
