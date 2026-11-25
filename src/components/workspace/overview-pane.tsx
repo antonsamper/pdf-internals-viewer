@@ -148,7 +148,8 @@ const StructureSection = ({ byteCount, document, onFollowReference, onSelectRang
     {document.startXref !== undefined ? (
       <Button
         variant="outline"
-        className="font-mono"
+        // The global `button` font rule outranks utilities.
+        className="font-code! text-[12px]!"
         onClick={() => {
           onSelectRange({
             end: Math.min(byteCount, document.startXref! + 32),

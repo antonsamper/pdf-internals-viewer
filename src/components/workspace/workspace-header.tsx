@@ -1,5 +1,6 @@
 import type { MouseEvent } from 'react';
 
+import { cn } from 'cn';
 import { BookOpen, File as FileIcon, FolderOpen, X } from 'lucide-react';
 
 import { ContentHeaderLinks } from '@/components/content-navigation';
@@ -13,6 +14,10 @@ import { size } from './types';
 type FollowLink = (event: MouseEvent<HTMLElement>) => boolean;
 
 const closeLabel = (busy: boolean) => (busy ? 'Cancel opening PDF' : 'Close PDF');
+
+/** Header actions shrink to 36px squares of icon only once the header becomes a grid. */
+const ACTION_COMPACT = 'max-w600:size-9 max-w600:p-0';
+const ACTION_LABEL = 'max-w600:hidden';
 
 const PublicPageActions = ({
   busy,
@@ -38,15 +43,32 @@ const PublicPageActions = ({
 );
 
 const FileName = ({ byteCount, filename }: { byteCount: number; filename: string }) => (
-  <div className="filename">
+  <div
+    data-filename=""
+    className={cn(
+      'flex min-w-0 flex-1 items-center gap-[9px]',
+      'text-[12px] text-muted-foreground',
+      'max-w600:col-start-2 max-w600:row-start-1 max-w600:text-[11px]',
+      !filename && 'max-w600:hidden'
+    )}
+  >
     {filename ? (
       <>
-        <FileIcon size={14} />
-        <span title={filename}>{filename}</span>
-        <span className="file-size">{size(byteCount)}</span>
+        <FileIcon className="max-w600:hidden" size={14} />
+        <span
+          className={cn(
+            'max-w-[50vw] overflow-hidden text-ellipsis whitespace-nowrap text-foreground',
+            'max-w900:max-w-[25vw]',
+            'max-w600:max-w-none'
+          )}
+          title={filename}
+        >
+          {filename}
+        </span>
+        <span className="text-[11px] max-w900:hidden">{size(byteCount)}</span>
       </>
     ) : (
-      <span className="muted">Local workspace</span>
+      <span>Local workspace</span>
     )}
   </div>
 );
@@ -63,14 +85,18 @@ const FileAction = ({
   onOpenFile: () => void;
 }) =>
   hasFile ? (
-    <Button variant="ghost" size="sm" onClick={onClose} aria-label={closeLabel(busy)} title={closeLabel(busy)}>
+    <Button className={ACTION_COMPACT} variant="ghost" size="sm" onClick={onClose} aria-label={closeLabel(busy)} title={closeLabel(busy)}>
       <X size={15} aria-hidden="true" />
-      <span className="header-action-label">{closeLabel(busy)}</span>
+      <span data-action-label="" className={ACTION_LABEL}>
+        {closeLabel(busy)}
+      </span>
     </Button>
   ) : (
-    <Button onClick={onOpenFile} size="sm" aria-label="Open PDF" title="Open PDF">
+    <Button className={ACTION_COMPACT} onClick={onOpenFile} size="sm" aria-label="Open PDF" title="Open PDF">
       <FolderOpen size={15} aria-hidden="true" />
-      <span className="header-action-label">Open PDF</span>
+      <span data-action-label="" className={ACTION_LABEL}>
+        Open PDF
+      </span>
     </Button>
   );
 
@@ -90,17 +116,20 @@ const WorkspaceActions = ({
   onOpenFile: () => void;
 }) => (
   <>
-    <span className="header-divider" />
+    <span className="h-[19px] w-px bg-border max-w600:hidden" />
     <FileName byteCount={byteCount} filename={filename} />
-    <div className="header-actions">
+    <div className={cn('flex items-center gap-2', 'max-w600:col-start-3 max-w600:row-start-1', 'max-w480:gap-0.5')} data-header-actions="">
       <a
-        className={buttonVariants({ size: 'sm', variant: 'ghost' })}
+        className={`${buttonVariants({ size: 'sm', variant: 'ghost' })} ${ACTION_COMPACT}`}
         href="/guide"
         aria-label="User guide"
         title="User guide"
         onClick={onFollowLink}
       >
-        <BookOpen size={15} aria-hidden="true" /> <span className="header-action-label">User guide</span>
+        <BookOpen size={15} aria-hidden="true" />{' '}
+        <span data-action-label="" className={ACTION_LABEL}>
+          User guide
+        </span>
       </a>
       <FileAction busy={busy} hasFile={Boolean(filename)} onClose={onClose} onOpenFile={onOpenFile} />
     </div>

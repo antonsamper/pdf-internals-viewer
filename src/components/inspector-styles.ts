@@ -3,7 +3,7 @@ import { cn } from 'cn';
 import type { IssueSeverity } from '@/lib/pdf/issues';
 
 /*
- * Class strings shared by the inspector panes. Legacy global rules for `button`, `code`, `pre` and `select`
+ * Class strings shared by the inspector panes. The global rules in `styles/overrides.css` for `button`, `code`, `pre` and `select`
  * (font and focus outline) outrank utilities, so font utilities on those elements take the `!` modifier.
  */
 

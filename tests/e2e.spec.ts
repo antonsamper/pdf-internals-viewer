@@ -7,7 +7,7 @@ import { classicPdf, encryptedPdf, embeddedFilesPdf, imageExportPdf, pageTextSea
 const upload = async (page: Page, name: string) => {
   await page.getByLabel('Open local PDF').setInputFiles(samplePath(name));
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
-  await expect(page.locator('.filename')).toContainText(name);
+  await expect(page.locator('[data-filename]')).toContainText(name);
   await expect(page.getByRole('contentinfo')).toContainText('objects indexed');
 };
 const selectSearchScope = async (page: Page, value: string) => {
@@ -53,9 +53,9 @@ test('uses the matching logo on the welcome and About pages in each theme', asyn
     await page.goto(path);
     for (const mode of ['light', 'dark'] as const) {
       await page.emulateMedia({ colorScheme: mode });
-      const visibleLogo = page.locator(`.brand-artwork-${mode}`);
+      const visibleLogo = page.locator(`[data-brand-artwork=${mode}]`);
       await expect(visibleLogo).toBeVisible();
-      await expect(page.locator(`.brand-artwork-${mode === 'light' ? 'dark' : 'light'}`)).toBeHidden();
+      await expect(page.locator(`[data-brand-artwork=${mode === 'light' ? 'dark' : 'light'}]`)).toBeHidden();
       await expect.poll(() => visibleLogo.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
       await expect(visibleLogo).toHaveAttribute('src', `/brand/pdf-internals-logo${mode === 'dark' ? '-dark' : ''}.png`);
     }
@@ -94,7 +94,7 @@ test('shows the mascot drop target, dismisses on leaving, and opens a dropped PD
   await shell.dispatchEvent('drop', { dataTransfer });
   await expect(overlay).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
-  await expect(page.locator('.filename')).toContainText('minimal.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('minimal.pdf');
   await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
 });
 test('shows document status only in an active PDF workspace', async ({ page }) => {
@@ -117,7 +117,7 @@ test('shows document status only in an active PDF workspace', async ({ page }) =
 });
 test('ends sample sessions without reopening them and preserves the current public route', async ({ page }) => {
   await page.goto('/?sample=compressed');
-  await expect(page.locator('.filename')).toContainText('compressed.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('compressed.pdf');
   await expect(page.getByRole('contentinfo')).toContainText('7 objects indexed');
   await page.getByRole('button', { exact: true, name: 'Close PDF' }).click();
   await expect(page.getByRole('heading', { name: 'Look inside a PDF.' })).toBeVisible();
@@ -166,7 +166,7 @@ test('follows page references, reads stream representations, and navigates histo
   await expect(page.getByRole('button', { exact: true, name: 'Explain /Contents' })).toBeVisible();
   await page.getByRole('button', { exact: true, name: '4 0 R' }).first().click();
   await expect(page.getByRole('heading', { name: /4 0\s+obj/ })).toBeVisible();
-  await expect(page.locator('.hex-byte.hex-selected').first()).toBeVisible();
+  await expect(page.locator('[data-hex-byte][data-selected]').first()).toBeVisible();
   await page.getByRole('tab', { exact: true, name: 'Raw stream' }).click();
   await expect(page.getByRole('tabpanel', { exact: true, name: 'Raw stream' })).toContainText('Hello, PDF internals.');
   await page.getByRole('tab', { exact: true, name: 'Decoded' }).click();
@@ -241,7 +241,7 @@ test('explains parsing failures and retains the reason after dismissing the bann
     path: screenshotPath('structure-unavailable.png'),
   });
   await explanation.getByRole('button', { exact: true, name: 'Inspect original bytes' }).click();
-  await expect(page.locator('.hex-status')).toContainText('1 byte selected');
+  await expect(page.locator('[data-hex-status]')).toContainText('1 byte selected');
   await upload(page, 'minimal.pdf');
   await expect(explanation).toHaveCount(0);
 });
@@ -266,17 +266,17 @@ test('validates hex offsets and supports keyboard byte navigation', async ({ pag
   });
   await offset.fill('nope');
   await page.getByRole('button', { exact: true, name: 'Jump to offset' }).click();
-  await expect(page.locator('.hex-status')).toContainText('Enter a decimal offset');
+  await expect(page.locator('[data-hex-status]')).toContainText('Enter a decimal offset');
   await offset.fill('999999');
   await page.getByRole('button', { exact: true, name: 'Jump to offset' }).click();
-  await expect(page.locator('.hex-status')).toContainText('Offset must be between');
+  await expect(page.locator('[data-hex-status]')).toContainText('Offset must be between');
   await offset.fill('0x0');
   await page.getByRole('button', { exact: true, name: 'Jump to offset' }).click();
-  await expect(page.locator('.hex-status')).toContainText('Jumped to 0x0');
+  await expect(page.locator('[data-hex-status]')).toContainText('Jumped to 0x0');
   const bytes = page.getByRole('region', { name: /^Hexadecimal bytes/ });
   await expect(bytes).toBeFocused();
   await bytes.press('ArrowRight');
-  await expect(page.locator('.hex-cursor')).toHaveAttribute('aria-label', /^Offset 1,/);
+  await expect(page.locator('[data-hex-byte][data-cursor]')).toHaveAttribute('aria-label', /^Offset 1,/);
   await bytes.press('Enter');
   await expect(page.getByRole('status').filter({ hasText: 'no known containing object' })).toBeVisible();
   await page.getByRole('button', { name: /Offsets in hexadecimal; switch to decimal/ }).click();
@@ -300,14 +300,14 @@ test('keeps a clicked byte in place while selecting its containing object', asyn
     name: 'long-stream.pdf',
   });
   await expect(page.getByRole('contentinfo')).toContainText('4 objects indexed');
-  const viewport = page.locator('.hex-viewport');
+  const viewport = page.locator('[data-hex-viewport]');
   await viewport.evaluate((element) => {
     element.scrollTop = 2600;
   });
   const chooseMiddleByte = () =>
     viewport.evaluate((element) => {
       const bounds = element.getBoundingClientRect();
-      const target = Array.from(element.querySelectorAll('button.hex-byte')).find((byteElement) => {
+      const target = Array.from(element.querySelectorAll('button[data-hex-byte]')).find((byteElement) => {
         const rect = byteElement.getBoundingClientRect();
         return rect.top > bounds.top + bounds.height / 2 && rect.bottom < bounds.bottom;
       });
@@ -327,7 +327,7 @@ test('keeps a clicked byte in place while selecting its containing object', asyn
   await expect(page.getByRole('heading', { name: /4 0\s+obj/ })).toBeVisible();
   await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(2600);
   await expect.poll(() => byte.evaluate((element) => element.getBoundingClientRect().top)).toBeCloseTo(target.top, 0);
-  await expect(byte).toHaveClass(/hex-cursor/);
+  await expect(byte).toHaveAttribute('data-cursor', '');
   // Keyboard selection inside the same object should preserve the viewport too.
   await viewport.focus();
   await viewport.press('ArrowDown');
@@ -379,7 +379,7 @@ test('bookmarks objects and byte ranges with notes and restores them for the sam
   await page.getByRole('button', { exact: true, name: 'Bookmark' }).click();
   await page.getByRole('button', { exact: true, name: '4 0 R' }).first().click();
   await bookmarks.getByRole('button', { name: /^Bytes 0x0/ }).click();
-  await expect(page.locator('.hex-status')).toContainText('1 byte selected');
+  await expect(page.locator('[data-hex-status]')).toContainText('1 byte selected');
   await upload(page, 'resources.pdf');
   await expect(bookmarks.getByRole('textbox')).toHaveCount(0);
   await page.reload();
@@ -391,7 +391,7 @@ test('bookmarks objects and byte ranges with notes and restores them for the sam
   });
   await expect(bookmarks.getByRole('textbox', { name: 'Note for 3 0 obj · properties' })).toHaveValue('Check inherited fonts');
   await bookmarks.getByRole('button', { name: /^Bytes 0x0/ }).click();
-  await expect(page.locator('.hex-status')).toContainText('1 byte selected');
+  await expect(page.locator('[data-hex-status]')).toContainText('1 byte selected');
   await bookmarks.getByRole('button', { name: 'Remove bookmark 3 0 obj · properties' }).click();
   await expect(bookmarks.getByRole('textbox')).toHaveCount(1);
   await page.reload();
@@ -488,7 +488,7 @@ test('explains split text and returns from the guide to the loaded PDF', async (
     mimeType: 'application/pdf',
     name: 'split-text.pdf',
   });
-  await expect(page.locator('.filename')).toContainText('split-text.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('split-text.pdf');
   await page.getByRole('button', { exact: true, name: 'First page' }).click();
   await page.getByRole('button', { exact: true, name: '4 0 R' }).first().click();
   await page.getByRole('tab', { exact: true, name: 'Decoded' }).click();
@@ -513,7 +513,7 @@ test('explains split text and returns from the guide to the loaded PDF', async (
   await expect(page.locator('details', { hasText: 'Convert a spacing adjustment' })).toContainText('0.204');
   await expect(page.getByRole('link', { exact: true, name: 'PDF operator reference' })).toHaveAttribute('target', '_blank');
   await page.getByRole('link', { exact: true, name: 'Back to the workspace' }).click();
-  await expect(page.locator('.filename')).toContainText('split-text.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('split-text.pdf');
   await expect(
     decoded.getByRole('list', { name: 'Content stream instructions' }).locator('code').filter({ hasText: '[(lor) 17 (em)] TJ' })
   ).toBeVisible();
@@ -705,9 +705,9 @@ for (const width of [1440, 390]) {
       exact: true,
       name: 'Decoded stream bytes',
     });
-    await expect(bytes.locator('.hex-viewport')).toBeFocused();
-    await expect(bytes.locator('button.hex-selected')).toHaveCount(5);
-    await expect(bytes.locator('button.hex-selected').first()).toBeInViewport();
+    await expect(bytes.locator('[data-hex-viewport]')).toBeFocused();
+    await expect(bytes.locator('button[data-hex-byte][data-selected]')).toHaveCount(5);
+    await expect(bytes.locator('button[data-hex-byte][data-selected]').first()).toBeInViewport();
     await showResults.click();
     const openPreview = results.getByRole('button', {
       exact: true,
@@ -741,7 +741,7 @@ test('searches keys and original hex bytes with distinct navigation', async ({ p
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   await expect(results).toContainText('1 match');
   await results.getByRole('button', { name: /0x0/ }).click();
-  await expect(page.locator('.hex-status')).toContainText('4 bytes selected');
+  await expect(page.locator('[data-hex-status]')).toContainText('4 bytes selected');
 });
 test('steps through search results, wraps, and resets for a new search', async ({ page }) => {
   await openMinimal(page);
@@ -778,7 +778,7 @@ test('steps through search results, wraps, and resets for a new search', async (
   await search.fill('obj');
   await search.press('Enter');
   await expect(results.getByRole('group')).toContainText('1 of 10');
-  await expect(page.locator('.hex-status')).toContainText('3 bytes selected');
+  await expect(page.locator('[data-hex-status]')).toContainText('3 bytes selected');
   await results.getByRole('button', { exact: true, name: 'Next search result' }).click();
   await expect(results.getByRole('group')).toContainText('2 of 10');
   await expect(matches.nth(1)).toHaveAttribute('aria-current', 'true');
@@ -824,17 +824,19 @@ test('keeps the mobile header compact with a long filename and search results', 
     await expect(page.getByRole('contentinfo')).toContainText('objects indexed');
     const header = page.getByRole('banner');
     const identity = await header.getByRole('link', { exact: true, name: 'PDF Internals' }).boundingBox();
-    const actions = await header.locator('.header-actions').boundingBox();
+    const actions = await header.locator('[data-header-actions]').boundingBox();
     expect(Math.abs(identity!.y - actions!.y)).toBeLessThan(10);
-    const filename = await header.locator('.filename').boundingBox();
+    const filename = await header.locator('[data-filename]').boundingBox();
     expect(Math.abs(filename!.y + filename!.height / 2 - actions!.y - actions!.height / 2)).toBeLessThan(2);
     expect(filename!.x).toBeGreaterThanOrEqual(identity!.x + identity!.width);
     expect(filename!.x + filename!.width).toBeLessThanOrEqual(actions!.x);
     expect((await header.boundingBox())!.height).toBe(58);
     if (width <= 390)
-      expect(await header.locator('.filename > span[title]').evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+      expect(await header.locator('[data-filename] > span[title]').evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(
+        true
+      );
     await expect(header.getByRole('button', { exact: true, name: 'Close PDF' })).toBeVisible();
-    await expect(header.locator('.header-action-label').first()).toBeHidden();
+    await expect(header.locator('[data-action-label]').first()).toBeHidden();
     await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('0');
     await page.getByRole('button', { exact: true, name: 'Run search' }).click();
     await expect(page.getByRole('button', { exact: true, name: 'Next search result' })).toBeVisible();
@@ -855,22 +857,22 @@ test('restores sections and exact byte selections through history', async ({ pag
   await sections.getByRole('button', { exact: true, name: 'File structure' }).click();
   await expect(page.getByRole('heading', { name: 'Cross-reference entry point' })).toBeVisible();
   await page.getByRole('button', { name: /startxref →/ }).click();
-  const xrefSelection = await page.locator('.hex-status').innerText();
+  const xrefSelection = await page.locator('[data-hex-status]').innerText();
   expect(xrefSelection).toContain('32 bytes selected');
   await sections.getByRole('button', { exact: true, name: 'Document catalogue' }).click();
   await expect(page.getByRole('heading', { name: /1 0\s+obj/ })).toBeVisible();
   await back.click();
   await expect(page.getByRole('heading', { name: 'Cross-reference entry point' })).toBeVisible();
-  await expect(page.locator('.hex-status')).toHaveText(xrefSelection);
+  await expect(page.locator('[data-hex-status]')).toHaveText(xrefSelection);
   await back.click();
-  await expect(page.locator('.hex-status')).toContainText('offsets are zero-based');
+  await expect(page.locator('[data-hex-status]')).toContainText('offsets are zero-based');
   await back.click();
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Cross-reference entry point' })).toHaveCount(0);
   await forward.click();
   await expect(page.getByRole('heading', { name: 'Cross-reference entry point' })).toBeVisible();
   await forward.click();
-  await expect(page.locator('.hex-status')).toHaveText(xrefSelection);
+  await expect(page.locator('[data-hex-status]')).toHaveText(xrefSelection);
   // A new visit from the middle replaces the abandoned forward branch.
   await sections.getByRole('button', { exact: true, name: 'Overview' }).click();
   await expect(forward).toBeDisabled();
@@ -884,17 +886,17 @@ test('restores byte-search results and unknown-byte selections', async ({ page }
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('25 50 44 46');
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   await page.getByRole('region', { exact: true, name: 'Search results' }).getByRole('button', { name: /0x0/ }).click();
-  await expect(page.locator('.hex-status')).toContainText('4 bytes selected');
+  await expect(page.locator('[data-hex-status]')).toContainText('4 bytes selected');
   await back.click();
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
-  await expect(page.locator('.hex-status')).not.toContainText('4 bytes selected');
+  await expect(page.locator('[data-hex-status]')).not.toContainText('4 bytes selected');
   await forward.click();
-  await expect(page.locator('.hex-status')).toContainText('4 bytes selected');
+  await expect(page.locator('[data-hex-status]')).toContainText('4 bytes selected');
   await page.getByRole('button', { exact: true, name: 'Offset 0, byte 25' }).click();
-  await expect(page.locator('.hex-status')).toContainText('1 byte selected');
+  await expect(page.locator('[data-hex-status]')).toContainText('1 byte selected');
   await expect(page.getByRole('status').filter({ hasText: 'no known containing object' })).toBeVisible();
   await back.click();
-  await expect(page.locator('.hex-status')).toContainText('4 bytes selected');
+  await expect(page.locator('[data-hex-status]')).toContainText('4 bytes selected');
   await expect(page.getByRole('status').filter({ hasText: 'no known containing object' })).toHaveCount(0);
   await forward.click();
   await expect(page.getByRole('status').filter({ hasText: 'no known containing object' })).toBeVisible();
@@ -916,7 +918,7 @@ test('restores inspector tabs and byte viewports per history visit', async ({ pa
   await page.getByRole('button', { exact: true, name: '4 0 R' }).first().click();
   const back = page.getByRole('button', { exact: true, name: 'Back' });
   const forward = page.getByRole('button', { exact: true, name: 'Forward' });
-  const hex = page.locator('.hex-viewport');
+  const hex = page.locator('[data-hex-viewport]');
   const source = page.getByRole('tabpanel', { exact: true, name: 'Source' });
   await page.getByRole('tab', { exact: true, name: 'Source' }).click();
   await expect(source).toContainText('endstream');
@@ -1088,7 +1090,7 @@ test('uses pane navigation at mobile widths without horizontal page overflow', a
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
   await panes.getByRole('button', { exact: true, name: 'Original bytes' }).click();
   await expect(page.getByRole('region', { name: /^Hexadecimal bytes/ })).toBeVisible();
-  await expect(page.locator('.hex-byte.hex-selected').first()).toBeVisible();
+  await expect(page.locator('[data-hex-byte][data-selected]').first()).toBeVisible();
   await panes.getByRole('button', { exact: true, name: 'Explorer' }).click();
   await expect(page.getByRole('complementary', { exact: true, name: 'Structure explorer' })).toBeVisible();
   await panes.getByRole('button', { exact: true, name: 'Inspector' }).click();
@@ -1117,7 +1119,7 @@ test('links to the static limitations page without a modal and retains the docum
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.goBack();
   await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
-  await expect(page.locator('.filename')).toContainText('minimal.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('minimal.pdf');
 });
 test('explores a page tree with inherited resources, explanations and labelled connections', async ({ page }) => {
   await openMinimal(page);
@@ -1316,13 +1318,13 @@ test('navigates About with browser history and retains the local document', asyn
   await expect(page.getByRole('heading', { name: 'A closer look at PDF.' })).toBeVisible();
   await page.goForward();
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
-  await expect(page.locator('.filename')).toContainText('minimal.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('minimal.pdf');
   await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   await page.goBack();
   await page.getByLabel('Open local PDF').setInputFiles(samplePath('resources.pdf'));
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
-  await expect(page.locator('.filename')).toContainText('resources.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('resources.pdf');
 });
 test('opens task guides and returns to the selected PDF object', async ({ page }) => {
   await openMinimal(page);
@@ -1339,7 +1341,7 @@ test('opens task guides and returns to the selected PDF object', async ({ page }
   await page.goForward();
   await expect(page).toHaveURL(/\/guides\/investigate-suspicious-features$/);
   await page.getByRole('link', { exact: true, name: 'Back to the workspace' }).click();
-  await expect(page.locator('.filename')).toContainText('minimal.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('minimal.pdf');
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
 });
 test('keeps bookmarks usable when browser storage is blocked', async ({ page }) => {
@@ -1741,7 +1743,7 @@ test('keeps document state and route metadata across public content navigation',
     .click();
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');
   await page.getByRole('link', { exact: true, name: 'Back to the workspace' }).click();
-  await expect(page.locator('.filename')).toContainText('minimal.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('minimal.pdf');
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
   await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /An open-source, read-only PDF inspector/);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://pdf-internals-viewer.pages.dev/');
@@ -1755,10 +1757,10 @@ test('opens only bundled samples from tutorial links and reports no hydration er
   await page.goto('/guides/decode-pdf-streams');
   await page.getByRole('link', { exact: true, name: 'Explore Fonts & resources' }).click();
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
-  await expect(page.locator('.filename')).toContainText('resources.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('resources.pdf');
   await page.goto('/?sample=compressed');
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
-  await expect(page.locator('.filename')).toContainText('compressed.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('compressed.pdf');
   await page.goto('/?sample=https://example.com/private.pdf');
   await expect(page.getByRole('heading', { name: 'Look inside a PDF.' })).toBeVisible();
   expect(errors).toEqual([]);
@@ -1840,7 +1842,7 @@ test('replaces a document during an acknowledged object transfer without exposin
   await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   await page.getByRole('button', { exact: true, name: 'Document catalogue' }).first().click();
   await expect(page.getByRole('heading', { level: 1, name: /1 0\s+obj/ })).toBeVisible();
-  await expect(page.locator('.filename')).toContainText('minimal.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('minimal.pdf');
 });
 for (const [route, sample, instruction] of [
   ['/examples/large-pdf', 'oversized-image', '/Im1 Do'],
@@ -1862,7 +1864,7 @@ for (const [route, sample, instruction] of [
     });
     await page.setViewportSize({ height: 1000, width: 1440 });
     await page.getByRole('link', { exact: true, name: 'Open this example' }).click();
-    await expect(page.locator('.filename')).toContainText(`${sample}.pdf`);
+    await expect(page.locator('[data-filename]')).toContainText(`${sample}.pdf`);
     await expect(page.getByRole('contentinfo')).toContainText('6 objects indexed');
     await page.getByRole('button', { exact: true, name: 'First page' }).click();
     await page.getByRole('button', { exact: true, name: '4 0 R' }).first().click();
@@ -1906,7 +1908,7 @@ for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'pa
     await expect(footer.getByRole('link', { exact: true, name: 'Feedback' })).toHaveCount(0);
     await page.setViewportSize({ height: 1000, width: 1440 });
     await page.getByRole('link', { exact: true, name: 'Open this example' }).click();
-    await expect(page.locator('.filename')).toContainText(`${sample}.pdf`);
+    await expect(page.locator('[data-filename]')).toContainText(`${sample}.pdf`);
     await expect(page.getByRole('heading', { exact: true, name: 'Document overview' })).toBeVisible();
     const ref = async (name: string) => {
       if (/^\d+ \d+ R$/.test(name)) await page.getByRole('tab', { exact: true, name: 'Properties' }).click();
@@ -2010,7 +2012,7 @@ test('opens example find-text-source and follows a page-text match to its source
   await expect(page.getByRole('complementary', { name: 'Related reading' }).getByRole('link')).toHaveCount(3);
   await page.setViewportSize({ height: 1000, width: 1440 });
   await page.getByRole('link', { exact: true, name: 'Open this example' }).click();
-  await expect(page.locator('.filename')).toContainText('find-text-source.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('find-text-source.pdf');
   await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
   await selectSearchScope(page, 'decoded');
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('reference');
@@ -2023,8 +2025,8 @@ test('opens example find-text-source and follows a page-text match to its source
   await expect(results).toContainText('1 text match');
   await results.getByRole('button', { name: /Show bytes/ }).click();
   const hex = page.getByRole('region', { exact: true, name: 'Decoded stream bytes' });
-  await expect(hex.locator('button.hex-selected')).toHaveCount(9);
-  await expect(hex.locator('.hex-status')).toContainText('9 bytes selected in 2 ranges');
+  await expect(hex.locator('button[data-hex-byte][data-selected]')).toHaveCount(9);
+  await expect(hex.locator('[data-hex-status]')).toContainText('9 bytes selected in 2 ranges');
   await expect(page.locator('[data-text-match]')).toContainText('TJ');
 });
 test('navigates grouped public content without JavaScript on desktop and mobile', async ({ browser, baseURL }) => {
@@ -2117,7 +2119,7 @@ test('preserves a PDF selection through the new overview pages and history', asy
   await page.goForward();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Why use a PDF inspector instead of a PDF viewer?');
   await page.getByRole('link', { exact: true, name: 'Back to the workspace' }).click();
-  await expect(page.locator('.filename')).toContainText('minimal.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('minimal.pdf');
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
 });
 test('collects PDF issues with evidence links and resets on document replacement', async ({ page }) => {
@@ -2212,7 +2214,7 @@ test('opens the broken cross-reference example and follows both findings to evid
   expect(response.ok()).toBe(true);
   expect(await response.body()).toEqual(await readFile(samplePath('broken-xref.pdf')));
   await page.getByRole('link', { exact: true, name: 'Open this example' }).click();
-  await expect(page.locator('.filename')).toContainText('broken-xref.pdf');
+  await expect(page.locator('[data-filename]')).toContainText('broken-xref.pdf');
   await page.getByRole('button', { name: 'View issues and coverage' }).click();
   const panel = page.getByRole('region', { name: 'PDF issues' });
   await expect(panel.getByRole('status')).toContainText('1 error');
@@ -2227,7 +2229,7 @@ test('opens the broken cross-reference example and follows both findings to evid
   });
   await panel.getByRole('button', { name: 'Inspect file structure' }).click();
   await page.getByRole('button', { name: /startxref →/ }).click();
-  await expect(page.locator('.hex-byte.hex-selected')).not.toHaveCount(0);
+  await expect(page.locator('[data-hex-byte][data-selected]')).not.toHaveCount(0);
   await page.getByRole('button', { name: /^Issues/ }).click();
   await panel.getByRole('button', { name: 'Inspect 1 0 obj' }).click();
   await expect(page.getByRole('region', { name: 'Object inspector' })).toContainText('/Metadata');
@@ -2382,8 +2384,8 @@ for (const compressed of [false, true]) {
       exact: true,
       name: compressed ? 'Decoded stream bytes' : 'Original file bytes',
     });
-    await expect(hex.locator('button.hex-selected')).toHaveCount(5);
-    await expect(hex.locator('.hex-status')).toContainText('5 bytes selected in 2 ranges');
+    await expect(hex.locator('button[data-hex-byte][data-selected]')).toHaveCount(5);
+    await expect(hex.locator('[data-hex-status]')).toContainText('5 bytes selected in 2 ranges');
     await expect(page.locator('[data-text-match]')).toContainText('TJ');
     if (compressed) {
       await page.keyboard.press('Escape');
@@ -2393,9 +2395,9 @@ for (const compressed of [false, true]) {
         exact: true,
         name: 'Original file bytes',
       });
-      await expect(original.locator('button.hex-selected')).not.toHaveCount(5);
+      await expect(original.locator('button[data-hex-byte][data-selected]')).not.toHaveCount(5);
       await page.getByRole('button', { exact: true, name: 'Decoded bytes' }).click();
-      await expect(hex.locator('button.hex-selected')).toHaveCount(5);
+      await expect(hex.locator('button[data-hex-byte][data-selected]')).toHaveCount(5);
     }
     await mkdir(resolve('.context'), { recursive: true });
     await page.screenshot({
@@ -2508,11 +2510,13 @@ test('page text search labels unsupported font mappings as candidate streams on 
     exact: true,
     name: 'Original file bytes',
   });
-  await expect(original.locator('button.hex-selected').first()).toBeVisible();
+  await expect(original.locator('button[data-hex-byte][data-selected]').first()).toBeVisible();
   await expect(page.locator('[data-text-source-note]')).toContainText('not an exact word match');
   await page.keyboard.press('Escape');
   await page.getByRole('button', { exact: true, name: 'Decoded bytes' }).click();
-  await expect(page.getByRole('region', { exact: true, name: 'Decoded stream bytes' }).locator('button.hex-selected')).toHaveCount(0);
+  await expect(
+    page.getByRole('region', { exact: true, name: 'Decoded stream bytes' }).locator('button[data-hex-byte][data-selected]')
+  ).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
   await results.getByRole('button', { exact: true, name: 'Open page preview' }).click();
@@ -2536,7 +2540,9 @@ test('page text search uses the unlock password and keeps encrypted source bytes
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Hello');
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   await expect(page.getByRole('region', { exact: true, name: 'Search results' })).toContainText('1 page');
-  await expect(page.getByRole('region', { exact: true, name: 'Decoded stream bytes' }).locator('button.hex-selected')).toHaveCount(5);
+  await expect(
+    page.getByRole('region', { exact: true, name: 'Decoded stream bytes' }).locator('button[data-hex-byte][data-selected]')
+  ).toHaveCount(5);
   await page.keyboard.press('Escape');
   await page.getByRole('button', { exact: true, name: 'Original bytes' }).click();
   await expect(page.locator('[data-text-source-note]')).toContainText('Containing stream only');
@@ -2566,7 +2572,9 @@ test('cancels a pending page text search when the document is replaced', async (
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('internals');
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   await expect(page.getByRole('region', { exact: true, name: 'Search results' })).toContainText('1 page');
-  await expect(page.getByRole('region', { exact: true, name: 'Original file bytes' }).locator('button.hex-selected')).toHaveCount(9);
+  await expect(
+    page.getByRole('region', { exact: true, name: 'Original file bytes' }).locator('button[data-hex-byte][data-selected]')
+  ).toHaveCount(9);
 });
 for (const width of [1440, 390]) {
   test(`keeps popover results stable while searching and preserves them when hidden at ${width}px`, async ({ page }) => {
@@ -2864,11 +2872,11 @@ for (const width of [1440, 390, 320]) {
     await expect(results).toContainText('89 matches');
     await results.locator('[data-search-result]').first().click();
     await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
-    const previousSelection = await page.locator('.hex-status').textContent();
+    const previousSelection = await page.locator('[data-hex-status]').textContent();
     await current.getByRole('button', { exact: true, name: 'Next search result' }).click();
     await expect(current).toContainText('2 of 89');
     await expect(results).toBeVisible();
-    await expect(page.locator('.hex-status')).not.toHaveText(previousSelection!);
+    await expect(page.locator('[data-hex-status]')).not.toHaveText(previousSelection!);
     await current.getByRole('button', { exact: true, name: 'Previous search result' }).click();
     await expect(current).toContainText('1 of 89');
     await current.getByRole('button', { exact: true, name: 'Previous search result' }).click();
@@ -2902,7 +2910,7 @@ for (const width of [1440, 390, 320]) {
     await results.getByRole('button', { name: /Show bytes/ }).click();
     await expect(results).toHaveCount(0);
     await expect(page.getByRole('group', { exact: true, name: 'Current search match' })).toHaveCount(0);
-    await expect(page.locator('.hex-status')).toContainText('5 bytes selected');
+    await expect(page.locator('[data-hex-status]')).toContainText('5 bytes selected');
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   });
 }
@@ -2944,31 +2952,31 @@ for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
       exact: true,
       name: compressed ? 'Decoded stream bytes' : 'Original file bytes',
     });
-    await expect(bytes.locator('button.hex-selected')).toHaveCount(5);
-    await bytes.locator('.hex-viewport').evaluate((element) => {
+    await expect(bytes.locator('button[data-hex-byte][data-selected]')).toHaveCount(5);
+    await bytes.locator('[data-hex-viewport]').evaluate((element) => {
       element.scrollTop = element.scrollHeight;
     });
-    await expect(bytes.locator('button.hex-selected')).toHaveCount(0);
+    await expect(bytes.locator('button[data-hex-byte][data-selected]')).toHaveCount(0);
     await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
     await results.locator('[data-search-result]').click();
-    await expect(bytes.locator('button.hex-selected')).toHaveCount(5);
-    await expect(bytes.locator('button.hex-selected').first()).toBeInViewport();
-    await bytes.locator('.hex-viewport').evaluate((element) => {
+    await expect(bytes.locator('button[data-hex-byte][data-selected]')).toHaveCount(5);
+    await expect(bytes.locator('button[data-hex-byte][data-selected]').first()).toBeInViewport();
+    await bytes.locator('[data-hex-viewport]').evaluate((element) => {
       element.scrollTop = element.scrollHeight;
     });
-    await expect(bytes.locator('button.hex-selected')).toHaveCount(0);
+    await expect(bytes.locator('button[data-hex-byte][data-selected]')).toHaveCount(0);
     await page.getByRole('button', { exact: true, name: 'Back' }).click();
     await page.getByRole('button', { exact: true, name: 'Forward' }).click();
     await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
     await results.locator('[data-search-result]').click();
-    await expect(bytes.locator('button.hex-selected')).toHaveCount(5);
-    await expect(bytes.locator('button.hex-selected').first()).toBeInViewport();
+    await expect(bytes.locator('button[data-hex-byte][data-selected]')).toHaveCount(5);
+    await expect(bytes.locator('button[data-hex-byte][data-selected]').first()).toBeInViewport();
     if (compressed) {
       for (const width of [2400, 1440]) {
         await page.setViewportSize({ height: 1000, width });
-        await expect(bytes.locator('.hex-spacer')).toHaveCSS('--hex-columns', width === 2400 ? '16' : '8');
-        await expect(bytes.locator('button.hex-selected')).toHaveCount(5);
-        await expect(bytes.locator('button.hex-selected').first()).toBeInViewport();
+        await expect(bytes.locator('[data-hex-spacer]')).toHaveCSS('--hex-columns', width === 2400 ? '16' : '8');
+        await expect(bytes.locator('button[data-hex-byte][data-selected]')).toHaveCount(5);
+        await expect(bytes.locator('button[data-hex-byte][data-selected]').first()).toBeInViewport();
       }
       // Selecting a text result again must reveal the word even after inspecting
       // the compressed original container with the representation switch.
@@ -2977,8 +2985,8 @@ for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
       await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
       await results.locator('[data-search-result]').click();
       await expect(bytes).toBeVisible();
-      await expect(bytes.locator('button.hex-selected')).toHaveCount(5);
-      await expect(bytes.locator('button.hex-selected').first()).toBeInViewport();
+      await expect(bytes.locator('button[data-hex-byte][data-selected]')).toHaveCount(5);
+      await expect(bytes.locator('button[data-hex-byte][data-selected]').first()).toBeInViewport();
     }
   });
 }
@@ -3095,7 +3103,9 @@ test('page result actions are visible before choosing an unselected page', async
   await second.getByRole('button', { name: /Show bytes/ }).click();
   await expect(results).toHaveCount(0);
   await expect(page.getByRole('group', { exact: true, name: 'Current search match' })).toHaveCount(0);
-  await expect(page.getByRole('region', { exact: true, name: 'Original file bytes' }).locator('button.hex-selected')).toHaveCount(5);
+  await expect(
+    page.getByRole('region', { exact: true, name: 'Original file bytes' }).locator('button[data-hex-byte][data-selected]')
+  ).toHaveCount(5);
 });
 test('page text search highlights bytes encoded through a Unicode range font map', async ({ page }) => {
   const content = 'BT /F1 12 Tf 72 700 Td (Hello) Tj ET';
@@ -3125,7 +3135,7 @@ test('page text search highlights bytes encoded through a Unicode range font map
   await expect(results.getByRole('button', { name: /Show bytes/ })).toBeVisible();
   await expect(results).not.toContainText('Exact word bytes could not be mapped');
   await results.getByRole('button', { name: /Show bytes/ }).click();
-  const selected = page.getByRole('region', { exact: true, name: 'Original file bytes' }).locator('button.hex-selected');
+  const selected = page.getByRole('region', { exact: true, name: 'Original file bytes' }).locator('button[data-hex-byte][data-selected]');
   await expect(selected).toHaveCount(5);
   await expect(selected.first()).toBeInViewport();
 });

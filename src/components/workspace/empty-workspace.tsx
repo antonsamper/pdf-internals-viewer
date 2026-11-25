@@ -22,6 +22,22 @@ const trustBadge = cn(
   'bg-[color-mix(in_srgb,var(--brand-purple-soft)_65%,var(--background))]',
   'rounded-full'
 );
+const SAMPLE_TONES = {
+  orange: '[--sample-ink:var(--brand-orange-ink)] [--sample-wash:var(--brand-orange-soft)]',
+  purple: '[--sample-ink:var(--brand-purple)] [--sample-wash:var(--brand-purple-soft)]',
+  red: '[--sample-ink:var(--brand-red-ink)] [--sample-wash:var(--brand-red-soft)]',
+};
+const SAMPLE_ROW = cn(
+  'group/sample flex w-full items-center gap-[13px] px-0.5 py-3.5 text-left',
+  'border-t border-border bg-transparent',
+  'transition-[background-color,border-color] duration-150 ease-[ease]',
+  'hover:border-t-(--sample-ink) hover:bg-[color-mix(in_srgb,var(--sample-wash),var(--background)_60%)]'
+);
+const SAMPLE_ICON = cn(
+  'grid size-[34px] place-items-center',
+  'rounded-[6px] border border-[color-mix(in_srgb,var(--sample-ink)_18%,transparent)] bg-(--sample-wash)',
+  'text-(--sample-ink)'
+);
 export const EmptyWorkspace = ({
   onFollowLink,
   onOpenFile,
@@ -71,7 +87,7 @@ export const EmptyWorkspace = ({
           <div className="flex w-full flex-wrap items-center gap-x-4 gap-y-3">
             <Button className="h-10 shrink-0 px-4" size="lg" onClick={onOpenFile}>
               <FilePlus2 size={16} />
-              Open a PDF<span className="shortcut">⌘ O</span>
+              Open a PDF<span className="ml-5 text-[11px] opacity-90">⌘ O</span>
             </Button>
             <span className="flex-[1_1_150px] text-[11px] text-muted-foreground">or drop a file anywhere · up to 64 MiB</span>
           </div>
@@ -86,19 +102,25 @@ export const EmptyWorkspace = ({
             </span>
           </div>
         </div>
-        <section className="samples">
-          <h2>Start with a sample</h2>
-          <p className="samples-description">No file handy? Explore a PDF made for learning.</p>
+        <section className="min-w-0">
+          <h2 className="mb-2 text-[14px] font-[550]">Start with a sample</h2>
+          <p className="mb-[22px] text-[12px] leading-[1.6] text-muted-foreground">No file handy? Explore a PDF made for learning.</p>
           {SAMPLES.map(({ file, name, detail, icon: Icon, tone }) => (
-            <button className="sample-row" data-tone={tone} key={file} onClick={() => onSample(file)}>
-              <span className="sample-icon">
+            <button className={cn(SAMPLE_ROW, SAMPLE_TONES[tone])} key={file} onClick={() => onSample(file)}>
+              <span className={SAMPLE_ICON}>
                 <Icon size={19} strokeWidth={1.5} />
               </span>
-              <span>
-                <strong>{name}</strong>
-                <span>{detail}</span>
+              <span className="min-w-0 flex-1">
+                <strong className="mb-1 block text-[12px] font-medium">{name}</strong>
+                <span className="text-[11px] text-muted-foreground">{detail}</span>
               </span>
-              <ArrowUpRight size={15} />
+              <ArrowUpRight
+                className={cn(
+                  'text-muted-foreground transition-transform duration-150 ease-out',
+                  'group-hover/sample:[transform:translate(2px,-2px)] group-hover/sample:text-(--sample-ink)'
+                )}
+                size={15}
+              />
             </button>
           ))}
         </section>

@@ -4,8 +4,7 @@
 @import '@fontsource-variable/geist';
 @import './styles/breakpoints.css';
 @import './styles/surfaces.css';
-@import './components/hex-view.css' layer(legacy);
-@import './app.css' layer(legacy);
+@import './styles/overrides.css' layer(overrides);
 
 @custom-variant dark (&:is(.dark *));
 
@@ -13,6 +12,7 @@
   --font-heading: var(--font-sans);
   --font-sans: 'Geist Variable', sans-serif;
   --font-pdf: 'SFMono-Regular', Consolas, monospace;
+  --font-code: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
   --color-reference: var(--reference);
   --color-pdf-string: var(--pdf-string);
   --color-brand-purple: var(--brand-purple);
@@ -149,11 +149,43 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
   }
-  body {
-    @apply bg-background text-foreground;
+  html,
+  body,
+  #root {
+    height: 100%;
+    margin: 0;
   }
   html {
     @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--selection-background);
+    color: var(--selection-foreground);
+  }
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: default;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
