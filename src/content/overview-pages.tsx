@@ -1,10 +1,11 @@
+import { ARTICLE_ACTIONS, ComparisonTable, Lead } from '@/components/prose';
 export const AudiencePage = function AudiencePage() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         PDF Internals is for developers and technically curious readers who need to understand how a PDF works. Follow objects, references,
         streams and original bytes to explain a document’s behaviour. Your file stays on your device.
-      </p>
+      </Lead>
       <p>
         You do not need to know the PDF format before starting. The <a href="/guide">getting started guide</a> follows a small sample from
         its first page to its drawing instructions.
@@ -69,7 +70,7 @@ export const AudiencePage = function AudiencePage() {
         Internals is a read-only inspection workspace. See <a href="/pdf-inspector-vs-viewer">when to use a PDF inspector or viewer</a> and
         the <a href="/limitations">supported features and limitations</a>.
       </p>
-      <p className="article-actions">
+      <p className={ARTICLE_ACTIONS}>
         <a href="/?sample=minimal">Explore a simple sample PDF →</a>
         <a href="/">Open the inspector →</a>
       </p>
@@ -79,65 +80,63 @@ export const AudiencePage = function AudiencePage() {
 export const InspectorVsViewerPage = function InspectorVsViewerPage() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         A PDF viewer shows the rendered page. A PDF inspector helps explain how the file produces it: the objects, references, fonts,
         images, streams and bytes behind what you see.
-      </p>
+      </Lead>
       <p>
         Use a viewer for everyday reading and printing. Use an inspector when you need to investigate why a PDF behaves unexpectedly or
         understand its structure. Some viewers also offer advanced inspection tools; the distinction here is the task you need to complete.
       </p>
 
       <h2>Which tool fits the task?</h2>
-      <div className="comparison-table-wrap">
-        <table className="comparison-table">
-          <caption>Everyday viewing and structural inspection</caption>
-          <thead>
-            <tr>
-              <th scope="col">Your task</th>
-              <th scope="col">Where to start</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">Read or print a document</th>
-              <td>A normal PDF viewer shows the page and provides reading and printing controls.</td>
-            </tr>
-            <tr>
-              <th scope="row">Annotate, fill in or edit a PDF</th>
-              <td>A viewer or editor with those features. PDF Internals cannot modify the file.</td>
-            </tr>
-            <tr>
-              <th scope="row">Explain an unexpectedly large file</th>
-              <td>
-                An inspector lets you follow image resources and examine stream sizes. Try the{' '}
-                <a href="/examples/large-pdf">large-PDF example</a>.
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Investigate incorrect copied text</th>
-              <td>
-                An inspector lets you trace drawing instructions to font resources and Unicode mappings. Try the{' '}
-                <a href="/examples/incorrect-text">incorrect-text example</a>.
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Trace repeated images or rotated pages</th>
-              <td>
-                An inspector helps you compare resource references and follow inherited page properties. Try{' '}
-                <a href="/examples/repeated-logo">repeated logos</a> or <a href="/examples/page-rotation">page rotation</a>.
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Investigate attachments and automatic actions</th>
-              <td>
-                A viewer may expose attachments or navigation behaviour. An inspector helps trace their underlying entries and references.
-                See <a href="/examples/hidden-attachment">attachments</a> and <a href="/examples/opening-action">opening actions</a>.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <ComparisonTable>
+        <caption>Everyday viewing and structural inspection</caption>
+        <thead>
+          <tr>
+            <th scope="col">Your task</th>
+            <th scope="col">Where to start</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Read or print a document</th>
+            <td>A normal PDF viewer shows the page and provides reading and printing controls.</td>
+          </tr>
+          <tr>
+            <th scope="row">Annotate, fill in or edit a PDF</th>
+            <td>A viewer or editor with those features. PDF Internals cannot modify the file.</td>
+          </tr>
+          <tr>
+            <th scope="row">Explain an unexpectedly large file</th>
+            <td>
+              An inspector lets you follow image resources and examine stream sizes. Try the{' '}
+              <a href="/examples/large-pdf">large-PDF example</a>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Investigate incorrect copied text</th>
+            <td>
+              An inspector lets you trace drawing instructions to font resources and Unicode mappings. Try the{' '}
+              <a href="/examples/incorrect-text">incorrect-text example</a>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Trace repeated images or rotated pages</th>
+            <td>
+              An inspector helps you compare resource references and follow inherited page properties. Try{' '}
+              <a href="/examples/repeated-logo">repeated logos</a> or <a href="/examples/page-rotation">page rotation</a>.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Investigate attachments and automatic actions</th>
+            <td>
+              A viewer may expose attachments or navigation behaviour. An inspector helps trace their underlying entries and references. See{' '}
+              <a href="/examples/hidden-attachment">attachments</a> and <a href="/examples/opening-action">opening actions</a>.
+            </td>
+          </tr>
+        </tbody>
+      </ComparisonTable>
 
       <h2>Example: the page looks right, but copied text is wrong</h2>
       <p>
@@ -148,7 +147,7 @@ export const InspectorVsViewerPage = function InspectorVsViewerPage() {
         The <a href="/examples/incorrect-text">investigation</a> follows the page’s drawing instructions to its font and{' '}
         <code>/ToUnicode</code> map. The map sends the source code for the visible digit 1 to the Unicode character 9.
       </p>
-      <p className="article-actions">
+      <p className={ARTICLE_ACTIONS}>
         <a href="/?sample=incorrect-unicode">Inspect the incorrect-text sample →</a>
         <a href="/examples/incorrect-text">Follow the example</a>
       </p>
@@ -174,7 +173,7 @@ export const InspectorVsViewerPage = function InspectorVsViewerPage() {
         No. PDF processing and page rendering happen on your device. Bookmarks and notes are saved in this browser; the app does not upload
         or save your PDF. Read <a href="/privacy">privacy and browser storage</a> for details.
       </p>
-      <p className="article-actions">
+      <p className={ARTICLE_ACTIONS}>
         <a href="/guide">Start with the inspection guide</a>
         <a href="/">Open the inspector →</a>
       </p>

@@ -1,3 +1,5 @@
+import { ExamplePreview, Lead } from '@/components/prose';
+
 import { ExampleActions } from './examples';
 const Preview = function Preview({
   sample,
@@ -11,19 +13,22 @@ const Preview = function Preview({
   landscape?: boolean;
 }) {
   return (
-    <figure className="example-preview">
-      <img src={`/examples/${sample}.png`} width={landscape ? 900 : 696} height={landscape ? 696 : 900} loading="lazy" alt={alt} />
-      <figcaption>{caption}</figcaption>
-    </figure>
+    <ExamplePreview
+      src={`/examples/${sample}.png`}
+      width={landscape ? 900 : 696}
+      height={landscape ? 696 : 900}
+      alt={alt}
+      caption={caption}
+    />
   );
 };
 export const FontExample = function FontExample() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         The page uses two fonts. Helvetica supplies the heading; an embedded TrueType font supplies the four large H characters. Follow each
         font reference to see which one includes a font program.
-      </p>
+      </Lead>
       <ExampleActions sample="embedded-font" />
       <h2>1. Find the font used by the text</h2>
       <p>
@@ -72,10 +77,10 @@ export const FontExample = function FontExample() {
 export const AttachmentExample = function AttachmentExample() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         The invoice shows a total of £1,250.00. It also carries a CSV file with the line item, though nothing on the page lists an
         attachment. Find the file and follow the references that give it a name.
-      </p>
+      </Lead>
       <ExampleActions sample="hidden-attachment" />
       <h2>1. Find the attachment</h2>
       <p>
@@ -119,10 +124,10 @@ export const AttachmentExample = function AttachmentExample() {
 export const LogoExample = function LogoExample() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         All three pages show the same logo. The first two share one image object; the third points to a separate copy. Compare their
         references to see how repeated artwork can add unnecessary bytes.
-      </p>
+      </Lead>
       <ExampleActions sample="repeated-logo" />
       <h2>1. Find the image objects</h2>
       <p>
@@ -165,10 +170,10 @@ export const LogoExample = function LogoExample() {
 export const RotationExample = function RotationExample() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         Both pages contain sideways text, but their page rotations differ. The first inherits a 90-degree page rotation. The second has a
         zero-degree page rotation and turns part of its content with a drawing matrix.
-      </p>
+      </Lead>
       <ExampleActions sample="page-rotation" />
       <h2>1. Find the inherited rotation</h2>
       <p>
@@ -211,10 +216,10 @@ export const RotationExample = function RotationExample() {
 export const InheritanceExample = function InheritanceExample() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         The page's dictionary has no <code>/Resources</code> entry. Its parent supplies the font and image used to draw the text and
         coloured square. Follow the parent reference to find both resources.
-      </p>
+      </Lead>
       <ExampleActions sample="inherited-resources" />
       <h2>1. Check the page dictionary</h2>
       <p>
@@ -256,11 +261,11 @@ export const InheritanceExample = function InheritanceExample() {
 export const ActionExample = function ActionExample() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         A PDF action is a stored instruction asking a reader to do something when an event occurs, such as opening the document or clicking
         a link. Actions can navigate to a page, open a website, work with form data, or run JavaScript. This example uses an opening action
         to fit the first page in the reader’s window, with no script or external target.
-      </p>
+      </Lead>
       <ExampleActions sample="opening-action" />
       <h2>What triggers a PDF action?</h2>
       <p>
@@ -362,10 +367,10 @@ export const ActionExample = function ActionExample() {
 export const BrokenXrefExample = function BrokenXrefExample() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         This sample deliberately points one cross-reference entry outside the file. The page objects remain intact, but the metadata object
         is unavailable to the inspector. Open Issues to see a red error and the related amber warning.
-      </p>
+      </Lead>
       <ExampleActions sample="broken-xref" />
       <h2>1. Open Issues</h2>
       <p>
@@ -377,16 +382,13 @@ export const BrokenXrefExample = function BrokenXrefExample() {
         The red <strong>Invalid cross-reference target</strong> error reports that object <code>6 0</code> has an invalid offset of{' '}
         <code>999999</code>. This byte offset is beyond the end of this small PDF.
       </p>
-      <figure className="example-preview">
-        <img
-          src="/examples/broken-xref.png"
-          width="619"
-          height="926"
-          loading="lazy"
-          alt="Issues panel showing one red invalid cross-reference error and one amber unresolved reference warning for the broken metadata object."
-        />
-        <figcaption>Both findings come from the deliberately damaged metadata index entry.</figcaption>
-      </figure>
+      <ExamplePreview
+        src="/examples/broken-xref.png"
+        width={619}
+        height={926}
+        alt="Issues panel showing one red invalid cross-reference error and one amber unresolved reference warning for the broken metadata object."
+        caption="Both findings come from the deliberately damaged metadata index entry."
+      />
       <h2>2. Inspect the broken index entry</h2>
       <p>
         Under the error, choose <strong>Inspect file structure</strong>. Follow
@@ -420,10 +422,10 @@ export const BrokenXrefExample = function BrokenXrefExample() {
 export const FindTextSourceExample = function FindTextSourceExample() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         This invoice shows the payment reference INV-2048. Search its page text for “reference”, find the match on the rendered page, then
         follow it to the bytes that draw it. The PDF stores the word in two pieces inside a compressed content stream.
-      </p>
+      </Lead>
       <ExampleActions sample="find-text-source" />
       <h2>1. Search the page text</h2>
       <p>

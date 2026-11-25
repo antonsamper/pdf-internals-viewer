@@ -13,12 +13,13 @@ Besides the inspector, the site has an About page, overview pages, task guides, 
 | `src/content/overview-pages.tsx`                | `/who-its-for` and `/pdf-inspector-vs-viewer`                                                                                                           |
 | `src/content/examples.tsx`, `more-examples.tsx` | `/examples` and the ten examples                                                                                                                        |
 | `src/components/about-page.tsx`                 | The About page                                                                                                                                          |
+| `src/components/reading-page.tsx`, `prose.tsx`  | The page layout, section navigation and article typography shared by every page above                                                                   |
 
 ## Adding a page
 
 1. Add the route to `SITE_PAGES`.
 2. Give it a label in `CONTENT_GROUPS` and three related pages in `site-navigation.ts`.
-3. Render it from `public-page.tsx`.
+3. Render it from `public-page.tsx`. Write the body as plain HTML; use `Lead` for the opening paragraph, `ExamplePreview` for a preview image and `ComparisonTable` for a table.
 4. Update the sitemap URL count asserted in `scripts/check-public-pages.mjs`.
 
 `pnpm run build` prerenders every route (`scripts/build-prerender.mjs`) and generates `sitemap.xml`. `/` and `/about` are hydrated by the app, so their first render must not use browser APIs; read browser state in effects. Every other route is static HTML with no app JavaScript. After each build, `check:public-pages` checks the metadata, structured data, navigation and links of every page.

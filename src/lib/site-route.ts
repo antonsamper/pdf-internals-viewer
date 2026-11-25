@@ -67,7 +67,7 @@ export const useSiteRoute = (initialPath: SitePath = '/') => {
   useEffect(() => {
     updateMetadata(path);
     const focusTarget =
-      document.querySelector<HTMLElement>(path !== '/' ? '.about-page' : '[data-welcome]') ??
+      document.querySelector<HTMLElement>(path !== '/' ? '[data-reading-page]' : '[data-welcome]') ??
       document.querySelector<HTMLElement>('[data-app-identity]');
     focusTarget?.focus();
   }, [path]);

@@ -1,11 +1,12 @@
+import { Lead } from '@/components/prose';
 import { MAX_DECODED_BYTES, MAX_DISPLAY_BYTES } from '@/lib/pdf/limits';
 export const AttachmentsGuide = function AttachmentsGuide() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         A PDF can carry other files inside it. Use the attachment list to find them, then inspect their references or download their
         contents.
-      </p>
+      </Lead>
       <h2>Find an embedded file</h2>
       <ol>
         <li>
@@ -58,9 +59,9 @@ export const AttachmentsGuide = function AttachmentsGuide() {
 export const SearchGuide = function SearchGuide() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         Find a value, bookmark the evidence, and pin an object to compare it with another. These tools leave the original PDF unchanged.
-      </p>
+      </Lead>
       <h2>Choose what to search</h2>
       <p>Use Ctrl/Cmd+K to focus search, then choose a mode:</p>
       <dl>
@@ -167,10 +168,10 @@ export const SearchGuide = function SearchGuide() {
 export const SuspiciousFeaturesGuide = function SuspiciousFeaturesGuide() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         Look for scripts, automatic actions, launch actions, and embedded files, then follow their references to understand what the PDF
         contains.
-      </p>
+      </Lead>
       <h2>Find an action</h2>
       <ol>
         <li>

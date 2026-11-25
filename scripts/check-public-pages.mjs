@@ -29,12 +29,12 @@ for (const url of urls) {
     assert.doesNotMatch(html.replace('<script src="/theme.js"></script>', ''), /<script[^>]*\bsrc=/, 'Static articles must not require inspector JavaScript')
     assert.ok(html.includes('Back to the workspace'))
     assert.match(html, /aria-label="Main navigation"/)
-    assert.match(html, /<summary>On this site<\/summary>/)
+    assert.match(html, /<summary[^>]*>On this site<\/summary>/)
     assert.match(html, /aria-label="Content navigation"/)
     assert.match(html, /aria-current="page"/)
     assert.match(html, /aria-label="Related reading"/)
-    const related = html.match(/<aside class="article-related"[\s\S]*?<\/aside>/)?.[0] ?? ''
-    assert.equal([...related.matchAll(/<li>/g)].length, 3, 'Three curated next steps per article')
+    const related = html.match(/<aside[^>]*aria-label="Related reading"[\s\S]*?<\/aside>/)?.[0] ?? ''
+    assert.equal([...related.matchAll(/<li[\s>]/g)].length, 3, 'Three curated next steps per article')
   }
   for (const [, href] of html.matchAll(/href="(\/[^"#]*)"/g)) {
     const target = new URL(href.replaceAll('&amp;', '&'), origin)

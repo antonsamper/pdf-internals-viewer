@@ -1,7 +1,8 @@
+import { ARTICLE_ACTIONS, ExamplePreview, Lead } from '@/components/prose';
 import { SITE_PAGES } from '@/lib/site-content';
 export const ExampleActions = function ExampleActions({ sample }: { sample: string }) {
   return (
-    <p className="article-actions">
+    <p className={ARTICLE_ACTIONS}>
       <a href={`/?sample=${sample}`}>Open this example</a>
       <a href={`/samples/${sample}.pdf`} download>
         Download sample PDF
@@ -12,10 +13,10 @@ export const ExampleActions = function ExampleActions({ sample }: { sample: stri
 export const Examples = function Examples() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         Investigate file size, text mappings, fonts, attachments, and page behaviour with ten examples, including a deliberately damaged
         PDF. Each walkthrough includes an original sample PDF you can open in the inspector or download.
-      </p>
+      </Lead>
       <h2>
         <a href="/examples/large-pdf">Why is this one-page PDF so large?</a>
       </h2>
@@ -52,26 +53,23 @@ export const Examples = function Examples() {
 export const LargePdfExample = function LargePdfExample() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         This one-page invoice contains a little text and a small coloured square, yet the file is over 4 MB. Almost all of those bytes
         belong to the square's uncompressed image.
-      </p>
+      </Lead>
       <ExampleActions sample="oversized-image" />
       <h2>1. Look at the page</h2>
       <p>
         Open the example, choose <strong>First page</strong>, then open the page preview. The coloured square takes up little space on the
         page, but the PDF still stores every pixel of its source image.
       </p>
-      <figure className="example-preview">
-        <img
-          src="/examples/oversized-image.png"
-          width="696"
-          height="900"
-          loading="lazy"
-          alt="The one-page example invoice, with a small coloured square above the total of £1,250.00."
-        />
-        <figcaption>The square contains 1.44 million pixels.</figcaption>
-      </figure>
+      <ExamplePreview
+        src="/examples/oversized-image.png"
+        width={696}
+        height={900}
+        alt="The one-page example invoice, with a small coloured square above the total of £1,250.00."
+        caption="The square contains 1.44 million pixels."
+      />
       <h2>2. Find the image and its stored size</h2>
       <p>
         In <strong>Resources → Images</strong>, open image object <strong>6 0 R</strong>. In <strong>Properties</strong>, check these
@@ -133,10 +131,10 @@ export const LargePdfExample = function LargePdfExample() {
 export const IncorrectTextExample = function IncorrectTextExample() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         This invoice shows £1,250.00 on the page, but Poppler's pdftotext extracts £9,250.00. The font has a deliberately incorrect Unicode
         mapping. Follow its references to find the entry responsible.
-      </p>
+      </Lead>
       <ExampleActions sample="incorrect-unicode" />
       <h2>1. Compare appearance with extraction</h2>
       <p>Open the example's page preview to check the amount, then download the PDF and extract its text outside the inspector:</p>
@@ -148,16 +146,13 @@ export const IncorrectTextExample = function IncorrectTextExample() {
         use different fallbacks, so clipboard behaviour can vary. PDF Internals can search page text. Its decoded stream view shows the
         underlying instructions and font encoding, not a full extraction.
       </p>
-      <figure className="example-preview">
-        <img
-          src="/examples/incorrect-unicode.png"
-          width="696"
-          height="900"
-          loading="lazy"
-          alt="The rendered example invoice shows Invoice total: £1,250.00."
-        />
-        <figcaption>The visible amount is £1,250.00. Poppler extracts £9,250.00.</figcaption>
-      </figure>
+      <ExamplePreview
+        src="/examples/incorrect-unicode.png"
+        width={696}
+        height={900}
+        alt="The rendered example invoice shows Invoice total: £1,250.00."
+        caption="The visible amount is £1,250.00. Poppler extracts £9,250.00."
+      />
       <h2>2. Find the text instruction</h2>
       <p>
         Choose <strong>First page</strong>, follow <code>/Contents</code> to <strong>4 0 R</strong>, then select{' '}
