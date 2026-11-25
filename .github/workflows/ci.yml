@@ -1,6 +1,7 @@
 name: Checks
 on:
   push:
+    branches: [main]
   pull_request:
 permissions:
   contents: read
@@ -30,7 +31,54 @@ jobs:
           tar -xzf "$archive" -C "$RUNNER_TEMP/gitleaks" gitleaks
       - name: Scan complete Git history
         run: '"$RUNNER_TEMP/gitleaks/gitleaks" git . --log-opts="--all --full-history" --redact=100 --no-banner'
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # Documentation-only changes skip the build, tests and deploy. Any file
+      # outside these patterns, or a diff that cannot be computed, runs everything.
+      # On main the diff starts at the last successful run, so a merge whose run
+      # failed or was cancelled is still tested and deployed by the next one.
+      - name: Detect code changes
+        id: diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            base=$PR_BASE
+          else
+            base=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?branch=main&event=push&status=success&per_page=1" \
+              --jq '.workflow_runs[0].head_sha // empty') || base=
+          fi
+          echo "Base: ${base:-(none found)}"
+          code=true
+          if [ -n "$base" ] && files=$(git diff --name-only --no-renames "$base...$HEAD") && [ -n "$files" ]; then
+            code=false
+            while IFS= read -r file; do
+              case "$file" in
+                public/* | src/*) code=true; break ;;
+                *.md | docs/* | .github/ISSUE_TEMPLATE/* | LICENSE) ;;
+                *) code=true; break ;;
+              esac
+            done <<< "$files"
+          fi
+          echo "Changed files:"
+          echo "${files:-(none found)}"
+          echo "Run code checks: $code"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
   check:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -52,7 +100,8 @@ jobs:
       - run: pnpm run build
       - run: pnpm run check:pages-assets
   browsers:
-    needs: check
+    needs: [changes, check]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -78,6 +127,27 @@ jobs:
           PLAYWRIGHT_CLOUDFLARE: '1'
       - name: Verify parser in native development workers
         run: pnpm run test:e2e --browser=${{ matrix.browser }} --grep 'follows page references|uploads and replaces|distinguishes compressed'
+  # The one required status check: it passes when every job above passed or
+  # was skipped for a documentation-only change.
+  passed:
+    name: Checks passed
+    needs: [secrets, changes, check, browsers]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check job results
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          # check and browsers may skip only when changes found no code.
+          failed=$(jq -r '.changes.outputs.code as $code | to_entries[]
+            | select(.value.result != "success")
+            | select(.value.result != "skipped" or $code == "true" or .key == "secrets" or .key == "changes")
+            | "\(.key): \(.value.result)"' <<< "$NEEDS")
+          if [ -n "$failed" ]; then
+            echo "::error::Required jobs did not pass: $(tr '\n' ' ' <<< "$failed")"
+            exit 1
+          fi
   deploy:
     name: Deploy production
     needs: [secrets, check, browsers]

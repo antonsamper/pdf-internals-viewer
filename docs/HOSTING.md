@@ -4,7 +4,7 @@ PDF Internals Viewer is a static site hosted on Cloudflare Pages at https://pdf-
 
 ## Deployment
 
-Production deploys only from the `deploy` job in `.github/workflows/ci.yml`, after a merge to `main` and once the `secrets`, `check` and `browsers` jobs pass. Pull requests never deploy. Never deploy manually, and never use `wrangler deploy`, which targets Workers rather than Pages.
+Production deploys only from the `deploy` job in `.github/workflows/ci.yml`, after a merge to `main` and once the `secrets`, `check` and `browsers` jobs pass. Pull requests never deploy, and neither does a merge that only changes documentation, because `check` and `browsers` skip it (see [BROWSERS.md](BROWSERS.md#continuous-integration)). Never deploy manually, and never use `wrangler deploy`, which targets Workers rather than Pages.
 
 The job builds the site in GitHub Actions and uploads `dist/` with Cloudflare's Direct Upload, so the files that ship come from the same pinned, hash-checked build that CI tested. Cloudflare's alternative, Git integration, would rebuild every push in Cloudflare's own environment, needs Cloudflare's GitHub app on the repository and by default publishes a public preview of every branch. The project has no preview deployments. A Direct Upload project cannot be switched to Git integration in place.
 
