@@ -11,8 +11,6 @@ import { CONTENT_GROUPS, contentType, relatedPages } from '@/lib/site-navigation
 const join = (...parts: (string | false)[]) => parts.filter(Boolean).join(' ');
 
 const SECTION_LINK = 'text-inherit underline-offset-5 no-underline';
-const SECTION_LINK_ACTIVE = 'underline';
-const MENU_LINK = join('flex! min-h-11 rounded-[4px]! px-3!', 'hover:bg-muted hover:bg-clip-border!', 'dark:hover:bg-muted!');
 
 const SectionLinks = function SectionLinks({ menu, path, onFollowLink }: { menu: boolean; path: SitePath; onFollowLink?: FollowLink }) {
   return CONTENT_GROUPS.slice(0, 3).map((group) => {
@@ -26,8 +24,11 @@ const SectionLinks = function SectionLinks({ menu, path, onFollowLink }: { menu:
         className={join(
           buttonVariants({ size: 'sm', variant: 'ghost' }),
           SECTION_LINK,
-          active && SECTION_LINK_ACTIVE,
-          menu && MENU_LINK,
+          menu && 'min-h-11',
+          menu && 'hover:bg-muted',
+          menu && 'dark:hover:bg-muted!',
+          menu && 'flex! rounded-[4px]! px-3! hover:bg-clip-border!',
+          active && 'underline',
           menu && active && 'bg-muted bg-clip-border!'
         )}
         onClick={onFollowLink}

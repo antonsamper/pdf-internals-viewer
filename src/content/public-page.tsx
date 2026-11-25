@@ -609,7 +609,7 @@ export const PublicPage = function PublicPage({
   return (
     <ReadingPage labelledBy="public-title" onClick={onFollowLink} path={page.path} standalone={standalone}>
       <BackToWorkspace />
-      <nav className={cn('mb-6 text-[12px] leading-[1.8] text-muted-foreground', '[overflow-wrap:anywhere]')} aria-label="Breadcrumb">
+      <nav className="mb-6 text-[12px] leading-[1.8] [overflow-wrap:anywhere] text-muted-foreground" aria-label="Breadcrumb">
         <a href="/">PDF Internals</a>
         <span aria-hidden="true"> / </span>
         {page.path.startsWith('/guides/') && (

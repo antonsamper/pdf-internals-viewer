@@ -51,7 +51,9 @@ export const ReadingPage = function ReadingPage({
   return (
     <main
       className={cn(
-        'min-h-0 flex-1 px-6 pt-12 pb-16 focus:outline-none max-w760:pt-8',
+        'min-h-0 flex-1 px-6 pt-12 pb-16',
+        'focus:outline-none',
+        'max-w760:pt-8',
         standalone ? 'overflow-visible' : 'overflow-auto',
         !about && 'max-w760:pb-12'
       )}
