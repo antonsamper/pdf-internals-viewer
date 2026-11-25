@@ -1,3 +1,5 @@
+import { cn } from 'cn';
+
 export const BrandIcon = function BrandIcon({ className }: { className?: string }) {
   return (
     <img
@@ -29,7 +31,8 @@ export const BrandArtwork = function BrandArtwork({ className = '', decorative =
       ].map(({ mode, file, width, height }) => (
         <img
           key={mode}
-          className={`brand-artwork brand-artwork-${mode} ${className}`}
+          className={cn('h-auto max-w-full', mode === 'light' ? 'block dark:hidden' : 'hidden dark:block', className)}
+          data-brand-artwork={mode}
           src={`${import.meta.env.BASE_URL}brand/${file}`}
           alt={decorative ? '' : 'PDF Internals — a detective exploring PDF objects, pages, fonts, and streams'}
           width={width}

@@ -25,7 +25,7 @@ export const TextSourceBytes = function TextSourceBytes({
   const [decoded, setDecoded] = useState(!source.originalRanges && source.bytes.length > 0 && (exact || !originalRange));
   const decodedScroll = useRef<ScrollPosition['current']>(undefined);
   return (
-    <div className="flex h-full min-h-0 flex-col [&>.hex-view]:flex-1" data-text-source-bytes>
+    <div className="flex h-full min-h-0 flex-col" data-text-source-bytes>
       <div className="flex flex-wrap gap-1.5 border-b px-3 py-2" role="group" aria-label="Text match byte representation">
         <Button size="xs" variant={decoded ? 'ghost' : 'secondary'} aria-pressed={!decoded} onClick={() => setDecoded(false)}>
           Original bytes
@@ -56,6 +56,7 @@ export const TextSourceBytes = function TextSourceBytes({
       </p>
       {decoded ? (
         <HexView
+          className="flex-1"
           key={`decoded-${source.id}`}
           revealKey={revealKey}
           bytes={source.bytes}
@@ -67,6 +68,7 @@ export const TextSourceBytes = function TextSourceBytes({
         />
       ) : (
         <HexView
+          className="flex-1"
           key="original"
           revealKey={revealKey}
           bytes={bytes}

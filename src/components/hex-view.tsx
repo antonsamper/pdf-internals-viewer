@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import { ArrowDownToLine, Check, Copy, FileCode2 } from 'lucide-react';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react';
 
@@ -5,6 +6,17 @@ import type { ScrollPosition } from '@/lib/scroll-restoration';
 
 import { Button } from '@/components/ui/button';
 
+// `family-name:` stops cn from reading the font list as a weight and dropping it.
+const HEX_FONT = 'font-[family-name:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace]';
+const HEX_INPUT_FONT = 'font-[family-name:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace]! text-[11px]!';
+// Offset, bytes and ASCII columns shared by the column heading and every row. Below 401px the columns tighten.
+const HEX_GRID = cn(
+  'grid grid-cols-[67px_calc(var(--hex-columns)*23px)_calc(var(--hex-columns)*8px)] items-center gap-x-[13px]',
+  'px-3.5 whitespace-nowrap',
+  'max-w400:grid-cols-[59px_calc(var(--hex-columns)*22px)_calc(var(--hex-columns)*7px)] max-w400:gap-[7px] max-w400:px-[9px]'
+);
+const HEX_BYTE_CELLS = 'grid grid-cols-[repeat(var(--hex-columns),23px)] max-w400:grid-cols-[repeat(var(--hex-columns),22px)]';
+const HEX_SELECTED = 'data-[selected]:bg-byte-selection data-[selected]:text-byte-selection-foreground';
 const printable = (byte: number) => {
   return byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '.';
 };
@@ -46,12 +58,12 @@ const HexToolbar = ({
   onToggleDecimal: () => void;
   title: string;
 }) => (
-  <div className="hex-toolbar">
-    <div className="hex-title">
+  <div className="flex h-[42px] min-h-[42px] shrink-0 items-center justify-between gap-2 border-b px-3.5">
+    <div className="flex items-center gap-2 text-[12px] font-semibold">
       <FileCode2 aria-hidden="true" size={15} />
       <span>{title}</span>
     </div>
-    <div className="hex-actions">
+    <div className="flex items-center gap-[3px]">
       <Button
         size="xs"
         variant="ghost"
@@ -87,9 +99,19 @@ const HexJumpForm = ({
   onSubmit: (event: FormEvent) => void;
   value: string;
 }) => (
-  <form className="hex-jump" onSubmit={onSubmit}>
-    <label htmlFor={id}>Go to offset</label>
+  <form className="flex items-center gap-2 border-b px-3.5 py-[9px] text-[11px]" onSubmit={onSubmit}>
+    <label className="whitespace-nowrap text-muted-foreground" htmlFor={id}>
+      Go to offset
+    </label>
     <input
+      className={cn(
+        'w-full min-w-10 px-[7px] py-1',
+        'bg-background text-foreground placeholder:text-muted-foreground',
+        'rounded-[5px] border border-border',
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
+        // The global `input` font rule outranks utilities, so the family and size take `!`.
+        HEX_INPUT_FONT
+      )}
       id={id}
       value={value}
       onChange={(event) => onChange(event.target.value)}
@@ -102,7 +124,7 @@ const HexJumpForm = ({
     <Button size="icon-xs" variant="ghost" type="submit" disabled={disabled} aria-label="Jump to offset">
       <ArrowDownToLine />
     </Button>
-    <span id={`${id}-help`} className="hex-sr-only">
+    <span id={`${id}-help`} className="sr-only">
       Enter a decimal offset or hexadecimal prefixed with 0x.
     </span>
   </form>
@@ -126,20 +148,33 @@ const HexRow = ({
 }) => {
   const offset = row * columns;
   return (
-    <div className="hex-row" style={{ height: ROW_HEIGHT, top: row * ROW_HEIGHT }}>
-      <span className="hex-offset">{offsetText(offset)}</span>
-      <span className="hex-byte-cells">
+    <div
+      className={cn(HEX_GRID, HEX_FONT, 'absolute left-0 text-[11px] leading-[normal] tabular-nums hover:bg-muted')}
+      style={{ height: ROW_HEIGHT, top: row * ROW_HEIGHT }}
+    >
+      <span className="text-[10px] text-muted-foreground select-text">{offsetText(offset)}</span>
+      <span className={HEX_BYTE_CELLS}>
         {Array.from({ length: columns }, (_, column) => {
           const position = offset + column;
           const byte = bytes[position];
-          if (position >= bytes.length) return <span className="hex-byte" key={position} />;
+          if (position >= bytes.length) return <span key={position} />;
           const selected = isSelected(position);
           return (
             <button
               key={position}
               tabIndex={-1}
               type="button"
-              className={`hex-byte${selected ? ' hex-selected' : ''}${position === cursor ? ' hex-cursor' : ''}${byte === 0 ? ' hex-zero' : ''}`}
+              className={cn(
+                'rounded-[2px] border-0 bg-transparent py-[3px] text-center text-foreground',
+                'hover:bg-accent hover:text-accent-foreground hover:shadow-[inset_0_0_0_1px_var(--border)]',
+                'data-[cursor]:outline-1 data-[cursor]:-outline-offset-1 data-[cursor]:outline-ring',
+                'data-[zero]:text-muted-foreground',
+                HEX_SELECTED
+              )}
+              data-cursor={position === cursor ? '' : undefined}
+              data-hex-byte=""
+              data-selected={selected ? '' : undefined}
+              data-zero={byte === 0 ? '' : undefined}
               onClick={() => onSelect(position)}
               aria-label={`Offset ${position}, byte ${byte.toString(16).toUpperCase().padStart(2, '0')}`}
               title={`${position} / 0x${position.toString(16).toUpperCase()}`}
@@ -149,9 +184,13 @@ const HexRow = ({
           );
         })}
       </span>
-      <span className="hex-ascii" aria-hidden="true">
+      <span className="flex text-muted-foreground" aria-hidden="true">
         {Array.from(bytes.subarray(offset, offset + columns), (byte, column) => (
-          <span key={offset + column} className={isSelected(offset + column) ? 'hex-selected' : ''}>
+          <span
+            key={offset + column}
+            className={cn('inline-block w-2 py-[3px] text-center', 'max-w400:w-[7px]', HEX_SELECTED)}
+            data-selected={isSelected(offset + column) ? '' : undefined}
+          >
             {printable(byte)}
           </span>
         ))}
@@ -160,11 +199,22 @@ const HexRow = ({
   );
 };
 const HexColumnHead = ({ columns }: { columns: number }) => (
-  <div className="hex-column-head" style={{ '--hex-columns': columns } as CSSProperties} aria-hidden="true">
+  <div
+    className={cn(
+      HEX_GRID,
+      HEX_FONT,
+      'shrink-0 overflow-hidden bg-muted py-[9px] text-[9px] tracking-[0.025em] text-muted-foreground',
+      'leading-[normal]'
+    )}
+    style={{ '--hex-columns': columns } as CSSProperties}
+    aria-hidden="true"
+  >
     <span>OFFSET</span>
-    <span className="hex-byte-heading">
+    <span className={HEX_BYTE_CELLS}>
       {Array.from({ length: columns }, (_, i) => (
-        <span key={i}>{i.toString(16).toUpperCase().padStart(2, '0')}</span>
+        <span className="text-center" key={i}>
+          {i.toString(16).toUpperCase().padStart(2, '0')}
+        </span>
       ))}
     </span>
     <span>ASCII</span>
@@ -187,7 +237,11 @@ const HexStatus = ({
   selectionStart: number;
   totalBytes: number;
 }) => (
-  <div className="hex-status" aria-live="polite">
+  <div
+    className="min-h-[34px] border-t px-3.5 py-[9px] text-[10px] leading-[1.5] [overflow-wrap:anywhere] text-muted-foreground"
+    data-hex-status=""
+    aria-live="polite"
+  >
     {message ||
       (ranges && ranges.length > 1
         ? `${selectedLength.toLocaleString()} bytes selected in ${ranges.length} ranges`
@@ -198,6 +252,7 @@ const HexStatus = ({
 );
 export const HexView = ({
   bytes,
+  className,
   range,
   ranges,
   revealKey,
@@ -389,7 +444,7 @@ export const HexView = ({
   };
 
   return (
-    <section className="hex-view" aria-label={label}>
+    <section className={cn('flex h-full min-h-0 min-w-0 flex-col bg-background text-foreground', className)} aria-label={label}>
       <HexToolbar
         title={title}
         decimal={decimal}
@@ -402,7 +457,8 @@ export const HexView = ({
       <HexColumnHead columns={columns} />
       <div
         ref={viewportRef}
-        className="hex-viewport"
+        className="relative min-h-[150px] flex-1 [scrollbar-gutter:stable] overflow-auto -outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring"
+        data-hex-viewport=""
         tabIndex={0}
         role="region"
         aria-label="Hexadecimal bytes. Use arrow keys to move; Enter to inspect the object containing the byte."
@@ -419,7 +475,8 @@ export const HexView = ({
       >
         {bytes.length ? (
           <div
-            className="hex-spacer"
+            className="relative min-w-max"
+            data-hex-spacer=""
             style={
               {
                 '--hex-columns': columns,
@@ -441,7 +498,7 @@ export const HexView = ({
             ))}
           </div>
         ) : (
-          <div className="hex-empty">
+          <div className="flex h-full min-h-[180px] flex-col items-center justify-center gap-2.5 p-[25px] text-center text-[12px] text-muted-foreground">
             <FileCode2 size={24} aria-hidden="true" />
             <p>Open a PDF to inspect its bytes.</p>
           </div>
@@ -460,6 +517,7 @@ export const HexView = ({
   );
 };
 interface HexViewProps {
+  className?: string;
   bytes: Uint8Array;
   scrollPositionRef: ScrollPosition;
   range?: {

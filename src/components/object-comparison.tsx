@@ -53,7 +53,7 @@ export const ObjectComparison = function ObjectComparison({
           <p className="text-xs text-muted-foreground">Current</p>
           {current ? (
             <>
-              <p className="font-mono text-xs">
+              <p className="font-code text-xs">
                 {current.id} obj · {current.kind}
               </p>
               <Location object={current} />

@@ -1,6 +1,18 @@
 # Design system
 
-The exact values (colours, type sizes, spacing, radii and dark-mode mappings) live in `src/index.css`, `src/app.css` and `src/components/hex-view.css`. Breakpoints are theme tokens in `src/styles/breakpoints.css`. The `surface-dark` utility in `src/styles/surfaces.css` gives an element the plum header colours in both themes by redefining the colour tokens, so everything inside follows it. `src/app.css` and `src/components/hex-view.css` are imported into the `legacy` layer, which sits above Tailwind's utilities, so their rules still win over them. Their global rules for `button`, `input`, `select`, `code` and `pre` (font and focus outline) outrank utilities too, so utilities that set font or outline on those elements take the `!` modifier. `cn` drops a `leading-*` that comes before a later `text-[..]`, so put `leading-*` last. The inspector panes style themselves with Tailwind utilities and share class strings from `src/components/inspector-styles.ts` (pane headings, references, notes, warnings and severity colours). The About page and the public articles share `src/components/reading-page.tsx` (page layout, section navigation and the related-reading list) and `src/components/prose.tsx`. `Prose` styles the plain HTML elements of an article from its wrapper and skips any element with a `class`, so a styled paragraph or link carries its own utilities. `Lead`, `ExamplePreview` and `ComparisonTable` cover the rest. `src/index.css` provides the `font-pdf` family for PDF syntax and the `reference`, `pdf-string` and `brand-*` colour utilities. This document describes how to use them. Use the semantic tokens and shadcn controls on Base UI rather than hard-coded values.
+Components are styled with Tailwind utilities, shadcn variants on Base UI and the theme tokens. There is no component stylesheet, and class names are utilities. Tests select by role, label or `data-*` attribute. Use the semantic tokens rather than hard-coded values.
+
+## Where styles live
+
+- `src/index.css` holds the tokens (colours, radii, the `font-pdf` and `font-code` families, the `reference`, `pdf-string` and `brand-*` colour utilities, dark-mode mappings) and a `base` layer with the page reset: full-height `html`, `body` and `#root`, the 13px body size, selection colours, thin scrollbars, pointer cursors on buttons and the reduced-motion rule.
+- `src/styles/breakpoints.css` defines the breakpoint tokens. See Layout.
+- `src/styles/surfaces.css` defines the `surface-dark` utility, which gives an element the plum header colours in both themes by redefining the colour tokens, so everything inside follows it.
+- `src/styles/shadcn.css` is the vendored shadcn stylesheet. Don't edit it.
+- `src/styles/overrides.css` is the only place for global element rules. It is imported into the `overrides` layer, which sits above Tailwind's utilities, so its rules win over them: `font: inherit` on `button`, `input` and `select`, the 12px monospace on `code` and `pre`, and the focus outline on `button`, `a` and `select`. A utility that sets font or outline on one of those elements takes the `!` modifier. Add a rule here only when no utility can express it, and say why.
+- No selector may restyle a shadcn component from outside. Change its variant or pass utilities to it.
+- The inspector panes share class strings from `src/components/inspector-styles.ts` (pane headings, references, notes, warnings and severity colours). The hex view keeps its row and column classes in `src/components/hex-view.tsx`.
+- The About page and the public articles share `src/components/reading-page.tsx` (page layout, section navigation and the related-reading list) and `src/components/prose.tsx`. `Prose` styles the plain HTML elements of an article from its wrapper and skips any element with a `class`, so a styled paragraph or link carries its own utilities. `Lead`, `ExamplePreview` and `ComparisonTable` cover the rest.
+- `cn` drops a `leading-*` that comes before a later `text-[..]`, so put `leading-*` last.
 
 ## Look and feel
 
@@ -24,7 +36,7 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 ## Layout
 
 - The workspace fills the viewport: header, three resizable panes (explorer, inspector, original bytes) that scroll independently, and a status bar.
-- At 900px and below, buttons switch between panes instead, and the header stays on one row with icon-only actions. Breakpoints use the `w360`, `w400`, `w480`, `w600`, `w760` and `w900` tokens: `max-w900:` and `width < theme(--breakpoint-w900)` both match widths below 901px.
+- At 900px and below, buttons switch between panes instead, and the header stays on one row with icon-only actions. Breakpoints are theme tokens in `src/styles/breakpoints.css`. They use the `w360`, `w400`, `w480`, `w600`, `w760` and `w900` tokens: `max-w900:` and `width < theme(--breakpoint-w900)` both match widths below 901px.
 - Search fits on one row on mobile, dropping to two rows at 360px and below. Touch targets are at least 44px.
 - Public pages use a white reading layout with a section sidebar that becomes an expandable menu on narrow screens. Their footer shows only when no document is open.
 

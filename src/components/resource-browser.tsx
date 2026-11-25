@@ -142,11 +142,11 @@ export const ResourceBrowser = function ResourceBrowser({
                   {!downloads.length && <p className="my-3 text-xs text-muted-foreground">No embedded font file available to download.</p>}
                   <dl className="my-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
                     <dt className="text-muted-foreground">Base font</dt>
-                    <dd className="font-mono break-all">{detail(object, 'BaseFont')}</dd>
+                    <dd className="font-code text-[12px] break-all">{detail(object, 'BaseFont')}</dd>
                     <dt className="text-muted-foreground">Subtype</dt>
-                    <dd className="font-mono break-all">{detail(object, 'Subtype')}</dd>
+                    <dd className="font-code text-[12px] break-all">{detail(object, 'Subtype')}</dd>
                     <dt className="text-muted-foreground">Encoding</dt>
-                    <dd className="font-mono break-all">{detail(object, 'Encoding')}</dd>
+                    <dd className="font-code text-[12px] break-all">{detail(object, 'Encoding')}</dd>
                   </dl>
                 </>
               ) : kind === 'Image' ? (
