@@ -1,8 +1,10 @@
 import type { MouseEvent } from 'react';
 
-import { ArrowLeft } from 'lucide-react';
+import { cn } from 'cn';
 
-import { ContentNavigation, ContentHeaderLinks, RelatedContent } from '@/components/content-navigation';
+import { ContentHeaderLinks } from '@/components/content-navigation';
+import { ArticleActions, ArticleSource, ComparisonTable, Lead } from '@/components/prose';
+import { BackToWorkspace, ReadingPage } from '@/components/reading-page';
 import { SiteHeader } from '@/components/site-header';
 import { SiteLinks } from '@/components/site-links';
 import { MAX_INPUT_BYTES, MAX_DISPLAY_BYTES, MAX_OBJECTS, MAX_DECODED_BYTES, OPERATION_TIMEOUT_MS } from '@/lib/pdf/limits';
@@ -24,20 +26,18 @@ import { AudiencePage, InspectorVsViewerPage } from './overview-pages';
 import { AttachmentsGuide, SearchGuide, SuspiciousFeaturesGuide } from './task-guides';
 const SampleLinks = function SampleLinks({ sample, label }: { sample: string; label: string }) {
   return (
-    <p className="article-actions">
+    <ArticleActions>
       <a href={`/?sample=${sample}`}>Explore {label}</a>
       <a href={`/samples/${sample}.pdf`} download>
         Download sample PDF
       </a>
-    </p>
+    </ArticleActions>
   );
 };
 const Guide = function Guide() {
   return (
     <>
-      <p className="about-lead">
-        Start with a sample, then choose a task. Your PDF stays on your device; inspecting it does not change the file.
-      </p>
+      <Lead>Start with a sample, then choose a task. Your PDF stays on your device; inspecting it does not change the file.</Lead>
       <h2>Try your first inspection</h2>
       <SampleLinks sample="minimal" label="A simple page" />
       <ol>
@@ -144,11 +144,11 @@ const Guide = function Guide() {
 const ObjectsGuide = function ObjectsGuide() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         <code>3 0 R</code> is an indirect reference to PDF object number 3, generation 0. The generation number distinguishes versions of a
         reused object number. The letter R marks a reference: look up that object to read its value. An indirect object has its own number
         and can be referenced from elsewhere in the PDF.
-      </p>
+      </Lead>
       <h2>Follow a page to its drawing instructions</h2>
       <p>
         The original <strong>A simple page</strong> sample contains five indirect objects. Object 1 is the document catalogue, object 2 is
@@ -198,21 +198,21 @@ endobj`}</code>
         <a href="/guides/decode-pdf-streams">Learn about raw and decoded streams</a>, or{' '}
         <a href="/guides/find-pdf-fonts-images">follow the page’s font and image resources</a>.
       </p>
-      <p className="article-source">
+      <ArticleSource>
         Example source: <a href={fixtureSource}>original sample generator, baseObjects and minimalPdf</a>. This walkthrough covers the
         bundled sample. It does not establish support for every PDF allowed by the specification.
-      </p>
+      </ArticleSource>
     </>
   );
 };
 const StreamsGuide = function StreamsGuide() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         A PDF stream stores data bytes after a dictionary of properties. Its <code>/Filter</code> entry names the encoding applied to those
         bytes, such as compression. Decoding reverses supported encodings so you can inspect the data. Positions within the decoded data
         differ from positions in the original file.
-      </p>
+      </Lead>
       <h2>Know what the stream contains</h2>
       <p>
         A page’s
@@ -275,59 +275,57 @@ Q`}</code>
       <pre>
         <code>{`[(at) -41 ( ) -48 (varius) -7 ( ) -82 (lor) 17 (em )] TJ`}</code>
       </pre>
-      <div className="comparison-table-wrap">
-        <table className="comparison-table">
-          <caption>Reading a TJ text instruction</caption>
-          <colgroup>
-            <col style={{ width: '30%' }} />
-            <col />
-          </colgroup>
-          <thead>
-            <tr>
-              <th scope="col">Syntax</th>
-              <th scope="col">Meaning</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">
-                <code>[ … ]</code>
-              </th>
-              <td>An array of strings and spacing adjustments, read in order.</td>
-            </tr>
-            <tr>
-              <th scope="row">
-                <code>(lor)</code>, <code>(em )</code>
-              </th>
-              <td>
-                Text strings. Parentheses mark where each string starts and ends; they do not appear on the page. The second string includes
-                a trailing space.
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">
-                <code>( )</code>
-              </th>
-              <td>A string containing a space character.</td>
-            </tr>
-            <tr>
-              <th scope="row">
-                <code>17</code>, <code>-82</code>
-              </th>
-              <td>Move the text position without adding characters or marking word boundaries.</td>
-            </tr>
-            <tr>
-              <th scope="row">
-                <code>TJ</code>
-              </th>
-              <td>
-                Draw the strings, applying each adjustment before continuing. The related <code>Tj</code> operator draws a single string
-                without an array of adjustments.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <ComparisonTable>
+        <caption>Reading a TJ text instruction</caption>
+        <colgroup>
+          <col style={{ width: '30%' }} />
+          <col />
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">Syntax</th>
+            <th scope="col">Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">
+              <code>[ … ]</code>
+            </th>
+            <td>An array of strings and spacing adjustments, read in order.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <code>(lor)</code>, <code>(em )</code>
+            </th>
+            <td>
+              Text strings. Parentheses mark where each string starts and ends; they do not appear on the page. The second string includes a
+              trailing space.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <code>( )</code>
+            </th>
+            <td>A string containing a space character.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <code>17</code>, <code>-82</code>
+            </th>
+            <td>Move the text position without adding characters or marking word boundaries.</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              <code>TJ</code>
+            </th>
+            <td>
+              Draw the strings, applying each adjustment before continuing. The related <code>Tj</code> operator draws a single string
+              without an array of adjustments.
+            </td>
+          </tr>
+        </tbody>
+      </ComparisonTable>
       <p>
         For other instructions, see the{' '}
         <a href="https://pdfa.org/download-area/cheat-sheets/OperatorsAndOperands.pdf" target="_blank" rel="noopener noreferrer">
@@ -341,7 +339,13 @@ Q`}</code>
         back, tightening the gap; a negative value moves it forwards, opening the gap. The numbers adjust how far the text position normally
         advances after each letter or space. They do not specify absolute page coordinates.
       </p>
-      <details className="stream-spacing-detail">
+      <details
+        className={cn(
+          'my-4 text-[14px] leading-[1.85]',
+          '[&_summary]:cursor-pointer [&_summary]:underline [&_summary]:underline-offset-3',
+          '[&_p]:mt-3'
+        )}
+      >
         <summary>Convert a spacing adjustment to a distance</summary>
         <p>
           At a 12-point font size with no additional scaling,
@@ -378,21 +382,21 @@ Q`}</code>
         characters; it does not extract the text shown on a rendered page. Decoding is limited to {MAX_DECODED_BYTES / 1024 / 1024} MiB per
         stream. Read the <a href="/limitations">complete limitations</a> before drawing conclusions from partial results.
       </p>
-      <p className="article-source">
+      <ArticleSource>
         Example source: <a href={fixtureSource}>original sample generator, resourcesPdf and compressedPdf</a>.{' '}
         <a href="/guides/inspect-pdf-objects">Review objects and references</a>.
-      </p>
+      </ArticleSource>
     </>
   );
 };
 const ResourcesGuide = function ResourcesGuide() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         A PDF page’s resources identify fonts, images, and other named objects available to its drawing instructions. Use the resource
         browser to inspect them, follow their references, and see which pages make them available. Availability alone does not prove that a
         resource is drawn.
-      </p>
+      </Lead>
       <h2>Find the sample’s font and image</h2>
       <SampleLinks sample="resources" label="Fonts & resources" />
       <ol>
@@ -440,17 +444,17 @@ const ResourcesGuide = function ResourcesGuide() {
         The sample also includes <code>notes.txt</code>. Choose <strong>Resources → Attachments</strong> to find and download it. An empty
         attachment list is not proof that a partially parsed document contains no attachments.
       </p>
-      <p className="article-source">
+      <ArticleSource>
         Example source: <a href={fixtureSource}>original sample generator, resourcesPdf</a>. See{' '}
         <a href="/limitations">supported operations and limits</a> and the <a href="/guide">workspace guide</a>.
-      </p>
+      </ArticleSource>
     </>
   );
 };
 const Privacy = function Privacy() {
   return (
     <>
-      <p className="about-lead">{PRIVACY_SUMMARY}</p>
+      <Lead>{PRIVACY_SUMMARY}</Lead>
       <h2>What stays in memory</h2>
       <p>
         Your PDF and its password are held in memory while the document is open. Closing or replacing it clears the active workspace and
@@ -497,20 +501,20 @@ const Privacy = function Privacy() {
         Your PDF never reaches the analytics. The address bar only shows public page addresses and the names of bundled samples, never a
         local file, its name or anything inside it.
       </p>
-      <p className="article-source">
+      <ArticleSource>
         Implementation: <a href={`${PROJECT_URL}/blob/main/src/lib/pdf/bookmark-storage.ts`}>bookmark storage</a> and{' '}
         <a href={`${PROJECT_URL}/blob/main/src/lib/pdf/client.ts`}>local parser worker client</a>.
-      </p>
+      </ArticleSource>
     </>
   );
 };
 const Limitations = function Limitations() {
   return (
     <>
-      <p className="about-lead">
+      <Lead>
         PDF Internals is an early, read-only exploration tool. It can inspect the current object structure, references, streams, resources,
         and original bytes. Some PDFs are only partially supported; recovered or unavailable data is labelled.
-      </p>
+      </Lead>
       <h2>File and processing limits</h2>
       <dl>
         <dt>Maximum input size</dt>
@@ -596,100 +600,94 @@ const Limitations = function Limitations() {
 export const PublicPage = function PublicPage({
   page,
   onFollowLink,
+  standalone,
 }: {
   page: SitePage;
   onFollowLink?: (event: MouseEvent<HTMLElement>) => boolean;
+  standalone?: boolean;
 }) {
   return (
-    <main className="about-page public-page content-page" tabIndex={-1} aria-labelledby="public-title" onClick={onFollowLink}>
-      <div className="content-layout">
-        <ContentNavigation path={page.path} />
-        <article>
-          <a className="back-to-workspace" href={import.meta.env.BASE_URL}>
-            <ArrowLeft size={14} aria-hidden="true" /> Back to the workspace
-          </a>
-          <nav className="article-breadcrumbs" aria-label="Breadcrumb">
-            <a href="/">PDF Internals</a>
+    <ReadingPage labelledBy="public-title" onClick={onFollowLink} path={page.path} standalone={standalone}>
+      <BackToWorkspace />
+      <nav className="mb-6 text-[12px] leading-[1.8] [overflow-wrap:anywhere] text-muted-foreground" aria-label="Breadcrumb">
+        <a href="/">PDF Internals</a>
+        <span aria-hidden="true"> / </span>
+        {page.path.startsWith('/guides/') && (
+          <>
+            <a href="/guide">Guide</a>
             <span aria-hidden="true"> / </span>
-            {page.path.startsWith('/guides/') && (
-              <>
-                <a href="/guide">Guide</a>
-                <span aria-hidden="true"> / </span>
-              </>
-            )}
-            {page.path.startsWith('/examples/') && (
-              <>
-                <a href="/examples">Examples</a>
-                <span aria-hidden="true"> / </span>
-              </>
-            )}
-            <span aria-current="page">{navigationLabel(page.path)}</span>
-          </nav>
-          <h1 id="public-title">{page.heading}</h1>
-          {(page.path.startsWith('/guides/') || page.path.startsWith('/examples/')) && (
-            <p className="article-byline">
-              By <a href="https://github.com/antonsamper">Anton Samper</a> · Reviewed <time dateTime="2026-11-15">15 November 2026</time>
-            </p>
-          )}
-          {page.path === '/who-its-for' ? (
-            <AudiencePage />
-          ) : page.path === '/pdf-inspector-vs-viewer' ? (
-            <InspectorVsViewerPage />
-          ) : page.path === '/examples' ? (
-            <Examples />
-          ) : page.path === '/examples/large-pdf' ? (
-            <LargePdfExample />
-          ) : page.path === '/examples/incorrect-text' ? (
-            <IncorrectTextExample />
-          ) : page.path === '/examples/find-text-source' ? (
-            <FindTextSourceExample />
-          ) : page.path === '/examples/broken-xref' ? (
-            <BrokenXrefExample />
-          ) : page.path === '/examples/embedded-font' ? (
-            <FontExample />
-          ) : page.path === '/examples/hidden-attachment' ? (
-            <AttachmentExample />
-          ) : page.path === '/examples/repeated-logo' ? (
-            <LogoExample />
-          ) : page.path === '/examples/page-rotation' ? (
-            <RotationExample />
-          ) : page.path === '/examples/inherited-resources' ? (
-            <InheritanceExample />
-          ) : page.path === '/examples/opening-action' ? (
-            <ActionExample />
-          ) : page.path === '/guide' ? (
-            <Guide />
-          ) : page.path === '/privacy' ? (
-            <Privacy />
-          ) : page.path === '/limitations' ? (
-            <Limitations />
-          ) : page.path === '/guides/inspect-pdf-objects' ? (
-            <ObjectsGuide />
-          ) : page.path === '/guides/decode-pdf-streams' ? (
-            <StreamsGuide />
-          ) : page.path === '/guides/find-pdf-attachments' ? (
-            <AttachmentsGuide />
-          ) : page.path === '/guides/search-bookmark-compare' ? (
-            <SearchGuide />
-          ) : page.path === '/guides/investigate-suspicious-features' ? (
-            <SuspiciousFeaturesGuide />
-          ) : (
-            <ResourcesGuide />
-          )}
-          <RelatedContent path={page.path} />
-        </article>
-      </div>
-    </main>
+          </>
+        )}
+        {page.path.startsWith('/examples/') && (
+          <>
+            <a href="/examples">Examples</a>
+            <span aria-hidden="true"> / </span>
+          </>
+        )}
+        <span aria-current="page">{navigationLabel(page.path)}</span>
+      </nav>
+      <h1 id="public-title">{page.heading}</h1>
+      {(page.path.startsWith('/guides/') || page.path.startsWith('/examples/')) && (
+        <p className="mb-8 text-[12px] leading-[1.85] text-muted-foreground">
+          By <a href="https://github.com/antonsamper">Anton Samper</a> · Reviewed <time dateTime="2026-11-15">15 November 2026</time>
+        </p>
+      )}
+      {page.path === '/who-its-for' ? (
+        <AudiencePage />
+      ) : page.path === '/pdf-inspector-vs-viewer' ? (
+        <InspectorVsViewerPage />
+      ) : page.path === '/examples' ? (
+        <Examples />
+      ) : page.path === '/examples/large-pdf' ? (
+        <LargePdfExample />
+      ) : page.path === '/examples/incorrect-text' ? (
+        <IncorrectTextExample />
+      ) : page.path === '/examples/find-text-source' ? (
+        <FindTextSourceExample />
+      ) : page.path === '/examples/broken-xref' ? (
+        <BrokenXrefExample />
+      ) : page.path === '/examples/embedded-font' ? (
+        <FontExample />
+      ) : page.path === '/examples/hidden-attachment' ? (
+        <AttachmentExample />
+      ) : page.path === '/examples/repeated-logo' ? (
+        <LogoExample />
+      ) : page.path === '/examples/page-rotation' ? (
+        <RotationExample />
+      ) : page.path === '/examples/inherited-resources' ? (
+        <InheritanceExample />
+      ) : page.path === '/examples/opening-action' ? (
+        <ActionExample />
+      ) : page.path === '/guide' ? (
+        <Guide />
+      ) : page.path === '/privacy' ? (
+        <Privacy />
+      ) : page.path === '/limitations' ? (
+        <Limitations />
+      ) : page.path === '/guides/inspect-pdf-objects' ? (
+        <ObjectsGuide />
+      ) : page.path === '/guides/decode-pdf-streams' ? (
+        <StreamsGuide />
+      ) : page.path === '/guides/find-pdf-attachments' ? (
+        <AttachmentsGuide />
+      ) : page.path === '/guides/search-bookmark-compare' ? (
+        <SearchGuide />
+      ) : page.path === '/guides/investigate-suspicious-features' ? (
+        <SuspiciousFeaturesGuide />
+      ) : (
+        <ResourcesGuide />
+      )}
+    </ReadingPage>
   );
 };
 /** Direct article requests are complete documents and do not load the inspector. */
 export const StaticPublicPage = function StaticPublicPage({ page }: { page: SitePage }) {
   return (
-    <div className="static-public-shell flex h-dvh flex-col overflow-hidden bg-background text-foreground">
+    <div className="flex min-h-dvh flex-col bg-background text-foreground">
       <SiteHeader content href="/">
         <ContentHeaderLinks path={page.path} />
       </SiteHeader>
-      <PublicPage page={page} />
+      <PublicPage page={page} standalone />
       <SiteLinks />
     </div>
   );

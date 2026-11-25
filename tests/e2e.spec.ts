@@ -509,8 +509,8 @@ test('explains split text and returns from the guide to the loaded PDF', async (
       name: 'Find visible text in a decoded stream',
     })
   ).toBeVisible();
-  await page.locator('.stream-spacing-detail summary').click();
-  await expect(page.locator('.stream-spacing-detail')).toContainText('0.204');
+  await page.getByText('Convert a spacing adjustment to a distance').click();
+  await expect(page.locator('details', { hasText: 'Convert a spacing adjustment' })).toContainText('0.204');
   await expect(page.getByRole('link', { exact: true, name: 'PDF operator reference' })).toHaveAttribute('target', '_blank');
   await page.getByRole('link', { exact: true, name: 'Back to the workspace' }).click();
   await expect(page.locator('.filename')).toContainText('split-text.pdf');
@@ -1849,7 +1849,7 @@ for (const [route, sample, instruction] of [
   test(`opens example ${sample} and follows its content evidence`, async ({ page }) => {
     await page.goto(route!);
     await expect(page.getByRole('link', { exact: true, name: 'Download sample PDF' })).toHaveAttribute('href', `/samples/${sample}.pdf`);
-    await expect(page.locator('.example-preview img')).toBeVisible();
+    await expect(page.getByRole('figure').getByRole('img')).toBeVisible();
     await page.screenshot({
       fullPage: false,
       path: screenshotPath(`${sample}-article.png`),
@@ -1883,7 +1883,7 @@ for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'pa
   test(`opens example ${sample} and verifies its finding`, async ({ page }) => {
     await page.goto(`/examples/${sample}`);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    const image = page.locator('.example-preview img');
+    const image = page.getByRole('figure').getByRole('img');
     await image.scrollIntoViewIfNeeded();
     await expect(image).toBeVisible();
     await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
@@ -2002,7 +2002,7 @@ test('opens example find-text-source and follows a page-text match to its source
     'href',
     '/samples/find-text-source.pdf'
   );
-  const image = page.locator('.example-preview img');
+  const image = page.getByRole('figure').getByRole('img');
   await image.scrollIntoViewIfNeeded();
   await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
   await page.setViewportSize({ height: 844, width: 390 });
@@ -2036,7 +2036,7 @@ test('navigates grouped public content without JavaScript on desktop and mobile'
     });
     const reader = await context.newPage();
     await reader.goto('/who-its-for');
-    const navigation = reader.locator(width === 1440 ? '.content-sidebar' : '.content-mobile-nav');
+    const navigation = reader.getByRole('navigation', { exact: true, name: 'Content navigation' });
     if (width !== 1440) {
       await reader.getByText('On this site', { exact: true }).focus();
       await reader.keyboard.press('Enter');
@@ -2056,13 +2056,15 @@ test('navigates grouped public content without JavaScript on desktop and mobile'
     });
     if (width !== 1440) {
       expect((await reader.getByRole('banner').boundingBox())!.height).toBe(58);
-      const menu = reader.locator('.content-header-menu summary');
-      await menu.focus();
+      const menu = reader.getByRole('banner').locator('details');
+      await menu.locator('summary').focus();
       await reader.keyboard.press('Enter');
-      await expect(reader.locator('.content-header-menu')).toHaveAttribute('open', '');
-      await expect(reader.locator('.content-header-menu-links .active-section')).toHaveText('Overview');
+      await expect(menu).toHaveAttribute('open', '');
+      const active = menu.getByRole('link', { exact: true, name: 'Overview' });
+      await expect(active).toHaveCSS('text-decoration-line', 'underline');
+      await expect(menu.getByRole('link', { exact: true, name: 'Guides' })).toHaveCSS('text-decoration-line', 'none');
       await reader.keyboard.press('Enter');
-      await expect(reader.locator('.content-header-menu')).not.toHaveAttribute('open', '');
+      await expect(menu).not.toHaveAttribute('open', '');
       await reader.keyboard.press('Enter');
     }
     await reader
@@ -2084,7 +2086,7 @@ test('keeps public header controls separate with a PDF open on narrow screens', 
     }, fontFamily);
     for (const width of [320, 361, 375, 600, 760]) {
       await page.setViewportSize({ height: 812, width });
-      const navigation = await page.locator('.content-header-links').boundingBox();
+      const navigation = await page.getByRole('navigation', { exact: true, name: 'Main navigation' }).boundingBox();
       const close = await page.getByRole('button', { exact: true, name: 'Close PDF' }).boundingBox();
       const theme = await page.getByRole('button', { name: /^Switch to (dark|light) mode$/ }).boundingBox();
       expect(navigation!.x + navigation!.width).toBeLessThanOrEqual(close!.x);
@@ -2092,14 +2094,17 @@ test('keeps public header controls separate with a PDF open on narrow screens', 
       await expect(page.getByRole('banner')).toHaveJSProperty('offsetHeight', 58);
     }
   }
-  await page.locator('.content-open-link').click();
+  await page
+    .getByRole('banner')
+    .getByRole('link', { name: /inspector →/i })
+    .click();
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
 });
 test('preserves a PDF selection through the new overview pages and history', async ({ page }) => {
   await openMinimal(page);
   await page.getByRole('button', { exact: true, name: 'First page' }).click();
   await page.getByRole('link', { exact: true, name: 'User guide' }).click();
-  const navigation = page.locator('.content-sidebar');
+  const navigation = page.getByRole('navigation', { exact: true, name: 'Content navigation' });
   await navigation.getByRole('link', { exact: true, name: 'Who it’s for' }).click();
   await expect(page).toHaveURL(/\/who-its-for$/);
   await navigation.getByRole('link', { exact: true, name: 'Inspector vs viewer' }).click();
@@ -2342,7 +2347,7 @@ test('public headers match the workspace height and align the mobile identity ro
       expect(actual!.height).toBe(workspace!.height);
       const actualIdentity = await identity.boundingBox();
       expect(actualIdentity!.y + actualIdentity!.height / 2).toBeCloseTo(workspaceIdentity!.y + workspaceIdentity!.height / 2, 0);
-      await expect(page.locator('.content-open-link')).toBeInViewport();
+      await expect(page.getByRole('banner').getByRole('link', { name: /inspector →/i })).toBeInViewport();
     };
     // Cover public navigation with an active PDF as well as direct static visits.
     await openMinimal(page);
