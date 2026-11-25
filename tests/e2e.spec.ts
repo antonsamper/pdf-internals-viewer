@@ -27,6 +27,12 @@ const openMinimal = async (page: Page) => {
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
   await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
 };
+/** Outline style, width and offset, then box-shadow: one string to compare focus rings. */
+const focusRing = (element: Locator) =>
+  element.evaluate((node) => {
+    const style = getComputedStyle(node);
+    return `${style.outlineStyle} ${style.outlineWidth} ${style.outlineOffset} | ${style.boxShadow}`;
+  });
 const samplePath = (name: string) => resolve('public/samples', name);
 // Keep artifacts separate when --browser=all runs engines concurrently.
 const screenshotPath = (name: string) => resolve('.context', test.info().project.use.browserName ?? 'chromium', name);
@@ -739,11 +745,6 @@ for (const colorScheme of ['light', 'dark'] as const) {
   test(`focused buttons and tabs show one focus ring in ${colorScheme} mode`, async ({ page }) => {
     await page.emulateMedia({ colorScheme });
     await openMinimal(page);
-    const focusRing = (element: Locator) =>
-      element.evaluate((node) => {
-        const style = getComputedStyle(node);
-        return `${style.outlineStyle} ${style.outlineWidth} ${style.outlineOffset} | ${style.boxShadow}`;
-      });
     const form = page.locator('form', { has: page.getByRole('textbox', { name: 'Search document' }) });
     const formShadow = () => form.evaluate((node) => getComputedStyle(node).boxShadow);
 
