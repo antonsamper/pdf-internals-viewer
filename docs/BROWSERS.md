@@ -21,12 +21,12 @@ Every engine uses Playwright's Desktop Chrome device settings with a 1440 × 100
 
 `playwright.config.ts` picks the server from environment variables:
 
-| Mode | Server | Address |
-| --- | --- | --- |
-| Default | `pnpm run dev` (Vite development server) | `http://127.0.0.1:5173` |
-| `PLAYWRIGHT_PREVIEW=1` | `pnpm run preview` (Vite preview of `dist/`) | `http://127.0.0.1:5173` |
-| `PLAYWRIGHT_CLOUDFLARE=1` | `pnpm exec wrangler pages dev dist` (local Pages runtime) | `http://127.0.0.1:8787` |
-| `PLAYWRIGHT_BASE_URL=<url>` | None; tests use the given site | `<url>` |
+| Mode                        | Server                                                    | Address                 |
+| --------------------------- | --------------------------------------------------------- | ----------------------- |
+| Default                     | `pnpm run dev` (Vite development server)                  | `http://127.0.0.1:5173` |
+| `PLAYWRIGHT_PREVIEW=1`      | `pnpm run preview` (Vite preview of `dist/`)              | `http://127.0.0.1:5173` |
+| `PLAYWRIGHT_CLOUDFLARE=1`   | `pnpm exec wrangler pages dev dist` (local Pages runtime) | `http://127.0.0.1:8787` |
+| `PLAYWRIGHT_BASE_URL=<url>` | None; tests use the given site                            | `<url>`                 |
 
 The preview and Cloudflare modes serve `dist/`, so run `pnpm run build` first. `PLAYWRIGHT_BASE_URL` takes precedence over the other variables and is the way to test a separately running server or production.
 
@@ -55,6 +55,10 @@ Tests run with four workers and `fullyParallel`, locally and in CI. Use `--worke
 Tests that take screenshots write them to `.context/<browser>/`, one directory per engine, so `--browser=all` runs do not overwrite each other. Playwright keeps a screenshot and trace for each failed test under `test-results/`; open a trace with `pnpm exec playwright show-trace <path-to-trace.zip>`. Both directories are gitignored.
 
 ## Continuous integration
+
+The Checks workflow in `.github/workflows/ci.yml` runs once for each pull request update and for each push to `main`. Its `changes` job lists the files changed by the pull request, or on `main` every file changed since the last successful run, so a merge whose run failed or was cancelled is still tested and deployed by the next one. When every one is markdown outside `public/` and `src/`, under `docs/` or under `.github/ISSUE_TEMPLATE/`, or is `LICENSE`, the `check`, `browsers` and `deploy` jobs skip. Any other file, or a diff the job cannot compute, runs everything. The `secrets` scan always runs.
+
+The `Checks passed` job is the required status check for `main`. It fails if `secrets`, `changes`, `check` or `browsers` fails or is cancelled, or if `check` or `browsers` skips when code changed. Add new required jobs to its `needs` list. `deploy` is not in it, because it runs only on `main` after those jobs pass.
 
 The `browsers` job in `.github/workflows/ci.yml` runs after the `check` job. It has one matrix entry per engine, and an engine failure does not cancel the others. Each entry:
 
