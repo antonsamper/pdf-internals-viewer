@@ -14,7 +14,7 @@ const formClass = (hasResults: boolean) =>
     'min-h-[34px] w-1/2 max-w-[600px]',
     'gap-1 py-0.5 pr-1 pl-2 text-muted-foreground',
     'rounded-[6px] border',
-    'focus-within:border-ring focus-within:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_20%,transparent)]',
+    'has-[input:focus]:border-ring has-[input:focus]:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_20%,transparent)]',
     'max-w900:grid max-w900:h-auto max-w900:w-full max-w900:max-w-none max-w900:gap-x-1.5 max-w900:gap-y-1 max-w900:py-1 max-w900:pr-1 max-w900:pl-2.5',
     'max-w360:grid-cols-[18px_minmax(0,1.3fr)_minmax(0,1fr)_auto]',
     "min-w360:max-w900:grid-cols-[18px_minmax(0,1fr)_auto_auto] min-w360:max-w900:[grid-template-areas:'icon_query_mode_submit']",
