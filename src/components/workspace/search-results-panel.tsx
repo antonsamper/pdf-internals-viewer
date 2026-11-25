@@ -275,7 +275,7 @@ const ResultSummary = ({ result, resultsScope }: { result: SearchResult; results
       <span
         className={cn(
           'col-start-1 text-[13px] leading-normal [overflow-wrap:anywhere] text-foreground',
-          resultsScope !== 'pageText' && '[font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace]'
+          resultsScope !== 'pageText' && 'font-mono'
         )}
         data-search-result-context=""
       >

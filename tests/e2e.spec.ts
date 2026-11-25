@@ -191,6 +191,21 @@ test('follows page references, reads stream representations, and navigates histo
     path: screenshotPath('desktop.png'),
   });
 });
+test('renders pdf syntax, references, bytes and code in the monospace token', async ({ page }) => {
+  // Each element reaches the token by a different route: a utility, a `!` utility on a button, the
+  // hex row the byte buttons inherit from, and the global `code, pre` rule.
+  const monospace = /^ui-monospace,/;
+  await openMinimal(page);
+  await page.getByRole('button', { exact: true, name: 'First page' }).click();
+  await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toHaveCSS('font-family', monospace);
+  const reference = page.getByRole('button', { exact: true, name: '4 0 R' }).first();
+  await expect(reference).toHaveCSS('font-family', monospace);
+  await reference.click();
+  await expect(page.locator('[data-hex-byte]').first()).toHaveCSS('font-family', monospace);
+  await page.getByRole('tab', { exact: true, name: 'Decoded' }).click();
+  const decoded = page.getByRole('tabpanel', { exact: true, name: 'Decoded' });
+  await expect(decoded.locator('code, pre').first()).toHaveCSS('font-family', monospace);
+});
 test('shows a prominent loading state and allows cancelling a slow open', async ({ page }) => {
   let release!: () => void;
   const pending = new Promise<void>((done) => {

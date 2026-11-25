@@ -9,7 +9,7 @@ select {
 }
 code,
 pre {
-  font-family: var(--font-code);
+  font-family: var(--font-mono);
   font-size: 12px;
 }
 button:focus-visible,

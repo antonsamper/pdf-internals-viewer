@@ -135,7 +135,7 @@ export const ContentStreamView = ({
                   }
                   key={instruction.start}
                 >
-                  <span className="pt-0.5 font-pdf text-[10px] leading-[normal] text-muted-foreground" title="Decoded byte offset">
+                  <span className="pt-0.5 font-mono text-[10px] leading-[normal] text-muted-foreground" title="Decoded byte offset">
                     0x{instruction.start.toString(16).toUpperCase()}
                   </span>
                   <code className="text-[11px]! leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap">

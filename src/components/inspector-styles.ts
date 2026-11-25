@@ -21,7 +21,7 @@ export const REFERENCE = cn(
   'inline-flex items-baseline gap-[5px]',
   'bg-transparent whitespace-nowrap text-reference',
   'hover:underline hover:underline-offset-[3px]',
-  'font-pdf! text-[11px]!'
+  'font-mono! text-[11px]!'
 );
 
 /** Small explanatory text under a heading. */

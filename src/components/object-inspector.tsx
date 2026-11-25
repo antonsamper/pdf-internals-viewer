@@ -38,13 +38,13 @@ const RELATIONSHIP_LINK = cn(
   'text-[11px]!'
 );
 const RELATIONSHIP_PART = 'inline-flex min-w-0 flex-wrap items-center gap-1';
-const RELATIONSHIP_PATH = 'text-muted-foreground [font-family:var(--font-mono,monospace)]';
+const RELATIONSHIP_PATH = 'font-mono text-muted-foreground';
 const REFERENCE_COUNT = 'ml-[5px] text-[10px] text-muted-foreground';
 const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: string }) => (
   <header className="px-[22px] pt-[23px] pb-[15px] max-w480:px-[18px] max-w480:pt-5 max-w480:pb-3">
     <div className="flex items-center gap-[11px]">
       <Braces size={19} />
-      <h1 className="font-pdf text-[18px] font-medium">
+      <h1 className="font-mono text-[18px] font-medium">
         {object.id} <span className="text-muted-foreground">obj</span>
       </h1>
       <Badge variant="secondary" className="rounded-[4px] text-[10px] leading-[calc(4/3)]">

@@ -76,7 +76,7 @@ export const ValueView = function ValueView({
               <div
                 className={cn(
                   'flex flex-wrap items-center gap-[5px]',
-                  'font-pdf text-[11px] [overflow-wrap:anywhere] text-muted-foreground'
+                  'font-mono text-[11px] [overflow-wrap:anywhere] text-muted-foreground'
                 )}
               >
                 <span>/{bareKey}</span>
@@ -127,7 +127,7 @@ export const ValueView = function ValueView({
         <span className={MUTED}>]</span>
       </div>
     );
-  return <span className={cn('font-pdf text-[11px] whitespace-pre-wrap', SCALAR_TONE[value.type])}>{value.text}</span>;
+  return <span className={cn('font-mono text-[11px] whitespace-pre-wrap', SCALAR_TONE[value.type])}>{value.text}</span>;
 };
 const InlineReference = function InlineReference({
   target,

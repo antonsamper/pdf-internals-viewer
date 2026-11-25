@@ -4,7 +4,7 @@ Components are styled with Tailwind utilities, shadcn variants on Base UI and th
 
 ## Where styles live
 
-- `src/index.css` holds the tokens (colours, radii, the `font-pdf` and `font-code` families, the `reference`, `pdf-string` and `brand-*` colour utilities, dark-mode mappings) and a `base` layer with the page reset: full-height `html`, `body` and `#root`, the 13px body size, selection colours, thin scrollbars, pointer cursors on buttons and the reduced-motion rule.
+- `src/index.css` holds the tokens (colours, radii, the `font-mono` family, the `reference`, `pdf-string` and `brand-*` colour utilities, dark-mode mappings) and a `base` layer with the page reset: full-height `html`, `body` and `#root`, the 13px body size, selection colours, thin scrollbars, pointer cursors on buttons and the reduced-motion rule.
 - `src/styles/breakpoints.css` defines the breakpoint tokens. See Layout.
 - `src/styles/surfaces.css` defines the `surface-dark` utility, which gives an element the plum header colours in both themes by redefining the colour tokens, so everything inside follows it.
 - `src/styles/shadcn.css` is the vendored shadcn stylesheet. Don't edit it.
@@ -16,7 +16,7 @@ Components are styled with Tailwind utilities, shadcn variants on Base UI and th
 
 ## Look and feel
 
-A compact developer workspace in the logo's colours: a deep plum header (`surface-dark`), white inspection surfaces, a pale lilac explorer, fine borders and small type that leave room for PDF structure and bytes. Geist is used for interface text and explanations; system monospace for PDF syntax, object IDs, offsets and bytes.
+A compact developer workspace in the logo's colours: a deep plum header (`surface-dark`), white inspection surfaces, a pale lilac explorer, fine borders and small type that leave room for PDF structure and bytes. Geist is used for interface text and explanations. The `font-mono` token covers PDF syntax, code, object IDs, offsets and bytes. It starts with `ui-monospace`, which gives SF Mono in Safari; other browsers fall through to SF Mono, Menlo, Consolas or Liberation Mono, whichever is installed.
 
 The app follows the device's light or dark setting until the visitor picks one with the header's sun and moon button. `public/theme.js` applies the choice before the first render. Dark mode keeps every colour role on plum surfaces.
 
@@ -58,7 +58,7 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 - Short neighbouring groups share a string, such as layout and spacing in `'flex items-center gap-2 px-3'`. States, responsive, dark mode and overrides always get their own string.
 - Each group is its own `cn()` argument, so formatting keeps the groups apart. Oxfmt sorts the classes inside each string, and `preserveWhitespace` in `.oxfmtrc.json` leaves the spacing inside a string as written.
 - Conditional classes go last in the call, as `condition && 'classes'` or an array.
-- Arbitrary font families use the `family-name:` hint, as in `font-[family-name:SFMono-Regular,monospace]`, or the `[font-family:…]` property form. Without either, `cn` reads `font-[…]` as a font weight and a later `font-medium` drops it.
+- Font families come from the tokens: `font-sans`, `font-heading` and `font-mono`. Don't set an arbitrary family; add a token to `src/index.css` instead.
 - Add a comment to a group only when its reason isn't visible in the classes.
 
 ```tsx
