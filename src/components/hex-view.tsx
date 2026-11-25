@@ -17,6 +17,18 @@ const HEX_GRID = cn(
 );
 const HEX_BYTE_CELLS = 'grid grid-cols-[repeat(var(--hex-columns),23px)] max-w400:grid-cols-[repeat(var(--hex-columns),22px)]';
 const HEX_SELECTED = 'data-[selected]:bg-byte-selection data-[selected]:text-byte-selection-foreground';
+// Constant class lists are built once: a row renders a button and an ASCII cell per byte.
+const HEX_ROW = cn(HEX_GRID, HEX_FONT, 'absolute left-0 text-[11px] leading-[normal] tabular-nums hover:bg-muted');
+const HEX_BYTE = cn(
+  'rounded-[2px] border-0 bg-transparent py-[3px] text-center text-foreground',
+  'hover:bg-accent hover:text-accent-foreground hover:shadow-[inset_0_0_0_1px_var(--border)]',
+  'data-[cursor]:outline-1 data-[cursor]:-outline-offset-1 data-[cursor]:outline-ring',
+  'data-[zero]:text-muted-foreground',
+  // A selected 00 byte keeps the selection colour, as it sorts after the zero rule.
+  HEX_SELECTED,
+  'data-[selected]:data-[zero]:text-byte-selection-foreground'
+);
+const HEX_ASCII_CELL = cn('inline-block w-2 py-[3px] text-center', 'max-w400:w-[7px]', HEX_SELECTED);
 const printable = (byte: number) => {
   return byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '.';
 };
@@ -148,10 +160,7 @@ const HexRow = ({
 }) => {
   const offset = row * columns;
   return (
-    <div
-      className={cn(HEX_GRID, HEX_FONT, 'absolute left-0 text-[11px] leading-[normal] tabular-nums hover:bg-muted')}
-      style={{ height: ROW_HEIGHT, top: row * ROW_HEIGHT }}
-    >
+    <div className={HEX_ROW} style={{ height: ROW_HEIGHT, top: row * ROW_HEIGHT }}>
       <span className="text-[10px] text-muted-foreground select-text">{offsetText(offset)}</span>
       <span className={HEX_BYTE_CELLS}>
         {Array.from({ length: columns }, (_, column) => {
@@ -164,13 +173,7 @@ const HexRow = ({
               key={position}
               tabIndex={-1}
               type="button"
-              className={cn(
-                'rounded-[2px] border-0 bg-transparent py-[3px] text-center text-foreground',
-                'hover:bg-accent hover:text-accent-foreground hover:shadow-[inset_0_0_0_1px_var(--border)]',
-                'data-[cursor]:outline-1 data-[cursor]:-outline-offset-1 data-[cursor]:outline-ring',
-                'data-[zero]:text-muted-foreground',
-                HEX_SELECTED
-              )}
+              className={HEX_BYTE}
               data-cursor={position === cursor ? '' : undefined}
               data-hex-byte=""
               data-selected={selected ? '' : undefined}
@@ -186,11 +189,7 @@ const HexRow = ({
       </span>
       <span className="flex text-muted-foreground" aria-hidden="true">
         {Array.from(bytes.subarray(offset, offset + columns), (byte, column) => (
-          <span
-            key={offset + column}
-            className={cn('inline-block w-2 py-[3px] text-center', 'max-w400:w-[7px]', HEX_SELECTED)}
-            data-selected={isSelected(offset + column) ? '' : undefined}
-          >
+          <span key={offset + column} className={HEX_ASCII_CELL} data-selected={isSelected(offset + column) ? '' : undefined}>
             {printable(byte)}
           </span>
         ))}
@@ -238,7 +237,12 @@ const HexStatus = ({
   totalBytes: number;
 }) => (
   <div
-    className="min-h-[34px] border-t px-3.5 py-[9px] text-[10px] leading-[1.5] [overflow-wrap:anywhere] text-muted-foreground"
+    className={cn(
+      'min-h-[34px] px-3.5 py-[9px]',
+      'text-[10px] [overflow-wrap:anywhere] text-muted-foreground',
+      'border-t',
+      'leading-[1.5]'
+    )}
     data-hex-status=""
     aria-live="polite"
   >
@@ -457,7 +461,11 @@ export const HexView = ({
       <HexColumnHead columns={columns} />
       <div
         ref={viewportRef}
-        className="relative min-h-[150px] flex-1 [scrollbar-gutter:stable] overflow-auto -outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring"
+        className={cn(
+          'relative min-h-[150px] flex-1 overflow-auto',
+          '[scrollbar-gutter:stable] -outline-offset-2',
+          'focus-visible:outline-2 focus-visible:outline-ring'
+        )}
         data-hex-viewport=""
         tabIndex={0}
         role="region"
@@ -498,7 +506,12 @@ export const HexView = ({
             ))}
           </div>
         ) : (
-          <div className="flex h-full min-h-[180px] flex-col items-center justify-center gap-2.5 p-[25px] text-center text-[12px] text-muted-foreground">
+          <div
+            className={cn(
+              'flex h-full min-h-[180px] flex-col items-center justify-center gap-2.5 p-[25px]',
+              'text-center text-[12px] text-muted-foreground'
+            )}
+          >
             <FileCode2 size={24} aria-hidden="true" />
             <p>Open a PDF to inspect its bytes.</p>
           </div>

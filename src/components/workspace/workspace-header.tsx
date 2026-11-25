@@ -118,7 +118,7 @@ const WorkspaceActions = ({
   <>
     <span className="h-[19px] w-px bg-border max-w600:hidden" />
     <FileName byteCount={byteCount} filename={filename} />
-    <div data-header-actions="" className="flex items-center gap-2 max-w600:col-start-3 max-w600:row-start-1 max-w480:gap-0.5">
+    <div className={cn('flex items-center gap-2', 'max-w600:col-start-3 max-w600:row-start-1', 'max-w480:gap-0.5')} data-header-actions="">
       <a
         className={`${buttonVariants({ size: 'sm', variant: 'ghost' })} ${ACTION_COMPACT}`}
         href="/guide"
