@@ -1,12 +1,22 @@
 import type { MouseEvent } from 'react';
 
+import { cn } from 'cn';
+
 import { PROJECT_URL } from '@/lib/site-content';
-const FOOTER =
-  'relative flex shrink-0 items-center justify-between gap-5 border-t border-border bg-background px-8 py-5 text-[12px] text-muted-foreground shadow-[0_-6px_16px_rgb(40_26_60/5%)] max-w760:justify-center max-w760:px-6 max-w760:py-4 [&_a]:inline-flex [&_a]:items-center [&_a]:hover:text-foreground [&_a]:hover:underline [&_a]:hover:underline-offset-4';
 const FOOTER_GROUP = 'flex flex-wrap items-center gap-x-4 gap-y-2.5 max-w600:justify-center';
 export const SiteLinks = function SiteLinks({ onFollowLink }: { onFollowLink?: (event: MouseEvent<HTMLAnchorElement>) => boolean }) {
   return (
-    <nav className={FOOTER} aria-label="Project">
+    <nav
+      className={cn(
+        'relative flex shrink-0 items-center justify-between gap-5 px-8 py-5',
+        'bg-background text-[12px] text-muted-foreground',
+        'border-t border-border shadow-[0_-6px_16px_rgb(40_26_60/5%)]',
+        '[&_a]:inline-flex [&_a]:items-center',
+        '[&_a]:hover:text-foreground [&_a]:hover:underline [&_a]:hover:underline-offset-4',
+        'max-w760:justify-center max-w760:px-6 max-w760:py-4'
+      )}
+      aria-label="Project"
+    >
       <span className="max-w760:hidden">An open-source tool for curious developers.</span>
       <div className="flex flex-wrap items-center gap-x-5 gap-y-3 max-w760:justify-center max-w600:gap-3">
         <div className={FOOTER_GROUP}>

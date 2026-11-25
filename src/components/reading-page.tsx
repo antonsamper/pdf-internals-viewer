@@ -14,7 +14,10 @@ type FollowLink = (event: MouseEvent<HTMLAnchorElement>) => boolean;
 export const BackToWorkspace = function BackToWorkspace({ onClick }: { onClick?: MouseEventHandler<HTMLAnchorElement> }) {
   return (
     <a
-      className="mb-10 inline-flex items-center gap-2 text-[12px] text-muted-foreground hover:text-foreground hover:underline hover:underline-offset-4"
+      className={cn(
+        'mb-10 inline-flex items-center gap-2 text-[12px] text-muted-foreground',
+        'hover:text-foreground hover:underline hover:underline-offset-4'
+      )}
       href={import.meta.env.BASE_URL}
       onClick={onClick}
     >
@@ -59,7 +62,10 @@ export const ReadingPage = function ReadingPage({
       <div
         onClick={onClick}
         role="presentation"
-        className="mx-auto grid max-w-[988px] grid-cols-[220px_minmax(0,720px)] items-start gap-12 max-w900:block max-w900:max-w-[720px]"
+        className={cn(
+          'mx-auto grid max-w-[988px] grid-cols-[220px_minmax(0,720px)] items-start gap-12',
+          'max-w900:block max-w900:max-w-[720px]'
+        )}
       >
         <ContentNavigation path={path} onFollowLink={onFollowLink} />
         <article className="mx-auto w-full max-w-[720px] min-w-0">

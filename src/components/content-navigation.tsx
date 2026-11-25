@@ -7,10 +7,12 @@ import type { SitePath } from '@/lib/site-content';
 
 import { buttonVariants } from '@/components/ui/button-variants';
 import { CONTENT_GROUPS, contentType, relatedPages } from '@/lib/site-navigation';
+/* `cn` would merge away `text-sm`'s line-height and `rounded-lg` from `buttonVariants`, so these classes are joined as plain strings. Overrides take `!`. */
+const join = (...parts: (string | false)[]) => parts.filter(Boolean).join(' ');
+
 const SECTION_LINK = 'text-inherit underline-offset-5 no-underline';
 const SECTION_LINK_ACTIVE = 'underline';
-/* `buttonVariants` stays a plain concatenation: `cn` would drop `text-sm`'s line-height and `rounded-lg`. The menu's overrides take `!`. */
-const MENU_LINK = 'flex! min-h-11 rounded-[4px]! px-3! hover:bg-muted hover:bg-clip-border! dark:hover:bg-muted!';
+const MENU_LINK = join('flex! min-h-11 rounded-[4px]! px-3!', 'hover:bg-muted hover:bg-clip-border!', 'dark:hover:bg-muted!');
 
 const SectionLinks = function SectionLinks({ menu, path, onFollowLink }: { menu: boolean; path: SitePath; onFollowLink?: FollowLink }) {
   return CONTENT_GROUPS.slice(0, 3).map((group) => {
@@ -21,15 +23,13 @@ const SectionLinks = function SectionLinks({ menu, path, onFollowLink }: { menu:
         key={href}
         href={href}
         aria-current={path === href ? 'page' : undefined}
-        className={[
+        className={join(
           buttonVariants({ size: 'sm', variant: 'ghost' }),
           SECTION_LINK,
           active && SECTION_LINK_ACTIVE,
           menu && MENU_LINK,
-          menu && active && 'bg-muted bg-clip-border!',
-        ]
-          .filter(Boolean)
-          .join(' ')}
+          menu && active && 'bg-muted bg-clip-border!'
+        )}
         onClick={onFollowLink}
       >
         {group.label}
@@ -45,19 +45,33 @@ export const ContentHeaderLinks = function ContentHeaderLinks({ path, onFollowLi
       <div className="flex items-center gap-1 max-w760:hidden">
         <SectionLinks menu={false} path={path} onFollowLink={onFollowLink} />
       </div>
-      <a className={`${buttonVariants({ size: 'sm', variant: 'ghost' })} ${SECTION_LINK} max-w760:min-h-9`} href="/" onClick={onFollowLink}>
+      <a
+        className={join(buttonVariants({ size: 'sm', variant: 'ghost' }), SECTION_LINK, 'max-w760:min-h-9')}
+        href="/"
+        onClick={onFollowLink}
+      >
         <span className="max-w760:hidden">Open the inspector →</span>
         <span className="hidden max-w760:inline">Inspector →</span>
       </a>
       <details className="group relative hidden max-w760:block" key={path}>
         <summary
-          className={`${buttonVariants({ size: 'icon-lg', variant: 'ghost' })} flex! cursor-pointer list-none group-open:bg-muted group-open:bg-clip-border! hover:bg-clip-border! dark:hover:bg-muted! [&::-webkit-details-marker]:hidden`}
+          className={join(
+            buttonVariants({ size: 'icon-lg', variant: 'ghost' }),
+            'cursor-pointer list-none [&::-webkit-details-marker]:hidden',
+            'group-open:bg-muted group-open:bg-clip-border! hover:bg-clip-border! dark:hover:bg-muted!',
+            'flex!'
+          )}
         >
           <Menu className="group-open:hidden" size={16} aria-hidden="true" />
           <X className="hidden group-open:block" size={16} aria-hidden="true" />
           <span className="sr-only">Menu</span>
         </summary>
-        <div className="absolute top-[calc(100%+8px)] right-0 z-10 grid w-[210px] rounded-[8px] border border-border bg-background p-1.5 shadow-[0_8px_24px_#0003]">
+        <div
+          className={cn(
+            'absolute top-[calc(100%+8px)] right-0 z-10 grid w-[210px] p-1.5',
+            'rounded-[8px] border border-border bg-background shadow-[0_8px_24px_#0003]'
+          )}
+        >
           <SectionLinks menu path={path} onFollowLink={onFollowLink} />
         </div>
       </details>
@@ -82,7 +96,12 @@ const NavigationGroups = function NavigationGroups({
             {group.items.map(([href, label]) => (
               <li key={href}>
                 <a
-                  className="block rounded-[5px] px-2.5 py-1.5 text-muted-foreground hover:bg-muted aria-[current=page]:bg-secondary aria-[current=page]:font-semibold aria-[current=page]:text-reference"
+                  className={cn(
+                    'block px-2.5 py-1.5 text-muted-foreground',
+                    'rounded-[5px]',
+                    'hover:bg-muted',
+                    'aria-[current=page]:bg-secondary aria-[current=page]:font-semibold aria-[current=page]:text-reference'
+                  )}
                   href={href}
                   aria-current={path === href ? 'page' : undefined}
                   onClick={onFollowLink}

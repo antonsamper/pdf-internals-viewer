@@ -1,13 +1,13 @@
-import { ARTICLE_ACTIONS, ExamplePreview, Lead } from '@/components/prose';
+import { ArticleActions, ExamplePreview, Lead } from '@/components/prose';
 import { SITE_PAGES } from '@/lib/site-content';
 export const ExampleActions = function ExampleActions({ sample }: { sample: string }) {
   return (
-    <p className={ARTICLE_ACTIONS}>
+    <ArticleActions>
       <a href={`/?sample=${sample}`}>Open this example</a>
       <a href={`/samples/${sample}.pdf`} download>
         Download sample PDF
       </a>
-    </p>
+    </ArticleActions>
   );
 };
 export const Examples = function Examples() {

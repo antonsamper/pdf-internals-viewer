@@ -1,4 +1,4 @@
-import { ARTICLE_ACTIONS, ComparisonTable, Lead } from '@/components/prose';
+import { ArticleActions, ComparisonTable, Lead } from '@/components/prose';
 export const AudiencePage = function AudiencePage() {
   return (
     <>
@@ -70,10 +70,10 @@ export const AudiencePage = function AudiencePage() {
         Internals is a read-only inspection workspace. See <a href="/pdf-inspector-vs-viewer">when to use a PDF inspector or viewer</a> and
         the <a href="/limitations">supported features and limitations</a>.
       </p>
-      <p className={ARTICLE_ACTIONS}>
+      <ArticleActions>
         <a href="/?sample=minimal">Explore a simple sample PDF →</a>
         <a href="/">Open the inspector →</a>
-      </p>
+      </ArticleActions>
     </>
   );
 };
@@ -147,10 +147,10 @@ export const InspectorVsViewerPage = function InspectorVsViewerPage() {
         The <a href="/examples/incorrect-text">investigation</a> follows the page’s drawing instructions to its font and{' '}
         <code>/ToUnicode</code> map. The map sends the source code for the visible digit 1 to the Unicode character 9.
       </p>
-      <p className={ARTICLE_ACTIONS}>
+      <ArticleActions>
         <a href="/?sample=incorrect-unicode">Inspect the incorrect-text sample →</a>
         <a href="/examples/incorrect-text">Follow the example</a>
-      </p>
+      </ArticleActions>
 
       <h2>Use the page preview and inspector together</h2>
       <p>
@@ -173,10 +173,10 @@ export const InspectorVsViewerPage = function InspectorVsViewerPage() {
         No. PDF processing and page rendering happen on your device. Bookmarks and notes are saved in this browser; the app does not upload
         or save your PDF. Read <a href="/privacy">privacy and browser storage</a> for details.
       </p>
-      <p className={ARTICLE_ACTIONS}>
+      <ArticleActions>
         <a href="/guide">Start with the inspection guide</a>
         <a href="/">Open the inspector →</a>
-      </p>
+      </ArticleActions>
     </>
   );
 };

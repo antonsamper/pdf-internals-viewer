@@ -1,7 +1,9 @@
 import type { MouseEvent } from 'react';
 
+import { cn } from 'cn';
+
 import { ContentHeaderLinks } from '@/components/content-navigation';
-import { ARTICLE_ACTIONS, ARTICLE_SOURCE, ComparisonTable, DISCLOSURE, Lead } from '@/components/prose';
+import { ArticleActions, ArticleSource, ComparisonTable, Lead } from '@/components/prose';
 import { BackToWorkspace, ReadingPage } from '@/components/reading-page';
 import { SiteHeader } from '@/components/site-header';
 import { SiteLinks } from '@/components/site-links';
@@ -24,12 +26,12 @@ import { AudiencePage, InspectorVsViewerPage } from './overview-pages';
 import { AttachmentsGuide, SearchGuide, SuspiciousFeaturesGuide } from './task-guides';
 const SampleLinks = function SampleLinks({ sample, label }: { sample: string; label: string }) {
   return (
-    <p className={ARTICLE_ACTIONS}>
+    <ArticleActions>
       <a href={`/?sample=${sample}`}>Explore {label}</a>
       <a href={`/samples/${sample}.pdf`} download>
         Download sample PDF
       </a>
-    </p>
+    </ArticleActions>
   );
 };
 const Guide = function Guide() {
@@ -196,10 +198,10 @@ endobj`}</code>
         <a href="/guides/decode-pdf-streams">Learn about raw and decoded streams</a>, or{' '}
         <a href="/guides/find-pdf-fonts-images">follow the page’s font and image resources</a>.
       </p>
-      <p className={ARTICLE_SOURCE}>
+      <ArticleSource>
         Example source: <a href={fixtureSource}>original sample generator, baseObjects and minimalPdf</a>. This walkthrough covers the
         bundled sample. It does not establish support for every PDF allowed by the specification.
-      </p>
+      </ArticleSource>
     </>
   );
 };
@@ -337,7 +339,13 @@ Q`}</code>
         back, tightening the gap; a negative value moves it forwards, opening the gap. The numbers adjust how far the text position normally
         advances after each letter or space. They do not specify absolute page coordinates.
       </p>
-      <details className={DISCLOSURE}>
+      <details
+        className={cn(
+          'my-4 text-[14px] leading-[1.85]',
+          '[&_summary]:cursor-pointer [&_summary]:underline [&_summary]:underline-offset-3',
+          '[&_p]:mt-3'
+        )}
+      >
         <summary>Convert a spacing adjustment to a distance</summary>
         <p>
           At a 12-point font size with no additional scaling,
@@ -374,10 +382,10 @@ Q`}</code>
         characters; it does not extract the text shown on a rendered page. Decoding is limited to {MAX_DECODED_BYTES / 1024 / 1024} MiB per
         stream. Read the <a href="/limitations">complete limitations</a> before drawing conclusions from partial results.
       </p>
-      <p className={ARTICLE_SOURCE}>
+      <ArticleSource>
         Example source: <a href={fixtureSource}>original sample generator, resourcesPdf and compressedPdf</a>.{' '}
         <a href="/guides/inspect-pdf-objects">Review objects and references</a>.
-      </p>
+      </ArticleSource>
     </>
   );
 };
@@ -436,10 +444,10 @@ const ResourcesGuide = function ResourcesGuide() {
         The sample also includes <code>notes.txt</code>. Choose <strong>Resources → Attachments</strong> to find and download it. An empty
         attachment list is not proof that a partially parsed document contains no attachments.
       </p>
-      <p className={ARTICLE_SOURCE}>
+      <ArticleSource>
         Example source: <a href={fixtureSource}>original sample generator, resourcesPdf</a>. See{' '}
         <a href="/limitations">supported operations and limits</a> and the <a href="/guide">workspace guide</a>.
-      </p>
+      </ArticleSource>
     </>
   );
 };
@@ -493,10 +501,10 @@ const Privacy = function Privacy() {
         Your PDF never reaches the analytics. The address bar only shows public page addresses and the names of bundled samples, never a
         local file, its name or anything inside it.
       </p>
-      <p className={ARTICLE_SOURCE}>
+      <ArticleSource>
         Implementation: <a href={`${PROJECT_URL}/blob/main/src/lib/pdf/bookmark-storage.ts`}>bookmark storage</a> and{' '}
         <a href={`${PROJECT_URL}/blob/main/src/lib/pdf/client.ts`}>local parser worker client</a>.
-      </p>
+      </ArticleSource>
     </>
   );
 };
@@ -601,7 +609,7 @@ export const PublicPage = function PublicPage({
   return (
     <ReadingPage labelledBy="public-title" onClick={onFollowLink} path={page.path} standalone={standalone}>
       <BackToWorkspace />
-      <nav className="mb-6 text-[12px] leading-[1.8] [overflow-wrap:anywhere] text-muted-foreground" aria-label="Breadcrumb">
+      <nav className={cn('mb-6 text-[12px] leading-[1.8] text-muted-foreground', '[overflow-wrap:anywhere]')} aria-label="Breadcrumb">
         <a href="/">PDF Internals</a>
         <span aria-hidden="true"> / </span>
         {page.path.startsWith('/guides/') && (

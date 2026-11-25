@@ -1,5 +1,6 @@
 import type { MouseEvent } from 'react';
 
+import { cn } from 'cn';
 import { ArrowUpRight } from 'lucide-react';
 
 import { BrandArtwork } from '@/components/brand-artwork';
@@ -54,7 +55,11 @@ export const AboutPage = function AboutPage({ onFollowLink }: { onFollowLink: (e
           may display content that the inspector cannot decode.
         </p>
         <a
-          className="inline-flex items-center gap-[5px] py-1 text-[13px] text-foreground underline underline-offset-3 hover:underline-offset-4"
+          className={cn(
+            'inline-flex items-center gap-[5px] py-1',
+            'text-[13px] text-foreground underline underline-offset-3',
+            'hover:underline-offset-4'
+          )}
           href="/limitations"
           onClick={onFollowLink}
         >
