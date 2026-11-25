@@ -49,10 +49,11 @@ export const OVERVIEW_SUBTITLE = 'mb-[26px] text-[12px] text-muted-foreground [o
 export const BODY_MUTED = 'text-[11px] leading-[1.8] text-muted-foreground';
 
 /** Sets `--issue-ink` and `--issue-soft` for a severity, so its pills, icons and cards share two colours. */
+const MUTED_TONE = '[--issue-ink:var(--muted-foreground)] [--issue-soft:var(--muted)]';
 export const SEVERITY_TONE: Record<IssueSeverity, string> = {
   error: '[--issue-ink:var(--destructive)] [--issue-soft:var(--brand-red-soft)]',
-  info: '[--issue-ink:var(--muted-foreground)] [--issue-soft:var(--muted)]',
-  limitation: '[--issue-ink:var(--muted-foreground)] [--issue-soft:var(--muted)]',
+  info: MUTED_TONE,
+  limitation: MUTED_TONE,
   warning: '[--issue-ink:var(--brand-orange-ink)] [--issue-soft:var(--brand-orange-soft)]',
 };
 
