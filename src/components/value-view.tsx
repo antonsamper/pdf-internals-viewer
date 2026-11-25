@@ -68,6 +68,7 @@ export const ValueView = function ValueView({
               className={cn(
                 'grid grid-cols-[minmax(90px,32%)_minmax(0,1fr)] items-start',
                 'gap-3 border-b py-[11px]',
+                // Inside another entry's value, the two-column row stacks.
                 'first:pt-[3px] in-data-[slot=pdf-value]:flex in-data-[slot=pdf-value]:flex-col in-data-[slot=pdf-value]:gap-1.5 in-data-[slot=pdf-value]:last:border-0'
               )}
               key={`${key}-${index}`}

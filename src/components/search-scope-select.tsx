@@ -23,10 +23,10 @@ export const SearchScopeSelect = function SearchScopeSelect({
           'h-7 w-[132px] gap-2 pr-2 pl-0',
           'bg-background whitespace-nowrap text-foreground',
           'focus-visible:shadow-[inset_0_0_0_2px_var(--ring)] data-[popup-open]:bg-muted',
-          'text-[11px]! outline-none!',
           'max-w900:relative max-w900:h-9 max-w900:rounded-[6px] max-w900:bg-muted max-w900:before:absolute max-w900:before:-inset-x-0.5 max-w900:before:-inset-y-1 max-w900:data-[popup-open]:bg-accent',
           'max-w360:w-full max-w360:px-2.5 max-w360:text-[13px]!',
-          'min-w360:max-w900:w-auto min-w360:max-w900:max-w-[104px] min-w360:max-w900:gap-1 min-w360:max-w900:px-2 min-w360:max-w900:text-[12px]!'
+          'min-w360:max-w900:w-auto min-w360:max-w900:max-w-[104px] min-w360:max-w900:gap-1 min-w360:max-w900:px-2 min-w360:max-w900:text-[12px]!',
+          'text-[11px]! outline-none!'
         )}
         aria-label="Search scope"
       >

@@ -44,8 +44,7 @@ const statusText = ({ displayedScope, interrupted, results, resultsScope, search
 const CARD_BUTTON = cn(
   'h-auto min-h-6 max-w-full justify-start',
   'rounded-[4px] px-1.5 py-0.5 text-left whitespace-normal',
-  'pointer-coarse:min-h-11',
-  'max-w900:min-h-8',
+  'max-w900:min-h-8 pointer-coarse:min-h-11',
   'text-[11px]!'
 );
 
@@ -171,7 +170,7 @@ const SourceButtons = ({
   const keys = uniqueKeys(sources, (source) => `${source.id}:${source.ranges[0]?.start ?? 'candidate'}`);
   const mapped = location.sources.some((source) => source.ranges.length);
   return (
-    <div className={cn('flex flex-wrap items-center gap-1', 'max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1')}>
+    <div className="flex flex-wrap items-center gap-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1">
       <span className="mr-0.5 text-[11px] text-muted-foreground max-w400:col-span-full max-w400:m-0">{mapped ? 'Bytes' : 'Streams'}</span>
       {sources.map((source, sourceIndex) => (
         <Button
@@ -366,7 +365,7 @@ const ResultItem = ({
 const EmptyResults = ({ search }: { search: Search }) => {
   const { resultsQuery, resultsScope, searchAsPageText } = search;
   return (
-    <div className={cn('flex min-h-[100px] flex-col items-center justify-center', 'gap-2.5 p-5 text-center text-muted-foreground')}>
+    <div className="flex min-h-[100px] flex-col items-center justify-center gap-2.5 p-5 text-center text-muted-foreground">
       <Search size={22} aria-hidden="true" />
       <p className="text-[13px] [overflow-wrap:anywhere] text-foreground">No results for “{resultsQuery}”</p>
       <span className="text-[12px]">{EMPTY_HINTS[resultsScope] ?? 'Try a shorter sequence of complete hexadecimal bytes.'}</span>

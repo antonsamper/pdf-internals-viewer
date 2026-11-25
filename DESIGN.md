@@ -44,9 +44,9 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 - A list of up to about 100 characters stays one plain string.
 - A longer list uses `cn()` and splits into groups, in this order: positioning, layout, sizing, spacing, typography, appearance, borders and effects, interaction, component states (`hover:`, `focus-visible:`, `data-*`, `aria-*`), responsive, dark mode, animation, overrides (`!` modifiers). Skip the groups an element doesn't use.
 - Short neighbouring groups share a string, such as layout and spacing in `'flex items-center gap-2 px-3'`. States, responsive, dark mode and overrides always get their own string.
-- Oxfmt sorts the classes inside each string and leaves each string as its own argument (`preserveWhitespace` in `.oxfmtrc.json` keeps the whitespace around classes), so the groups survive formatting.
+- Each group is its own `cn()` argument, so formatting keeps the groups apart. Oxfmt sorts the classes inside each string, and `preserveWhitespace` in `.oxfmtrc.json` leaves the spacing inside a string as written.
 - Conditional classes go last in the call, as `condition && 'classes'` or an array.
-- Arbitrary font families use the `family-name:` hint, as in `font-[family-name:SFMono-Regular,monospace]`. Without it, `cn` reads the class as a font weight and a later `font-medium` drops it.
+- Arbitrary font families use the `family-name:` hint, as in `font-[family-name:SFMono-Regular,monospace]`, or the `[font-family:…]` property form. Without either, `cn` reads `font-[…]` as a font weight and a later `font-medium` drops it.
 - Add a comment to a group only when its reason isn't visible in the classes.
 
 ```tsx

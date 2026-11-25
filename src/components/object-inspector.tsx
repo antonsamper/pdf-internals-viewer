@@ -32,8 +32,7 @@ const TAB_TRIGGER = cn(
   'text-[11px]!'
 );
 const RELATIONSHIP_LINK = cn(
-  'flex flex-wrap justify-between',
-  'gap-x-3 gap-y-1 p-2',
+  'flex flex-wrap justify-between gap-x-3 gap-y-1 p-2',
   'rounded-[5px] text-left [overflow-wrap:anywhere]',
   'hover:bg-accent',
   'text-[11px]!'
