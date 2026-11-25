@@ -16,7 +16,7 @@ Components are styled with Tailwind utilities, shadcn variants on Base UI and th
 
 ## Look and feel
 
-A compact developer workspace in the logo's colours: a deep plum header (`surface-dark`), white inspection surfaces, a pale lilac explorer, fine borders and small type that leave room for PDF structure and bytes. Geist is used for interface text and explanations. The `font-mono` token, which starts with `ui-monospace` so each platform gets its system monospace, covers PDF syntax, code, object IDs, offsets and bytes.
+A compact developer workspace in the logo's colours: a deep plum header (`surface-dark`), white inspection surfaces, a pale lilac explorer, fine borders and small type that leave room for PDF structure and bytes. Geist is used for interface text and explanations. The `font-mono` token covers PDF syntax, code, object IDs, offsets and bytes. It starts with `ui-monospace`, which gives SF Mono in Safari; other browsers fall through to SF Mono, Menlo, Consolas or Liberation Mono, whichever is installed.
 
 The app follows the device's light or dark setting until the visitor picks one with the header's sun and moon button. `public/theme.js` applies the choice before the first render. Dark mode keeps every colour role on plum surfaces.
 
