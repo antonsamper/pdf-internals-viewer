@@ -177,7 +177,7 @@ try {
                             state.phase = 'opened';
                         } }));
                     }
-                    if (state.phase === 'navigation' && document.querySelector('.object-title h1') && state.navigationStart !== null && state.navigationReadyAt === null)
+                    if (state.phase === 'navigation' && document.querySelector('section[aria-label="Object inspector"] h1') && state.navigationStart !== null && state.navigationReadyAt === null)
                         requestAnimationFrame(() => requestAnimationFrame(() => { state.navigationReadyAt ??= performance.now(); }));
                 }).observe(document, { characterData: true, childList: true, subtree: true });
             }, { enableMessageProbe: probeMessages });

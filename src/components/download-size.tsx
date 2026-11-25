@@ -31,7 +31,11 @@ export const DownloadSize = function DownloadSize({
     };
   }, [id, extractStream, visible]);
   return (
-    <div ref={ref} className="download-size" title={error ?? (size !== undefined ? `${size.toLocaleString()} bytes` : undefined)}>
+    <div
+      ref={ref}
+      className="text-[11px] leading-[1.6] text-muted-foreground tabular-nums"
+      title={error ?? (size !== undefined ? `${size.toLocaleString()} bytes` : undefined)}
+    >
       {error ? `Download size unavailable: ${error}` : size !== undefined ? `Download: ${fileSize(size)}` : 'Calculating download size…'}
     </div>
   );

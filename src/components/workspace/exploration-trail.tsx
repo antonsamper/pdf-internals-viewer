@@ -2,6 +2,8 @@ import { ChevronRight } from 'lucide-react';
 
 import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 
+import { REFERENCE } from '@/components/inspector-styles';
+
 import type { Section } from './types';
 
 import { uniqueKeys } from './keys';
@@ -27,7 +29,10 @@ export const ExplorationTrail = ({
   const keys = uniqueKeys(steps, (step) => step.id ?? 'root');
   const fallback = SECTION_LABELS[section] ?? 'Document overview';
   return (
-    <nav className="exploration-trail flex min-w-0 items-center gap-1 overflow-x-auto text-xs" aria-label="Exploration trail">
+    <nav
+      className="ml-2 flex min-w-0 flex-1 [scrollbar-width:thin] items-center gap-1 overflow-x-auto text-xs max-w360:[&>span:not(:last-child)]:hidden"
+      aria-label="Exploration trail"
+    >
       {busy ? 'Inspecting…' : steps.length ? undefined : fallback}
       {!busy &&
         steps.map((step, index) => (
@@ -38,7 +43,7 @@ export const ExplorationTrail = ({
                 {step.label}
               </span>
             ) : (
-              <button className="reference whitespace-nowrap" onClick={() => onSelectStep(index)}>
+              <button className={REFERENCE} onClick={() => onSelectStep(index)}>
                 {step.label}
               </button>
             )}

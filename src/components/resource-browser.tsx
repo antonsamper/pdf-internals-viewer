@@ -6,6 +6,7 @@ import type { PdfDocumentInfo, PdfObjectRecord, StreamResult } from '@/lib/pdf/t
 
 import { EmbeddedDownloads } from '@/components/embedded-downloads';
 import { ImageDownload } from '@/components/image-download';
+import { REFERENCE } from '@/components/inspector-styles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { property } from '@/lib/pdf/navigation';
@@ -54,14 +55,14 @@ export const ResourceBrowser = function ResourceBrowser({
         .includes(filter.toLowerCase())
   );
   return (
-    <section {...scroll} aria-label="Visual resource browser" className="resource-browser min-h-0 flex-1 overflow-auto p-5">
+    <section {...scroll} aria-label="Visual resource browser" className="min-h-0 flex-1 overflow-auto p-5">
       <h1 className="mb-2 text-xl font-medium">Resources</h1>
       <p className="mb-4 max-w-prose text-xs leading-relaxed text-muted-foreground">
         Find fonts, attachments, images, and reusable forms. Download embedded files directly, or open an object for a closer look. Page
         links show where a resource is available, including inherited and nested resources; they do not prove it is drawn on the page. Image
         previews load automatically as you scroll.
       </p>
-      <div className="resource-categories" role="group" aria-label="Resource categories">
+      <div className="mt-[18px] mb-3.5 flex flex-wrap gap-1.5" role="group" aria-label="Resource categories">
         {(
           [
             ['All', 'All', Layers],
@@ -83,7 +84,7 @@ export const ResourceBrowser = function ResourceBrowser({
           >
             <Icon aria-hidden="true" size={14} />
             {label}{' '}
-            <span className="resource-category-count">
+            <span className="rounded-[4px] bg-muted px-[5px] text-[10px] text-muted-foreground tabular-nums">
               {value === 'All' ? resources.length : resources.filter((entry) => entry.kind === value).length}
             </span>
           </Button>
@@ -127,13 +128,15 @@ export const ResourceBrowser = function ResourceBrowser({
           return (
             <article key={object.id} aria-label={`${kind} ${object.id}`} className="min-w-0 py-4">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-sm font-medium">{kind}</h2>
-                <button className="reference font-mono" onClick={() => onNavigate(object.id)}>
+                <h2 className="text-[12px] leading-[calc(1.25/0.875)] font-[550]">{kind}</h2>
+                <button className={REFERENCE} onClick={() => onNavigate(object.id)}>
                   {object.id} obj
                 </button>
               </div>
               <p className="mt-1 text-xs break-words text-muted-foreground">{object.label}</p>
-              {downloads.length > 0 && <EmbeddedDownloads object={object} assets={downloads} extractStream={extractStream} />}
+              {downloads.length > 0 && (
+                <EmbeddedDownloads className="mx-0 my-3" object={object} assets={downloads} extractStream={extractStream} />
+              )}
               {kind === 'Font' ? (
                 <>
                   {!downloads.length && <p className="my-3 text-xs text-muted-foreground">No embedded font file available to download.</p>}
@@ -166,7 +169,7 @@ export const ResourceBrowser = function ResourceBrowser({
                   {pages.length ? (
                     <>
                       {pages.slice(0, 30).map((page) => (
-                        <button className="reference" key={page} onClick={() => onNavigate(document.pages[page - 1])}>
+                        <button className={REFERENCE} key={page} onClick={() => onNavigate(document.pages[page - 1])}>
                           Page {page}
                         </button>
                       ))}

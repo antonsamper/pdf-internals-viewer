@@ -1,9 +1,17 @@
+import { cn } from 'cn';
 import { ChevronRight, Info } from 'lucide-react';
 import { useState } from 'react';
 
 import type { PdfObjectRecord, PdfValue } from '@/lib/pdf/types';
 
+import { REFERENCE, REPRESENTATION_NOTE } from '@/components/inspector-styles';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+const MUTED = 'text-muted-foreground';
+/** A dictionary entry is a two-column row; inside another entry's value it stacks. */
+const ENTRY =
+  'grid grid-cols-[minmax(90px,32%)_minmax(0,1fr)] items-start gap-3 border-b py-[11px] first:pt-[3px] in-data-[slot=pdf-value]:flex in-data-[slot=pdf-value]:flex-col in-data-[slot=pdf-value]:gap-1.5 in-data-[slot=pdf-value]:last:border-0';
+const SCALAR_TONE: Record<string, string> = { name: 'text-foreground', string: 'text-pdf-string' };
+
 export const ValueView = function ValueView({
   value,
   onNavigate,
@@ -21,20 +29,20 @@ export const ValueView = function ValueView({
   path?: string[];
   referenceDepth?: number;
 }) {
-  if (depth > 12) return <span className="muted">Expand this object in Source to inspect deeper nesting.</span>;
+  if (depth > 12) return <span className={MUTED}>Expand this object in Source to inspect deeper nesting.</span>;
   if (value.type === 'reference') {
     const target = objects?.get(value.ref);
     const cycle = ancestors.includes(value.ref);
     return (
-      <span className="inline-reference">
-        <button className="reference" onClick={() => onNavigate(value.ref, path)} title={`Open object ${value.ref} in the inspector`}>
+      <span className="inline-block max-w-full align-top">
+        <button className={REFERENCE} onClick={() => onNavigate(value.ref, path)} title={`Open object ${value.ref} in the inspector`}>
           {value.text}
           <ChevronRight size={12} />
         </button>
         {objects && !target ? (
-          <span className="muted"> · unavailable reference</span>
+          <span className={MUTED}> · unavailable reference</span>
         ) : cycle ? (
-          <span className="muted"> · already in this path</span>
+          <span className={MUTED}> · already in this path</span>
         ) : target && referenceDepth < 4 && depth < 12 ? (
           <InlineReference
             key={value.ref}
@@ -47,31 +55,34 @@ export const ValueView = function ValueView({
             depth={depth}
           />
         ) : target ? (
-          <span className="muted"> · inline depth limit; open object to continue</span>
+          <span className={MUTED}> · inline depth limit; open object to continue</span>
         ) : null}
       </span>
     );
   }
   if (value.type === 'dictionary' || value.type === 'stream')
     return (
-      <div className="pdf-dictionary">
-        {value.entries.length === 0 && <span className="muted">Empty dictionary</span>}
+      <div className="w-full">
+        {value.entries.length === 0 && <span className={MUTED}>Empty dictionary</span>}
         {value.entries.map(({ key, value: child }, index) => {
           const bareKey = key.replace(/^\//, '');
           return (
-            <div className="pdf-entry" key={`${key}-${index}`}>
-              <div className="pdf-key">
+            <div className={ENTRY} key={`${key}-${index}`}>
+              <div className="flex flex-wrap items-center gap-[5px] font-pdf text-[11px] [overflow-wrap:anywhere] text-muted-foreground">
                 <span>/{bareKey}</span>
                 {explanations[bareKey] && (
                   <Tooltip>
-                    <TooltipTrigger aria-label={`Explain /${bareKey}`} className="key-help">
+                    <TooltipTrigger
+                      aria-label={`Explain /${bareKey}`}
+                      className="inline-flex bg-transparent p-0 text-muted-foreground opacity-70"
+                    >
                       <Info size={12} />
                     </TooltipTrigger>
                     <TooltipContent>{explanations[bareKey]}</TooltipContent>
                   </Tooltip>
                 )}
               </div>
-              <div className="pdf-value">
+              <div className="min-w-0 text-[11px] [overflow-wrap:anywhere]" data-slot="pdf-value">
                 <ValueView
                   value={child}
                   onNavigate={onNavigate}
@@ -89,8 +100,8 @@ export const ValueView = function ValueView({
     );
   if (value.type === 'array')
     return (
-      <div className="pdf-array">
-        <span className="syntax">[</span>
+      <div className="flex flex-wrap items-baseline gap-[7px] text-[11px]">
+        <span className={MUTED}>[</span>
         {value.items.map((child, index) => (
           <ValueView
             key={index}
@@ -103,10 +114,10 @@ export const ValueView = function ValueView({
             referenceDepth={referenceDepth}
           />
         ))}
-        <span className="syntax">]</span>
+        <span className={MUTED}>]</span>
       </div>
     );
-  return <span className={`pdf-scalar pdf-${value.type}`}>{value.text}</span>;
+  return <span className={cn('font-pdf text-[11px] whitespace-pre-wrap', SCALAR_TONE[value.type])}>{value.text}</span>;
 };
 const InlineReference = function InlineReference({
   target,
@@ -127,11 +138,13 @@ const InlineReference = function InlineReference({
 }) {
   const [expanded, setExpanded] = useState(false);
   return (
-    <details className="inline-reference-details" onToggle={(event) => setExpanded(event.currentTarget.open)}>
-      <summary>Expand {target.id} inline</summary>
+    <details className="mt-1.5 text-[11px]" onToggle={(event) => setExpanded(event.currentTarget.open)}>
+      <summary className="cursor-pointer py-[3px] text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+        Expand {target.id} inline
+      </summary>
       {expanded && (
-        <div className="inline-reference-body">
-          <p className="representation-note">
+        <div className="mt-2 rounded-[5px] border p-2.5 [overflow-wrap:anywhere]">
+          <p className={cn(REPRESENTATION_NOTE, 'mb-2.5')}>
             {target.label} ·{' '}
             {target.provenance.type === 'file'
               ? 'Original-file object'

@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import type { PdfObjectRecord } from '@/lib/pdf/types';
 
+import { REFERENCE } from '@/components/inspector-styles';
 import { Button } from '@/components/ui/button';
 import { ValueView } from '@/components/value-view';
 import { compareObjects } from '@/lib/pdf/resource-tools';
@@ -32,9 +33,9 @@ export const ObjectComparison = function ObjectComparison({
   const [differencesOnly, setDifferencesOnly] = useState(false);
   const rows = current ? compareObjects(pinned, current) : [];
   return (
-    <section aria-label="Object comparison" className="object-comparison min-w-0 border-t p-4">
+    <section aria-label="Object comparison" className="h-full min-w-0 overflow-auto border-t p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-medium">Compare objects</h2>
+        <h2 className="text-[12px] leading-[calc(1.25/0.875)] font-[550]">Compare objects</h2>
         <Button size="sm" variant="ghost" onClick={onUnpin}>
           <PinOff size={14} />
           Unpin object
@@ -43,7 +44,7 @@ export const ObjectComparison = function ObjectComparison({
       <div className="my-3 grid gap-4 sm:grid-cols-2">
         <div>
           <p className="text-xs text-muted-foreground">Pinned</p>
-          <button className="reference font-mono" onClick={() => onNavigate(pinned.id)}>
+          <button className={REFERENCE} onClick={() => onNavigate(pinned.id)}>
             {pinned.id} obj · {pinned.kind}
           </button>
           <Location object={pinned} />

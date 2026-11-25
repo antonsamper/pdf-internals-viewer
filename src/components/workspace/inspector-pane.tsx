@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import { BookmarkPlus, Braces, Image, LoaderCircle, Pin, X } from 'lucide-react';
 import { lazy, Suspense, type ReactNode } from 'react';
 
@@ -7,6 +8,7 @@ import type { ResourceCategory, ResourceEntry } from '@/lib/pdf/resource-catalog
 import type { PdfDocumentInfo, PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 import type { ScrollPosition } from '@/lib/scroll-restoration';
 
+import { LOADING_INLINE, NOTICE, PANE_HEADING } from '@/components/inspector-styles';
 import { IssuesPanel } from '@/components/issues-panel';
 import { ObjectComparison } from '@/components/object-comparison';
 import { ResourceBrowser } from '@/components/resource-browser';
@@ -14,6 +16,9 @@ import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 
 import type { Section } from './types';
+
+/** Toolbar buttons in the pane heading: compact type and gap. */
+const PANE_ACTION = 'gap-[5px] text-[10px]!';
 
 const PdfPreview = lazy(() =>
   import('@/components/pdf-preview').then((module) => ({
@@ -85,14 +90,14 @@ const PaneActions = ({
   onPin,
   onPreviewChange,
 }: InspectorPaneProps) => (
-  <div className="pane-actions">
+  <div className="flex items-center gap-1 max-w900:flex-wrap">
     {section === 'resources' && selected && (
-      <Button variant="ghost" size="sm" onClick={onBrowseResources}>
+      <Button variant="ghost" size="sm" className={PANE_ACTION} onClick={onBrowseResources}>
         Browse resources
       </Button>
     )}
     {(selected || hasRange) && (
-      <Button variant="ghost" size="sm" onClick={onBookmark}>
+      <Button variant="ghost" size="sm" className={PANE_ACTION} onClick={onBookmark}>
         <BookmarkPlus size={14} />
         Bookmark
       </Button>
@@ -101,6 +106,7 @@ const PaneActions = ({
       <Button
         variant={pinnedId === selected.id ? 'secondary' : 'ghost'}
         size="sm"
+        className={PANE_ACTION}
         onClick={() => onPin(pinnedId === selected.id ? null : selected.id)}
         aria-pressed={pinnedId === selected.id}
       >
@@ -108,7 +114,13 @@ const PaneActions = ({
         {pinnedId === selected.id ? 'Unpin' : 'Pin to compare'}
       </Button>
     )}
-    <Button variant={preview ? 'secondary' : 'ghost'} size="sm" disabled={!bytes.length || busy} onClick={() => onPreviewChange(!preview)}>
+    <Button
+      variant={preview ? 'secondary' : 'ghost'}
+      size="sm"
+      className={PANE_ACTION}
+      disabled={!bytes.length || busy}
+      onClick={() => onPreviewChange(!preview)}
+    >
       {preview ? <Braces size={14} /> : <Image size={14} />}
       {preview ? 'Inspect' : 'Preview'}
     </Button>
@@ -118,7 +130,7 @@ const PaneActions = ({
 const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, onNavigate, onPin }: InspectorPaneProps) => {
   const pinned = pinnedId ? objectMap.get(pinnedId) : undefined;
   return (
-    <div className="inspection-detail-stack min-h-0 flex-1">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden [&>section]:flex-1">
       {pinned ? (
         <ResizablePanelGroup orientation="vertical">
           <ResizablePanel defaultSize="40%" minSize="20%">
@@ -126,7 +138,7 @@ const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, o
           </ResizablePanel>
           <ResizableHandle
             withHandle
-            className="comparison-divider"
+            className="shrink-0 cursor-row-resize border-y bg-muted hover:bg-accent focus-visible:bg-accent aria-[orientation=horizontal]:h-3 [&>div]:bg-muted-foreground"
             aria-label="Resize comparison and inspector"
             title="Drag to resize · use arrow keys when focused"
           />
@@ -142,15 +154,21 @@ const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, o
 };
 
 const LoadingView = () => (
-  <section className="document-loading" role="status" aria-label="Opening PDF">
-    <LoaderCircle size={32} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />
-    <h1>Opening PDF…</h1>
-    <p>Reading objects and building the document structure. Larger documents can take a few seconds.</p>
+  <section
+    className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto px-6 py-8 text-center"
+    role="status"
+    aria-label="Opening PDF"
+  >
+    <LoaderCircle size={32} className="mb-5 shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none" aria-hidden="true" />
+    <h1 className="mb-2.5 text-[18px] font-medium">Opening PDF…</h1>
+    <p className="max-w-[38ch] text-[12px] leading-[1.8] text-muted-foreground">
+      Reading objects and building the document structure. Larger documents can take a few seconds.
+    </p>
   </section>
 );
 
 const PreviewView = ({ bytes, filename, previewPage, previewPassword, previewSearch, onPageChange }: InspectorPaneProps) => (
-  <Suspense fallback={<p className="loading-inline">Loading EmbedPDF…</p>}>
+  <Suspense fallback={<p className={LOADING_INLINE}>Loading EmbedPDF…</p>}>
     <PdfPreview
       bytes={bytes}
       fileName={filename}
@@ -203,15 +221,15 @@ const InspectorBody = (props: InspectorPaneProps) => {
 };
 
 export const InspectorPane = (props: InspectorPaneProps) => (
-  <main className="main-inspector" aria-label="Document inspection" aria-busy={props.busy}>
-    <div className="pane-heading">
+  <main className="flex h-full min-h-0 flex-col overflow-hidden" aria-label="Document inspection" aria-busy={props.busy}>
+    <div className={cn(PANE_HEADING, 'justify-between max-w900:h-auto max-w900:flex-wrap max-w900:gap-1.5 max-w900:py-1.5')}>
       <span>{paneTitle(props)}</span>
       <PaneActions {...props} />
     </div>
     {props.notice && (
-      <div className="notice" role="status">
+      <div className={NOTICE} role="status">
         <span>{props.notice}</span>
-        <button aria-label="Dismiss notice" onClick={props.onDismissNotice}>
+        <button className="ml-auto bg-transparent" aria-label="Dismiss notice" onClick={props.onDismissNotice}>
           <X size={14} />
         </button>
       </div>
