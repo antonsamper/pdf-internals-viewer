@@ -130,7 +130,7 @@ const PaneActions = ({
 const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, onNavigate, onPin }: InspectorPaneProps) => {
   const pinned = pinnedId ? objectMap.get(pinnedId) : undefined;
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden [&>section]:flex-1">
+    <div className={cn('flex flex-1 flex-col overflow-hidden', 'min-h-0', '[&>section]:flex-1')}>
       {pinned ? (
         <ResizablePanelGroup orientation="vertical">
           <ResizablePanel defaultSize="40%" minSize="20%">
@@ -138,7 +138,13 @@ const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, o
           </ResizablePanel>
           <ResizableHandle
             withHandle
-            className="shrink-0 cursor-row-resize border-y bg-muted hover:bg-accent focus-visible:bg-accent aria-[orientation=horizontal]:h-3 [&>div]:bg-muted-foreground"
+            className={cn(
+              'shrink-0',
+              'bg-muted',
+              'border-y',
+              'cursor-row-resize',
+              'hover:bg-accent focus-visible:bg-accent aria-[orientation=horizontal]:h-3 [&>div]:bg-muted-foreground'
+            )}
             aria-label="Resize comparison and inspector"
             title="Drag to resize · use arrow keys when focused"
           />
@@ -155,11 +161,15 @@ const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, o
 
 const LoadingView = () => (
   <section
-    className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto px-6 py-8 text-center"
+    className={cn('flex flex-1 flex-col items-center justify-center overflow-auto', 'min-h-0', 'px-6 py-8', 'text-center')}
     role="status"
     aria-label="Opening PDF"
   >
-    <LoaderCircle size={32} className="mb-5 shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none" aria-hidden="true" />
+    <LoaderCircle
+      size={32}
+      className={cn('shrink-0', 'mb-5', 'text-muted-foreground', 'animate-spin motion-reduce:animate-none')}
+      aria-hidden="true"
+    />
     <h1 className="mb-2.5 text-[18px] font-medium">Opening PDF…</h1>
     <p className="max-w-[38ch] text-[12px] leading-[1.8] text-muted-foreground">
       Reading objects and building the document structure. Larger documents can take a few seconds.
@@ -222,7 +232,7 @@ const InspectorBody = (props: InspectorPaneProps) => {
 
 export const InspectorPane = (props: InspectorPaneProps) => (
   <main className="flex h-full min-h-0 flex-col overflow-hidden" aria-label="Document inspection" aria-busy={props.busy}>
-    <div className={cn(PANE_HEADING, 'justify-between max-w900:h-auto max-w900:flex-wrap max-w900:gap-1.5 max-w900:py-1.5')}>
+    <div className={cn(PANE_HEADING, 'justify-between', 'max-w900:h-auto max-w900:flex-wrap max-w900:gap-1.5 max-w900:py-1.5')}>
       <span>{paneTitle(props)}</span>
       <PaneActions {...props} />
     </div>

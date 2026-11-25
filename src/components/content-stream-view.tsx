@@ -69,7 +69,7 @@ export const ContentStreamView = ({
             (PDF Association, opens PDF in a new tab).
           </p>
           {parsed.instructions.some((instruction) => instruction.operator === 'TJ') && (
-            <details className="mb-3 rounded-[5px] border px-3 py-2.5 text-[12px] leading-[1.7]" data-text-help>
+            <details className={cn('mb-3 px-3 py-2.5', 'text-[12px] leading-[1.7]', 'rounded-[5px] border')} data-text-help>
               <summary className="cursor-pointer">Why are there numbers between strings? (TJ)</summary>
               <p className="mt-2 text-muted-foreground">
                 A PDF records how to draw text. In a <code>TJ</code> array, parentheses hold text strings and numbers adjust where the next
@@ -135,10 +135,10 @@ export const ContentStreamView = ({
                   }
                   key={instruction.start}
                 >
-                  <span className="pt-0.5 font-pdf text-[10px] leading-[normal] text-muted-foreground" title="Decoded byte offset">
+                  <span className={cn('pt-0.5', 'font-pdf text-[10px] leading-[normal] text-muted-foreground')} title="Decoded byte offset">
                     0x{instruction.start.toString(16).toUpperCase()}
                   </span>
-                  <code className="text-[11px]! leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap">
+                  <code className={cn('leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap', 'text-[11px]!')}>
                     {instruction.tokens.map((token, index) => {
                       const category =
                         token.kind === 'name' ? resourceCategory(instruction.operator, index, instruction.tokens.length - 1) : undefined;
@@ -175,7 +175,9 @@ export const ContentStreamView = ({
                       );
                     })}
                   </code>
-                  <p className="col-start-2 mt-[5px] text-[11px] leading-[1.7] text-muted-foreground">{explainInstruction(instruction)}</p>
+                  <p className={cn('col-start-2', 'mt-[5px]', 'text-[11px] leading-[1.7] text-muted-foreground')}>
+                    {explainInstruction(instruction)}
+                  </p>
                 </li>
               );
             })}

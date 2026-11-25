@@ -7,13 +7,18 @@ import { Input } from '@/components/ui/input';
 
 import type { useDocumentSearch } from './use-document-search';
 
-const FORM_CLASS =
-  "flex min-h-[34px] w-1/2 max-w-[600px] items-center gap-1 rounded-[6px] border py-0.5 pr-1 pl-2 text-muted-foreground focus-within:border-ring focus-within:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_20%,transparent)] max-w900:grid max-w900:h-auto max-w900:w-full max-w900:max-w-none max-w900:gap-x-1.5 max-w900:gap-y-1 max-w900:py-1 max-w900:pr-1 max-w900:pl-2.5 max-w360:grid-cols-[18px_minmax(0,1.3fr)_minmax(0,1fr)_auto] min-w360:max-w900:grid-cols-[18px_minmax(0,1fr)_auto_auto] min-w360:max-w900:[grid-template-areas:'icon_query_mode_submit']";
-
 /** Two rows at 360px and below: the results toggle shares the second row with the scope, or the scope fills it. */
 const formClass = (hasResults: boolean) =>
   cn(
-    FORM_CLASS,
+    'flex items-center',
+    'min-h-[34px] w-1/2 max-w-[600px]',
+    'gap-1 py-0.5 pr-1 pl-2',
+    'text-muted-foreground',
+    'rounded-[6px] border',
+    'focus-within:border-ring focus-within:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_20%,transparent)]',
+    'max-w900:grid max-w900:h-auto max-w900:w-full max-w900:max-w-none max-w900:gap-x-1.5 max-w900:gap-y-1 max-w900:py-1 max-w900:pr-1 max-w900:pl-2.5',
+    'max-w360:grid-cols-[18px_minmax(0,1.3fr)_minmax(0,1fr)_auto]',
+    "min-w360:max-w900:grid-cols-[18px_minmax(0,1fr)_auto_auto] min-w360:max-w900:[grid-template-areas:'icon_query_mode_submit']",
     hasResults
       ? "max-w360:[grid-template-areas:'icon_query_query_submit'_'mode_mode_results_results']"
       : "max-w360:[grid-template-areas:'icon_query_query_submit'_'mode_mode_mode_mode']"
@@ -27,16 +32,17 @@ const queryPadding = (query: string, hasResults: boolean) => {
 
 const inputClass = (query: string, hasResults: boolean) =>
   cn(
-    'h-7 flex-1 rounded-none border-0 bg-transparent px-1 py-0 text-[12px]! text-foreground [grid-area:query] focus-visible:ring-0 max-w900:h-9 max-w900:text-[14px]! supports-[-webkit-touch-callout:none]:max-w900:text-[16px]! dark:bg-transparent',
+    'h-7 flex-1 [grid-area:query]',
+    'px-1 py-0',
+    'bg-transparent text-foreground',
+    'rounded-none border-0',
+    'focus-visible:ring-0',
+    'max-w900:h-9 max-w900:text-[14px]! supports-[-webkit-touch-callout:none]:max-w900:text-[16px]!',
+    'dark:bg-transparent',
+    'text-[12px]!',
     query && 'max-w360:pr-9',
     queryPadding(query, hasResults)
   );
-
-const SUBMIT_CLASS =
-  '[grid-area:submit] max-w900:relative max-w900:h-9 max-w900:min-w-9 max-w900:bg-[color-mix(in_oklch,var(--primary)_16%,transparent)] max-w900:bg-clip-border max-w900:font-semibold! max-w900:text-(--brand-red-ink) max-w900:before:absolute max-w900:before:-inset-x-0.5 max-w900:before:-inset-y-1 max-w900:enabled:hover:bg-[color-mix(in_oklch,var(--primary)_26%,transparent)] max-w900:enabled:hover:text-(--brand-red-ink) max-w900:dark:enabled:hover:bg-[color-mix(in_oklch,var(--primary)_26%,transparent)] max-w360:w-auto max-w360:px-2.5 min-w360:max-w900:w-9 min-w360:max-w900:p-0';
-
-const TOGGLE_CLASS =
-  'whitespace-nowrap max-w900:h-9 max-w900:min-w-9 max-w900:justify-between max-w900:rounded-[6px] max-w900:border-0 max-w900:bg-muted max-w900:text-[13px]! max-w900:text-foreground max-w900:hover:bg-muted max-w900:aria-expanded:bg-accent max-w900:aria-expanded:hover:bg-accent max-w900:dark:hover:bg-muted max-w900:aria-expanded:dark:hover:bg-accent max-w360:w-full max-w360:px-2.5 max-w360:[grid-area:results] min-w360:max-w900:z-1 min-w360:max-w900:mr-9 min-w360:max-w900:h-6.5 min-w360:max-w900:min-w-0 min-w360:max-w900:gap-0.5 min-w360:max-w900:self-center min-w360:max-w900:justify-self-end min-w360:max-w900:rounded-[13px] min-w360:max-w900:px-2 min-w360:max-w900:[grid-area:query]';
 
 const resultUnit = (count: number, scope: string) => {
   const plural = count !== 1;
@@ -52,7 +58,14 @@ const ResultsToggle = ({ count, onToggle, open, scope }: { count: number; onTogg
     aria-label="Show search results"
     title="Open search results"
     data-search-show=""
-    className={TOGGLE_CLASS}
+    className={cn(
+      'whitespace-nowrap',
+      'max-w900:h-9 max-w900:min-w-9 max-w900:justify-between max-w900:rounded-[6px] max-w900:border-0 max-w900:bg-muted max-w900:text-[13px]! max-w900:text-foreground',
+      'max-w900:hover:bg-muted max-w900:aria-expanded:bg-accent max-w900:aria-expanded:hover:bg-accent',
+      'max-w900:dark:hover:bg-muted max-w900:aria-expanded:dark:hover:bg-accent',
+      'max-w360:w-full max-w360:px-2.5 max-w360:[grid-area:results]',
+      'min-w360:max-w900:z-1 min-w360:max-w900:mr-9 min-w360:max-w900:h-6.5 min-w360:max-w900:min-w-0 min-w360:max-w900:gap-0.5 min-w360:max-w900:self-center min-w360:max-w900:justify-self-end min-w360:max-w900:rounded-[13px] min-w360:max-w900:px-2 min-w360:max-w900:[grid-area:query]'
+    )}
     aria-haspopup="dialog"
     aria-expanded={open}
     onClick={onToggle}
@@ -159,7 +172,14 @@ export const SearchForm = ({ busy, search }: { busy: boolean; search: ReturnType
         type="submit"
         aria-label="Run search"
         title="Run search"
-        className={SUBMIT_CLASS}
+        className={cn(
+          '[grid-area:submit]',
+          'max-w900:relative max-w900:h-9 max-w900:min-w-9 max-w900:bg-[color-mix(in_oklch,var(--primary)_16%,transparent)] max-w900:bg-clip-border max-w900:font-semibold! max-w900:text-(--brand-red-ink) max-w900:before:absolute max-w900:before:-inset-x-0.5 max-w900:before:-inset-y-1',
+          'max-w900:enabled:hover:bg-[color-mix(in_oklch,var(--primary)_26%,transparent)] max-w900:enabled:hover:text-(--brand-red-ink)',
+          'max-w900:dark:enabled:hover:bg-[color-mix(in_oklch,var(--primary)_26%,transparent)]',
+          'max-w360:w-auto max-w360:px-2.5',
+          'min-w360:max-w900:w-9 min-w360:max-w900:p-0'
+        )}
         disabled={searching || busy}
         aria-busy={searching}
       >

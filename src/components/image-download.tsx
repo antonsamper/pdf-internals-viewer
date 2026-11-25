@@ -108,11 +108,17 @@ export const ImageDownload = ({
           <img
             src={state.image}
             alt={`Image object ${object.id}`}
-            className="my-3 block size-40 max-w-full rounded-[8px] border bg-background object-contain p-2"
+            className={cn('block object-contain', 'size-40 max-w-full', 'my-3 p-2', 'bg-background', 'rounded-[8px] border')}
           />
         ) : (
           <div
-            className="my-3 flex items-center gap-2.5 rounded-[8px] border border-dashed bg-sidebar p-3.5 text-[11px] text-muted-foreground"
+            className={cn(
+              'flex items-center',
+              'my-3 gap-2.5 p-3.5',
+              'text-[11px] text-muted-foreground',
+              'bg-sidebar',
+              'rounded-[8px] border border-dashed'
+            )}
             role="status"
           >
             {previewError ? (
@@ -129,7 +135,7 @@ export const ImageDownload = ({
           </div>
         ))}
       <div
-        className="my-2.5 text-[11px] leading-[1.6] text-muted-foreground tabular-nums"
+        className={cn('my-2.5', 'text-[11px] leading-[1.6] text-muted-foreground tabular-nums')}
         data-image-file-size
         title={state.size !== undefined ? `${state.size.toLocaleString()} bytes` : undefined}
       >

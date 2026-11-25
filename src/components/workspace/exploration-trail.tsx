@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import { ChevronRight } from 'lucide-react';
 
 import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
@@ -30,7 +31,14 @@ export const ExplorationTrail = ({
   const fallback = SECTION_LABELS[section] ?? 'Document overview';
   return (
     <nav
-      className="ml-2 flex min-w-0 flex-1 [scrollbar-width:thin] items-center gap-1 overflow-x-auto text-xs max-w360:[&>span:not(:last-child)]:hidden"
+      className={cn(
+        'flex flex-1 items-center overflow-x-auto',
+        'min-w-0',
+        'ml-2 gap-1',
+        'text-xs',
+        '[scrollbar-width:thin]',
+        'max-w360:[&>span:not(:last-child)]:hidden'
+      )}
       aria-label="Exploration trail"
     >
       {busy ? 'Inspecting…' : steps.length ? undefined : fallback}

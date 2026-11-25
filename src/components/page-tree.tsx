@@ -5,13 +5,17 @@ import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 import type { PdfDocumentInfo, PdfObjectRecord, PdfValue } from '@/lib/pdf/types';
 
 import { effectiveResources, property } from '@/lib/pdf/navigation';
-const TREE_INTRO = 'mx-1.5 mt-1.5 mb-3 text-[11px] leading-[1.6] text-muted-foreground';
-const TREE_DETAIL = 'mr-[5px] mb-[7px] ml-[26px] text-[10px] leading-[1.5] text-muted-foreground [overflow-wrap:anywhere]';
-const TREE_ROW = 'flex min-h-[34px] items-center rounded-[5px] hover:bg-accent';
-const TREE_ROW_SELECTED = 'bg-accent shadow-[inset_0_0_0_1px_var(--border)]';
+const TREE_INTRO = cn('mx-1.5 mt-1.5 mb-3', 'text-[11px] leading-[1.6] text-muted-foreground');
+const TREE_DETAIL = cn('mr-[5px] mb-[7px] ml-[26px]', 'text-[10px] leading-[1.5] [overflow-wrap:anywhere] text-muted-foreground');
 const TREE_TOGGLE = 'h-[30px] w-[26px] flex-[0_0_26px]';
-const TREE_SELECT = 'flex min-w-0 flex-1 flex-col items-start py-[5px] pr-[5px] text-left text-[11px]! [overflow-wrap:anywhere]';
-const TREE_MORE = 'm-1.5 p-[5px] text-[11px]! text-reference underline underline-offset-[3px]';
+const TREE_SELECT = cn(
+  'flex flex-1 flex-col items-start',
+  'min-w-0',
+  'py-[5px] pr-[5px]',
+  'text-left [overflow-wrap:anywhere]',
+  'text-[11px]!'
+);
+const TREE_MORE = cn('m-1.5 p-[5px]', 'text-reference underline underline-offset-[3px]', 'text-[11px]!');
 
 export const PageTree = ({
   document,
@@ -105,7 +109,12 @@ export const PageTree = ({
         : '';
     return (
       <li key={key}>
-        <div className={cn(TREE_ROW, ref && selectedId === ref && TREE_ROW_SELECTED)}>
+        <div
+          className={cn(
+            'flex min-h-[34px] items-center rounded-[5px] hover:bg-accent',
+            ref && selectedId === ref && 'bg-accent shadow-[inset_0_0_0_1px_var(--border)]'
+          )}
+        >
           {expandable ? (
             <button
               className={cn(TREE_TOGGLE, 'grid place-items-center rounded-[4px]')}

@@ -38,6 +38,29 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 - Notices use neutral surfaces with an icon and short explanatory text.
 - Transitions and animations respect reduced-motion preferences.
 
+## Writing Tailwind classes
+
+- Write classes at the element they style. A class constant is for a list that several elements share; one used by a single element goes inline.
+- A list of more than about 60 characters that spans several groups uses `cn()` with one string per group, in this order: positioning, layout, sizing, spacing, typography, appearance, borders and effects, interaction, component states (`hover:`, `focus-visible:`, `data-*`, `aria-*`), responsive, dark mode, animation, overrides (`!` modifiers). Skip the groups an element doesn't use. Short lists, and long lists that sit in a single group, stay a plain string.
+- Oxfmt sorts the classes inside each string and leaves each string as its own argument (`preserveWhitespace` in `.oxfmtrc.json` keeps the whitespace around classes), so the groups survive formatting.
+- Conditional classes go last in the call, as `condition && 'classes'` or an array.
+- Arbitrary font families use the `family-name:` hint, as in `font-[family-name:SFMono-Regular,monospace]`. Without it, `cn` reads the class as a font weight and a later `font-medium` drops it.
+
+```tsx
+className={cn(
+  'flex items-center',
+  'min-h-[34px] w-1/2',
+  'gap-1 px-2',
+  'text-muted-foreground',
+  'rounded-[6px] border',
+  'focus-within:border-ring',
+  'max-w900:w-full',
+  'dark:bg-transparent',
+  'text-[12px]!',
+  active && 'bg-accent'
+)}
+```
+
 ## Rules
 
 - Distinguish original file bytes, decoded data and the rendered preview.

@@ -1,4 +1,5 @@
 import { localEngine, type PageRenderTransform, type SearchMatch } from '@embedpdf/engine';
+import { cn } from 'cn';
 import { ChevronLeft, ChevronRight, FileWarning, LoaderCircle, ZoomIn, ZoomOut } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
@@ -147,7 +148,7 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
   }, [document, pages, currentPage, zoom, renderIdentity]);
   return (
     <section aria-label="Rendered page preview" className="flex h-full min-h-0 flex-col">
-      <div className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-b px-3 py-2">
+      <div className={cn('flex flex-wrap items-center justify-between', 'min-h-11', 'gap-2 px-3 py-2', 'border-b')}>
         <div className="flex items-center gap-1">
           <Button
             aria-label="Previous preview page"
@@ -196,7 +197,7 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
 
       <div className="relative min-h-0 flex-1 overflow-auto bg-muted/40 p-5" aria-busy={opening || rendering}>
         {error ? (
-          <div role="alert" className="mx-auto flex max-w-sm flex-col items-center gap-3 py-12 text-center">
+          <div role="alert" className={cn('flex flex-col items-center', 'max-w-sm', 'mx-auto gap-3 py-12', 'text-center')}>
             <FileWarning className="size-6 text-muted-foreground" aria-hidden="true" />
             <p className="text-sm font-medium">Page preview unavailable</p>
             <p className="text-xs leading-relaxed break-words text-muted-foreground">{error}</p>
@@ -233,7 +234,7 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
             )}
           </div>
         ) : (
-          <div role="status" className="flex items-center justify-center gap-2 py-16 text-xs text-muted-foreground">
+          <div role="status" className={cn('flex items-center justify-center', 'gap-2 py-16', 'text-xs text-muted-foreground')}>
             <LoaderCircle className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
             {opening ? 'Opening local preview…' : 'Rendering page…'}
           </div>

@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import { Image as ImageIcon, Paperclip, Type, Shapes, Layers } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -57,7 +58,7 @@ export const ResourceBrowser = function ResourceBrowser({
   return (
     <section {...scroll} aria-label="Visual resource browser" className="min-h-0 flex-1 overflow-auto p-5">
       <h1 className="mb-2 text-xl font-medium">Resources</h1>
-      <p className="mb-4 max-w-prose text-xs leading-relaxed text-muted-foreground">
+      <p className={cn('max-w-prose', 'mb-4', 'text-xs leading-relaxed text-muted-foreground')}>
         Find fonts, attachments, images, and reusable forms. Download embedded files directly, or open an object for a closer look. Page
         links show where a resource is available, including inherited and nested resources; they do not prove it is drawn on the page. Image
         previews load automatically as you scroll.
@@ -84,7 +85,7 @@ export const ResourceBrowser = function ResourceBrowser({
           >
             <Icon aria-hidden="true" size={14} />
             {label}{' '}
-            <span className="rounded-[4px] bg-muted px-[5px] text-[10px] text-muted-foreground tabular-nums">
+            <span className={cn('px-[5px]', 'text-[10px] text-muted-foreground tabular-nums', 'bg-muted', 'rounded-[4px]')}>
               {value === 'All' ? resources.length : resources.filter((entry) => entry.kind === value).length}
             </span>
           </Button>

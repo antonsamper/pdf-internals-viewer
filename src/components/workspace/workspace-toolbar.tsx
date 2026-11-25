@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
@@ -29,8 +30,16 @@ export const WorkspaceToolbar = ({
   onSelectStep: (index: number) => void;
   onTravel: (direction: number) => void;
 }) => (
-  <div className="flex min-h-[45px] items-center justify-between gap-5 border-b px-3 py-1.5 max-w900:flex-wrap max-w900:gap-0.5 max-w900:px-2.5 max-w900:pt-1 max-w900:pb-2">
-    <div className="flex min-w-0 flex-1 items-center gap-[3px] max-w900:min-h-8 max-w900:w-full">
+  <div
+    className={cn(
+      'flex items-center justify-between',
+      'min-h-[45px]',
+      'gap-5 px-3 py-1.5',
+      'border-b',
+      'max-w900:flex-wrap max-w900:gap-0.5 max-w900:px-2.5 max-w900:pt-1 max-w900:pb-2'
+    )}
+  >
+    <div className={cn('flex flex-1 items-center', 'min-w-0', 'gap-[3px]', 'max-w900:min-h-8 max-w900:w-full')}>
       <Button variant="ghost" size="icon-sm" aria-label="Back" disabled={!canGoBack} onClick={() => onTravel(-1)}>
         <ArrowLeft size={15} />
       </Button>

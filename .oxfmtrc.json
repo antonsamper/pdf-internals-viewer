@@ -5,7 +5,8 @@
   "printWidth": 140,
   "sortTailwindcss": {
     "stylesheet": "src/index.css",
-    "functions": ["cn", "cva"]
+    "functions": ["cn", "cva"],
+    "preserveWhitespace": true
   },
   "sortImports": {
     "groups": [

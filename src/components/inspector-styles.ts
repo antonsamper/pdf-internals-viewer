@@ -1,3 +1,5 @@
+import { cn } from 'cn';
+
 import type { IssueSeverity } from '@/lib/pdf/issues';
 
 /*
@@ -6,7 +8,13 @@ import type { IssueSeverity } from '@/lib/pdf/issues';
  */
 
 /** A pane's title row: fixed height, bottom border, small type. */
-export const PANE_HEADING = 'flex h-[42px] min-h-[42px] shrink-0 items-center gap-2 border-b px-3.5 text-[11px] font-medium';
+export const PANE_HEADING = cn(
+  'flex shrink-0 items-center',
+  'h-[42px] min-h-[42px]',
+  'gap-2 px-3.5',
+  'text-[11px] font-medium',
+  'border-b'
+);
 
 /** A scrolling inspector body. */
 export const INSPECTOR_SCROLL = 'min-h-0 flex-1 overflow-auto p-[22px] max-w480:p-[18px]';
@@ -15,24 +23,41 @@ export const INSPECTOR_SCROLL = 'min-h-0 flex-1 overflow-auto p-[22px] max-w480:
 export const SECTION_HEADING = 'mt-7 mb-3 text-[12px] font-[550]';
 
 /** A navigable PDF reference: violet monospace text that underlines on hover. */
-export const REFERENCE =
-  'inline-flex items-baseline gap-[5px] bg-transparent font-pdf! text-[11px]! whitespace-nowrap text-reference hover:underline hover:underline-offset-[3px]';
+export const REFERENCE = cn(
+  'inline-flex items-baseline',
+  'gap-[5px]',
+  'whitespace-nowrap text-reference',
+  'bg-transparent',
+  'hover:underline hover:underline-offset-[3px]',
+  'font-pdf! text-[11px]!'
+);
 
 /** Small explanatory text under a heading. */
 export const REPRESENTATION_NOTE = 'mb-[15px] text-[10px] leading-[1.7] text-muted-foreground';
 
 /** A full-width notice under a pane heading. */
-export const NOTICE = 'flex items-start gap-[9px] border-b bg-muted px-[15px] py-2.5 text-[11px] leading-[1.65] [overflow-wrap:anywhere]';
+export const NOTICE = cn(
+  'flex items-start',
+  'gap-[9px] px-[15px] py-2.5',
+  'text-[11px] leading-[1.65] [overflow-wrap:anywhere]',
+  'bg-muted',
+  'border-b'
+);
 
 /** A spinner and its caption while content loads. */
-export const LOADING_INLINE = 'flex items-center gap-2 p-[15px] text-[12px] text-muted-foreground';
+export const LOADING_INLINE = cn('flex items-center', 'gap-2 p-[15px]', 'text-[12px] text-muted-foreground');
 
 /** An inline warning card. */
-export const WARNING_INLINE =
-  'my-3 flex items-start gap-[9px] rounded-[5px] border bg-muted px-[15px] py-2.5 text-[11px] leading-[1.65] [overflow-wrap:anywhere]';
+export const WARNING_INLINE = cn(
+  'flex items-start',
+  'my-3 gap-[9px] px-[15px] py-2.5',
+  'text-[11px] leading-[1.65] [overflow-wrap:anywhere]',
+  'bg-muted',
+  'rounded-[5px] border'
+);
 
 /** Raw syntax or stream text. */
-export const SOURCE_CODE = 'text-[11px]! leading-[1.85] whitespace-pre-wrap [tab-size:2] [overflow-wrap:anywhere]';
+export const SOURCE_CODE = cn('leading-[1.85] [overflow-wrap:anywhere] whitespace-pre-wrap [tab-size:2]', 'text-[11px]!');
 
 /** A row of buttons under an inspector heading. */
 export const ACTION_ROW = 'flex flex-wrap gap-2';
@@ -43,7 +68,7 @@ export const ACTION_BUTTON = 'text-[11px]!';
 /** The icon, title and subtitle at the top of the overview and issues panes. */
 export const OVERVIEW_ICON = 'mb-4 text-brand-purple';
 export const OVERVIEW_TITLE = 'mb-2 text-[21px] font-[550] tracking-[-0.025em]';
-export const OVERVIEW_SUBTITLE = 'mb-[26px] text-[12px] text-muted-foreground [overflow-wrap:anywhere]';
+export const OVERVIEW_SUBTITLE = cn('mb-[26px]', 'text-[12px] [overflow-wrap:anywhere] text-muted-foreground');
 
 /** Muted body text in the overview and inspector panes. */
 export const BODY_MUTED = 'text-[11px] leading-[1.8] text-muted-foreground';
@@ -58,5 +83,10 @@ export const SEVERITY_TONE: Record<IssueSeverity, string> = {
 };
 
 /** A severity pill, as in the issue summary and the issue titles. */
-export const SEVERITY_PILL =
-  'inline-flex items-center gap-1.5 border border-[color-mix(in_srgb,var(--issue-ink)_25%,transparent)] bg-(--issue-soft) text-(--issue-ink)';
+export const SEVERITY_PILL = cn(
+  'inline-flex items-center',
+  'gap-1.5',
+  'text-(--issue-ink)',
+  'bg-(--issue-soft)',
+  'border border-[color-mix(in_srgb,var(--issue-ink)_25%,transparent)]'
+);

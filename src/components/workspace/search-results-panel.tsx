@@ -41,8 +41,16 @@ const statusText = ({ displayedScope, interrupted, results, resultsScope, search
 };
 
 /** Buttons inside a result card: compact, left aligned, and tall enough to tap on small and touch screens. */
-const CARD_BUTTON =
-  'h-auto min-h-6 max-w-full justify-start rounded-[4px] px-1.5 py-0.5 text-left text-[11px]! whitespace-normal max-w900:min-h-8 pointer-coarse:min-h-11';
+const CARD_BUTTON = cn(
+  'justify-start',
+  'h-auto min-h-6 max-w-full',
+  'px-1.5 py-0.5',
+  'text-left whitespace-normal',
+  'rounded-[4px]',
+  'pointer-coarse:min-h-11',
+  'max-w900:min-h-8',
+  'text-[11px]!'
+);
 
 /** Header buttons grow to a 44px touch target on small screens. */
 const HEADER_BUTTON = 'max-w900:min-h-11 max-w900:min-w-11';
@@ -70,9 +78,23 @@ const ResultsHeader = ({ search }: { search: Search }) => {
   const results = search.results ?? [];
   const pageText = resultsScope === 'pageText';
   return (
-    <div className="flex shrink-0 items-center gap-2 border-b bg-sidebar px-3 py-2 text-[12px] text-muted-foreground max-w900:px-2 max-w900:py-1.5">
+    <div
+      className={cn(
+        'flex shrink-0 items-center',
+        'gap-2 px-3 py-2',
+        'text-[12px] text-muted-foreground',
+        'bg-sidebar',
+        'border-b',
+        'max-w900:px-2 max-w900:py-1.5'
+      )}
+    >
       <span
-        className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap max-w900:leading-[1.4] max-w900:whitespace-normal"
+        className={cn(
+          'flex-1 overflow-hidden',
+          'min-w-0',
+          'text-ellipsis whitespace-nowrap',
+          'max-w900:leading-[1.4] max-w900:whitespace-normal'
+        )}
         role="status"
         title={searching || interrupted ? searchingQuery : (resultsQuery ?? undefined)}
       >
@@ -156,8 +178,10 @@ const SourceButtons = ({
   const keys = uniqueKeys(sources, (source) => `${source.id}:${source.ranges[0]?.start ?? 'candidate'}`);
   const mapped = location.sources.some((source) => source.ranges.length);
   return (
-    <div className="flex flex-wrap items-center gap-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1">
-      <span className="mr-0.5 text-[11px] text-muted-foreground max-w400:col-span-full max-w400:m-0">{mapped ? 'Bytes' : 'Streams'}</span>
+    <div className={cn('flex flex-wrap items-center', 'gap-1', 'max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1')}>
+      <span className={cn('mr-0.5', 'text-[11px] text-muted-foreground', 'max-w400:col-span-full max-w400:m-0')}>
+        {mapped ? 'Bytes' : 'Streams'}
+      </span>
       {sources.map((source, sourceIndex) => (
         <Button
           key={keys[sourceIndex]}
@@ -207,14 +231,18 @@ const PageTextLinks = ({
   const expanded = sourceLocationsPage === location.pageId;
   const mapped = location.sources.some((source) => source.ranges.length);
   return (
-    <div className="mx-3 mb-2.5 flex flex-col items-stretch gap-1.5 border-t pt-2" role="group" aria-label="Page text source locations">
+    <div
+      className={cn('flex flex-col items-stretch', 'mx-3 mb-2.5 gap-1.5 pt-2', 'border-t')}
+      role="group"
+      aria-label="Page text source locations"
+    >
       {!mapped && (
         <span className="mb-0.5 text-[11px] leading-normal text-muted-foreground">
           Exact word bytes could not be mapped. Stream inspection highlights a candidate container, not the word.
         </span>
       )}
       {location.sources.length > 0 && <SourceButtons index={index} location={location} search={search} textSource={textSource} />}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-2">
+      <div className={cn('flex flex-wrap items-center', 'gap-x-4 gap-y-1', 'max-w400:grid max-w400:grid-cols-2 max-w400:gap-2')}>
         {location.sources.length > 1 && (
           <Button
             size="xs"
@@ -253,20 +281,23 @@ const ResultSummary = ({ result, resultsScope }: { result: SearchResult; results
     return (
       <>
         <code className="col-start-1 text-[12px]! font-semibold text-foreground">{result.label}</code>
-        <span className="col-start-1 text-[12px] leading-normal [overflow-wrap:anywhere] text-muted-foreground">{result.detail}</span>
+        <span className={cn('col-start-1', 'text-[12px] leading-normal [overflow-wrap:anywhere] text-muted-foreground')}>
+          {result.detail}
+        </span>
       </>
     );
   return (
     <>
       <span
         className={cn(
-          'col-start-1 text-[13px] leading-normal [overflow-wrap:anywhere] text-foreground',
+          'col-start-1',
+          'text-[13px] leading-normal [overflow-wrap:anywhere] text-foreground',
           resultsScope !== 'pageText' && '[font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace]'
         )}
         data-search-result-context=""
       >
         {snippet.before}
-        <mark className="rounded-[2px] bg-(--byte-selection) px-px text-(--byte-selection-foreground)">{snippet.match}</mark>
+        <mark className={cn('px-px', 'text-(--byte-selection-foreground)', 'bg-(--byte-selection)', 'rounded-[2px]')}>{snippet.match}</mark>
         {snippet.after}
       </span>
       {!result.pageText && (
@@ -293,11 +324,24 @@ const ResultItem = ({
   const { activeMatchRef, activeResult, inputRef, resultsScope, searching, selectResult, setOpen } = search;
   return (
     <div
-      className="scroll-my-2 overflow-hidden rounded-[8px] border bg-background has-[[aria-current=true]]:border-(--reference) has-[[aria-current=true]]:shadow-[0_0_0_1px_var(--reference)]"
+      className={cn(
+        'overflow-hidden',
+        'scroll-my-2',
+        'bg-background',
+        'rounded-[8px] border',
+        'has-[[aria-current=true]]:border-(--reference) has-[[aria-current=true]]:shadow-[0_0_0_1px_var(--reference)]'
+      )}
       data-search-result-item=""
     >
       <button
-        className="grid w-full grid-cols-[minmax(0,1fr)_18px] gap-x-3 gap-y-1 bg-transparent px-3.5 py-3 text-left hover:bg-muted focus-visible:-outline-offset-2! aria-[current=true]:bg-accent"
+        className={cn(
+          'grid grid-cols-[minmax(0,1fr)_18px]',
+          'w-full',
+          'gap-x-3 gap-y-1 px-3.5 py-3',
+          'text-left',
+          'bg-transparent',
+          'hover:bg-muted focus-visible:-outline-offset-2! aria-[current=true]:bg-accent'
+        )}
         data-search-result=""
         ref={index === activeResult ? activeMatchRef : undefined}
         aria-current={index === activeResult ? 'true' : undefined}
@@ -317,7 +361,13 @@ const ResultItem = ({
         }}
       >
         {result.pageText && (
-          <span className="col-start-1 flex items-baseline justify-between gap-3 text-[12px] leading-normal [overflow-wrap:anywhere] text-foreground">
+          <span
+            className={cn(
+              'col-start-1 flex items-baseline justify-between',
+              'gap-3',
+              'text-[12px] leading-normal [overflow-wrap:anywhere] text-foreground'
+            )}
+          >
             <strong className="text-[12px] font-semibold">{result.label}</strong>
             <span className="text-[11px] whitespace-nowrap text-muted-foreground">{result.detail}</span>
           </span>
@@ -338,7 +388,7 @@ const ResultItem = ({
 const EmptyResults = ({ search }: { search: Search }) => {
   const { resultsQuery, resultsScope, searchAsPageText } = search;
   return (
-    <div className="flex min-h-[100px] flex-col items-center justify-center gap-2.5 p-5 text-center text-muted-foreground">
+    <div className={cn('flex flex-col items-center justify-center', 'min-h-[100px]', 'gap-2.5 p-5', 'text-center text-muted-foreground')}>
       <Search size={22} aria-hidden="true" />
       <p className="text-[13px] [overflow-wrap:anywhere] text-foreground">No results for “{resultsQuery}”</p>
       <span className="text-[12px]">{EMPTY_HINTS[resultsScope] ?? 'Try a shorter sequence of complete hexadecimal bytes.'}</span>
@@ -390,7 +440,12 @@ export const SearchResultsPanel = ({ search, textSource }: { search: Search; tex
       input={inputRef}
     >
       <section
-        className="group/results flex max-h-[min(480px,60dvh,var(--available-height,480px))] min-h-[100px] flex-col overflow-hidden bg-background data-hold-height:h-[var(--search-loading-height,180px)]"
+        className={cn(
+          'group/results flex flex-col overflow-hidden',
+          'max-h-[min(480px,60dvh,var(--available-height,480px))] min-h-[100px]',
+          'bg-background',
+          'data-hold-height:h-[var(--search-loading-height,180px)]'
+        )}
         aria-label="Search results"
         data-search-results=""
         data-searching={searching || undefined}
@@ -419,7 +474,7 @@ export const SearchResultsPanel = ({ search, textSource }: { search: Search; tex
               {message}
             </p>
           )}
-          <div className="flex flex-col gap-3 bg-muted p-3 group-data-searching/results:opacity-55" data-search-matches="">
+          <div className={cn('flex flex-col', 'gap-3 p-3', 'bg-muted', 'group-data-searching/results:opacity-55')} data-search-matches="">
             {results.map((result, index) => (
               <ResultItem key={keys[index]} index={index} result={result} search={search} textSource={textSource} />
             ))}

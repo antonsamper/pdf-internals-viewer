@@ -1,9 +1,10 @@
+import { cn } from 'cn';
 import { FileWarning } from 'lucide-react';
 
 import { ACTION_BUTTON, ACTION_ROW } from '@/components/inspector-styles';
 import { Button } from '@/components/ui/button';
 import { inspectionFailure } from '@/lib/pdf/failure';
-const PARAGRAPH = 'mb-3 max-w-[65ch] text-[12px] leading-[1.8] text-muted-foreground';
+const PARAGRAPH = cn('max-w-[65ch]', 'mb-3', 'text-[12px] leading-[1.8] text-muted-foreground');
 
 export const InspectionUnavailable = function InspectionUnavailable({
   reason,
@@ -24,10 +25,12 @@ export const InspectionUnavailable = function InspectionUnavailable({
       <p className={PARAGRAPH}>Original file bytes are still available. A parsing failure does not confirm password protection.</p>
       {reason && (
         <details className="my-5 text-[12px]">
-          <summary className="cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-ring">
+          <summary
+            className={cn('cursor-pointer', 'focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-ring')}
+          >
             Technical details
           </summary>
-          <pre className="mt-2.5 rounded-[5px] bg-muted p-3 [overflow-wrap:anywhere] whitespace-pre-wrap">{reason}</pre>
+          <pre className={cn('mt-2.5 p-3', '[overflow-wrap:anywhere] whitespace-pre-wrap', 'bg-muted', 'rounded-[5px]')}>{reason}</pre>
         </details>
       )}
       <div className={ACTION_ROW}>

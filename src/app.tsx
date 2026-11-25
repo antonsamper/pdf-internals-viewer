@@ -1,3 +1,4 @@
+import { cn } from 'cn';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type { ResourceCategory } from '@/lib/pdf/resource-catalog';
@@ -276,7 +277,11 @@ const PdfWorkspace = ({
 
   return (
     <TooltipProvider delay={250}>
-      <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground" data-app-shell="" {...drop.handlers}>
+      <div
+        className={cn('flex flex-col overflow-hidden', 'h-dvh', 'text-foreground', 'bg-background')}
+        data-app-shell=""
+        {...drop.handlers}
+      >
         <input
           ref={input}
           type="file"

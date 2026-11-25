@@ -56,7 +56,7 @@ export const EmbeddedDownloads = ({
     <section className={cn('mx-[22px] mb-4 rounded-[8px] border bg-sidebar p-3', className)} aria-label="Embedded file downloads">
       {assets.map((asset) => (
         <div
-          className="flex flex-wrap items-center justify-between gap-2.5 not-first:mt-3"
+          className={cn('flex flex-wrap items-center justify-between', 'gap-2.5', 'not-first:mt-3')}
           key={`${asset.kind}-${asset.streamId}-${asset.filename}`}
         >
           <div className="flex min-w-0 flex-col gap-[3px]">
