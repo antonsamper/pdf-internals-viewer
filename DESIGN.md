@@ -46,7 +46,7 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 - Inspector tabs: a flat line list, with the active tab in violet and a red underline.
 - Badges label data and are never actions.
 - References are violet, underline on hover and keep a visible focus ring.
-- Keyboard focus is one 2px solid `--ring` outline with a 2px offset, the same on native and shadcn controls. The global rule in `overrides.css` gives it to every `button`, `a` and `select`. The shadcn button and tab trigger variants set the same outline in place of shadcn's ring and border, so a focused control never shows more than one ring. Controls that sit inside a field or a scrolling list, such as the search scope and the search results, draw the 2px ring inside their edge so it isn't clipped. The search field highlights its border only while the query input has focus.
+- Keyboard focus on buttons, tab triggers, links and selects is one 2px solid `--ring` outline with a 2px offset, the same on native and shadcn controls. The global rule in `overrides.css` gives it to every `button`, `a` and `select`. The shadcn button and tab trigger variants set the same outline in place of shadcn's ring and border, so a focused control never shows more than one ring. The search scope and the search result rows draw the 2px ring inside their edge so it isn't clipped. The shadcn `Input` keeps its violet border and soft ring, and the search field shows that highlight only while the query input has focus.
 - The byte grid keeps offsets, hex and ASCII in fixed-width columns, and selected bytes use the peach selection colours.
 - Notices use neutral surfaces with an icon and short explanatory text.
 - Transitions and animations respect reduced-motion preferences.
