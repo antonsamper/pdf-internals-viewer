@@ -758,8 +758,11 @@ for (const colorScheme of ['light', 'dark'] as const) {
 
     await page.getByRole('complementary', { name: 'Structure explorer' }).locator('button:has(code)').first().click();
     const sourceTab = page.getByRole('tab', { name: /^Source/ });
-    await page.keyboard.press('Shift');
-    await sourceTab.focus();
+    // Firefox shows a ring after scripted focus only when focus already had one, so reach the tabs with the keyboard.
+    await page.getByRole('tab', { name: /^Properties/ }).focus();
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('ArrowRight');
     await expect(sourceTab).toBeFocused();
     await expect.poll(() => focusRing(sourceTab)).toBe('solid 2px 2px | none');
   });
