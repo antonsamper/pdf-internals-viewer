@@ -59,13 +59,9 @@ export const SessionBookmarks = function SessionBookmarks<T>({
               rows={2}
               placeholder="Add a note…"
               className={cn(
-                'block',
-                'w-full',
-                'mt-1 px-2 py-1',
-                'text-xs text-foreground',
-                'bg-background',
-                'rounded-md border',
-                'resize-y',
+                'mt-1 block w-full px-2 py-1',
+                'bg-background text-xs text-foreground',
+                'resize-y rounded-md border',
                 'focus-visible:outline-2 focus-visible:outline-ring'
               )}
               onChange={(event) => onNote(bookmark.key, event.target.value)}

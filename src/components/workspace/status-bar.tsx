@@ -21,18 +21,16 @@ export const StatusBar = ({
   <footer
     className={cn(
       'flex items-center justify-between',
-      'h-7.25 min-h-7.25',
-      'gap-3 px-4.5',
-      'text-[10px] text-muted-foreground',
-      'bg-sidebar',
+      'h-7.25 min-h-7.25 gap-3 px-4.5',
+      'bg-sidebar text-[10px] text-muted-foreground',
       'border-t border-border',
       'max-w900:px-3 max-w480:h-8.5 max-w480:min-h-8.5'
     )}
   >
-    <span className={cn('flex items-center', 'gap-1.5', 'whitespace-nowrap', 'max-w480:gap-1.25 max-w480:text-[9px]')}>
+    <span className="flex items-center gap-1.5 whitespace-nowrap max-w480:gap-1.25 max-w480:text-[9px]">
       <ShieldCheck className="text-(--brand-purple)" size={13} />
       Files stay on your device
-      <span className={cn('h-2.5 w-px', 'mx-1.25', 'bg-border', 'max-w900:hidden max-w480:mx-0.75 max-w480:block')} aria-hidden="true" />
+      <span className="mx-1.25 h-2.5 w-px bg-border max-w900:hidden max-w480:mx-0.75 max-w480:block" aria-hidden="true" />
       <a
         className={cn(
           'text-[length:inherit] whitespace-nowrap text-muted-foreground underline-offset-3',
@@ -44,7 +42,7 @@ export const StatusBar = ({
         Limitations
       </a>
     </span>
-    <span className={cn('flex items-center', 'gap-1.5', 'whitespace-nowrap', 'max-w900:text-[9px] max-w480:hidden')}>
+    <span className="flex items-center gap-1.5 whitespace-nowrap max-w900:text-[9px] max-w480:hidden">
       {busy ? (
         'Inspecting'
       ) : document ? (

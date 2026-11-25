@@ -71,8 +71,7 @@ export const SearchResultsPopover = ({
             initialFocus={false}
             finalFocus={false}
             className={cn(
-              'overflow-hidden',
-              'w-[min(560px,calc(100vw-24px))]',
+              'w-[min(560px,calc(100vw-24px))] overflow-hidden',
               'bg-background',
               'rounded-lg border shadow-[0_12px_40px_rgb(25_12_40_/_18%),0_2px_8px_rgb(25_12_40_/_8%)] outline-none'
             )}

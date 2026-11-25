@@ -17,8 +17,7 @@ const SAMPLES = SITE_SAMPLES.map((sample) => ({
   icon: sampleIcons[sample.id],
 }));
 const trustBadge = cn(
-  'inline-flex items-center',
-  'gap-2 px-3 py-1.5',
+  'inline-flex items-center gap-2 px-3 py-1.5',
   'font-medium whitespace-nowrap text-secondary-foreground',
   'bg-[color-mix(in_srgb,var(--brand-purple-soft)_65%,var(--background))]',
   'rounded-full'
@@ -34,8 +33,7 @@ export const EmptyWorkspace = ({
 }) => (
   <main
     className={cn(
-      'flex-1 overflow-auto',
-      'min-h-0',
+      'min-h-0 flex-1 overflow-auto',
       'px-10 pt-[clamp(32px,6vh,72px)] pb-8',
       'focus:outline-none',
       'max-w760:px-6 max-w760:pt-11 max-w760:pb-6'
@@ -46,8 +44,7 @@ export const EmptyWorkspace = ({
     <div
       className={cn(
         'grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-center',
-        'w-[min(100%,1040px)]',
-        'mx-auto gap-16',
+        'mx-auto w-[min(100%,1040px)] gap-16',
         'max-w760:max-w-110 max-w760:grid-cols-1 max-w760:gap-10'
       )}
     >
@@ -56,18 +53,18 @@ export const EmptyWorkspace = ({
         <div className="flex flex-col items-start">
           <span
             className={cn(
-              'flex items-center',
-              'mb-4.5 gap-[9px]',
+              'mb-4.5 flex items-center gap-[9px]',
+              // `family-name:` stops cn from reading the font list as a weight and dropping it.
               'font-[family-name:SFMono-Regular,Consolas,monospace] text-[10px] leading-[normal] font-medium tracking-[0.09em] text-(--brand-purple) uppercase',
               "before:h-[3px] before:w-[17px] before:bg-(--brand-orange) before:content-['']"
             )}
           >
             Structure & byte explorer
           </span>
-          <h1 className={cn('mb-5', 'text-[clamp(32px,3.8vw,48px)] leading-[1.15] font-[550] tracking-[-0.035em] text-balance')}>
+          <h1 className="mb-5 text-[clamp(32px,3.8vw,48px)] leading-[1.15] font-[550] tracking-[-0.035em] text-balance">
             Look <span className="text-(--brand-red-ink)">inside</span> a PDF.
           </h1>
-          <p className={cn('max-w-[42ch]', 'mb-7', 'text-[15px] leading-[1.8] text-muted-foreground')}>
+          <p className="mb-7 max-w-[42ch] text-[15px] leading-[1.8] text-muted-foreground">
             An open-source, read-only PDF inspector for developers. Explore PDF objects, follow references, and inspect raw or decoded
             streams alongside the original bytes.
           </p>
@@ -78,7 +75,7 @@ export const EmptyWorkspace = ({
             </Button>
             <span className="flex-[1_1_150px] text-[11px] text-muted-foreground">or drop a file anywhere · up to 64 MiB</span>
           </div>
-          <div className={cn('flex flex-wrap items-center', 'mt-5 gap-x-4 gap-y-3', 'text-xs leading-normal')}>
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3 text-xs leading-normal">
             <span className={cn(trustBadge, 'font-semibold text-(--brand-purple)')}>
               <Shield size={16} aria-hidden="true" />
               Processed locally
@@ -109,8 +106,7 @@ export const EmptyWorkspace = ({
     </div>
     <p
       className={cn(
-        'w-[min(100%,1040px)]',
-        'mx-auto mt-16 pt-5.5',
+        'mx-auto mt-16 w-[min(100%,1040px)] pt-5.5',
         'text-xs leading-[1.8] text-muted-foreground',
         'border-t border-border',
         'max-w760:mt-8 max-w760:max-w-110'
@@ -119,7 +115,7 @@ export const EmptyWorkspace = ({
       From a page to its content stream to the bytes behind it.
       <br />
       Read-only exploration, with the source always in view.
-      <span className={cn('block', 'mt-4', 'text-xs leading-[1.8]', '[&_a]:text-(--reference) [&_a]:underline-offset-3')}>
+      <span className="mt-4 block text-xs leading-[1.8] [&_a]:text-(--reference) [&_a]:underline-offset-3">
         <a href="/guide" onClick={onFollowLink}>
           Learn how to inspect a PDF
         </a>{' '}

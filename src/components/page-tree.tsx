@@ -5,17 +5,16 @@ import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 import type { PdfDocumentInfo, PdfObjectRecord, PdfValue } from '@/lib/pdf/types';
 
 import { effectiveResources, property } from '@/lib/pdf/navigation';
-const TREE_INTRO = cn('mx-1.5 mt-1.5 mb-3', 'text-[11px] leading-[1.6] text-muted-foreground');
-const TREE_DETAIL = cn('mr-[5px] mb-[7px] ml-[26px]', 'text-[10px] leading-[1.5] [overflow-wrap:anywhere] text-muted-foreground');
+const TREE_INTRO = 'mx-1.5 mt-1.5 mb-3 text-[11px] leading-[1.6] text-muted-foreground';
+const TREE_DETAIL = 'mr-[5px] mb-[7px] ml-[26px] text-[10px] leading-[1.5] text-muted-foreground [overflow-wrap:anywhere]';
 const TREE_TOGGLE = 'h-[30px] w-[26px] flex-[0_0_26px]';
 const TREE_SELECT = cn(
-  'flex flex-1 flex-col items-start',
-  'min-w-0',
+  'flex min-w-0 flex-1 flex-col items-start',
   'py-[5px] pr-[5px]',
   'text-left [overflow-wrap:anywhere]',
   'text-[11px]!'
 );
-const TREE_MORE = cn('m-1.5 p-[5px]', 'text-reference underline underline-offset-[3px]', 'text-[11px]!');
+const TREE_MORE = 'm-1.5 p-[5px] text-[11px]! text-reference underline underline-offset-[3px]';
 
 export const PageTree = ({
   document,

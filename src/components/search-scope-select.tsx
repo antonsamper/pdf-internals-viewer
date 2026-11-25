@@ -20,10 +20,8 @@ export const SearchScopeSelect = function SearchScopeSelect({
       <Select.Trigger
         className={cn(
           'flex flex-[0_0_132px] items-center justify-between [grid-area:mode]',
-          'h-7 w-[132px]',
-          'gap-2 pr-2 pl-0',
-          'whitespace-nowrap text-foreground',
-          'bg-background',
+          'h-7 w-[132px] gap-2 pr-2 pl-0',
+          'bg-background whitespace-nowrap text-foreground',
           'focus-visible:shadow-[inset_0_0_0_2px_var(--ring)] data-[popup-open]:bg-muted',
           'text-[11px]! outline-none!',
           'max-w900:relative max-w900:h-9 max-w900:rounded-[6px] max-w900:bg-muted max-w900:before:absolute max-w900:before:-inset-x-0.5 max-w900:before:-inset-y-1 max-w900:data-[popup-open]:bg-accent',
@@ -33,7 +31,7 @@ export const SearchScopeSelect = function SearchScopeSelect({
         aria-label="Search scope"
       >
         <span className="flex items-center gap-2 min-w360:max-w900:min-w-0">
-          <span className={cn('text-[13px] leading-none font-normal text-border', 'max-w900:hidden')} aria-hidden="true">
+          <span className="text-[13px] leading-none font-normal text-border max-w900:hidden" aria-hidden="true">
             |
           </span>
           <Select.Value className="min-w360:max-w900:min-w-0 min-w360:max-w900:overflow-hidden min-w360:max-w900:text-ellipsis min-w360:max-w900:whitespace-nowrap" />
@@ -49,9 +47,7 @@ export const SearchScopeSelect = function SearchScopeSelect({
             className={cn(
               'overflow-auto',
               'max-h-(--available-height) min-w-[max(180px,var(--anchor-width))]',
-              'p-1',
-              'text-foreground',
-              'bg-background',
+              'bg-background p-1 text-foreground',
               'rounded-[8px] border shadow-[0_8px_24px_rgb(25_12_40_/_16%)] outline-none'
             )}
           >
@@ -59,12 +55,9 @@ export const SearchScopeSelect = function SearchScopeSelect({
               {scopes.map((scope) => (
                 <Select.Item
                   className={cn(
-                    'flex items-center justify-between',
-                    'min-h-8',
-                    'gap-5 px-2.5 py-1.5',
-                    'text-[12px]',
-                    'rounded-[4px] outline-none',
-                    'cursor-pointer',
+                    'flex min-h-8 items-center justify-between',
+                    'gap-5 px-2.5 py-1.5 text-[12px]',
+                    'cursor-pointer rounded-[4px] outline-none',
                     'data-[highlighted]:bg-muted data-[selected]:text-(--reference)',
                     'max-w900:min-h-11'
                   )}

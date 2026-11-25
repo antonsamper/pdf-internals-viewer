@@ -12,8 +12,7 @@ const formClass = (hasResults: boolean) =>
   cn(
     'flex items-center',
     'min-h-[34px] w-1/2 max-w-[600px]',
-    'gap-1 py-0.5 pr-1 pl-2',
-    'text-muted-foreground',
+    'gap-1 py-0.5 pr-1 pl-2 text-muted-foreground',
     'rounded-[6px] border',
     'focus-within:border-ring focus-within:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_20%,transparent)]',
     'max-w900:grid max-w900:h-auto max-w900:w-full max-w900:max-w-none max-w900:gap-x-1.5 max-w900:gap-y-1 max-w900:py-1 max-w900:pr-1 max-w900:pl-2.5',
@@ -32,8 +31,7 @@ const queryPadding = (query: string, hasResults: boolean) => {
 
 const inputClass = (query: string, hasResults: boolean) =>
   cn(
-    'h-7 flex-1 [grid-area:query]',
-    'px-1 py-0',
+    'h-7 flex-1 px-1 py-0 [grid-area:query]',
     'bg-transparent text-foreground',
     'rounded-none border-0',
     'focus-visible:ring-0',

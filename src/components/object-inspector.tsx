@@ -26,9 +26,7 @@ import { useScrollRestoration, type ScrollPosition } from '@/lib/scroll-restorat
 
 /** Tabs sit on one flat line: violet when active, with a red underline. */
 const TAB_TRIGGER = cn(
-  'flex-initial',
-  'h-8',
-  'px-[3px] py-0',
+  'h-8 flex-initial px-[3px] py-0',
   'data-active:text-brand-purple data-active:after:bg-brand-red data-active:hover:text-brand-purple',
   'dark:data-active:text-brand-purple dark:data-active:hover:text-brand-purple',
   'text-[11px]!'
@@ -36,8 +34,7 @@ const TAB_TRIGGER = cn(
 const RELATIONSHIP_LINK = cn(
   'flex flex-wrap justify-between',
   'gap-x-3 gap-y-1 p-2',
-  'text-left [overflow-wrap:anywhere]',
-  'rounded-[5px]',
+  'rounded-[5px] text-left [overflow-wrap:anywhere]',
   'hover:bg-accent',
   'text-[11px]!'
 );
@@ -45,7 +42,7 @@ const RELATIONSHIP_PART = 'inline-flex min-w-0 flex-wrap items-center gap-1';
 const RELATIONSHIP_PATH = 'text-muted-foreground [font-family:var(--font-mono,monospace)]';
 const REFERENCE_COUNT = 'ml-[5px] text-[10px] text-muted-foreground';
 const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: string }) => (
-  <header className={cn('px-[22px] pt-[23px] pb-[15px]', 'max-w480:px-[18px] max-w480:pt-5 max-w480:pb-3')}>
+  <header className="px-[22px] pt-[23px] pb-[15px] max-w480:px-[18px] max-w480:pt-5 max-w480:pb-3">
     <div className="flex items-center gap-[11px]">
       <Braces size={19} />
       <h1 className="font-pdf text-[18px] font-medium">
@@ -56,7 +53,7 @@ const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: s
       </Badge>
     </div>
     <p className="mt-2 text-[11px] text-muted-foreground">{object.label}</p>
-    <p className={cn('max-w-[65ch]', 'mt-2.5', 'text-[12px] leading-[1.65] text-foreground')} data-object-explanation>
+    <p className="mt-2.5 max-w-[65ch] text-[12px] leading-[1.65] text-foreground" data-object-explanation>
       {summary}
     </p>
   </header>
@@ -65,8 +62,7 @@ const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: s
 const ProvenanceNote = ({ object, onNavigate }: { object: PdfObjectRecord; onNavigate: (id: string) => void }) => (
   <div
     className={cn(
-      'flex items-start',
-      'gap-[7px] px-[22px] pb-[18px]',
+      'flex items-start gap-[7px] px-[22px] pb-[18px]',
       'text-[10px] leading-[1.7] text-muted-foreground',
       'max-w480:px-[18px] max-w480:pb-4'
     )}
@@ -187,7 +183,7 @@ export const ObjectInspector = function ObjectInspector({
       <Tabs value={safeTab} onValueChange={(value) => onTabChange(value as InspectorTab)} className="min-h-0 flex-1 gap-0">
         <TabsList
           variant="line"
-          className={cn('shrink-0 justify-start', 'w-full', 'gap-[13px] px-[18px] py-0', 'border-b', 'group-data-horizontal/tabs:h-[37px]')}
+          className="w-full shrink-0 justify-start gap-[13px] border-b px-[18px] py-0 group-data-horizontal/tabs:h-[37px]"
         >
           <TabsTrigger value="properties" className={TAB_TRIGGER}>
             Properties
@@ -301,7 +297,7 @@ export const ObjectInspector = function ObjectInspector({
           (mode) =>
             object.stream && (
               <TabsContent key={mode} value={mode} className={INSPECTOR_SCROLL} {...(safeTab === mode ? scroll : {})}>
-                <div className={cn('flex flex-wrap items-center justify-between', 'mb-3 gap-2', 'text-[11px]')}>
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-[11px]">
                   <span>{mode === 'raw' ? 'Stored stream bytes' : 'Decoded stream bytes'}</span>
                   <Badge variant="outline" className="text-[9px] leading-[calc(4/3)]">
                     {object.stream.filters.join(' → ') || 'No filters'}

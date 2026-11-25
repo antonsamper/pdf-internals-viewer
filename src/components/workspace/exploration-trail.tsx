@@ -32,11 +32,8 @@ export const ExplorationTrail = ({
   return (
     <nav
       className={cn(
-        'flex flex-1 items-center overflow-x-auto',
-        'min-w-0',
-        'ml-2 gap-1',
-        'text-xs',
-        '[scrollbar-width:thin]',
+        'flex min-w-0 flex-1 items-center overflow-x-auto',
+        'ml-2 [scrollbar-width:thin] gap-1 text-xs',
         'max-w360:[&>span:not(:last-child)]:hidden'
       )}
       aria-label="Exploration trail"

@@ -99,7 +99,7 @@ export const IssuesPanel = ({
               className={cn(
                 SEVERITY_TONE[issue.severity],
                 'border-t py-4 text-[12px] leading-[1.7]',
-                (issue.severity === 'error' || issue.severity === 'warning') && ['my-3 pl-3.5', 'border-l-[3px] border-l-(--issue-ink)']
+                MARKED[issue.severity] && 'my-3 border-l-[3px] border-l-(--issue-ink) pl-3.5'
               )}
             >
               <div className="flex flex-wrap items-center gap-2">
@@ -110,9 +110,7 @@ export const IssuesPanel = ({
                 <h2 className="text-[12px] font-[550]">{issue.title}</h2>
               </div>
               <p className={COVERAGE_NOTE}>{issue.explanation}</p>
-              <pre
-                className={cn('my-2.5 p-2.5', '[overflow-wrap:anywhere] whitespace-pre-wrap', 'bg-muted', 'rounded-[5px]', 'text-[11px]!')}
-              >
+              <pre className="my-2.5 rounded-[5px] bg-muted p-2.5 text-[11px]! [overflow-wrap:anywhere] whitespace-pre-wrap">
                 {issue.evidence}
               </pre>
               <Button variant="outline" size="sm" onClick={() => (issue.objectId ? onNavigate(issue.objectId) : onStructure())}>
@@ -131,6 +129,8 @@ export const IssuesPanel = ({
   );
 };
 const COVERAGE_NOTE = 'my-2 text-muted-foreground';
+/** Errors and warnings get a coloured rule down the left edge. */
+const MARKED: Record<IssueSeverity, boolean> = { error: true, info: false, limitation: false, warning: true };
 const severityIcons = {
   error: CircleAlert,
   info: Info,

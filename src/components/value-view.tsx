@@ -67,16 +67,14 @@ export const ValueView = function ValueView({
             <div
               className={cn(
                 'grid grid-cols-[minmax(90px,32%)_minmax(0,1fr)] items-start',
-                'gap-3 py-[11px]',
-                'border-b',
+                'gap-3 border-b py-[11px]',
                 'first:pt-[3px] in-data-[slot=pdf-value]:flex in-data-[slot=pdf-value]:flex-col in-data-[slot=pdf-value]:gap-1.5 in-data-[slot=pdf-value]:last:border-0'
               )}
               key={`${key}-${index}`}
             >
               <div
                 className={cn(
-                  'flex flex-wrap items-center',
-                  'gap-[5px]',
+                  'flex flex-wrap items-center gap-[5px]',
                   'font-pdf text-[11px] [overflow-wrap:anywhere] text-muted-foreground'
                 )}
               >
@@ -85,7 +83,7 @@ export const ValueView = function ValueView({
                   <Tooltip>
                     <TooltipTrigger
                       aria-label={`Explain /${bareKey}`}
-                      className={cn('inline-flex', 'p-0', 'text-muted-foreground', 'bg-transparent opacity-70')}
+                      className="inline-flex bg-transparent p-0 text-muted-foreground opacity-70"
                     >
                       <Info size={12} />
                     </TooltipTrigger>
@@ -152,9 +150,7 @@ const InlineReference = function InlineReference({
     <details className="mt-1.5 text-[11px]" onToggle={(event) => setExpanded(event.currentTarget.open)}>
       <summary
         className={cn(
-          'py-[3px]',
-          'text-muted-foreground',
-          'cursor-pointer',
+          'cursor-pointer py-[3px] text-muted-foreground',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
         )}
       >

@@ -41,23 +41,23 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 ## Writing Tailwind classes
 
 - Write classes at the element they style. A class constant is for a list that several elements share; one used by a single element goes inline.
-- A list of more than about 60 characters that spans several groups uses `cn()` with one string per group, in this order: positioning, layout, sizing, spacing, typography, appearance, borders and effects, interaction, component states (`hover:`, `focus-visible:`, `data-*`, `aria-*`), responsive, dark mode, animation, overrides (`!` modifiers). Skip the groups an element doesn't use. Short lists, and long lists that sit in a single group, stay a plain string.
+- A list of up to about 100 characters stays one plain string.
+- A longer list uses `cn()` and splits into groups, in this order: positioning, layout, sizing, spacing, typography, appearance, borders and effects, interaction, component states (`hover:`, `focus-visible:`, `data-*`, `aria-*`), responsive, dark mode, animation, overrides (`!` modifiers). Skip the groups an element doesn't use.
+- Short neighbouring groups share a string, such as layout and spacing in `'flex items-center gap-2 px-3'`. States, responsive, dark mode and overrides always get their own string.
 - Oxfmt sorts the classes inside each string and leaves each string as its own argument (`preserveWhitespace` in `.oxfmtrc.json` keeps the whitespace around classes), so the groups survive formatting.
 - Conditional classes go last in the call, as `condition && 'classes'` or an array.
 - Arbitrary font families use the `family-name:` hint, as in `font-[family-name:SFMono-Regular,monospace]`. Without it, `cn` reads the class as a font weight and a later `font-medium` drops it.
+- Add a comment to a group only when its reason isn't visible in the classes.
 
 ```tsx
 className={cn(
-  'flex items-center',
-  'min-h-[34px] w-1/2',
-  'gap-1 px-2',
-  'text-muted-foreground',
-  'rounded-[6px] border',
-  'focus-within:border-ring',
-  'max-w900:w-full',
-  'dark:bg-transparent',
-  'text-[12px]!',
-  active && 'bg-accent'
+  'flex h-[42px] w-full items-center',
+  'gap-2.5 px-[9px] text-left text-muted-foreground',
+  'rounded-[4px] bg-transparent',
+  'hover:bg-accent hover:text-foreground',
+  'max-w900:h-11',
+  'text-[11px]!',
+  selected && 'bg-accent text-accent-foreground'
 )}
 ```
 
