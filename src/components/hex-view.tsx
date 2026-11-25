@@ -6,9 +6,6 @@ import type { ScrollPosition } from '@/lib/scroll-restoration';
 
 import { Button } from '@/components/ui/button';
 
-// `family-name:` stops cn from reading the font list as a weight and dropping it.
-const HEX_FONT = 'font-[family-name:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace]';
-const HEX_INPUT_FONT = 'font-[family-name:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace]! text-[11px]!';
 // Offset, bytes and ASCII columns shared by the column heading and every row. Below 401px the columns tighten.
 const HEX_GRID = cn(
   'grid grid-cols-[67px_calc(var(--hex-columns)*23px)_calc(var(--hex-columns)*8px)] items-center gap-x-[13px]',
@@ -18,7 +15,7 @@ const HEX_GRID = cn(
 const HEX_BYTE_CELLS = 'grid grid-cols-[repeat(var(--hex-columns),23px)] max-w400:grid-cols-[repeat(var(--hex-columns),22px)]';
 const HEX_SELECTED = 'data-[selected]:bg-byte-selection data-[selected]:text-byte-selection-foreground';
 // Constant class lists are built once: a row renders a button and an ASCII cell per byte.
-const HEX_ROW = cn(HEX_GRID, HEX_FONT, 'absolute left-0 text-[11px] leading-[normal] tabular-nums hover:bg-muted');
+const HEX_ROW = cn(HEX_GRID, 'absolute left-0 font-mono text-[11px] leading-[normal] tabular-nums hover:bg-muted');
 const HEX_BYTE = cn(
   'rounded-[2px] border-0 bg-transparent py-[3px] text-center text-foreground',
   'hover:bg-accent hover:text-accent-foreground hover:shadow-[inset_0_0_0_1px_var(--border)]',
@@ -122,7 +119,7 @@ const HexJumpForm = ({
         'rounded-[5px] border border-border',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
         // The global `input` font rule outranks utilities, so the family and size take `!`.
-        HEX_INPUT_FONT
+        'font-mono! text-[11px]!'
       )}
       id={id}
       value={value}
@@ -201,8 +198,7 @@ const HexColumnHead = ({ columns }: { columns: number }) => (
   <div
     className={cn(
       HEX_GRID,
-      HEX_FONT,
-      'shrink-0 overflow-hidden bg-muted py-[9px] text-[9px] tracking-[0.025em] text-muted-foreground',
+      'shrink-0 overflow-hidden bg-muted py-[9px] font-mono text-[9px] tracking-[0.025em] text-muted-foreground',
       'leading-[normal]'
     )}
     style={{ '--hex-columns': columns } as CSSProperties}

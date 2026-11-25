@@ -44,7 +44,7 @@ export const ExplorationTrail = ({
           <span className="flex shrink-0 items-center gap-1" key={keys[index]}>
             {index > 0 && <ChevronRight size={12} aria-hidden="true" />}
             {index === steps.length - 1 ? (
-              <span aria-current="location" className="font-code text-[12px]">
+              <span aria-current="location" className="font-mono text-[12px]">
                 {step.label}
               </span>
             ) : (

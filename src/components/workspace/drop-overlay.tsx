@@ -31,7 +31,7 @@ export const DropOverlay = () => (
       >
         <BrandIcon className="block size-full object-contain" />
       </div>
-      <span className="font-[family-name:SFMono-Regular,Consolas,monospace] text-[10px] leading-[normal] font-medium tracking-[0.1em] text-(--brand-purple) uppercase">
+      <span className="font-mono text-[10px] leading-[normal] font-medium tracking-[0.1em] text-(--brand-purple) uppercase">
         Ready to investigate
       </span>
       <p className="mt-3.5 mb-3 text-[clamp(28px,4vw,38px)] leading-[1.15] font-[550] tracking-[-0.035em]">Let’s look inside.</p>

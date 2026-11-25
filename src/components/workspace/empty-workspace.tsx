@@ -70,8 +70,7 @@ export const EmptyWorkspace = ({
           <span
             className={cn(
               'mb-4.5 flex items-center gap-[9px]',
-              // `family-name:` stops cn from reading the font list as a weight and dropping it.
-              'font-[family-name:SFMono-Regular,Consolas,monospace] text-[10px] leading-[normal] font-medium tracking-[0.09em] text-(--brand-purple) uppercase',
+              'font-mono text-[10px] leading-[normal] font-medium tracking-[0.09em] text-(--brand-purple) uppercase',
               "before:h-[3px] before:w-[17px] before:bg-(--brand-orange) before:content-['']"
             )}
           >
