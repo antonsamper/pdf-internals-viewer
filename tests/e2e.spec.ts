@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
@@ -733,6 +733,35 @@ for (const width of [1440, 390]) {
     await expect(results).toHaveCount(0);
     await expect(page.getByRole('img', { exact: true, name: 'focus-search.pdf, page 1' })).toBeVisible();
     await expect(showResults).toBeFocused();
+  });
+}
+for (const colorScheme of ['light', 'dark'] as const) {
+  test(`focused buttons and tabs show one focus ring in ${colorScheme} mode`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme });
+    await openMinimal(page);
+    const focusRing = (element: Locator) =>
+      element.evaluate((node) => {
+        const style = getComputedStyle(node);
+        return `${style.outlineStyle} ${style.outlineWidth} ${style.outlineOffset} | ${style.boxShadow}`;
+      });
+    const form = page.locator('form', { has: page.getByRole('textbox', { name: 'Search document' }) });
+    const formShadow = () => form.evaluate((node) => getComputedStyle(node).boxShadow);
+
+    await page.getByRole('textbox', { exact: true, name: 'Search document' }).focus();
+    await expect.poll(formShadow).toContain('0px 0px 0px 2px');
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Tab');
+    const runSearch = page.getByRole('button', { exact: true, name: 'Run search' });
+    await expect(runSearch).toBeFocused();
+    await expect.poll(() => focusRing(runSearch)).toBe('solid 2px 2px | none');
+    await expect.poll(formShadow).toBe('none');
+
+    await page.getByRole('complementary', { name: 'Structure explorer' }).locator('button:has(code)').first().click();
+    const sourceTab = page.getByRole('tab', { name: /^Source/ });
+    await page.keyboard.press('Shift');
+    await sourceTab.focus();
+    await expect(sourceTab).toBeFocused();
+    await expect.poll(() => focusRing(sourceTab)).toBe('solid 2px 2px | none');
   });
 }
 test('searches keys and original hex bytes with distinct navigation', async ({ page }) => {
