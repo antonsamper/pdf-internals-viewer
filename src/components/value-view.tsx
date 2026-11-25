@@ -7,9 +7,6 @@ import type { PdfObjectRecord, PdfValue } from '@/lib/pdf/types';
 import { REFERENCE, REPRESENTATION_NOTE } from '@/components/inspector-styles';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 const MUTED = 'text-muted-foreground';
-/** A dictionary entry is a two-column row; inside another entry's value it stacks. */
-const ENTRY =
-  'grid grid-cols-[minmax(90px,32%)_minmax(0,1fr)] items-start gap-3 border-b py-[11px] first:pt-[3px] in-data-[slot=pdf-value]:flex in-data-[slot=pdf-value]:flex-col in-data-[slot=pdf-value]:gap-1.5 in-data-[slot=pdf-value]:last:border-0';
 const SCALAR_TONE: Record<string, string> = { name: 'text-foreground', string: 'text-pdf-string' };
 
 export const ValueView = function ValueView({
@@ -67,8 +64,21 @@ export const ValueView = function ValueView({
         {value.entries.map(({ key, value: child }, index) => {
           const bareKey = key.replace(/^\//, '');
           return (
-            <div className={ENTRY} key={`${key}-${index}`}>
-              <div className="flex flex-wrap items-center gap-[5px] font-pdf text-[11px] [overflow-wrap:anywhere] text-muted-foreground">
+            <div
+              className={cn(
+                'grid grid-cols-[minmax(90px,32%)_minmax(0,1fr)] items-start',
+                'gap-3 border-b py-[11px]',
+                // Inside another entry's value, the two-column row stacks.
+                'first:pt-[3px] in-data-[slot=pdf-value]:flex in-data-[slot=pdf-value]:flex-col in-data-[slot=pdf-value]:gap-1.5 in-data-[slot=pdf-value]:last:border-0'
+              )}
+              key={`${key}-${index}`}
+            >
+              <div
+                className={cn(
+                  'flex flex-wrap items-center gap-[5px]',
+                  'font-pdf text-[11px] [overflow-wrap:anywhere] text-muted-foreground'
+                )}
+              >
                 <span>/{bareKey}</span>
                 {explanations[bareKey] && (
                   <Tooltip>
@@ -139,7 +149,12 @@ const InlineReference = function InlineReference({
   const [expanded, setExpanded] = useState(false);
   return (
     <details className="mt-1.5 text-[11px]" onToggle={(event) => setExpanded(event.currentTarget.open)}>
-      <summary className="cursor-pointer py-[3px] text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+      <summary
+        className={cn(
+          'cursor-pointer py-[3px] text-muted-foreground',
+          'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
+        )}
+      >
         Expand {target.id} inline
       </summary>
       {expanded && (

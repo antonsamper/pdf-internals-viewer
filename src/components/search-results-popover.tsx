@@ -1,4 +1,5 @@
 import { Popover } from '@base-ui/react/popover';
+import { cn } from 'cn';
 import { useLayoutEffect, useState, type CSSProperties, type ReactNode, type RefObject } from 'react';
 const isSearchControl = (target: EventTarget | null, anchor: RefObject<HTMLFormElement | null>) =>
   (target instanceof Node && anchor.current?.contains(target)) ||
@@ -69,7 +70,11 @@ export const SearchResultsPopover = ({
             style={{ '--search-loading-height': `${height}px` } as CSSProperties}
             initialFocus={false}
             finalFocus={false}
-            className="w-[min(560px,calc(100vw-24px))] overflow-hidden rounded-lg border bg-background shadow-[0_12px_40px_rgb(25_12_40_/_18%),0_2px_8px_rgb(25_12_40_/_8%)] outline-none"
+            className={cn(
+              'w-[min(560px,calc(100vw-24px))] overflow-hidden',
+              'bg-background',
+              'rounded-lg border shadow-[0_12px_40px_rgb(25_12_40_/_18%),0_2px_8px_rgb(25_12_40_/_8%)] outline-none'
+            )}
             aria-label="Document search"
           >
             {children}

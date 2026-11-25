@@ -22,6 +22,11 @@ PDF Internals Viewer is a static Vite/React app for inspecting the structure of 
 - Before opening a PR, run gstack `/review` and `/verify`. Don't use `/ship` or `/document-release`.
 - PRs are squash-merged into `main`.
 
+## Styling
+
+- Style with Tailwind utilities, shadcn variants and the theme tokens. Follow `DESIGN.md` for the rules.
+- Class constants are for lists that several elements share. Lists up to about 100 characters stay one string; longer ones use `cn()` with a string per group (positioning, layout, sizing, spacing, typography, appearance, borders and effects, interaction, component states, responsive, dark mode, animation, overrides). `DESIGN.md` has the details and an example.
+
 ## Docs
 
 - Docs and code comments describe the current state. History belongs in git, issues and PRs.

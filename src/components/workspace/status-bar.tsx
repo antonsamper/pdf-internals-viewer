@@ -1,5 +1,6 @@
 import type { MouseEvent } from 'react';
 
+import { cn } from 'cn';
 import { Check, ShieldCheck } from 'lucide-react';
 
 import type { PdfDocumentInfo } from '@/lib/pdf/types';
@@ -17,13 +18,24 @@ export const StatusBar = ({
   objectCount: number;
   onFollowLink: (event: MouseEvent<HTMLElement>) => boolean;
 }) => (
-  <footer className="flex h-7.25 min-h-7.25 items-center justify-between gap-3 border-t border-border bg-sidebar px-4.5 text-[10px] text-muted-foreground max-w900:px-3 max-w480:h-8.5 max-w480:min-h-8.5">
+  <footer
+    className={cn(
+      'flex items-center justify-between',
+      'h-7.25 min-h-7.25 gap-3 px-4.5',
+      'bg-sidebar text-[10px] text-muted-foreground',
+      'border-t border-border',
+      'max-w900:px-3 max-w480:h-8.5 max-w480:min-h-8.5'
+    )}
+  >
     <span className="flex items-center gap-1.5 whitespace-nowrap max-w480:gap-1.25 max-w480:text-[9px]">
       <ShieldCheck className="text-(--brand-purple)" size={13} />
       Files stay on your device
       <span className="mx-1.25 h-2.5 w-px bg-border max-w900:hidden max-w480:mx-0.75 max-w480:block" aria-hidden="true" />
       <a
-        className="text-[length:inherit] whitespace-nowrap text-muted-foreground underline-offset-3 hover:text-foreground hover:underline"
+        className={cn(
+          'text-[length:inherit] whitespace-nowrap text-muted-foreground underline-offset-3',
+          'hover:text-foreground hover:underline'
+        )}
         href="/limitations"
         onClick={onFollowLink}
       >

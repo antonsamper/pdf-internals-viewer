@@ -112,7 +112,11 @@ export const ImageDownload = ({
           />
         ) : (
           <div
-            className="my-3 flex items-center gap-2.5 rounded-[8px] border border-dashed bg-sidebar p-3.5 text-[11px] text-muted-foreground"
+            className={cn(
+              'my-3 flex items-center gap-2.5 p-3.5',
+              'bg-sidebar text-[11px] text-muted-foreground',
+              'rounded-[8px] border border-dashed'
+            )}
             role="status"
           >
             {previewError ? (

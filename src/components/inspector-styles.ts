@@ -1,3 +1,5 @@
+import { cn } from 'cn';
+
 import type { IssueSeverity } from '@/lib/pdf/issues';
 
 /*
@@ -15,21 +17,32 @@ export const INSPECTOR_SCROLL = 'min-h-0 flex-1 overflow-auto p-[22px] max-w480:
 export const SECTION_HEADING = 'mt-7 mb-3 text-[12px] font-[550]';
 
 /** A navigable PDF reference: violet monospace text that underlines on hover. */
-export const REFERENCE =
-  'inline-flex items-baseline gap-[5px] bg-transparent font-pdf! text-[11px]! whitespace-nowrap text-reference hover:underline hover:underline-offset-[3px]';
+export const REFERENCE = cn(
+  'inline-flex items-baseline gap-[5px]',
+  'bg-transparent whitespace-nowrap text-reference',
+  'hover:underline hover:underline-offset-[3px]',
+  'font-pdf! text-[11px]!'
+);
 
 /** Small explanatory text under a heading. */
 export const REPRESENTATION_NOTE = 'mb-[15px] text-[10px] leading-[1.7] text-muted-foreground';
 
 /** A full-width notice under a pane heading. */
-export const NOTICE = 'flex items-start gap-[9px] border-b bg-muted px-[15px] py-2.5 text-[11px] leading-[1.65] [overflow-wrap:anywhere]';
+export const NOTICE = cn(
+  'flex items-start gap-[9px] px-[15px] py-2.5',
+  'bg-muted text-[11px] leading-[1.65] [overflow-wrap:anywhere]',
+  'border-b'
+);
 
 /** A spinner and its caption while content loads. */
 export const LOADING_INLINE = 'flex items-center gap-2 p-[15px] text-[12px] text-muted-foreground';
 
 /** An inline warning card. */
-export const WARNING_INLINE =
-  'my-3 flex items-start gap-[9px] rounded-[5px] border bg-muted px-[15px] py-2.5 text-[11px] leading-[1.65] [overflow-wrap:anywhere]';
+export const WARNING_INLINE = cn(
+  'my-3 flex items-start gap-[9px] px-[15px] py-2.5',
+  'bg-muted text-[11px] leading-[1.65] [overflow-wrap:anywhere]',
+  'rounded-[5px] border'
+);
 
 /** Raw syntax or stream text. */
 export const SOURCE_CODE = 'text-[11px]! leading-[1.85] whitespace-pre-wrap [tab-size:2] [overflow-wrap:anywhere]';
@@ -58,5 +71,8 @@ export const SEVERITY_TONE: Record<IssueSeverity, string> = {
 };
 
 /** A severity pill, as in the issue summary and the issue titles. */
-export const SEVERITY_PILL =
-  'inline-flex items-center gap-1.5 border border-[color-mix(in_srgb,var(--issue-ink)_25%,transparent)] bg-(--issue-soft) text-(--issue-ink)';
+export const SEVERITY_PILL = cn(
+  'inline-flex items-center gap-1.5 text-(--issue-ink)',
+  'bg-(--issue-soft)',
+  'border border-[color-mix(in_srgb,var(--issue-ink)_25%,transparent)]'
+);

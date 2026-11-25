@@ -138,7 +138,10 @@ const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, o
           </ResizablePanel>
           <ResizableHandle
             withHandle
-            className="shrink-0 cursor-row-resize border-y bg-muted hover:bg-accent focus-visible:bg-accent aria-[orientation=horizontal]:h-3 [&>div]:bg-muted-foreground"
+            className={cn(
+              'shrink-0 cursor-row-resize border-y bg-muted',
+              'hover:bg-accent focus-visible:bg-accent aria-[orientation=horizontal]:h-3 [&>div]:bg-muted-foreground'
+            )}
             aria-label="Resize comparison and inspector"
             title="Drag to resize · use arrow keys when focused"
           />

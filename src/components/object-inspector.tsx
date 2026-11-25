@@ -25,14 +25,74 @@ import { objectName, objectRelationships, objectSummary } from '@/lib/pdf/object
 import { useScrollRestoration, type ScrollPosition } from '@/lib/scroll-restoration';
 
 /** Tabs sit on one flat line: violet when active, with a red underline. */
-const TAB_TRIGGER =
-  'h-8 flex-initial px-[3px] py-0 text-[11px]! data-active:text-brand-purple data-active:hover:text-brand-purple data-active:after:bg-brand-red dark:data-active:text-brand-purple dark:data-active:hover:text-brand-purple';
-const TAB_LIST = 'w-full shrink-0 justify-start gap-[13px] border-b px-[18px] py-0 group-data-horizontal/tabs:h-[37px]';
-const RELATIONSHIP_LINK =
-  'flex flex-wrap justify-between gap-x-3 gap-y-1 rounded-[5px] p-2 text-left text-[11px]! [overflow-wrap:anywhere] hover:bg-accent';
+const TAB_TRIGGER = cn(
+  'h-8 flex-initial px-[3px] py-0',
+  'data-active:text-brand-purple data-active:after:bg-brand-red data-active:hover:text-brand-purple',
+  'dark:data-active:text-brand-purple dark:data-active:hover:text-brand-purple',
+  'text-[11px]!'
+);
+const RELATIONSHIP_LINK = cn(
+  'flex flex-wrap justify-between gap-x-3 gap-y-1 p-2',
+  'rounded-[5px] text-left [overflow-wrap:anywhere]',
+  'hover:bg-accent',
+  'text-[11px]!'
+);
 const RELATIONSHIP_PART = 'inline-flex min-w-0 flex-wrap items-center gap-1';
 const RELATIONSHIP_PATH = 'text-muted-foreground [font-family:var(--font-mono,monospace)]';
 const REFERENCE_COUNT = 'ml-[5px] text-[10px] text-muted-foreground';
+const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: string }) => (
+  <header className="px-[22px] pt-[23px] pb-[15px] max-w480:px-[18px] max-w480:pt-5 max-w480:pb-3">
+    <div className="flex items-center gap-[11px]">
+      <Braces size={19} />
+      <h1 className="font-pdf text-[18px] font-medium">
+        {object.id} <span className="text-muted-foreground">obj</span>
+      </h1>
+      <Badge variant="secondary" className="rounded-[4px] text-[10px] leading-[calc(4/3)]">
+        {object.kind}
+      </Badge>
+    </div>
+    <p className="mt-2 text-[11px] text-muted-foreground">{object.label}</p>
+    <p className="mt-2.5 max-w-[65ch] text-[12px] leading-[1.65] text-foreground" data-object-explanation>
+      {summary}
+    </p>
+  </header>
+);
+
+const ProvenanceNote = ({ object, onNavigate }: { object: PdfObjectRecord; onNavigate: (id: string) => void }) => (
+  <div
+    className={cn(
+      'flex items-start gap-[7px] px-[22px] pb-[18px]',
+      'text-[10px] leading-[1.7] text-muted-foreground',
+      'max-w480:px-[18px] max-w480:pb-4'
+    )}
+    data-provenance
+  >
+    <FileCode2 size={14} className="mt-0.5 shrink-0 text-brand-orange-ink" />
+    {object.provenance.type === 'file' ? (
+      <span>
+        Original file · <code className="text-[10px]!">0x{object.provenance.range.start.toString(16).toUpperCase()}</code> ·{' '}
+        {object.provenance.range.end - object.provenance.range.start} bytes
+      </span>
+    ) : object.provenance.type === 'decoded' ? (
+      <span>
+        Decoded object stream{' '}
+        <button
+          className={REFERENCE}
+          onClick={() => {
+            if (object.provenance.type === 'decoded') onNavigate(object.provenance.containerId);
+          }}
+        >
+          {object.provenance.containerId}
+          <ArrowUpRight size={12} />
+        </button>{' '}
+        · offset {object.provenance.range.start}
+      </span>
+    ) : (
+      <span>Source location unknown · {object.provenance.reason}</span>
+    )}
+  </div>
+);
+
 export const ObjectInspector = function ObjectInspector({
   object,
   scrollPositionRef,
@@ -106,62 +166,24 @@ export const ObjectInspector = function ObjectInspector({
   const scroll = useScrollRestoration(scrollPositionRef, (safeTab !== 'raw' && safeTab !== 'decoded') || Boolean(stream || error));
   return (
     <section className="flex h-full min-h-0 flex-col overflow-hidden" aria-label="Object inspector">
-      <header className="px-[22px] pt-[23px] pb-[15px] max-w480:px-[18px] max-w480:pt-5 max-w480:pb-3">
-        <div className="flex items-center gap-[11px]">
-          <Braces size={19} />
-          <h1 className="font-pdf text-[18px] font-medium">
-            {object.id} <span className="text-muted-foreground">obj</span>
-          </h1>
-          <Badge variant="secondary" className="rounded-[4px] text-[10px] leading-[calc(4/3)]">
-            {object.kind}
-          </Badge>
-        </div>
-        <p className="mt-2 text-[11px] text-muted-foreground">{object.label}</p>
-        <p className="mt-2.5 max-w-[65ch] text-[12px] leading-[1.65] text-foreground" data-object-explanation>
-          {summary}
-        </p>
-      </header>
+      <ObjectHeader object={object} summary={summary} />
       {object.stream && hasSubtype(object, 'Image') && (
         <div className="mx-[22px] mb-4">
           <ImageDownload key={object.id} object={object} extractImage={extractImage} />
         </div>
       )}
       {assets.length > 0 && <EmbeddedDownloads key={object.id} object={object} assets={assets} extractStream={extractStream} />}
-      <div
-        className="flex items-start gap-[7px] px-[22px] pb-[18px] text-[10px] leading-[1.7] text-muted-foreground max-w480:px-[18px] max-w480:pb-4"
-        data-provenance
-      >
-        <FileCode2 size={14} className="mt-0.5 shrink-0 text-brand-orange-ink" />
-        {object.provenance.type === 'file' ? (
-          <span>
-            Original file · <code className="text-[10px]!">0x{object.provenance.range.start.toString(16).toUpperCase()}</code> ·{' '}
-            {object.provenance.range.end - object.provenance.range.start} bytes
-          </span>
-        ) : object.provenance.type === 'decoded' ? (
-          <span>
-            Decoded object stream{' '}
-            <button
-              className={REFERENCE}
-              onClick={() => {
-                if (object.provenance.type === 'decoded') onNavigate(object.provenance.containerId);
-              }}
-            >
-              {object.provenance.containerId}
-              <ArrowUpRight size={12} />
-            </button>{' '}
-            · offset {object.provenance.range.start}
-          </span>
-        ) : (
-          <span>Source location unknown · {object.provenance.reason}</span>
-        )}
-      </div>
+      <ProvenanceNote object={object} onNavigate={onNavigate} />
       {object.warnings.map((warning, i) => (
         <p className={WARNING_INLINE} key={i}>
           {warning}
         </p>
       ))}
       <Tabs value={safeTab} onValueChange={(value) => onTabChange(value as InspectorTab)} className="min-h-0 flex-1 gap-0">
-        <TabsList variant="line" className={TAB_LIST}>
+        <TabsList
+          variant="line"
+          className="w-full shrink-0 justify-start gap-[13px] border-b px-[18px] py-0 group-data-horizontal/tabs:h-[37px]"
+        >
           <TabsTrigger value="properties" className={TAB_TRIGGER}>
             Properties
           </TabsTrigger>

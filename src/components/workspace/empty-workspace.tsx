@@ -16,8 +16,12 @@ const SAMPLES = SITE_SAMPLES.map((sample) => ({
   ...sample,
   icon: sampleIcons[sample.id],
 }));
-const trustBadge =
-  'inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--brand-purple-soft)_65%,var(--background))] px-3 py-1.5 font-medium whitespace-nowrap text-secondary-foreground';
+const trustBadge = cn(
+  'inline-flex items-center gap-2 px-3 py-1.5',
+  'font-medium whitespace-nowrap text-secondary-foreground',
+  'bg-[color-mix(in_srgb,var(--brand-purple-soft)_65%,var(--background))]',
+  'rounded-full'
+);
 export const EmptyWorkspace = ({
   onFollowLink,
   onOpenFile,
@@ -28,15 +32,33 @@ export const EmptyWorkspace = ({
   onSample: (file: string) => void;
 }) => (
   <main
-    className="min-h-0 flex-1 overflow-auto px-10 pt-[clamp(32px,6vh,72px)] pb-8 focus:outline-none max-w760:px-6 max-w760:pt-11 max-w760:pb-6"
+    className={cn(
+      'min-h-0 flex-1 overflow-auto',
+      'px-10 pt-[clamp(32px,6vh,72px)] pb-8',
+      'focus:outline-none',
+      'max-w760:px-6 max-w760:pt-11 max-w760:pb-6'
+    )}
     data-welcome=""
     tabIndex={-1}
   >
-    <div className="mx-auto grid w-[min(100%,1040px)] grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-center gap-16 max-w760:max-w-110 max-w760:grid-cols-1 max-w760:gap-10">
+    <div
+      className={cn(
+        'grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-center',
+        'mx-auto w-[min(100%,1040px)] gap-16',
+        'max-w760:max-w-110 max-w760:grid-cols-1 max-w760:gap-10'
+      )}
+    >
       <BrandArtwork className="mx-auto w-full" />
       <div className="flex min-w-0 flex-col gap-8">
         <div className="flex flex-col items-start">
-          <span className="mb-4.5 flex items-center gap-[9px] font-[SFMono-Regular,Consolas,monospace] text-[10px] leading-[normal] font-medium tracking-[0.09em] text-(--brand-purple) uppercase before:h-[3px] before:w-[17px] before:bg-(--brand-orange) before:content-['']">
+          <span
+            className={cn(
+              'mb-4.5 flex items-center gap-[9px]',
+              // `family-name:` stops cn from reading the font list as a weight and dropping it.
+              'font-[family-name:SFMono-Regular,Consolas,monospace] text-[10px] leading-[normal] font-medium tracking-[0.09em] text-(--brand-purple) uppercase',
+              "before:h-[3px] before:w-[17px] before:bg-(--brand-orange) before:content-['']"
+            )}
+          >
             Structure & byte explorer
           </span>
           <h1 className="mb-5 text-[clamp(32px,3.8vw,48px)] leading-[1.15] font-[550] tracking-[-0.035em] text-balance">
@@ -82,7 +104,14 @@ export const EmptyWorkspace = ({
         </section>
       </div>
     </div>
-    <p className="mx-auto mt-16 w-[min(100%,1040px)] border-t border-border pt-5.5 text-xs leading-[1.8] text-muted-foreground max-w760:mt-8 max-w760:max-w-110">
+    <p
+      className={cn(
+        'mx-auto mt-16 w-[min(100%,1040px)] pt-5.5',
+        'text-xs leading-[1.8] text-muted-foreground',
+        'border-t border-border',
+        'max-w760:mt-8 max-w760:max-w-110'
+      )}
+    >
       From a page to its content stream to the bytes behind it.
       <br />
       Read-only exploration, with the source always in view.

@@ -41,8 +41,12 @@ const statusText = ({ displayedScope, interrupted, results, resultsScope, search
 };
 
 /** Buttons inside a result card: compact, left aligned, and tall enough to tap on small and touch screens. */
-const CARD_BUTTON =
-  'h-auto min-h-6 max-w-full justify-start rounded-[4px] px-1.5 py-0.5 text-left text-[11px]! whitespace-normal max-w900:min-h-8 pointer-coarse:min-h-11';
+const CARD_BUTTON = cn(
+  'h-auto min-h-6 max-w-full justify-start',
+  'rounded-[4px] px-1.5 py-0.5 text-left whitespace-normal',
+  'max-w900:min-h-8 pointer-coarse:min-h-11',
+  'text-[11px]!'
+);
 
 /** Header buttons grow to a 44px touch target on small screens. */
 const HEADER_BUTTON = 'max-w900:min-h-11 max-w900:min-w-11';
@@ -70,9 +74,19 @@ const ResultsHeader = ({ search }: { search: Search }) => {
   const results = search.results ?? [];
   const pageText = resultsScope === 'pageText';
   return (
-    <div className="flex shrink-0 items-center gap-2 border-b bg-sidebar px-3 py-2 text-[12px] text-muted-foreground max-w900:px-2 max-w900:py-1.5">
+    <div
+      className={cn(
+        'flex shrink-0 items-center gap-2 px-3 py-2',
+        'border-b bg-sidebar text-[12px] text-muted-foreground',
+        'max-w900:px-2 max-w900:py-1.5'
+      )}
+    >
       <span
-        className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap max-w900:leading-[1.4] max-w900:whitespace-normal"
+        className={cn(
+          'min-w-0 flex-1 overflow-hidden',
+          'text-ellipsis whitespace-nowrap',
+          'max-w900:leading-[1.4] max-w900:whitespace-normal'
+        )}
         role="status"
         title={searching || interrupted ? searchingQuery : (resultsQuery ?? undefined)}
       >
@@ -293,11 +307,19 @@ const ResultItem = ({
   const { activeMatchRef, activeResult, inputRef, resultsScope, searching, selectResult, setOpen } = search;
   return (
     <div
-      className="scroll-my-2 overflow-hidden rounded-[8px] border bg-background has-[[aria-current=true]]:border-(--reference) has-[[aria-current=true]]:shadow-[0_0_0_1px_var(--reference)]"
+      className={cn(
+        'scroll-my-2 overflow-hidden bg-background',
+        'rounded-[8px] border',
+        'has-[[aria-current=true]]:border-(--reference) has-[[aria-current=true]]:shadow-[0_0_0_1px_var(--reference)]'
+      )}
       data-search-result-item=""
     >
       <button
-        className="grid w-full grid-cols-[minmax(0,1fr)_18px] gap-x-3 gap-y-1 bg-transparent px-3.5 py-3 text-left hover:bg-muted focus-visible:-outline-offset-2! aria-[current=true]:bg-accent"
+        className={cn(
+          'grid w-full grid-cols-[minmax(0,1fr)_18px]',
+          'gap-x-3 gap-y-1 bg-transparent px-3.5 py-3 text-left',
+          'hover:bg-muted focus-visible:-outline-offset-2! aria-[current=true]:bg-accent'
+        )}
         data-search-result=""
         ref={index === activeResult ? activeMatchRef : undefined}
         aria-current={index === activeResult ? 'true' : undefined}
@@ -317,7 +339,12 @@ const ResultItem = ({
         }}
       >
         {result.pageText && (
-          <span className="col-start-1 flex items-baseline justify-between gap-3 text-[12px] leading-normal [overflow-wrap:anywhere] text-foreground">
+          <span
+            className={cn(
+              'col-start-1 flex items-baseline justify-between gap-3',
+              'text-[12px] leading-normal [overflow-wrap:anywhere] text-foreground'
+            )}
+          >
             <strong className="text-[12px] font-semibold">{result.label}</strong>
             <span className="text-[11px] whitespace-nowrap text-muted-foreground">{result.detail}</span>
           </span>
@@ -390,7 +417,12 @@ export const SearchResultsPanel = ({ search, textSource }: { search: Search; tex
       input={inputRef}
     >
       <section
-        className="group/results flex max-h-[min(480px,60dvh,var(--available-height,480px))] min-h-[100px] flex-col overflow-hidden bg-background data-hold-height:h-[var(--search-loading-height,180px)]"
+        className={cn(
+          'group/results flex flex-col overflow-hidden',
+          'max-h-[min(480px,60dvh,var(--available-height,480px))] min-h-[100px]',
+          'bg-background',
+          'data-hold-height:h-[var(--search-loading-height,180px)]'
+        )}
         aria-label="Search results"
         data-search-results=""
         data-searching={searching || undefined}

@@ -94,7 +94,14 @@ export const IssuesPanel = ({
         {sorted.slice(0, limit).map((issue) => {
           const Icon = severityIcons[issue.severity];
           return (
-            <li key={issue.id} className={cn(SEVERITY_TONE[issue.severity], ISSUE_ITEM, ISSUE_ITEM_MARKED[issue.severity])}>
+            <li
+              key={issue.id}
+              className={cn(
+                SEVERITY_TONE[issue.severity],
+                'border-t py-4 text-[12px] leading-[1.7]',
+                MARKED[issue.severity] && 'my-3 border-l-[3px] border-l-(--issue-ink) pl-3.5'
+              )}
+            >
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className={SEVERITY_PILL}>
                   <Icon size={13} aria-hidden="true" />
@@ -122,14 +129,8 @@ export const IssuesPanel = ({
   );
 };
 const COVERAGE_NOTE = 'my-2 text-muted-foreground';
-const ISSUE_ITEM = 'border-t py-4 text-[12px] leading-[1.7]';
 /** Errors and warnings get a coloured rule down the left edge. */
-const ISSUE_ITEM_MARKED: Record<IssueSeverity, string> = {
-  error: 'my-3 border-l-[3px] border-l-(--issue-ink) pl-3.5',
-  info: '',
-  limitation: '',
-  warning: 'my-3 border-l-[3px] border-l-(--issue-ink) pl-3.5',
-};
+const MARKED: Record<IssueSeverity, boolean> = { error: true, info: false, limitation: false, warning: true };
 const severityIcons = {
   error: CircleAlert,
   info: Info,
