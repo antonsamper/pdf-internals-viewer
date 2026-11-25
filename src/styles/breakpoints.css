@@ -8,3 +8,17 @@
   --breakpoint-w760: 761px;
   --breakpoint-w900: 901px;
 }
+
+/* Named ranges for the mobile layout. Custom variants sort after every built-in
+   variant, in the order they are declared here, so a `narrow:` class beats a
+   `max-w360:`, `md:` or `pointer-coarse:` class on the same property. Bound the
+   named range (`min-w600:narrow:`) or stack under it (`narrow:max-w480:`) when the
+   smaller breakpoint must win. `w360-w900` stays after `narrow` so it overrides it,
+   and index.css imports this file after shadcn.css so both also sort after its
+   `data-open:`-style variants. */
+
+/* 900px and below. */
+@custom-variant narrow (@media (width < theme(--breakpoint-w900)));
+
+/* 361px to 900px: the mobile layout above the smallest phones. */
+@custom-variant w360-w900 (@media (width >= theme(--breakpoint-w360)) and (width < theme(--breakpoint-w900)));

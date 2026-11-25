@@ -24,13 +24,13 @@ export const StatusBar = ({
       'h-7.25 min-h-7.25 gap-3 px-4.5',
       'bg-sidebar text-[10px] text-muted-foreground',
       'border-t border-border',
-      'max-w900:px-3 max-w480:h-8.5 max-w480:min-h-8.5'
+      'max-w480:h-8.5 max-w480:min-h-8.5 narrow:px-3'
     )}
   >
     <span className="flex items-center gap-1.5 whitespace-nowrap max-w480:gap-1.25 max-w480:text-[9px]">
       <ShieldCheck className="text-(--brand-purple)" size={13} />
       Files stay on your device
-      <span className="mx-1.25 h-2.5 w-px bg-border max-w900:hidden max-w480:mx-0.75 max-w480:block" aria-hidden="true" />
+      <span className="mx-1.25 block h-2.5 w-px bg-border max-w480:mx-0.75 min-w480:narrow:hidden" aria-hidden="true" />
       <a
         className={cn(
           'text-[length:inherit] whitespace-nowrap text-muted-foreground underline-offset-3',
@@ -42,7 +42,7 @@ export const StatusBar = ({
         Limitations
       </a>
     </span>
-    <span className="flex items-center gap-1.5 whitespace-nowrap max-w900:text-[9px] max-w480:hidden">
+    <span className="flex items-center gap-1.5 whitespace-nowrap max-w480:hidden narrow:text-[9px]">
       {busy ? (
         'Inspecting'
       ) : document ? (
@@ -53,7 +53,7 @@ export const StatusBar = ({
       ) : (
         'Read-only PDF exploration'
       )}
-      <span className="mx-1.25 h-2.5 w-px bg-border max-w900:hidden" />
+      <span className="mx-1.25 h-2.5 w-px bg-border narrow:hidden" />
       {byteCount ? `${byteCount.toLocaleString()} bytes` : 'No file open'}
     </span>
   </footer>

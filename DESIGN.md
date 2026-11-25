@@ -37,6 +37,8 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 
 - The workspace fills the viewport: header, three resizable panes (explorer, inspector, original bytes) that scroll independently, and a status bar.
 - At 900px and below, buttons switch between panes instead, and the header stays on one row with icon-only actions. Breakpoints are theme tokens in `src/styles/breakpoints.css`. They use the `w360`, `w400`, `w480`, `w600`, `w760` and `w900` tokens: `max-w900:` and `width < theme(--breakpoint-w900)` both match widths below 901px.
+- The mobile ranges have named variants, defined in the same file: `narrow:` for 900px and below, and `w360-w900:` for 361px to 900px. Use them instead of `max-w900:` and `min-w360:max-w900:`.
+- Named variants come after every built-in variant in the CSS, so a `narrow:` class beats a class on the same property whose variants add no selector specificity: smaller breakpoints, `md:`, `pointer-coarse:` and shadcn's `data-open:`-style variants. `narrow:gap-3` beats `max-w600:gap-2`, for example. `hover:`, `dark:`, `aria-*:` and `data-[…]:` still win through specificity. When a smaller breakpoint has to win, bound the range (`min-w600:narrow:max-w-[25vw]`) or stack it under the named variant that sets the property (`narrow:max-w480:block`, or `w360-w900:max-w480:` against a `w360-w900:` class).
 - Search fits on one row on mobile, dropping to two rows at 360px and below. Touch targets are at least 44px.
 - Public pages use a white reading layout with a section sidebar that becomes an expandable menu on narrow screens. Their footer shows only when no document is open.
 
@@ -68,7 +70,7 @@ className={cn(
   'gap-2.5 px-[9px] text-left text-muted-foreground',
   'rounded-[4px] bg-transparent',
   'hover:bg-accent hover:text-foreground',
-  'max-w900:h-11',
+  'narrow:h-11',
   'text-[11px]!',
   selected && 'bg-accent text-accent-foreground'
 )}

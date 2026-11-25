@@ -121,10 +121,10 @@ const NavigationGroups = function NavigationGroups({
 export const ContentNavigation = function ContentNavigation({ path, onFollowLink }: { path: SitePath; onFollowLink?: FollowLink }) {
   return (
     <>
-      <aside className="sticky top-0 max-h-[calc(100dvh-160px)] overflow-y-auto pr-3 pb-4 max-w900:hidden">
+      <aside className="sticky top-0 max-h-[calc(100dvh-160px)] overflow-y-auto pr-3 pb-4 narrow:hidden">
         <NavigationGroups path={path} onFollowLink={onFollowLink} />
       </aside>
-      <details className="mb-7 hidden rounded-[6px] border border-border max-w900:block">
+      <details className="mb-7 hidden rounded-[6px] border border-border narrow:block">
         <summary className="cursor-pointer px-4 py-3 text-[13px] font-[550]">On this site</summary>
         <NavigationGroups className="px-4 pt-1 pb-5" path={path} onFollowLink={onFollowLink} />
       </details>

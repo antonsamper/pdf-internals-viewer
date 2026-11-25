@@ -66,7 +66,7 @@ export const ReadingPage = function ReadingPage({
         role="presentation"
         className={cn(
           'mx-auto grid max-w-[988px] grid-cols-[220px_minmax(0,720px)] items-start gap-12',
-          'max-w900:block max-w900:max-w-[720px]'
+          'narrow:block narrow:max-w-[720px]'
         )}
       >
         <ContentNavigation path={path} onFollowLink={onFollowLink} />

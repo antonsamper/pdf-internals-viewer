@@ -58,14 +58,14 @@ const FileName = ({ byteCount, filename }: { byteCount: number; filename: string
         <span
           className={cn(
             'max-w-[50vw] overflow-hidden text-ellipsis whitespace-nowrap text-foreground',
-            'max-w900:max-w-[25vw]',
+            'min-w600:narrow:max-w-[25vw]',
             'max-w600:max-w-none'
           )}
           title={filename}
         >
           {filename}
         </span>
-        <span className="text-[11px] max-w900:hidden">{size(byteCount)}</span>
+        <span className="text-[11px] narrow:hidden">{size(byteCount)}</span>
       </>
     ) : (
       <span>Local workspace</span>

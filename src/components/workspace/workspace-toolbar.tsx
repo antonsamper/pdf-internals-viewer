@@ -34,10 +34,10 @@ export const WorkspaceToolbar = ({
     className={cn(
       'flex min-h-[45px] items-center justify-between',
       'gap-5 border-b px-3 py-1.5',
-      'max-w900:flex-wrap max-w900:gap-0.5 max-w900:px-2.5 max-w900:pt-1 max-w900:pb-2'
+      'narrow:flex-wrap narrow:gap-0.5 narrow:px-2.5 narrow:pt-1 narrow:pb-2'
     )}
   >
-    <div className="flex min-w-0 flex-1 items-center gap-[3px] max-w900:min-h-8 max-w900:w-full">
+    <div className="flex min-w-0 flex-1 items-center gap-[3px] narrow:min-h-8 narrow:w-full">
       <Button variant="ghost" size="icon-sm" aria-label="Back" disabled={!canGoBack} onClick={() => onTravel(-1)}>
         <ArrowLeft size={15} />
       </Button>

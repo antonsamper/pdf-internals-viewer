@@ -90,7 +90,7 @@ const PaneActions = ({
   onPin,
   onPreviewChange,
 }: InspectorPaneProps) => (
-  <div className="flex items-center gap-1 max-w900:flex-wrap">
+  <div className="flex items-center gap-1 narrow:flex-wrap">
     {section === 'resources' && selected && (
       <Button variant="ghost" size="sm" className={PANE_ACTION} onClick={onBrowseResources}>
         Browse resources
@@ -225,7 +225,7 @@ const InspectorBody = (props: InspectorPaneProps) => {
 
 export const InspectorPane = (props: InspectorPaneProps) => (
   <main className="flex h-full min-h-0 flex-col overflow-hidden" aria-label="Document inspection" aria-busy={props.busy}>
-    <div className={cn(PANE_HEADING, 'justify-between max-w900:h-auto max-w900:flex-wrap max-w900:gap-1.5 max-w900:py-1.5')}>
+    <div className={cn(PANE_HEADING, 'justify-between narrow:h-auto narrow:flex-wrap narrow:gap-1.5 narrow:py-1.5')}>
       <span>{paneTitle(props)}</span>
       <PaneActions {...props} />
     </div>
