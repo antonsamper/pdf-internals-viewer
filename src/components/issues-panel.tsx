@@ -3,6 +3,7 @@ import type { ComponentProps, ComponentType } from 'react';
 import { cn } from 'cn';
 import { FileWarning, CircleAlert, TriangleAlert, Info, ScanLine } from 'lucide-react';
 
+import { IssueNote } from '@/components/inspector/notes';
 import { PaneBody, PaneIntro, PaneSubtitle, SectionHeading } from '@/components/inspector/pane';
 import { SeverityPill } from '@/components/inspector/severity-pill';
 import { SEVERITY_TONE } from '@/components/inspector/severity-tone';
@@ -10,11 +11,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { issueOrder, issueSummary, type PdfIssue, type IssueSeverity } from '@/lib/pdf/issues';
 import { useScrollRestoration, type ScrollPosition } from '@/lib/scroll-restoration';
-
-/** Muted text in the issue list and the overview's issue section. */
-export const IssueNote = ({ className, ...props }: ComponentProps<'p'>) => (
-  <p className={cn('my-2 text-muted-foreground', className)} {...props} />
-);
 
 /** Severity counts, or `empty` with a sentence when there are no issues. */
 export const IssueSummary = ({ empty: Empty, issues }: { empty: ComponentType<ComponentProps<'p'>>; issues: PdfIssue[] }) => {

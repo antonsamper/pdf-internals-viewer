@@ -8,10 +8,10 @@ import type { ScrollPosition } from '@/lib/scroll-restoration';
 
 import { InspectionUnavailable } from '@/components/inspection-unavailable';
 import { ActionButton, ActionRow } from '@/components/inspector/actions';
-import { Note } from '@/components/inspector/notes';
+import { IssueNote, Note } from '@/components/inspector/notes';
 import { PaneBody, PaneIntro, PaneSubtitle, SectionHeading } from '@/components/inspector/pane';
 import { Warning } from '@/components/inspector/warning';
-import { IssueNote, IssueSummary } from '@/components/issues-panel';
+import { IssueSummary } from '@/components/issues-panel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ValueView } from '@/components/value-view';

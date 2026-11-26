@@ -19,3 +19,8 @@ export const Notice = ({ className, ...props }: ComponentProps<'div'>) => (
     {...props}
   />
 );
+
+/** Muted text in the issues pane and the overview's issue section. */
+export const IssueNote = ({ className, ...props }: ComponentProps<'p'>) => (
+  <p className={cn('my-2 text-muted-foreground', className)} {...props} />
+);

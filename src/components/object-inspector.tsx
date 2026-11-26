@@ -60,7 +60,10 @@ const RelationshipLink = ({ children, onClick }: { children: ReactNode; onClick:
 const Relationships = ({ children, count, empty, title }: { children: ReactNode; count: number; empty?: string; title: string }) => (
   <>
     <SectionHeading>
-      {title} <span className="ml-[5px] text-[10px] text-muted-foreground">{count === 1 ? '1 object' : `${count} objects`}</span>
+      {title}{' '}
+      <span className="ml-[5px] text-[10px] text-muted-foreground">
+        {count} {count === 1 ? 'object' : 'objects'}
+      </span>
     </SectionHeading>
     <div className="grid gap-1" data-relationship-links>
       {children}
