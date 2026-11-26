@@ -178,7 +178,7 @@
   button:disabled {
     cursor: default;
   }
-  /* Defaults for elements without their own classes. Utilities and the shadcn variants override them. */
+  /* Element defaults. Utilities and the shadcn variants override them without `!`. */
   code,
   pre {
     font-family: var(--font-mono);

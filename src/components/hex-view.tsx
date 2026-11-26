@@ -20,6 +20,7 @@ const HEX_BYTE = cn(
   'rounded-[2px] border-0 bg-transparent py-[3px] text-center text-foreground',
   'hover:bg-accent hover:text-accent-foreground hover:shadow-[inset_0_0_0_1px_var(--border)]',
   'data-[cursor]:outline-1 data-[cursor]:-outline-offset-1 data-[cursor]:outline-ring',
+  'data-[cursor]:focus-visible:outline-2 data-[cursor]:focus-visible:outline-offset-2',
   'data-[zero]:text-muted-foreground',
   // A selected 00 byte keeps the selection colour, as it sorts after the zero rule.
   HEX_SELECTED,

@@ -13,7 +13,9 @@ export const HeaderLink = function HeaderLink({ className, ...props }: Component
     <a
       className={cn(
         buttonVariants({ size: 'sm', variant: 'ghost' }),
-        "rounded-lg text-[0.8rem] leading-(--text-sm--line-height) font-medium [&_svg:not([class*='size-'])]:size-4",
+        'text-[0.8rem] leading-(--text-sm--line-height) font-medium',
+        // The base button's radius and icon size, which the `sm` size would otherwise replace.
+        "rounded-lg [&_svg:not([class*='size-'])]:size-4",
         className
       )}
       {...props}

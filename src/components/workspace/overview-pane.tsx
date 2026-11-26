@@ -97,13 +97,14 @@ const UnlockForm = ({ unlockError, unlocking, onUnlock }: Pick<OverviewPaneProps
         id="pdf-password"
         name="password"
         type="password"
+        className="text-[11px] leading-[1.65]"
         autoComplete="off"
         disabled={unlocking}
         aria-invalid={Boolean(unlockError)}
         aria-describedby={unlockError ? 'pdf-password-help pdf-password-error' : 'pdf-password-help'}
       />
     </div>
-    <Button type="submit" disabled={unlocking}>
+    <Button type="submit" className="text-[11px] leading-[1.65]" disabled={unlocking}>
       {unlocking ? 'Unlocking…' : 'Unlock PDF'}
     </Button>
     <p id="pdf-password-help" className="w-full text-xs text-muted-foreground">
