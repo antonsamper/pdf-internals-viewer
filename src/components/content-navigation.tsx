@@ -23,19 +23,21 @@ export const HeaderLink = function HeaderLink({ className, ...props }: Component
   );
 };
 
-const SECTION_LINK = 'text-inherit underline-offset-5 no-underline';
+/** A main-navigation link in the header's text colour. The caller underlines the current section. */
+const NavigationLink = ({ className, ...props }: ComponentProps<'a'>) => (
+  <HeaderLink className={cn('text-inherit no-underline underline-offset-5', className)} {...props} />
+);
 
 const SectionLinks = function SectionLinks({ menu, path, onFollowLink }: { menu: boolean; path: SitePath; onFollowLink?: FollowLink }) {
   return CONTENT_GROUPS.slice(0, 3).map((group) => {
     const href = group.items[0][0];
     const active = group.items.some(([item]) => item === path);
     return (
-      <HeaderLink
+      <NavigationLink
         key={href}
         href={href}
         aria-current={path === href ? 'page' : undefined}
         className={cn(
-          SECTION_LINK,
           menu && ['flex min-h-11 px-3', 'rounded-[4px]', 'hover:bg-muted hover:bg-clip-border', 'dark:hover:bg-muted'],
           active && 'underline',
           menu && active && 'bg-muted bg-clip-border'
@@ -43,7 +45,7 @@ const SectionLinks = function SectionLinks({ menu, path, onFollowLink }: { menu:
         onClick={onFollowLink}
       >
         {group.label}
-      </HeaderLink>
+      </NavigationLink>
     );
   });
 };
@@ -55,10 +57,10 @@ export const ContentHeaderLinks = function ContentHeaderLinks({ path, onFollowLi
       <div className="flex items-center gap-1 max-w760:hidden">
         <SectionLinks menu={false} path={path} onFollowLink={onFollowLink} />
       </div>
-      <HeaderLink className={cn(SECTION_LINK, 'max-w760:min-h-9')} href="/" onClick={onFollowLink}>
+      <NavigationLink className="max-w760:min-h-9" href="/" onClick={onFollowLink}>
         <span className="max-w760:hidden">Open the inspector →</span>
         <span className="hidden max-w760:inline">Inspector →</span>
-      </HeaderLink>
+      </NavigationLink>
       <details className="group relative hidden max-w760:block" key={path}>
         <summary
           className={cn(

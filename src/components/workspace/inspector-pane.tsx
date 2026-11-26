@@ -1,6 +1,6 @@
 import { cn } from 'cn';
 import { BookmarkPlus, Braces, Image, LoaderCircle, Pin, X } from 'lucide-react';
-import { lazy, Suspense, type ReactNode } from 'react';
+import { lazy, Suspense, type ComponentProps, type ReactNode } from 'react';
 
 import type { PdfPreviewProps } from '@/components/pdf-preview';
 import type { PdfIssue } from '@/lib/pdf/issues';
@@ -8,7 +8,9 @@ import type { ResourceCategory, ResourceEntry } from '@/lib/pdf/resource-catalog
 import type { PdfDocumentInfo, PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 import type { ScrollPosition } from '@/lib/scroll-restoration';
 
-import { LOADING_INLINE, NOTICE, PANE_HEADING } from '@/components/inspector-styles';
+import { LoadingMessage } from '@/components/inspector/loading-message';
+import { Notice } from '@/components/inspector/notes';
+import { PaneHeading } from '@/components/inspector/pane';
 import { IssuesPanel } from '@/components/issues-panel';
 import { ObjectComparison } from '@/components/object-comparison';
 import { ResourceBrowser } from '@/components/resource-browser';
@@ -17,8 +19,10 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 
 import type { Section } from './types';
 
-/** Toolbar buttons in the pane heading: compact type and gap. */
-const PANE_ACTION = 'gap-[5px] text-[10px] font-medium';
+/** A small ghost button in the pane heading, in compact type. */
+const PaneAction = ({ className, ...props }: ComponentProps<typeof Button>) => (
+  <Button variant="ghost" size="sm" className={cn('gap-[5px] text-[10px] font-medium', className)} {...props} />
+);
 
 const PdfPreview = lazy(() =>
   import('@/components/pdf-preview').then((module) => ({
@@ -91,39 +95,27 @@ const PaneActions = ({
   onPreviewChange,
 }: InspectorPaneProps) => (
   <div className="flex items-center gap-1 narrow:flex-wrap">
-    {section === 'resources' && selected && (
-      <Button variant="ghost" size="sm" className={PANE_ACTION} onClick={onBrowseResources}>
-        Browse resources
-      </Button>
-    )}
+    {section === 'resources' && selected && <PaneAction onClick={onBrowseResources}>Browse resources</PaneAction>}
     {(selected || hasRange) && (
-      <Button variant="ghost" size="sm" className={PANE_ACTION} onClick={onBookmark}>
+      <PaneAction onClick={onBookmark}>
         <BookmarkPlus size={14} />
         Bookmark
-      </Button>
+      </PaneAction>
     )}
     {selected && (
-      <Button
+      <PaneAction
         variant={pinnedId === selected.id ? 'secondary' : 'ghost'}
-        size="sm"
-        className={PANE_ACTION}
         onClick={() => onPin(pinnedId === selected.id ? null : selected.id)}
         aria-pressed={pinnedId === selected.id}
       >
         <Pin size={14} />
         {pinnedId === selected.id ? 'Unpin' : 'Pin to compare'}
-      </Button>
+      </PaneAction>
     )}
-    <Button
-      variant={preview ? 'secondary' : 'ghost'}
-      size="sm"
-      className={PANE_ACTION}
-      disabled={!bytes.length || busy}
-      onClick={() => onPreviewChange(!preview)}
-    >
+    <PaneAction variant={preview ? 'secondary' : 'ghost'} disabled={!bytes.length || busy} onClick={() => onPreviewChange(!preview)}>
       {preview ? <Braces size={14} /> : <Image size={14} />}
       {preview ? 'Inspect' : 'Preview'}
-    </Button>
+    </PaneAction>
   </div>
 );
 
@@ -171,7 +163,7 @@ const LoadingView = () => (
 );
 
 const PreviewView = ({ bytes, filename, previewPage, previewPassword, previewSearch, onPageChange }: InspectorPaneProps) => (
-  <Suspense fallback={<p className={LOADING_INLINE}>Loading EmbedPDF…</p>}>
+  <Suspense fallback={<LoadingMessage>Loading EmbedPDF…</LoadingMessage>}>
     <PdfPreview
       bytes={bytes}
       fileName={filename}
@@ -225,17 +217,17 @@ const InspectorBody = (props: InspectorPaneProps) => {
 
 export const InspectorPane = (props: InspectorPaneProps) => (
   <main className="flex h-full min-h-0 flex-col overflow-hidden" aria-label="Document inspection" aria-busy={props.busy}>
-    <div className={cn(PANE_HEADING, 'justify-between narrow:h-auto narrow:flex-wrap narrow:gap-1.5 narrow:py-1.5')}>
+    <PaneHeading className="justify-between narrow:h-auto narrow:flex-wrap narrow:gap-1.5 narrow:py-1.5">
       <span>{paneTitle(props)}</span>
       <PaneActions {...props} />
-    </div>
+    </PaneHeading>
     {props.notice && (
-      <div className={NOTICE} role="status">
+      <Notice role="status">
         <span>{props.notice}</span>
         <button className="ml-auto bg-transparent" aria-label="Dismiss notice" onClick={props.onDismissNotice}>
           <X size={14} />
         </button>
-      </div>
+      </Notice>
     )}
     <InspectorBody {...props} />
   </main>

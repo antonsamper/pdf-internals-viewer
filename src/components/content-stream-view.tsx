@@ -1,12 +1,18 @@
 import { cn } from 'cn';
-import { Fragment, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState, type ComponentProps, type MouseEvent } from 'react';
 
 import type { ByteRange, PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 
-import { REFERENCE, REPRESENTATION_NOTE, SOURCE_CODE, WARNING_INLINE } from '@/components/inspector-styles';
+import { Note } from '@/components/inspector/notes';
+import { ReferenceButton } from '@/components/inspector/reference-button';
+import { SourceCode } from '@/components/inspector/source-code';
+import { Warning } from '@/components/inspector/warning';
 import { Button } from '@/components/ui/button';
 import { contentInstructions, explainInstruction, namedResource, resourceCategory, resourceContexts } from '@/lib/pdf/content-stream';
-const EXPLANATION_LINK = 'underline underline-offset-[3px]';
+/** A link in the explanations above the instructions. */
+const ExplanationLink = ({ className, ...props }: ComponentProps<'a'>) => (
+  <a className={cn('underline underline-offset-[3px]', className)} {...props} />
+);
 
 export const ContentStreamView = ({
   object,
@@ -38,7 +44,7 @@ export const ContentStreamView = ({
   const parsed = useMemo(() => contentInstructions(stream.text), [stream.text]);
   const defaultContext = contexts.length === 1 ? contexts[0].id : (contexts.find((entry) => entry.id === contextPageId)?.id ?? '');
   const context = contexts.find((entry) => entry.id === (chosenContext ?? defaultContext));
-  if (!contexts.length) return <pre className={SOURCE_CODE}>{stream.text}</pre>;
+  if (!contexts.length) return <SourceCode>{stream.text}</SourceCode>;
   return (
     <div>
       <div className="my-3 flex flex-wrap items-center gap-1.5" aria-label="Decoded stream representation">
@@ -62,24 +68,23 @@ export const ContentStreamView = ({
         </Button>
       </div>
       {!readable ? (
-        <pre className={SOURCE_CODE}>{stream.text}</pre>
+        <SourceCode>{stream.text}</SourceCode>
       ) : (
         <>
-          <p className={REPRESENTATION_NOTE}>
+          <Note>
             Instruction offsets are within this decoded stream, not the original file. Strings retain PDF syntax and font encoding; this is
             not extracted text.
-          </p>
-          <p className={REPRESENTATION_NOTE}>
-            <a
-              className={EXPLANATION_LINK}
+          </Note>
+          <Note>
+            <ExplanationLink
               href="https://pdfa.org/download-area/cheat-sheets/OperatorsAndOperands.pdf"
               target="_blank"
               rel="noopener noreferrer"
             >
               PDF operator reference
-            </a>{' '}
+            </ExplanationLink>{' '}
             (PDF Association, opens PDF in a new tab).
-          </p>
+          </Note>
           {parsed.instructions.some((instruction) => instruction.operator === 'TJ') && (
             <details className="mb-3 rounded-[5px] border px-3 py-2.5 text-[12px] leading-[1.7]" data-text-help>
               <summary className="cursor-pointer">Why are there numbers between strings? (TJ)</summary>
@@ -90,9 +95,9 @@ export const ContentStreamView = ({
               <p className="mt-2 text-muted-foreground">
                 Searching decoded streams checks the stored syntax, so a word split across strings may not match. Try a fragment such as{' '}
                 <code>lor</code>.{' '}
-                <a className={EXPLANATION_LINK} href="/guides/decode-pdf-streams" onClick={onFollowLink}>
+                <ExplanationLink href="/guides/decode-pdf-streams" onClick={onFollowLink}>
                   Read the Streams guide
-                </a>
+                </ExplanationLink>
                 .
               </p>
             </details>
@@ -115,20 +120,18 @@ export const ContentStreamView = ({
               </select>
             </label>
           ) : (
-            <p className={REPRESENTATION_NOTE}>
+            <Note>
               {context?.label}.{' '}
               {!context?.resources && 'The resource dictionary is unavailable, so resource names cannot be linked to objects.'}
-            </p>
+            </Note>
           )}
           {contexts.length > 1 && !context && (
-            <p className={WARNING_INLINE}>
+            <Warning>
               This stream is shared by multiple pages. Choose a page to look up resource names in that page’s resource dictionary.
-            </p>
+            </Warning>
           )}
           {(stream.truncated || parsed.incomplete) && (
-            <p className={WARNING_INLINE}>
-              Instruction interpretation is incomplete. Use Decoded byte text to inspect the available bytes.
-            </p>
+            <Warning>Instruction interpretation is incomplete. Use Decoded byte text to inspect the available bytes.</Warning>
           )}
           <ol aria-label="Content stream instructions">
             {parsed.instructions.map((instruction) => {
@@ -161,14 +164,13 @@ export const ContentStreamView = ({
                         <Fragment key={token.start}>
                           {index > 0 && stream.text.slice(instruction.tokens[index - 1].end, token.start)}
                           {resource?.id ? (
-                            <button
-                              className={REFERENCE}
+                            <ReferenceButton
                               aria-label={`Inspect ${token.text} resource`}
                               title={`${context?.label} · /${category} · ${resource.id} R`}
                               onClick={() => onNavigate(resource.id!)}
                             >
                               {token.text}
-                            </button>
+                            </ReferenceButton>
                           ) : (
                             <span
                               className={token.kind === 'operator' ? 'font-semibold' : undefined}

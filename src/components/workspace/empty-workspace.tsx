@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react';
+import type { ComponentProps, MouseEvent } from 'react';
 
 import { cn } from 'cn';
 import { ArrowUpRight, Braces, FilePlus2, FileCode2, Layers, LockKeyhole, Shield } from 'lucide-react';
@@ -16,27 +16,63 @@ const SAMPLES = SITE_SAMPLES.map((sample) => ({
   ...sample,
   icon: sampleIcons[sample.id],
 }));
-const trustBadge = cn(
-  'inline-flex items-center gap-2 px-3 py-1.5',
-  'font-medium whitespace-nowrap text-secondary-foreground',
-  'bg-[color-mix(in_srgb,var(--brand-purple-soft)_65%,var(--background))]',
-  'rounded-full'
+/** A pill stating how the app treats the file. */
+const TrustBadge = ({ className, ...props }: ComponentProps<'span'>) => (
+  <span
+    className={cn(
+      'inline-flex items-center gap-2 px-3 py-1.5',
+      'font-medium whitespace-nowrap text-secondary-foreground',
+      'bg-[color-mix(in_srgb,var(--brand-purple-soft)_65%,var(--background))]',
+      'rounded-full',
+      className
+    )}
+    {...props}
+  />
 );
 const SAMPLE_TONES = {
   orange: '[--sample-ink:var(--brand-orange-ink)] [--sample-wash:var(--brand-orange-soft)]',
   purple: '[--sample-ink:var(--brand-purple)] [--sample-wash:var(--brand-purple-soft)]',
   red: '[--sample-ink:var(--brand-red-ink)] [--sample-wash:var(--brand-red-soft)]',
 };
-const SAMPLE_ROW = cn(
-  'group/sample flex w-full items-center gap-[13px] px-0.5 py-3.5 text-left',
-  'border-t border-border bg-transparent',
-  'transition-[background-color,border-color] duration-150 ease-[ease]',
-  'hover:border-t-(--sample-ink) hover:bg-[color-mix(in_srgb,var(--sample-wash),var(--background)_60%)]'
-);
-const SAMPLE_ICON = cn(
-  'grid size-[34px] place-items-center',
-  'rounded-[6px] border border-[color-mix(in_srgb,var(--sample-ink)_18%,transparent)] bg-(--sample-wash)',
-  'text-(--sample-ink)'
+/** A row that opens one of the sample PDFs, in that sample's colours. */
+const SampleButton = ({
+  sample: { detail, icon: Icon, name, tone },
+  onClick,
+}: {
+  sample: (typeof SAMPLES)[number];
+  onClick: () => void;
+}) => (
+  <button
+    className={cn(
+      'group/sample flex w-full items-center gap-[13px] px-0.5 py-3.5 text-left',
+      'border-t border-border bg-transparent',
+      'transition-[background-color,border-color] duration-150 ease-[ease]',
+      'hover:border-t-(--sample-ink) hover:bg-[color-mix(in_srgb,var(--sample-wash),var(--background)_60%)]',
+      SAMPLE_TONES[tone]
+    )}
+    onClick={onClick}
+  >
+    <span
+      className={cn(
+        'grid size-[34px] place-items-center',
+        'rounded-[6px] border border-[color-mix(in_srgb,var(--sample-ink)_18%,transparent)] bg-(--sample-wash)',
+        'text-(--sample-ink)'
+      )}
+    >
+      <Icon size={19} strokeWidth={1.5} />
+    </span>
+    <span className="min-w-0 flex-1">
+      <strong className="mb-1 block text-[12px] font-medium">{name}</strong>
+      <span className="text-[11px] text-muted-foreground">{detail}</span>
+    </span>
+    <ArrowUpRight
+      className={cn(
+        'text-muted-foreground transition-transform duration-150 ease-out',
+        'group-hover/sample:[transform:translate(2px,-2px)] group-hover/sample:text-(--sample-ink)'
+      )}
+      size={15}
+    />
+  </button>
 );
 export const EmptyWorkspace = ({
   onFollowLink,
@@ -91,36 +127,21 @@ export const EmptyWorkspace = ({
             <span className="flex-[1_1_150px] text-[11px] text-muted-foreground">or drop a file anywhere · up to 64 MiB</span>
           </div>
           <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3 text-xs leading-normal">
-            <span className={cn(trustBadge, 'font-semibold text-(--brand-purple)')}>
+            <TrustBadge className="font-semibold text-(--brand-purple)">
               <Shield size={16} aria-hidden="true" />
               Processed locally
-            </span>
-            <span className={trustBadge}>
+            </TrustBadge>
+            <TrustBadge>
               <LockKeyhole size={16} aria-hidden="true" />
               Read-only inspection
-            </span>
+            </TrustBadge>
           </div>
         </div>
         <section className="min-w-0">
           <h2 className="mb-2 text-[14px] font-[550]">Start with a sample</h2>
           <p className="mb-[22px] text-[12px] leading-[1.6] text-muted-foreground">No file handy? Explore a PDF made for learning.</p>
-          {SAMPLES.map(({ file, name, detail, icon: Icon, tone }) => (
-            <button className={cn(SAMPLE_ROW, SAMPLE_TONES[tone])} key={file} onClick={() => onSample(file)}>
-              <span className={SAMPLE_ICON}>
-                <Icon size={19} strokeWidth={1.5} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <strong className="mb-1 block text-[12px] font-medium">{name}</strong>
-                <span className="text-[11px] text-muted-foreground">{detail}</span>
-              </span>
-              <ArrowUpRight
-                className={cn(
-                  'text-muted-foreground transition-transform duration-150 ease-out',
-                  'group-hover/sample:[transform:translate(2px,-2px)] group-hover/sample:text-(--sample-ink)'
-                )}
-                size={15}
-              />
-            </button>
+          {SAMPLES.map((sample) => (
+            <SampleButton key={sample.file} sample={sample} onClick={() => onSample(sample.file)} />
           ))}
         </section>
       </div>

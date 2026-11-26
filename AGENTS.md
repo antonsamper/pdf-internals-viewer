@@ -26,7 +26,7 @@ PDF Internals Viewer is a static Vite/React app for inspecting the structure of 
 ## Styling
 
 - Style with Tailwind utilities, shadcn variants and the theme tokens. Follow `DESIGN.md` for the rules.
-- Class constants are for lists that several elements share. Lists up to about 100 characters stay one string; longer ones use `cn()` with a string per group (positioning, layout, sizing, spacing, typography, appearance, borders and effects, interaction, component states, responsive, dark mode, animation, overrides). `DESIGN.md` has the details and an example.
+- Classes go at the element they style. When several elements share a list, extract a small component named after what it renders instead of a class constant. Lists up to about 100 characters stay one string; longer ones use `cn()` with a string per group (positioning, layout, sizing, spacing, typography, appearance, borders and effects, interaction, component states, responsive, dark mode, animation, overrides). `DESIGN.md` has the details and an example.
 
 ## Docs
 

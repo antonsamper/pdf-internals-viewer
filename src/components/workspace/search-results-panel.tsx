@@ -1,3 +1,5 @@
+import type { ComponentProps } from 'react';
+
 import { cn } from 'cn';
 import { ChevronDown, ChevronRight, ChevronUp, Eye, FileCode2, Search } from 'lucide-react';
 
@@ -40,18 +42,29 @@ const statusText = ({ displayedScope, interrupted, results, resultsScope, search
   return `${headline} · ${SCOPE_LABELS[displayedScope] ?? displayedScope}`;
 };
 
-/** Buttons inside a result card: compact, left aligned, and tall enough to tap on small and touch screens. */
-const CARD_BUTTON = cn(
-  'h-auto min-h-6 max-w-full justify-start',
-  'rounded-[4px] px-1.5 py-0.5 text-left text-[11px] whitespace-normal',
-  'pointer-coarse:min-h-11 narrow:not-pointer-coarse:min-h-8'
+/** A button inside a result card: compact, left aligned, and tall enough to tap on small and touch screens. */
+const CardButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
+  <Button
+    size="xs"
+    className={cn(
+      'h-auto min-h-6 max-w-full justify-start',
+      'rounded-[4px] px-1.5 py-0.5 text-left text-[11px] whitespace-normal',
+      'pointer-coarse:min-h-11 narrow:not-pointer-coarse:min-h-8',
+      className
+    )}
+    {...props}
+  />
 );
 
-/** Header buttons use the header's 12px type and grow to a 44px touch target on small screens. */
-const HEADER_BUTTON = 'text-[12px] narrow:min-h-11 narrow:min-w-11';
+/** A header button in the header's 12px type that grows to a 44px touch target on small screens. */
+const HeaderButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
+  <Button variant="ghost" className={cn('text-[12px] narrow:min-h-11 narrow:min-w-11', className)} {...props} />
+);
 
-/** Notes above and below the result cards. */
-const BODY_NOTE = 'px-3.5 py-2.5 text-[12px] [overflow-wrap:anywhere]';
+/** A note above or below the result cards. */
+const ResultsNote = ({ className, ...props }: ComponentProps<'p'>) => (
+  <p className={cn('px-3.5 py-2.5 text-[12px] [overflow-wrap:anywhere]', className)} {...props} />
+);
 
 const focusSearchToggle = (search: Search) =>
   search.formRef.current?.querySelector<HTMLButtonElement>('[data-search-show]')?.focus({ preventScroll: true });
@@ -92,34 +105,28 @@ const ResultsHeader = ({ search }: { search: Search }) => {
           {pageText ? 'Page ' : 'Match '}
           {results.length ? `${(activeResult ?? 0) + 1} of ${results.length}` : '0 of 0'}
         </span>
-        <Button
+        <HeaderButton
           size="icon-sm"
-          variant="ghost"
-          className={HEADER_BUTTON}
           aria-label="Previous search result"
           title={pageText ? 'Previous matching page' : 'Previous match'}
           disabled={searching || results.length < 2}
           onClick={() => move(-1)}
         >
           <ChevronUp size={14} />
-        </Button>
-        <Button
+        </HeaderButton>
+        <HeaderButton
           size="icon-sm"
-          variant="ghost"
-          className={HEADER_BUTTON}
           aria-label="Next search result"
           title={pageText ? 'Next matching page' : 'Next match'}
           disabled={searching || results.length < 2}
           onClick={() => move(1)}
         >
           <ChevronDown size={14} />
-        </Button>
+        </HeaderButton>
       </div>
       {searching && cancelReady === cancelRequest && (
-        <Button
+        <HeaderButton
           size="xs"
-          variant="ghost"
-          className={HEADER_BUTTON}
           aria-label="Cancel search"
           title="Cancel search"
           onClick={() => {
@@ -128,12 +135,10 @@ const ResultsHeader = ({ search }: { search: Search }) => {
           }}
         >
           Cancel
-        </Button>
+        </HeaderButton>
       )}
-      <Button
+      <HeaderButton
         size="xs"
-        variant="ghost"
-        className={HEADER_BUTTON}
         aria-label="Hide search results"
         title="Hide results (Esc)"
         onClick={() => {
@@ -142,7 +147,7 @@ const ResultsHeader = ({ search }: { search: Search }) => {
         }}
       >
         Close
-      </Button>
+      </HeaderButton>
     </div>
   );
 };
@@ -168,10 +173,9 @@ const SourceButtons = ({
     <div className="flex flex-wrap items-center gap-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1">
       <span className="mr-0.5 text-[11px] text-muted-foreground max-w400:col-span-full max-w400:m-0">{mapped ? 'Bytes' : 'Streams'}</span>
       {sources.map((source, sourceIndex) => (
-        <Button
+        <CardButton
           key={keys[sourceIndex]}
-          size="xs"
-          className={cn(CARD_BUTTON, 'max-w400:min-w-0 max-w400:justify-self-start')}
+          className="max-w400:min-w-0 max-w400:justify-self-start"
           variant={textSource === source ? 'secondary' : 'ghost'}
           aria-label={`${source.ranges.length ? 'Show bytes' : 'Inspect content stream'} · ${source.id} obj${source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}`}
           title={source.ranges.length ? 'Show matching bytes' : 'Inspect candidate content stream'}
@@ -193,7 +197,7 @@ const SourceButtons = ({
             {source.ranges.length ? source.id : `Candidate ${source.id}`}
             {source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}
           </code>
-        </Button>
+        </CardButton>
       ))}
     </div>
   );
@@ -225,22 +229,20 @@ const PageTextLinks = ({
       {location.sources.length > 0 && <SourceButtons index={index} location={location} search={search} textSource={textSource} />}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-2">
         {location.sources.length > 1 && (
-          <Button
-            size="xs"
+          <CardButton
             variant="link"
-            className={cn(CARD_BUTTON, 'px-0 text-muted-foreground underline-offset-[3px]')}
+            className="px-0 text-muted-foreground underline-offset-[3px]"
             disabled={searching}
             aria-expanded={expanded}
             onClick={() => toggleSources(location.pageId)}
           >
             {expanded ? 'Fewer sources' : `${location.sources.length - 1} more source${location.sources.length > 2 ? 's' : ''}`}
             {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-          </Button>
+          </CardButton>
         )}
-        <Button
-          size="xs"
+        <CardButton
           variant="link"
-          className={cn(CARD_BUTTON, 'px-0 text-(--reference) underline-offset-[3px]')}
+          className="px-0 text-(--reference) underline-offset-[3px]"
           disabled={searching}
           onClick={() => {
             openResultPreview(result, index);
@@ -250,7 +252,7 @@ const PageTextLinks = ({
         >
           Open page preview
           <Eye size={12} />
-        </Button>
+        </CardButton>
       </div>
     </div>
   );
@@ -380,7 +382,7 @@ const CoverageNote = ({ message, resultsScope }: { message: string; resultsScope
       <p className="mt-2 leading-normal">{message}</p>
     </details>
   ) : (
-    <p className={cn(BODY_NOTE, 'text-muted-foreground')}>{message}</p>
+    <ResultsNote className="text-muted-foreground">{message}</ResultsNote>
   );
 
 export const SearchResultsPanel = ({ search, textSource }: { search: Search; textSource: TextSource | null }) => {
@@ -437,15 +439,11 @@ export const SearchResultsPanel = ({ search, textSource }: { search: Search; tex
         <ResultsHeader search={search} />
         <div className="min-h-0 flex-1 overflow-auto overscroll-contain" data-search-results-body="" aria-busy={searching}>
           {showPrevious && (
-            <p className={cn(BODY_NOTE, 'text-muted-foreground')} data-search-previous="">
+            <ResultsNote className="text-muted-foreground" data-search-previous="">
               Previous results for “{resultsQuery}”
-            </p>
+            </ResultsNote>
           )}
-          {interrupted === 'failed' && message && (
-            <p className={BODY_NOTE} role="status">
-              {message}
-            </p>
-          )}
+          {interrupted === 'failed' && message && <ResultsNote role="status">{message}</ResultsNote>}
           <div className="flex flex-col gap-3 bg-muted p-3 group-data-searching/results:opacity-55" data-search-matches="">
             {results.map((result, index) => (
               <ResultItem key={keys[index]} index={index} result={result} search={search} textSource={textSource} />

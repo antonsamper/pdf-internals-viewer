@@ -1,21 +1,41 @@
 import { cn } from 'cn';
 import { ArrowDownToLine, Check, Copy, FileCode2 } from 'lucide-react';
-import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react';
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+  type CSSProperties,
+  type FormEvent,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
 
 import type { ScrollPosition } from '@/lib/scroll-restoration';
 
 import { Button } from '@/components/ui/button';
 
-// Offset, bytes and ASCII columns shared by the column heading and every row. Below 401px the columns tighten.
-const HEX_GRID = cn(
-  'grid grid-cols-[67px_calc(var(--hex-columns)*23px)_calc(var(--hex-columns)*8px)] items-center gap-x-[13px]',
-  'px-3.5 whitespace-nowrap',
-  'max-w400:grid-cols-[59px_calc(var(--hex-columns)*22px)_calc(var(--hex-columns)*7px)] max-w400:gap-[7px] max-w400:px-[9px]'
+/** The offset, bytes and ASCII columns, shared by the column heading and every row. Below 401px the columns tighten. */
+const HexGrid = ({ className, ...props }: ComponentProps<'div'>) => (
+  <div
+    className={cn(
+      'grid grid-cols-[67px_calc(var(--hex-columns)*23px)_calc(var(--hex-columns)*8px)] items-center gap-x-[13px]',
+      'px-3.5 whitespace-nowrap',
+      'max-w400:grid-cols-[59px_calc(var(--hex-columns)*22px)_calc(var(--hex-columns)*7px)] max-w400:gap-[7px] max-w400:px-[9px]',
+      className
+    )}
+    {...props}
+  />
 );
-const HEX_BYTE_CELLS = 'grid grid-cols-[repeat(var(--hex-columns),23px)] max-w400:grid-cols-[repeat(var(--hex-columns),22px)]';
-const HEX_SELECTED = 'data-[selected]:bg-byte-selection data-[selected]:text-byte-selection-foreground';
-// Constant class lists are built once: a row renders a button and an ASCII cell per byte.
-const HEX_ROW = cn(HEX_GRID, 'absolute left-0 font-mono text-[11px] leading-[normal] tabular-nums hover:bg-muted');
+
+/** The byte columns in the heading and in each row. */
+const ByteColumns = ({ children }: { children: ReactNode }) => (
+  <span className="grid grid-cols-[repeat(var(--hex-columns),23px)] max-w400:grid-cols-[repeat(var(--hex-columns),22px)]">{children}</span>
+);
+
+// A row renders a button and an ASCII cell per byte, so these two class lists stay module constants: they are merged once, not once per cell.
 const HEX_BYTE = cn(
   'rounded-[2px] border-0 bg-transparent py-[3px] text-center text-foreground',
   'hover:bg-accent hover:text-accent-foreground hover:shadow-[inset_0_0_0_1px_var(--border)]',
@@ -23,10 +43,14 @@ const HEX_BYTE = cn(
   'data-[cursor]:focus-visible:outline-2 data-[cursor]:focus-visible:outline-offset-2',
   'data-[zero]:text-muted-foreground',
   // A selected 00 byte keeps the selection colour, as it sorts after the zero rule.
-  HEX_SELECTED,
+  'data-[selected]:bg-byte-selection data-[selected]:text-byte-selection-foreground',
   'data-[selected]:data-[zero]:text-byte-selection-foreground'
 );
-const HEX_ASCII_CELL = cn('inline-block w-2 py-[3px] text-center', 'max-w400:w-[7px]', HEX_SELECTED);
+const HEX_ASCII_CELL = cn(
+  'inline-block w-2 py-[3px] text-center',
+  'max-w400:w-[7px]',
+  'data-[selected]:bg-byte-selection data-[selected]:text-byte-selection-foreground'
+);
 const printable = (byte: number) => {
   return byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '.';
 };
@@ -156,9 +180,12 @@ const HexRow = ({
 }) => {
   const offset = row * columns;
   return (
-    <div className={HEX_ROW} style={{ height: ROW_HEIGHT, top: row * ROW_HEIGHT }}>
+    <HexGrid
+      className="absolute left-0 font-mono text-[11px] leading-[normal] tabular-nums hover:bg-muted"
+      style={{ height: ROW_HEIGHT, top: row * ROW_HEIGHT }}
+    >
       <span className="text-[10px] text-muted-foreground select-text">{offsetText(offset)}</span>
-      <span className={HEX_BYTE_CELLS}>
+      <ByteColumns>
         {Array.from({ length: columns }, (_, column) => {
           const position = offset + column;
           const byte = bytes[position];
@@ -182,7 +209,7 @@ const HexRow = ({
             </button>
           );
         })}
-      </span>
+      </ByteColumns>
       <span className="flex text-muted-foreground" aria-hidden="true">
         {Array.from(bytes.subarray(offset, offset + columns), (byte, column) => (
           <span key={offset + column} className={HEX_ASCII_CELL} data-selected={isSelected(offset + column) ? '' : undefined}>
@@ -190,13 +217,12 @@ const HexRow = ({
           </span>
         ))}
       </span>
-    </div>
+    </HexGrid>
   );
 };
 const HexColumnHead = ({ columns }: { columns: number }) => (
-  <div
+  <HexGrid
     className={cn(
-      HEX_GRID,
       'shrink-0 overflow-hidden bg-muted py-[9px] font-mono text-[9px] tracking-[0.025em] text-muted-foreground',
       'leading-[normal]'
     )}
@@ -204,15 +230,15 @@ const HexColumnHead = ({ columns }: { columns: number }) => (
     aria-hidden="true"
   >
     <span>OFFSET</span>
-    <span className={HEX_BYTE_CELLS}>
+    <ByteColumns>
       {Array.from({ length: columns }, (_, i) => (
         <span className="text-center" key={i}>
           {i.toString(16).toUpperCase().padStart(2, '0')}
         </span>
       ))}
-    </span>
+    </ByteColumns>
     <span>ASCII</span>
-  </div>
+  </HexGrid>
 );
 const HexStatus = ({
   decimal,

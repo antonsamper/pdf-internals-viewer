@@ -1,3 +1,5 @@
+import type { ComponentProps } from 'react';
+
 import { cn } from 'cn';
 import { Braces, ChevronRight, FileCode2, FileWarning, Files, FolderOpen, Layers, LayoutDashboard, ListTree } from 'lucide-react';
 
@@ -6,14 +8,18 @@ import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 import type { PdfIssue } from '@/lib/pdf/issues';
 import type { PdfDocumentInfo, PdfObjectRecord } from '@/lib/pdf/types';
 
-import { PANE_HEADING, SEVERITY_TONE } from '@/components/inspector-styles';
+import { PaneHeading } from '@/components/inspector/pane';
+import { SEVERITY_TONE } from '@/components/inspector/severity-tone';
 import { PageTree } from '@/components/page-tree';
 import { SessionBookmarks, type SessionBookmark } from '@/components/session-bookmarks';
 import { Badge } from '@/components/ui/badge';
 
 import type { Section, Selection } from './types';
 
-const NAV_COUNT = 'ml-auto text-[10px] tabular-nums';
+/** The count at the end of a section button. */
+const SectionCount = ({ className, ...props }: ComponentProps<'span'>) => (
+  <span className={cn('ml-auto text-[10px] tabular-nums', className)} {...props} />
+);
 
 export const ExplorerPane = ({
   bookmarks,
@@ -68,13 +74,13 @@ export const ExplorerPane = ({
   const visibleObjects = listedObjects.slice(listStart, listStart + 45);
   return (
     <aside className="flex h-full min-h-0 flex-col bg-sidebar" aria-label="Structure explorer">
-      <div className={PANE_HEADING}>
+      <PaneHeading>
         <ListTree size={15} />
         <span>Explorer</span>
         <Badge variant="outline" className="ml-auto rounded-[4px] px-[5px] py-0 text-[10px] leading-[calc(4/3)] text-muted-foreground">
           {objects.length}
         </Badge>
-      </div>
+      </PaneHeading>
       <nav className="flex flex-col gap-0.5 px-[9px] py-[13px]" aria-label="Document sections">
         {(
           [
@@ -100,9 +106,8 @@ export const ExplorerPane = ({
             <Icon size={15} className={cn(key === 'issues' && issueSeverity && ['text-(--issue-ink)', SEVERITY_TONE[issueSeverity]])} />
             <span>{label}</span>
             {key === 'issues' && (
-              <span
+              <SectionCount
                 className={cn(
-                  NAV_COUNT,
                   issueSeverity && [
                     'rounded-[4px] bg-(--issue-soft) px-1.5 py-0.5 font-[650] text-(--issue-ink)',
                     SEVERITY_TONE[issueSeverity],
@@ -110,9 +115,9 @@ export const ExplorerPane = ({
                 )}
               >
                 {issues.filter((issue) => issue.severity !== 'info').length}
-              </span>
+              </SectionCount>
             )}
-            {key === 'pages' && <span className={NAV_COUNT}>{document?.pages.length ?? '—'}</span>}
+            {key === 'pages' && <SectionCount>{document?.pages.length ?? '—'}</SectionCount>}
           </button>
         ))}
       </nav>

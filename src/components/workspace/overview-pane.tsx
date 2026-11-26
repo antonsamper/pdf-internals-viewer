@@ -1,23 +1,16 @@
+import { cn } from 'cn';
 import { ArrowUpRight, FileCode2, Files, FolderOpen, Image, LockKeyhole } from 'lucide-react';
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, type ComponentProps, type ReactNode } from 'react';
 
 import type { PdfIssue } from '@/lib/pdf/issues';
 import type { ByteRange, PdfDocumentInfo, PdfObjectRecord } from '@/lib/pdf/types';
 import type { ScrollPosition } from '@/lib/scroll-restoration';
 
 import { InspectionUnavailable } from '@/components/inspection-unavailable';
-import {
-  ACTION_BUTTON,
-  ACTION_ROW,
-  BODY_MUTED,
-  INSPECTOR_SCROLL,
-  OVERVIEW_ICON,
-  OVERVIEW_SUBTITLE,
-  OVERVIEW_TITLE,
-  REPRESENTATION_NOTE,
-  SECTION_HEADING,
-  WARNING_INLINE,
-} from '@/components/inspector-styles';
+import { ActionButton, ActionRow } from '@/components/inspector/actions';
+import { IssueNote, Note } from '@/components/inspector/notes';
+import { PaneBody, PaneIntro, PaneSubtitle, SectionHeading } from '@/components/inspector/pane';
+import { Warning } from '@/components/inspector/warning';
 import { IssueSummary } from '@/components/issues-panel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,6 +45,11 @@ export interface OverviewPaneProps {
 }
 
 type DocumentProps = OverviewPaneProps & { document: PdfDocumentInfo };
+
+/** A paragraph of muted body text in the overview. */
+const OverviewText = ({ className, ...props }: ComponentProps<'p'>) => (
+  <p className={cn('text-[11px] leading-[1.8] text-muted-foreground', className)} {...props} />
+);
 
 const Fact = ({ children, label }: { children: ReactNode; label: string }) => (
   <div className="flex justify-between gap-3 border-b py-[11px] text-[11px]">
@@ -117,7 +115,7 @@ const EncryptionNotice = (props: DocumentProps) => {
   const { document, unlockError } = props;
   if (document.locked)
     return (
-      <div className={WARNING_INLINE}>
+      <Warning render={<div />}>
         <LockKeyhole size={16} />
         <div className="min-w-0 flex-1 space-y-3">
           <p>
@@ -131,7 +129,7 @@ const EncryptionNotice = (props: DocumentProps) => {
             </p>
           )}
         </div>
-      </div>
+      </Warning>
     );
   if (document.encrypted)
     return (
@@ -145,7 +143,7 @@ const EncryptionNotice = (props: DocumentProps) => {
 
 const StructureSection = ({ byteCount, document, onFollowReference, onSelectRange }: DocumentProps) => (
   <>
-    <h2 className={SECTION_HEADING}>Cross-reference entry point</h2>
+    <SectionHeading>Cross-reference entry point</SectionHeading>
     {document.startXref !== undefined ? (
       <Button
         variant="outline"
@@ -161,30 +159,23 @@ const StructureSection = ({ byteCount, document, onFollowReference, onSelectRang
         <ArrowUpRight size={14} />
       </Button>
     ) : (
-      <p className={BODY_MUTED}>No reliable startxref location available.</p>
+      <OverviewText>No reliable startxref location available.</OverviewText>
     )}
-    <h2 className={SECTION_HEADING}>Trailer dictionary</h2>
+    <SectionHeading>Trailer dictionary</SectionHeading>
     <ValueView value={document.trailer} onNavigate={onFollowReference} />
   </>
 );
 
 const ExploreSection = ({ document, objects, resourceObjects, onNavigate, onPreview }: DocumentProps) => (
   <>
-    <h2 className={SECTION_HEADING}>Start exploring</h2>
-    <div className={ACTION_ROW}>
-      <Button
-        variant="outline"
-        className={ACTION_BUTTON}
-        disabled={!document.catalogId}
-        onClick={() => document.catalogId && onNavigate(document.catalogId)}
-      >
+    <SectionHeading>Start exploring</SectionHeading>
+    <ActionRow>
+      <ActionButton disabled={!document.catalogId} onClick={() => document.catalogId && onNavigate(document.catalogId)}>
         <FolderOpen size={15} />
         Document catalogue
         <ArrowUpRight size={13} />
-      </Button>
-      <Button
-        variant="outline"
-        className={ACTION_BUTTON}
+      </ActionButton>
+      <ActionButton
         disabled={!document.pages.length}
         onClick={() => {
           onNavigate(document.pages[0], 'properties', 'pages');
@@ -193,34 +184,32 @@ const ExploreSection = ({ document, objects, resourceObjects, onNavigate, onPrev
         <Files size={15} />
         First page
         <ArrowUpRight size={13} />
-      </Button>
-      <Button variant="outline" className={ACTION_BUTTON} disabled={document.locked} onClick={onPreview}>
+      </ActionButton>
+      <ActionButton disabled={document.locked} onClick={onPreview}>
         <Image size={15} />
         Page preview
-      </Button>
-    </div>
-    <p className="mt-4 text-[11px] leading-[1.8] text-muted-foreground">
+      </ActionButton>
+    </ActionRow>
+    <OverviewText className="mt-4">
       Follow a reference such as <code>4 0 R</code> to inspect another object. Its source bytes highlight in the hex view.
-    </p>
-    <h2 className={SECTION_HEADING}>Resources</h2>
-    <p className={BODY_MUTED}>
+    </OverviewText>
+    <SectionHeading>Resources</SectionHeading>
+    <OverviewText>
       {resourceObjects.filter((object) => object.kind === 'Font').length} font objects ·{' '}
       {resourceObjects.filter((object) => hasSubtype(object, 'Image')).length} image objects ·{' '}
       {objects.filter((object) => object.stream).length} streams
-    </p>
-    <p className={REPRESENTATION_NOTE}>
-      Counts describe the indexed object set, including unreferenced objects. They are not a content inventory.
-    </p>
+    </OverviewText>
+    <Note>Counts describe the indexed object set, including unreferenced objects. They are not a content inventory.</Note>
   </>
 );
 
 const IssuesOverview = ({ document, issues, onChooseSection }: DocumentProps) => (
   <section className="mt-5 border-t py-3.5 text-[12px] leading-[1.7]">
-    <h2 className={SECTION_HEADING}>Issues</h2>
+    <SectionHeading>Issues</SectionHeading>
     {document.locked ? (
-      <p className="my-2 text-muted-foreground">Structure checks unavailable while locked.</p>
+      <IssueNote>Structure checks unavailable while locked.</IssueNote>
     ) : (
-      <IssueSummary issues={issues} className="my-2 text-muted-foreground" />
+      <IssueSummary issues={issues} empty={IssueNote} />
     )}
     <Button variant="outline" size="sm" className="text-[12px] leading-[1.7]" onClick={() => onChooseSection('issues')}>
       View issues and coverage
@@ -232,12 +221,10 @@ export const OverviewPane = (props: OverviewPaneProps) => {
   const { document, filename, inspectionError, scrollPositionRef, section, onOpenFile, onShowBytes } = props;
   const scroll = useScrollRestoration(scrollPositionRef);
   return (
-    <div className={INSPECTOR_SCROLL} {...scroll}>
-      <div>
-        <FileCode2 size={25} className={OVERVIEW_ICON} />
-        <h1 className={OVERVIEW_TITLE}>{section === 'structure' ? 'File structure' : 'Document overview'}</h1>
-        <p className={OVERVIEW_SUBTITLE}>{filename}</p>
-      </div>
+    <PaneBody {...scroll}>
+      <PaneIntro icon={FileCode2} title={section === 'structure' ? 'File structure' : 'Document overview'}>
+        <PaneSubtitle>{filename}</PaneSubtitle>
+      </PaneIntro>
       {document ? (
         <>
           <DocumentFacts {...props} document={document} />
@@ -252,6 +239,6 @@ export const OverviewPane = (props: OverviewPaneProps) => {
       ) : (
         <InspectionUnavailable reason={inspectionError ?? undefined} onOpenFile={onOpenFile} onShowBytes={onShowBytes} />
       )}
-    </div>
+    </PaneBody>
   );
 };

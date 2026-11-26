@@ -1,18 +1,19 @@
 import { cn } from 'cn';
 import { Download, LoaderCircle, ImageOff } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import type { PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 
-import { WARNING_INLINE } from '@/components/inspector-styles';
+import { Warning } from '@/components/inspector/warning';
 import { Button } from '@/components/ui/button';
 import { fileSize } from '@/lib/file-size';
 import { buildImageFile, imageThumbnail, queueImageWork } from '@/lib/image-export';
 import { imageDownloadPlan } from '@/lib/pdf/image-download';
 import { saveFile } from '@/lib/save-file';
 import { useVisible } from '@/lib/use-visible';
-/** Notes under an image keep a readable measure. */
-const IMAGE_NOTE = 'max-w-[54ch] leading-[1.6]';
+
+/** The text in the preview placeholder, at a readable measure. */
+const PreviewStatus = ({ children }: { children: ReactNode }) => <p className="max-w-[54ch] leading-[1.6]">{children}</p>;
 
 export const ImageDownload = ({
   object,
@@ -122,12 +123,12 @@ export const ImageDownload = ({
             {previewError ? (
               <>
                 <ImageOff aria-hidden="true" className="size-[18px] shrink-0" />
-                <p className={IMAGE_NOTE}>Preview unavailable: {previewError}</p>
+                <PreviewStatus>Preview unavailable: {previewError}</PreviewStatus>
               </>
             ) : (
               <>
                 <LoaderCircle aria-hidden="true" className="size-[18px] shrink-0 animate-spin motion-reduce:animate-none" />
-                <p className={IMAGE_NOTE}>Loading image preview…</p>
+                <PreviewStatus>Loading image preview…</PreviewStatus>
               </>
             )}
           </div>
@@ -152,7 +153,7 @@ export const ImageDownload = ({
         )}
         {pending ? 'Exporting image…' : 'Download image'}
       </Button>
-      <p className={cn('mt-2 text-xs text-muted-foreground', IMAGE_NOTE)}>
+      <p className="mt-2 max-w-[54ch] text-xs leading-[1.6] text-muted-foreground">
         {unavailable
           ? `Image export unavailable: ${unavailable}`
           : plan?.format === 'jpeg'
@@ -160,9 +161,9 @@ export const ImageDownload = ({
             : 'PNG · full image dimensions, without page transforms. Up to 4 megapixels / 4096 pixels per side.'}
       </p>
       {showDownloadError && (
-        <p role="alert" className={cn(WARNING_INLINE, IMAGE_NOTE)}>
+        <Warning role="alert" className="max-w-[54ch] leading-[1.6]">
           {downloadError}
-        </p>
+        </Warning>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 
 import { cn } from 'cn';
 import { BookOpen, File as FileIcon, FolderOpen, X } from 'lucide-react';
@@ -14,9 +14,18 @@ type FollowLink = (event: MouseEvent<HTMLElement>) => boolean;
 
 const closeLabel = (busy: boolean) => (busy ? 'Cancel opening PDF' : 'Close PDF');
 
-/** Header actions shrink to 36px squares of icon only once the header becomes a grid. */
+/**
+ * Header actions shrink to 36px squares of icon only once the header becomes a grid.
+ * This stays a class list because it goes on both a `Button` and a `HeaderLink`.
+ */
 const ACTION_COMPACT = 'max-w600:size-9 max-w600:p-0';
-const ACTION_LABEL = 'max-w600:hidden';
+
+/** A header action's text label, hidden when the action shrinks to its icon. */
+const ActionLabel = ({ children }: { children: ReactNode }) => (
+  <span data-action-label="" className="max-w600:hidden">
+    {children}
+  </span>
+);
 
 const PublicPageActions = ({
   busy,
@@ -86,16 +95,12 @@ const FileAction = ({
   hasFile ? (
     <Button className={ACTION_COMPACT} variant="ghost" size="sm" onClick={onClose} aria-label={closeLabel(busy)} title={closeLabel(busy)}>
       <X size={15} aria-hidden="true" />
-      <span data-action-label="" className={ACTION_LABEL}>
-        {closeLabel(busy)}
-      </span>
+      <ActionLabel>{closeLabel(busy)}</ActionLabel>
     </Button>
   ) : (
     <Button className={ACTION_COMPACT} onClick={onOpenFile} size="sm" aria-label="Open PDF" title="Open PDF">
       <FolderOpen size={15} aria-hidden="true" />
-      <span data-action-label="" className={ACTION_LABEL}>
-        Open PDF
-      </span>
+      <ActionLabel>Open PDF</ActionLabel>
     </Button>
   );
 
@@ -119,10 +124,7 @@ const WorkspaceActions = ({
     <FileName byteCount={byteCount} filename={filename} />
     <div className={cn('flex items-center gap-2', 'max-w600:col-start-3 max-w600:row-start-1', 'max-w480:gap-0.5')} data-header-actions="">
       <HeaderLink className={ACTION_COMPACT} href="/guide" aria-label="User guide" title="User guide" onClick={onFollowLink}>
-        <BookOpen size={15} aria-hidden="true" />{' '}
-        <span data-action-label="" className={ACTION_LABEL}>
-          User guide
-        </span>
+        <BookOpen size={15} aria-hidden="true" /> <ActionLabel>User guide</ActionLabel>
       </HeaderLink>
       <FileAction busy={busy} hasFile={Boolean(filename)} onClose={onClose} onOpenFile={onOpenFile} />
     </div>

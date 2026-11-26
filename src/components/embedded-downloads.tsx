@@ -6,7 +6,8 @@ import type { EmbeddedDownload } from '@/lib/pdf/downloads';
 import type { PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 
 import { DownloadSize } from '@/components/download-size';
-import { REPRESENTATION_NOTE, WARNING_INLINE } from '@/components/inspector-styles';
+import { Note } from '@/components/inspector/notes';
+import { Warning } from '@/components/inspector/warning';
 import { Button } from '@/components/ui/button';
 import { saveFile } from '@/lib/save-file';
 export const EmbeddedDownloads = ({
@@ -77,16 +78,12 @@ export const EmbeddedDownloads = ({
         </div>
       ))}
       {hasFont && (
-        <p className={cn(REPRESENTATION_NOTE, 'mt-2.5 mb-0 text-[11px] leading-[1.7]')}>
+        <Note className="mt-2.5 mb-0 text-[11px] leading-[1.7]">
           Fonts may be partial: an embedded font can contain only the characters used in this PDF. Downloading it does not restore the
           complete original font. Some extracted font programs are not directly installable.
-        </p>
+        </Note>
       )}
-      {error && (
-        <p className={WARNING_INLINE} role="alert">
-          {error}
-        </p>
-      )}
+      {error && <Warning role="alert">{error}</Warning>}
     </section>
   );
 };
