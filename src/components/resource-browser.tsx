@@ -6,7 +6,7 @@ import type { PdfDocumentInfo, PdfObjectRecord, StreamResult } from '@/lib/pdf/t
 
 import { EmbeddedDownloads } from '@/components/embedded-downloads';
 import { ImageDownload } from '@/components/image-download';
-import { REFERENCE } from '@/components/inspector-styles';
+import { ReferenceButton } from '@/components/inspector/reference-button';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { property } from '@/lib/pdf/navigation';
@@ -129,9 +129,7 @@ export const ResourceBrowser = function ResourceBrowser({
             <article key={object.id} aria-label={`${kind} ${object.id}`} className="min-w-0 py-4">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-[12px] leading-[calc(1.25/0.875)] font-[550]">{kind}</h2>
-                <button className={REFERENCE} onClick={() => onNavigate(object.id)}>
-                  {object.id} obj
-                </button>
+                <ReferenceButton onClick={() => onNavigate(object.id)}>{object.id} obj</ReferenceButton>
               </div>
               <p className="mt-1 text-xs break-words text-muted-foreground">{object.label}</p>
               {downloads.length > 0 && (
@@ -169,9 +167,9 @@ export const ResourceBrowser = function ResourceBrowser({
                   {pages.length ? (
                     <>
                       {pages.slice(0, 30).map((page) => (
-                        <button className={REFERENCE} key={page} onClick={() => onNavigate(document.pages[page - 1])}>
+                        <ReferenceButton key={page} onClick={() => onNavigate(document.pages[page - 1])}>
                           Page {page}
-                        </button>
+                        </ReferenceButton>
                       ))}
                       {pages.length > 30 && <span className="text-muted-foreground">and {pages.length - 30} more pages</span>}
                     </>

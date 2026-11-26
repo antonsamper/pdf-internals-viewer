@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { cn } from 'cn';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
@@ -5,11 +7,48 @@ import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 import type { PdfDocumentInfo, PdfObjectRecord, PdfValue } from '@/lib/pdf/types';
 
 import { effectiveResources, property } from '@/lib/pdf/navigation';
-const TREE_INTRO = 'mx-1.5 mt-1.5 mb-3 text-[11px] leading-[1.6] text-muted-foreground';
-const TREE_DETAIL = 'mr-[5px] mb-[7px] ml-[26px] text-[10px] leading-[1.5] text-muted-foreground [overflow-wrap:anywhere]';
-const TREE_TOGGLE = 'h-[30px] w-[26px] flex-[0_0_26px]';
-const TREE_SELECT = cn('flex min-w-0 flex-1 flex-col items-start py-[5px] pr-[5px]', 'text-left text-[11px] [overflow-wrap:anywhere]');
-const TREE_MORE = 'm-1.5 p-[5px] text-[11px] text-reference underline underline-offset-[3px]';
+/** A sentence at the top of the tree, or in place of it when there are no pages. */
+const TreeIntro = ({ children }: { children: ReactNode }) => (
+  <p className="mx-1.5 mt-1.5 mb-3 text-[11px] leading-[1.6] text-muted-foreground">{children}</p>
+);
+
+/** Details under a node, such as its object kind or why it stops expanding. */
+const NodeDetail = ({ children }: { children: ReactNode }) => (
+  <p className="mr-[5px] mb-[7px] ml-[26px] text-[10px] leading-[1.5] [overflow-wrap:anywhere] text-muted-foreground">{children}</p>
+);
+
+/** The expand button, or a spacer of the same width when the node has no children. */
+const NodeToggle = ({ expanded, label, onToggle }: { expanded: boolean; label: string; onToggle?: () => void }) =>
+  onToggle ? (
+    <button
+      className="grid h-[30px] w-[26px] flex-[0_0_26px] place-items-center rounded-[4px]"
+      aria-label={label}
+      aria-expanded={expanded}
+      onClick={onToggle}
+    >
+      {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+    </button>
+  ) : (
+    <span className="h-[30px] w-[26px] flex-[0_0_26px]" />
+  );
+
+/** A node's label and object number: a button when the node opens an object. */
+const NodeLabel = ({ children, current, onSelect }: { children: ReactNode; current?: boolean; onSelect?: () => void }) => {
+  const className = cn('flex min-w-0 flex-1 flex-col items-start py-[5px] pr-[5px]', 'text-left text-[11px] [overflow-wrap:anywhere]');
+  return onSelect ? (
+    <button className={className} aria-current={current ? 'true' : undefined} onClick={onSelect}>
+      {children}
+    </button>
+  ) : (
+    <span className={className}>{children}</span>
+  );
+};
+
+const ShowMoreButton = ({ children, onClick }: { children: ReactNode; onClick: () => void }) => (
+  <button className="m-1.5 p-[5px] text-[11px] text-reference underline underline-offset-[3px]" onClick={onClick}>
+    {children}
+  </button>
+);
 
 export const PageTree = ({
   document,
@@ -109,36 +148,25 @@ export const PageTree = ({
             ref && selectedId === ref && 'bg-accent shadow-[inset_0_0_0_1px_var(--border)]'
           )}
         >
-          {expandable ? (
-            <button
-              className={cn(TREE_TOGGLE, 'grid place-items-center rounded-[4px]')}
-              aria-label={`${expanded ? 'Collapse' : 'Expand'} ${label}${ref ? ` ${ref}` : ''}`}
-              aria-expanded={expanded}
-              onClick={() => toggle(key)}
-            >
-              {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-            </button>
-          ) : (
-            <span className={TREE_TOGGLE} />
-          )}
+          <NodeToggle
+            expanded={expanded}
+            label={`${expanded ? 'Collapse' : 'Expand'} ${label}${ref ? ` ${ref}` : ''}`}
+            onToggle={expandable ? () => toggle(key) : undefined}
+          />
           {ref && object ? (
-            <button
-              className={TREE_SELECT}
-              aria-current={selectedId === ref ? 'true' : undefined}
-              onClick={() => onNavigate(ref, pageRoot ? [{ id: ref, label }] : nextTrail)}
-            >
+            <NodeLabel current={selectedId === ref} onSelect={() => onNavigate(ref, pageRoot ? [{ id: ref, label }] : nextTrail)}>
               <span>{label}</span>
               <code className="text-[10px] text-muted-foreground">{ref} obj</code>
-            </button>
+            </NodeLabel>
           ) : (
-            <span className={TREE_SELECT}>
+            <NodeLabel>
               <span>{label}</span>
               {ref && <code className="text-[10px] text-muted-foreground">{ref} R</code>}
-            </span>
+            </NodeLabel>
           )}
         </div>
         {(detail || cycle || (ref && !object) || bounded || (object && object.referencedBy.length > 1 && !pageRoot)) && (
-          <p className={TREE_DETAIL}>
+          <NodeDetail>
             {[
               detail,
               cycle ? 'Already in this path' : '',
@@ -148,7 +176,7 @@ export const PageTree = ({
             ]
               .filter(Boolean)
               .join(' · ')}
-          </p>
+          </NodeDetail>
         )}
         {expanded && expandable && (
           <ul className="ml-2.5 border-l pl-[7px]">
@@ -176,8 +204,7 @@ export const PageTree = ({
             )}
             {children.length > limit && (
               <li>
-                <button
-                  className={TREE_MORE}
+                <ShowMoreButton
                   onClick={() =>
                     onStateChange({
                       ...state,
@@ -186,13 +213,13 @@ export const PageTree = ({
                   }
                 >
                   Show {Math.min(50, children.length - limit)} more entries
-                </button>
+                </ShowMoreButton>
               </li>
             )}
           </ul>
         )}
         {pageRoot && object && !children.length && (
-          <p className={TREE_DETAIL}>No content, resources, or annotations found in this page dictionary.</p>
+          <NodeDetail>No content, resources, or annotations found in this page dictionary.</NodeDetail>
         )}
       </li>
     );
@@ -201,7 +228,7 @@ export const PageTree = ({
   const rootLimit = state.limits.root ?? 50;
   return (
     <nav className="min-h-0 flex-1 overflow-auto px-2 pb-3" aria-label="Page relationships">
-      <p className={TREE_INTRO}>Expand a page to explore its connections. Shared objects can appear on several paths.</p>
+      <TreeIntro>Expand a page to explore its connections. Shared objects can appear on several paths.</TreeIntro>
       <ul>
         {document.pages
           .slice(0, rootLimit)
@@ -210,8 +237,7 @@ export const PageTree = ({
           )}
       </ul>
       {document.pages.length > rootLimit && (
-        <button
-          className={TREE_MORE}
+        <ShowMoreButton
           onClick={() =>
             onStateChange({
               ...state,
@@ -220,9 +246,9 @@ export const PageTree = ({
           }
         >
           Show {Math.min(50, document.pages.length - rootLimit)} more pages
-        </button>
+        </ShowMoreButton>
       )}
-      {!document.pages.length && <p className={TREE_INTRO}>No pages available in the indexed structure.</p>}
+      {!document.pages.length && <TreeIntro>No pages available in the indexed structure.</TreeIntro>}
     </nav>
   );
 };

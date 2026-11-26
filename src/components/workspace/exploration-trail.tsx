@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react';
 
 import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 
-import { REFERENCE } from '@/components/inspector-styles';
+import { ReferenceButton } from '@/components/inspector/reference-button';
 
 import type { Section } from './types';
 
@@ -48,9 +48,7 @@ export const ExplorationTrail = ({
                 {step.label}
               </span>
             ) : (
-              <button className={REFERENCE} onClick={() => onSelectStep(index)}>
-                {step.label}
-              </button>
+              <ReferenceButton onClick={() => onSelectStep(index)}>{step.label}</ReferenceButton>
             )}
           </span>
         ))}

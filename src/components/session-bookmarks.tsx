@@ -1,7 +1,7 @@
 import { cn } from 'cn';
 import { Bookmark, Trash2 } from 'lucide-react';
 
-import { REFERENCE } from '@/components/inspector-styles';
+import { ReferenceButton } from '@/components/inspector/reference-button';
 import { Button } from '@/components/ui/button';
 export const SessionBookmarks = function SessionBookmarks<T>({
   bookmarks,
@@ -34,12 +34,12 @@ export const SessionBookmarks = function SessionBookmarks<T>({
         {bookmarks.map((bookmark) => (
           <li key={bookmark.key} className="min-w-0">
             <div className="flex items-start gap-1">
-              <button
-                className={cn(REFERENCE, 'min-w-0 flex-1 text-left break-words whitespace-normal')}
+              <ReferenceButton
+                className="min-w-0 flex-1 text-left break-words whitespace-normal"
                 onClick={() => onVisit(bookmark.selection)}
               >
                 {bookmark.label}
-              </button>
+              </ReferenceButton>
               <Button
                 variant="ghost"
                 size="icon-sm"

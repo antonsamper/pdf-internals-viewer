@@ -4,9 +4,9 @@ import { useState } from 'react';
 
 import type { PdfObjectRecord, PdfValue } from '@/lib/pdf/types';
 
-import { REFERENCE, REPRESENTATION_NOTE } from '@/components/inspector-styles';
+import { Note } from '@/components/inspector/notes';
+import { ReferenceButton } from '@/components/inspector/reference-button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-const MUTED = 'text-muted-foreground';
 const SCALAR_TONE: Record<string, string> = { name: 'text-foreground', string: 'text-pdf-string' };
 
 export const ValueView = function ValueView({
@@ -26,20 +26,20 @@ export const ValueView = function ValueView({
   path?: string[];
   referenceDepth?: number;
 }) {
-  if (depth > 12) return <span className={MUTED}>Expand this object in Source to inspect deeper nesting.</span>;
+  if (depth > 12) return <span className="text-muted-foreground">Expand this object in Source to inspect deeper nesting.</span>;
   if (value.type === 'reference') {
     const target = objects?.get(value.ref);
     const cycle = ancestors.includes(value.ref);
     return (
       <span className="inline-block max-w-full align-top">
-        <button className={REFERENCE} onClick={() => onNavigate(value.ref, path)} title={`Open object ${value.ref} in the inspector`}>
+        <ReferenceButton onClick={() => onNavigate(value.ref, path)} title={`Open object ${value.ref} in the inspector`}>
           {value.text}
           <ChevronRight size={12} />
-        </button>
+        </ReferenceButton>
         {objects && !target ? (
-          <span className={MUTED}> · unavailable reference</span>
+          <span className="text-muted-foreground"> · unavailable reference</span>
         ) : cycle ? (
-          <span className={MUTED}> · already in this path</span>
+          <span className="text-muted-foreground"> · already in this path</span>
         ) : target && referenceDepth < 4 && depth < 12 ? (
           <InlineReference
             key={value.ref}
@@ -52,7 +52,7 @@ export const ValueView = function ValueView({
             depth={depth}
           />
         ) : target ? (
-          <span className={MUTED}> · inline depth limit; open object to continue</span>
+          <span className="text-muted-foreground"> · inline depth limit; open object to continue</span>
         ) : null}
       </span>
     );
@@ -60,7 +60,7 @@ export const ValueView = function ValueView({
   if (value.type === 'dictionary' || value.type === 'stream')
     return (
       <div className="w-full">
-        {value.entries.length === 0 && <span className={MUTED}>Empty dictionary</span>}
+        {value.entries.length === 0 && <span className="text-muted-foreground">Empty dictionary</span>}
         {value.entries.map(({ key, value: child }, index) => {
           const bareKey = key.replace(/^\//, '');
           return (
@@ -111,7 +111,7 @@ export const ValueView = function ValueView({
   if (value.type === 'array')
     return (
       <div className="flex flex-wrap items-baseline gap-[7px] text-[11px]">
-        <span className={MUTED}>[</span>
+        <span className="text-muted-foreground">[</span>
         {value.items.map((child, index) => (
           <ValueView
             key={index}
@@ -124,7 +124,7 @@ export const ValueView = function ValueView({
             referenceDepth={referenceDepth}
           />
         ))}
-        <span className={MUTED}>]</span>
+        <span className="text-muted-foreground">]</span>
       </div>
     );
   return <span className={cn('font-mono text-[11px] whitespace-pre-wrap', SCALAR_TONE[value.type])}>{value.text}</span>;
@@ -159,14 +159,14 @@ const InlineReference = function InlineReference({
       </summary>
       {expanded && (
         <div className="mt-2 rounded-[5px] border p-2.5 [overflow-wrap:anywhere]">
-          <p className={cn(REPRESENTATION_NOTE, 'mb-2.5')}>
+          <Note className="mb-2.5">
             {target.label} ·{' '}
             {target.provenance.type === 'file'
               ? 'Original-file object'
               : target.provenance.type === 'decoded'
                 ? 'Decoded object-stream member'
                 : 'Source location unknown'}
-          </p>
+          </Note>
           <ValueView
             value={target.value}
             onNavigate={onNavigate}

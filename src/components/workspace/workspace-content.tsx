@@ -1,11 +1,9 @@
 import type { MouseEvent, ReactNode } from 'react';
 
-import { cn } from 'cn';
-
 import type { PdfDocumentInfo } from '@/lib/pdf/types';
 
 import { AboutPage } from '@/components/about-page';
-import { LOADING_INLINE } from '@/components/inspector-styles';
+import { LoadingMessage } from '@/components/inspector/loading-message';
 import { SiteLinks } from '@/components/site-links';
 import { Button } from '@/components/ui/button';
 import { PublicPage } from '@/content/public-page';
@@ -58,10 +56,10 @@ export const WorkspaceFooter = ({
 };
 
 export const OpeningProgress = ({ onCancel }: { onCancel: () => void }) => (
-  <div className={cn(LOADING_INLINE, 'border-b py-1.5 text-[11px]')}>
+  <LoadingMessage render={<div />} className="border-b py-1.5 text-[11px]">
     Opening PDF…{' '}
     <Button variant="ghost" size="xs" className="text-[11px]" onClick={onCancel}>
       Cancel
     </Button>
-  </div>
+  </LoadingMessage>
 );

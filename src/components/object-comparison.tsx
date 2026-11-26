@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import type { PdfObjectRecord } from '@/lib/pdf/types';
 
-import { REFERENCE } from '@/components/inspector-styles';
+import { ReferenceButton } from '@/components/inspector/reference-button';
 import { Button } from '@/components/ui/button';
 import { ValueView } from '@/components/value-view';
 import { compareObjects } from '@/lib/pdf/resource-tools';
@@ -44,9 +44,9 @@ export const ObjectComparison = function ObjectComparison({
       <div className="my-3 grid gap-4 sm:grid-cols-2">
         <div>
           <p className="text-xs text-muted-foreground">Pinned</p>
-          <button className={REFERENCE} onClick={() => onNavigate(pinned.id)}>
+          <ReferenceButton onClick={() => onNavigate(pinned.id)}>
             {pinned.id} obj · {pinned.kind}
-          </button>
+          </ReferenceButton>
           <Location object={pinned} />
         </div>
         <div>

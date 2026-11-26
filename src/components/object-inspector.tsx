@@ -1,21 +1,18 @@
 import { cn } from 'cn';
 import { ArrowUpRight, Braces, FileCode2, LoaderCircle } from 'lucide-react';
-import { useEffect, useMemo, useState, type MouseEvent } from 'react';
+import { useEffect, useMemo, useState, type ComponentProps, type MouseEvent, type ReactNode } from 'react';
 
 import type { ByteRange, PdfObjectRecord, PdfValue, StreamResult } from '@/lib/pdf/types';
 
 import { ContentStreamView } from '@/components/content-stream-view';
 import { EmbeddedDownloads } from '@/components/embedded-downloads';
 import { ImageDownload } from '@/components/image-download';
-import {
-  INSPECTOR_SCROLL,
-  LOADING_INLINE,
-  REFERENCE,
-  REPRESENTATION_NOTE,
-  SECTION_HEADING,
-  SOURCE_CODE,
-  WARNING_INLINE,
-} from '@/components/inspector-styles';
+import { LoadingMessage } from '@/components/inspector/loading-message';
+import { Note } from '@/components/inspector/notes';
+import { PaneBody, SectionHeading } from '@/components/inspector/pane';
+import { ReferenceButton } from '@/components/inspector/reference-button';
+import { SourceCode } from '@/components/inspector/source-code';
+import { Warning } from '@/components/inspector/warning';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ValueView } from '@/components/value-view';
@@ -25,19 +22,52 @@ import { objectName, objectRelationships, objectSummary } from '@/lib/pdf/object
 import { useScrollRestoration, type ScrollPosition } from '@/lib/scroll-restoration';
 
 /** Tabs sit on one flat line: violet when active, with a red underline. */
-const TAB_TRIGGER = cn(
-  'h-8 flex-initial px-[3px] py-0 text-[11px]',
-  'data-active:text-brand-purple data-active:after:bg-brand-red data-active:hover:text-brand-purple',
-  'dark:data-active:text-brand-purple dark:data-active:hover:text-brand-purple'
+const ObjectTab = ({ className, ...props }: ComponentProps<typeof TabsTrigger>) => (
+  <TabsTrigger
+    className={cn(
+      'h-8 flex-initial px-[3px] py-0 text-[11px]',
+      'data-active:text-brand-purple data-active:after:bg-brand-red data-active:hover:text-brand-purple',
+      'dark:data-active:text-brand-purple dark:data-active:hover:text-brand-purple',
+      className
+    )}
+    {...props}
+  />
 );
-const RELATIONSHIP_LINK = cn(
-  'flex flex-wrap justify-between gap-x-3 gap-y-1 p-2',
-  'rounded-[5px] text-left text-[11px] [overflow-wrap:anywhere]',
-  'hover:bg-accent'
+
+/** One side of a relationship link: the referring object, the target or the path between them. */
+const RelationshipPart = ({ className, ...props }: ComponentProps<'span'>) => (
+  <span className={cn('inline-flex min-w-0 flex-wrap items-center gap-1', className)} {...props} />
 );
-const RELATIONSHIP_PART = 'inline-flex min-w-0 flex-wrap items-center gap-1';
-const RELATIONSHIP_PATH = 'font-mono text-muted-foreground';
-const REFERENCE_COUNT = 'ml-[5px] text-[10px] text-muted-foreground';
+
+const RelationshipPath = ({ children }: { children: ReactNode }) => (
+  <RelationshipPart className="font-mono text-muted-foreground">{children}</RelationshipPart>
+);
+
+const RelationshipLink = ({ children, onClick }: { children: ReactNode; onClick: () => void }) => (
+  <button
+    className={cn(
+      'flex flex-wrap justify-between gap-x-3 gap-y-1 p-2',
+      'rounded-[5px] text-left text-[11px] [overflow-wrap:anywhere]',
+      'hover:bg-accent'
+    )}
+    onClick={onClick}
+  >
+    {children}
+  </button>
+);
+
+/** A titled list of relationship links, with a sentence in place of the list when it is empty. */
+const Relationships = ({ children, count, empty, title }: { children: ReactNode; count: number; empty?: string; title: string }) => (
+  <>
+    <SectionHeading>
+      {title} <span className="ml-[5px] text-[10px] text-muted-foreground">{count === 1 ? '1 object' : `${count} objects`}</span>
+    </SectionHeading>
+    <div className="grid gap-1" data-relationship-links>
+      {children}
+      {empty && <p className="text-muted-foreground">{empty}</p>}
+    </div>
+  </>
+);
 const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: string }) => (
   <header className="px-[22px] pt-[23px] pb-[15px] max-w480:px-[18px] max-w480:pt-5 max-w480:pb-3">
     <div className="flex items-center gap-[11px]">
@@ -74,15 +104,14 @@ const ProvenanceNote = ({ object, onNavigate }: { object: PdfObjectRecord; onNav
     ) : object.provenance.type === 'decoded' ? (
       <span>
         Decoded object stream{' '}
-        <button
-          className={REFERENCE}
+        <ReferenceButton
           onClick={() => {
             if (object.provenance.type === 'decoded') onNavigate(object.provenance.containerId);
           }}
         >
           {object.provenance.containerId}
           <ArrowUpRight size={12} />
-        </button>{' '}
+        </ReferenceButton>{' '}
         · offset {object.provenance.range.start}
       </span>
     ) : (
@@ -173,48 +202,36 @@ export const ObjectInspector = function ObjectInspector({
       {assets.length > 0 && <EmbeddedDownloads key={object.id} object={object} assets={assets} extractStream={extractStream} />}
       <ProvenanceNote object={object} onNavigate={onNavigate} />
       {object.warnings.map((warning, i) => (
-        <p className={WARNING_INLINE} key={i}>
-          {warning}
-        </p>
+        <Warning key={i}>{warning}</Warning>
       ))}
       <Tabs value={safeTab} onValueChange={(value) => onTabChange(value as InspectorTab)} className="min-h-0 flex-1 gap-0">
         <TabsList
           variant="line"
           className="w-full shrink-0 justify-start gap-[13px] border-b px-[18px] py-0 group-data-horizontal/tabs:h-[37px]"
         >
-          <TabsTrigger value="properties" className={TAB_TRIGGER}>
-            Properties
-          </TabsTrigger>
-          <TabsTrigger value="source" className={TAB_TRIGGER}>
-            Source
-          </TabsTrigger>
+          <ObjectTab value="properties">Properties</ObjectTab>
+          <ObjectTab value="source">Source</ObjectTab>
           {object.stream && (
             <>
-              <TabsTrigger value="raw" className={TAB_TRIGGER}>
-                Raw stream
-              </TabsTrigger>
-              <TabsTrigger value="decoded" className={TAB_TRIGGER}>
-                Decoded
-              </TabsTrigger>
+              <ObjectTab value="raw">Raw stream</ObjectTab>
+              <ObjectTab value="decoded">Decoded</ObjectTab>
             </>
           )}
         </TabsList>
-        <TabsContent value="properties" className={INSPECTOR_SCROLL} {...(safeTab === 'properties' ? scroll : {})}>
+        <TabsContent value="properties" render={<PaneBody />} {...(safeTab === 'properties' ? scroll : {})}>
           <ValueView key={object.id} value={object.value} onNavigate={onNavigate} objects={objects} ancestors={[object.id]} />
           <section className="mt-[30px]">
             {resources && (
               <>
-                <h2 className={SECTION_HEADING}>Effective page resources</h2>
+                <SectionHeading>Effective page resources</SectionHeading>
                 {resources.inheritedFrom ? (
-                  <p className={REPRESENTATION_NOTE}>
+                  <Note>
                     Inherited from{' '}
-                    <button className={REFERENCE} onClick={() => onNavigate(resources.inheritedFrom!)}>
-                      {resources.inheritedFrom} R
-                    </button>
-                    . The inspector found these resources on an ancestor in the page tree.
-                  </p>
+                    <ReferenceButton onClick={() => onNavigate(resources.inheritedFrom!)}>{resources.inheritedFrom} R</ReferenceButton>. The
+                    inspector found these resources on an ancestor in the page tree.
+                  </Note>
                 ) : (
-                  <p className={REPRESENTATION_NOTE}>Defined on this page.</p>
+                  <Note>Defined on this page.</Note>
                 )}
                 <ValueView
                   key={`${object.id}-resources`}
@@ -226,95 +243,85 @@ export const ObjectInspector = function ObjectInspector({
                 />
               </>
             )}
-            <h2 className={SECTION_HEADING}>
-              References{' '}
-              <span className={REFERENCE_COUNT}>
-                {object.references.length} {object.references.length === 1 ? 'object' : 'objects'}
-              </span>
-            </h2>
-            <div className="grid gap-1" data-relationship-links>
+            <Relationships
+              title="References"
+              count={object.references.length}
+              empty={
+                relationships.outgoing.length
+                  ? undefined
+                  : object.references.length
+                    ? 'Reference paths unavailable in the inspected value.'
+                    : 'No outgoing references.'
+              }
+            >
               {relationships.outgoing.map((link, index) => (
-                <button className={RELATIONSHIP_LINK} key={index} onClick={() => onNavigate(link.targetId, link.path)}>
-                  <span className={cn(RELATIONSHIP_PART, RELATIONSHIP_PATH)}>{link.path.join(' → ') || 'Direct reference'}</span>
-                  <span className={RELATIONSHIP_PART}>
+                <RelationshipLink key={index} onClick={() => onNavigate(link.targetId, link.path)}>
+                  <RelationshipPath>{link.path.join(' → ') || 'Direct reference'}</RelationshipPath>
+                  <RelationshipPart>
                     {objectName(link.targetId, objects ?? new Map(), pages)} · <code className="text-reference">{link.targetId} R</code>
                     <ArrowUpRight size={12} />
-                  </span>
-                </button>
+                  </RelationshipPart>
+                </RelationshipLink>
               ))}
-              {!relationships.outgoing.length && (
-                <p className="text-muted-foreground">
-                  {object.references.length ? 'Reference paths unavailable in the inspected value.' : 'No outgoing references.'}
-                </p>
-              )}
-            </div>
-            <h2 className={SECTION_HEADING}>
-              Referenced by{' '}
-              <span className={REFERENCE_COUNT}>
-                {object.referencedBy.length} {object.referencedBy.length === 1 ? 'object' : 'objects'}
-              </span>
-            </h2>
-            <div className="grid gap-1" data-relationship-links>
+            </Relationships>
+            <Relationships
+              title="Referenced by"
+              count={object.referencedBy.length}
+              empty={
+                relationships.incoming.length
+                  ? undefined
+                  : object.referencedBy.length
+                    ? 'Incoming reference paths unavailable in the inspected values.'
+                    : 'No incoming references in the indexed object set.'
+              }
+            >
               {relationships.incoming.map((link, index) => (
-                <button className={RELATIONSHIP_LINK} key={index} onClick={() => onInspect(link.sourceId)}>
-                  <span className={RELATIONSHIP_PART}>
+                <RelationshipLink key={index} onClick={() => onInspect(link.sourceId)}>
+                  <RelationshipPart>
                     {objectName(link.sourceId, objects ?? new Map(), pages)} · <code className="text-reference">{link.sourceId} obj</code>
                     <ArrowUpRight size={12} />
-                  </span>
-                  <span className={cn(RELATIONSHIP_PART, RELATIONSHIP_PATH)}>via {link.path.join(' → ') || 'a direct reference'}</span>
-                </button>
+                  </RelationshipPart>
+                  <RelationshipPath>via {link.path.join(' → ') || 'a direct reference'}</RelationshipPath>
+                </RelationshipLink>
               ))}
-              {!relationships.incoming.length && (
-                <p className="text-muted-foreground">
-                  {object.referencedBy.length
-                    ? 'Incoming reference paths unavailable in the inspected values.'
-                    : 'No incoming references in the indexed object set.'}
-                </p>
-              )}
-            </div>
+            </Relationships>
             {relationships.incomplete && (
-              <p className={REPRESENTATION_NOTE}>
+              <Note>
                 Some relationship details may be missing. Inspection checks at most 200 paths per direction, 200 incoming objects, 5,000
                 values per object, and 32 nested levels. Object counts above describe the indexed references.
-              </p>
+              </Note>
             )}
           </section>
         </TabsContent>
-        <TabsContent value="source" className={INSPECTOR_SCROLL} {...(safeTab === 'source' ? scroll : {})}>
-          <p className={REPRESENTATION_NOTE}>
+        <TabsContent value="source" render={<PaneBody />} {...(safeTab === 'source' ? scroll : {})}>
+          <Note>
             {object.provenance.type === 'file'
               ? 'Original object syntax. Use Original bytes to check the exact bytes in the file.'
               : object.provenance.type === 'decoded'
                 ? 'Object syntax from its decoded container. These are not original file bytes.'
                 : 'Reconstructed from parsed values. The exact syntax in the file is unavailable.'}
-          </p>
-          <pre className={SOURCE_CODE}>{object.source}</pre>
+          </Note>
+          <SourceCode>{object.source}</SourceCode>
         </TabsContent>
         {(['raw', 'decoded'] as const).map(
           (mode) =>
             object.stream && (
-              <TabsContent key={mode} value={mode} className={INSPECTOR_SCROLL} {...(safeTab === mode ? scroll : {})}>
+              <TabsContent key={mode} value={mode} render={<PaneBody />} {...(safeTab === mode ? scroll : {})}>
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-[11px]">
                   <span>{mode === 'raw' ? 'Stored stream bytes' : 'Decoded stream bytes'}</span>
                   <Badge variant="outline" className="text-[9px] leading-[calc(4/3)]">
                     {object.stream.filters.join(' → ') || 'No filters'}
                   </Badge>
                 </div>
-                <p className={REPRESENTATION_NOTE}>
+                <Note>
                   Each byte is shown as a Latin-1 character. This does not extract text from the rendered page.{' '}
                   {mode === 'decoded' && 'Decoded offsets differ from original file offsets.'}
-                </p>
+                </Note>
                 {error ? (
-                  <p role="alert" className={WARNING_INLINE}>
-                    {error}
-                  </p>
+                  <Warning role="alert">{error}</Warning>
                 ) : stream ? (
                   <>
-                    {stream.error && (
-                      <p role="alert" className={WARNING_INLINE}>
-                        {stream.error}
-                      </p>
-                    )}
+                    {stream.error && <Warning role="alert">{stream.error}</Warning>}
                     <p className="mb-2.5 text-[10px] text-muted-foreground">
                       {stream.bytes.length.toLocaleString()} bytes
                       {stream.truncated ? ' · display truncated' : ''}
@@ -332,14 +339,14 @@ export const ObjectInspector = function ObjectInspector({
                         onFollowLink={onFollowLink}
                       />
                     ) : (
-                      <pre className={SOURCE_CODE}>{stream.text}</pre>
+                      <SourceCode>{stream.text}</SourceCode>
                     )}
                   </>
                 ) : (
-                  <p className={LOADING_INLINE}>
+                  <LoadingMessage>
                     <LoaderCircle size={15} className="animate-spin" />
                     Reading stream…
-                  </p>
+                  </LoadingMessage>
                 )}
               </TabsContent>
             )
