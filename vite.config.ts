@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 
+import { port } from './vite/port.ts';
 import { publicPages } from './vite/public-pages-plugin.ts';
 
 // https://vite.dev/config/
@@ -26,10 +27,12 @@ export default defineConfig({
     include: ['pdf-internals-viewer/inspection'],
   },
   plugins: [react(), tailwindcss(), publicPages()],
+  preview: { port, strictPort: true },
   resolve: {
     alias: {
       '@': resolve(import.meta.dirname, './src'),
       'pdf-internals-viewer/inspection': resolve(import.meta.dirname, './src/generated/libpdf-inspection.mjs'),
     },
   },
+  server: { port, strictPort: true },
 });

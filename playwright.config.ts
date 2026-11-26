@@ -1,7 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
+
+import { port } from './vite/port.ts';
+
 const externalBaseURL = process.env.PLAYWRIGHT_BASE_URL;
 const cloudflarePreview = Boolean(process.env.PLAYWRIGHT_CLOUDFLARE);
-const localBaseURL = cloudflarePreview ? 'http://127.0.0.1:8787' : 'http://127.0.0.1:5173';
+const localBaseURL = cloudflarePreview ? 'http://127.0.0.1:8787' : `http://127.0.0.1:${port}`;
 export default defineConfig({
   expect: { timeout: 12000 },
   // Tests use isolated browser contexts, so cases in the same file can run together.
@@ -23,8 +26,8 @@ export default defineConfig({
         command: cloudflarePreview
           ? 'pnpm exec wrangler pages dev dist --ip 127.0.0.1 --port 8787'
           : process.env.PLAYWRIGHT_PREVIEW
-            ? 'pnpm run preview --host 127.0.0.1 --port 5173 --strictPort'
-            : 'pnpm run dev --host 127.0.0.1 --port 5173 --strictPort',
+            ? `pnpm run preview --host 127.0.0.1 --port ${port} --strictPort`
+            : `pnpm run dev --host 127.0.0.1 --port ${port} --strictPort`,
         reuseExistingServer: cloudflarePreview ? false : !process.env.CI,
         timeout: 30000,
         url: localBaseURL,

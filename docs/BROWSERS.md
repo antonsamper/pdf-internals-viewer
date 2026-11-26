@@ -23,8 +23,8 @@ Every engine uses Playwright's Desktop Chrome device settings with a 1440 × 100
 
 | Mode                        | Server                                                    | Address                 |
 | --------------------------- | --------------------------------------------------------- | ----------------------- |
-| Default                     | `pnpm run dev` (Vite development server)                  | `http://127.0.0.1:5173` |
-| `PLAYWRIGHT_PREVIEW=1`      | `pnpm run preview` (Vite preview of `dist/`)              | `http://127.0.0.1:5173` |
+| Default                     | `pnpm run dev` (Vite development server)                  | `http://127.0.0.1:9500` |
+| `PLAYWRIGHT_PREVIEW=1`      | `pnpm run preview` (Vite preview of `dist/`)              | `http://127.0.0.1:9500` |
 | `PLAYWRIGHT_CLOUDFLARE=1`   | `pnpm exec wrangler pages dev dist` (local Pages runtime) | `http://127.0.0.1:8787` |
 | `PLAYWRIGHT_BASE_URL=<url>` | None; tests use the given site                            | `<url>`                 |
 
@@ -48,7 +48,7 @@ PLAYWRIGHT_PREVIEW=1 pnpm run test:e2e --browser=webkit
 PLAYWRIGHT_BASE_URL=https://pdf-internals-viewer.pages.dev pnpm run test:e2e --browser=all
 ```
 
-Stop any server already listening on port 5173 before a default or preview run. Outside CI (when `CI` is unset), Playwright reuses whatever answers on that port. A development server left running would then be tested in place of the preview build, without any warning. Cloudflare mode never reuses a server: it always starts its own Wrangler process and stops it afterwards, and it fails to start if port 8787 is already in use.
+The development and preview servers use port 9500. Stop any server already listening on that port before a default or preview run. Outside CI (when `CI` is unset), Playwright reuses whatever answers on that port. A development server left running would then be tested in place of the preview build, without any warning. Cloudflare mode never reuses a server: it always starts its own Wrangler process and stops it afterwards, and it fails to start if port 8787 is already in use.
 
 Tests run with four workers and `fullyParallel`, locally and in CI. Use `--workers=1` for serial debugging or `--workers=N` to change concurrency.
 
