@@ -1,8 +1,12 @@
+import type { ComponentProps, MouseEvent, ReactNode } from 'react';
+
 import { cn } from 'cn';
 import { ArrowUpRight, Braces, FileCode2, LoaderCircle } from 'lucide-react';
-import { useEffect, useMemo, useState, type ComponentProps, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import type { EmbeddedDownload } from '@/lib/pdf/downloads';
 import type { ByteRange, PdfObjectRecord, PdfValue, StreamResult } from '@/lib/pdf/types';
+import type { ScrollPosition } from '@/lib/scroll-restoration';
 
 import { ContentStreamView } from '@/components/content-stream-view';
 import { EmbeddedDownloads } from '@/components/embedded-downloads';
@@ -16,10 +20,10 @@ import { Warning } from '@/components/inspector/warning';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ValueView } from '@/components/value-view';
-import { embeddedDownloads, type EmbeddedDownload } from '@/lib/pdf/downloads';
+import { embeddedDownloads } from '@/lib/pdf/downloads';
 import { hasSubtype } from '@/lib/pdf/navigation';
 import { objectName, objectRelationships, objectSummary } from '@/lib/pdf/object-context';
-import { useScrollRestoration, type ScrollPosition } from '@/lib/scroll-restoration';
+import { useScrollRestoration } from '@/lib/scroll-restoration';
 
 /** Tabs sit on one flat line: violet when active, with a red underline. */
 const ObjectTab = ({ className, ...props }: ComponentProps<typeof TabsTrigger>) => (

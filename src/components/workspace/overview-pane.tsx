@@ -1,6 +1,8 @@
+import type { ComponentProps, ReactNode } from 'react';
+
 import { cn } from 'cn';
 import { ArrowUpRight, FileCode2, Files, FolderOpen, Image, LockKeyhole } from 'lucide-react';
-import { useMemo, type ComponentProps, type ReactNode } from 'react';
+import { useMemo } from 'react';
 
 import type { PdfIssue } from '@/lib/pdf/issues';
 import type { ByteRange, PdfDocumentInfo, PdfObjectRecord } from '@/lib/pdf/types';
@@ -19,7 +21,9 @@ import { hasSubtype } from '@/lib/pdf/navigation';
 import { pageRotationSummary } from '@/lib/pdf/page-rotation';
 import { useScrollRestoration } from '@/lib/scroll-restoration';
 
-import { size, type Section } from './types';
+import type { Section } from './types';
+
+import { size } from './types';
 
 export interface OverviewPaneProps {
   byteCount: number;

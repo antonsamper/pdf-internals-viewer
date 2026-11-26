@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["typescript", "unicorn", "oxc", "react", "react-perf"],
+  "plugins": ["typescript", "unicorn", "oxc", "react", "react-perf", "import"],
   "categories": {
     "correctness": "error",
     "suspicious": "warn"
@@ -12,6 +12,8 @@
     "react/react-in-jsx-scope": "off",
     "typescript/no-explicit-any": "error",
     "typescript/consistent-type-imports": "error",
+    "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }],
     "no-unused-vars": ["error", { "ignoreRestSiblings": true }],
     "sort-keys": ["error", "asc", { "natural": true }],
     "unicorn/filename-case": ["error", { "case": "kebabCase", "ignore": ["^__root\\.tsx$", "^_app(\\..+)?\\.tsx$"] }],

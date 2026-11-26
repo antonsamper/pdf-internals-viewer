@@ -1,13 +1,14 @@
 import type { MouseEvent, ReactNode } from 'react';
 
 import type { PdfDocumentInfo } from '@/lib/pdf/types';
+import type { SitePath } from '@/lib/site-content';
 
 import { AboutPage } from '@/components/about-page';
 import { LoadingMessage } from '@/components/inspector/loading-message';
 import { SiteLinks } from '@/components/site-links';
 import { Button } from '@/components/ui/button';
 import { PublicPage } from '@/content/public-page';
-import { sitePage, type SitePath } from '@/lib/site-content';
+import { sitePage } from '@/lib/site-content';
 
 import { StatusBar } from './status-bar';
 

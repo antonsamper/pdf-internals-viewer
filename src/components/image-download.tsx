@@ -1,6 +1,8 @@
+import type { ReactNode } from 'react';
+
 import { cn } from 'cn';
 import { Download, LoaderCircle, ImageOff } from 'lucide-react';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 

@@ -1,4 +1,6 @@
-import { localEngine, type SearchMatch } from '@embedpdf/engine';
+import type { SearchMatch } from '@embedpdf/engine';
+
+import { localEngine } from '@embedpdf/engine';
 
 import type { SearchSnippet } from './search-snippet';
 

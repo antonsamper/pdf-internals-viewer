@@ -1,4 +1,5 @@
 import type { PdfDict, PdfObject, PdfRef as EngineRef, PdfStream } from '@libpdf/core';
+import type { XRefEntry } from 'pdf-internals-viewer/inspection';
 
 import {
   InspectionDocumentParser,
@@ -8,7 +9,6 @@ import {
   inspectionCompressedLocation,
   inspectionReadIndirect,
   inspectionResetDecodedCache,
-  type XRefEntry,
 } from 'pdf-internals-viewer/inspection';
 
 import type { ByteRange, PdfDocumentInfo, PdfObjectRecord, PdfValue, Provenance, StreamResult } from './types';

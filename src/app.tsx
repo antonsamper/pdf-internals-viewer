@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import type { Selection } from '@/components/workspace/types';
 import type { ResourceCategory } from '@/lib/pdf/resource-catalog';
+import type { SitePath } from '@/lib/site-content';
 
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { BytePane } from '@/components/workspace/byte-pane';
@@ -12,7 +14,7 @@ import { InspectorPane } from '@/components/workspace/inspector-pane';
 import { OverviewPane } from '@/components/workspace/overview-pane';
 import { SearchResultsPanel } from '@/components/workspace/search-results-panel';
 import { SelectedObjectPane } from '@/components/workspace/selected-object-pane';
-import { emptyPageTree, type Selection } from '@/components/workspace/types';
+import { emptyPageTree } from '@/components/workspace/types';
 import { useArrival } from '@/components/workspace/use-arrival';
 import { useBookmarks } from '@/components/workspace/use-bookmarks';
 import { useDocumentLoader } from '@/components/workspace/use-document-loader';
@@ -26,7 +28,7 @@ import { WorkspaceContent, OpeningProgress, WorkspaceFooter } from '@/components
 import { WorkspaceHeader } from '@/components/workspace/workspace-header';
 import { WorkspaceLayout } from '@/components/workspace/workspace-layout';
 import { WorkspaceToolbar } from '@/components/workspace/workspace-toolbar';
-import { sitePage, type SitePath } from '@/lib/site-content';
+import { sitePage } from '@/lib/site-content';
 import { useSiteRoute } from '@/lib/site-route';
 
 const useNarrow = () => {

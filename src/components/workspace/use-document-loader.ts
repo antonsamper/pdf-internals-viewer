@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import type { PdfIssue } from '@/lib/pdf/issues';
 import type { PdfDocumentInfo } from '@/lib/pdf/types';
 
 import { PdfWorkerClient } from '@/lib/pdf/client';
-import { diagnosticIssue, documentIssues, type PdfIssue } from '@/lib/pdf/issues';
+import { diagnosticIssue, documentIssues } from '@/lib/pdf/issues';
 import { MAX_INPUT_BYTES } from '@/lib/pdf/limits';
 
 import { EMPTY } from './types';

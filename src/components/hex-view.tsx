@@ -1,17 +1,8 @@
+import type { ComponentProps, CSSProperties, FormEvent, KeyboardEvent, ReactNode } from 'react';
+
 import { cn } from 'cn';
 import { ArrowDownToLine, Check, Copy, FileCode2 } from 'lucide-react';
-import {
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ComponentProps,
-  type CSSProperties,
-  type FormEvent,
-  type KeyboardEvent,
-  type ReactNode,
-} from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 
 import type { ScrollPosition } from '@/lib/scroll-restoration';
 

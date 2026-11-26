@@ -1,4 +1,6 @@
-import { useState, type DragEvent } from 'react';
+import type { DragEvent } from 'react';
+
+import { useState } from 'react';
 
 /** Drag-and-drop of one file onto the whole window, with an overlay flag. */
 export const useFileDrop = (onFile: (file: File) => void) => {

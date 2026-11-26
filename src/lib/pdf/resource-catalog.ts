@@ -1,6 +1,7 @@
+import type { EmbeddedDownload } from './downloads';
 import type { PdfObjectRecord } from './types';
 
-import { embeddedDownloads, type EmbeddedDownload } from './downloads';
+import { embeddedDownloads } from './downloads';
 import { resourceKind } from './resource-tools';
 /** A single attachment row per embedded stream and filename, preferring its file specification. */
 export const resourceCatalog = function resourceCatalog(

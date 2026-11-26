@@ -1,6 +1,10 @@
-import { useEffect, useState, type MouseEvent } from 'react';
+import type { MouseEvent } from 'react';
 
-import { SITE_PAGES, SITE_URL, sitePage, structuredData, type SitePath } from './site-content';
+import { useEffect, useState } from 'react';
+
+import type { SitePath } from './site-content';
+
+import { SITE_PAGES, SITE_URL, sitePage, structuredData } from './site-content';
 const set = (selector: string, attributes: Record<string, string>) => {
   const element =
     document.head.querySelector(selector) ??

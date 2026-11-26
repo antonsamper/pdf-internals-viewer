@@ -3,10 +3,12 @@ import type { MouseEvent, ReactNode } from 'react';
 import { cn } from 'cn';
 import { BookOpen, File as FileIcon, FolderOpen, X } from 'lucide-react';
 
+import type { SitePath } from '@/lib/site-content';
+
 import { ContentHeaderLinks, HeaderLink } from '@/components/content-navigation';
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
-import { sitePage, type SitePath } from '@/lib/site-content';
+import { sitePage } from '@/lib/site-content';
 
 import { size } from './types';
 

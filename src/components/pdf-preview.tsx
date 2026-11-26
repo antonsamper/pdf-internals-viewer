@@ -1,4 +1,6 @@
-import { localEngine, type PageRenderTransform, type SearchMatch } from '@embedpdf/engine';
+import type { PageRenderTransform, SearchMatch } from '@embedpdf/engine';
+
+import { localEngine } from '@embedpdf/engine';
 import { ChevronLeft, ChevronRight, FileWarning, LoaderCircle, ZoomIn, ZoomOut } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 

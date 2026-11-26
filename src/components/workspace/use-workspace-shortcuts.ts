@@ -1,4 +1,6 @@
-import { useEffect, useEffectEvent, type RefObject } from 'react';
+import type { RefObject } from 'react';
+
+import { useEffect, useEffectEvent } from 'react';
 
 import { ALL_SAMPLES } from '@/lib/site-content';
 

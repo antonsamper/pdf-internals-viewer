@@ -1,5 +1,7 @@
+import type { ComponentProps, MouseEvent } from 'react';
+
 import { cn } from 'cn';
-import { Fragment, useEffect, useMemo, useRef, useState, type ComponentProps, type MouseEvent } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { ByteRange, PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 

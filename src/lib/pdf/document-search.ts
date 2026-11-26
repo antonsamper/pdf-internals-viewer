@@ -1,7 +1,9 @@
+import type { PageTextLocation } from '@/lib/pdf/page-text';
+import type { SearchSnippet } from '@/lib/pdf/search-snippet';
 import type { PdfDocumentInfo, PdfObjectRecord, PdfValue, StreamResult } from '@/lib/pdf/types';
 
-import { pageTextSources, type PageTextLocation } from '@/lib/pdf/page-text';
-import { byteSearchSnippet, type SearchSnippet } from '@/lib/pdf/search-snippet';
+import { pageTextSources } from '@/lib/pdf/page-text';
+import { byteSearchSnippet } from '@/lib/pdf/search-snippet';
 
 export type SearchResult = {
   label: string;

@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 
+import type { ResourceEntry } from '@/lib/pdf/resource-catalog';
 import type { PdfDocumentInfo, PdfObjectRecord } from '@/lib/pdf/types';
 
 import { embeddedDownloads } from '@/lib/pdf/downloads';
-import { resourceCatalog, type ResourceEntry } from '@/lib/pdf/resource-catalog';
+import { resourceCatalog } from '@/lib/pdf/resource-catalog';
 
 /** Embedded-file and resource indexes, preferring those the parser worker already built. */
 export const useResourceIndex = (document: PdfDocumentInfo | null, objectMap: Map<string, PdfObjectRecord>) => {
