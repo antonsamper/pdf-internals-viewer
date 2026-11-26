@@ -2,10 +2,7 @@ import { cn } from 'cn';
 
 import type { IssueSeverity } from '@/lib/pdf/issues';
 
-/*
- * Class strings shared by the inspector panes. The global rules in `styles/overrides.css` for `button`, `code`, `pre` and `select`
- * (font and focus outline) outrank utilities, so font utilities on those elements take the `!` modifier.
- */
+/* Class strings shared by the inspector panes. */
 
 /** A pane's title row: fixed height, bottom border, small type. */
 export const PANE_HEADING = 'flex h-[42px] min-h-[42px] shrink-0 items-center gap-2 border-b px-3.5 text-[11px] font-medium';
@@ -19,9 +16,9 @@ export const SECTION_HEADING = 'mt-7 mb-3 text-[12px] font-[550]';
 /** A navigable PDF reference: violet monospace text that underlines on hover. */
 export const REFERENCE = cn(
   'inline-flex items-baseline gap-[5px]',
-  'bg-transparent whitespace-nowrap text-reference',
-  'hover:underline hover:underline-offset-[3px]',
-  'font-mono! text-[11px]!'
+  'font-mono text-[11px] whitespace-nowrap text-reference',
+  'bg-transparent',
+  'hover:underline hover:underline-offset-[3px]'
 );
 
 /** Small explanatory text under a heading. */
@@ -45,13 +42,13 @@ export const WARNING_INLINE = cn(
 );
 
 /** Raw syntax or stream text. */
-export const SOURCE_CODE = 'text-[11px]! leading-[1.85] whitespace-pre-wrap [tab-size:2] [overflow-wrap:anywhere]';
+export const SOURCE_CODE = 'text-[11px] leading-[1.85] whitespace-pre-wrap [tab-size:2] [overflow-wrap:anywhere]';
 
 /** A row of buttons under an inspector heading. */
 export const ACTION_ROW = 'flex flex-wrap gap-2';
 
 /** Buttons in an action row use compact type. */
-export const ACTION_BUTTON = 'text-[11px]!';
+export const ACTION_BUTTON = 'text-[11px]';
 
 /** The icon, title and subtitle at the top of the overview and issues panes. */
 export const OVERVIEW_ICON = 'mb-4 text-brand-purple';

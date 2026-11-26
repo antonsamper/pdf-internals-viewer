@@ -8,8 +8,8 @@ import { effectiveResources, property } from '@/lib/pdf/navigation';
 const TREE_INTRO = 'mx-1.5 mt-1.5 mb-3 text-[11px] leading-[1.6] text-muted-foreground';
 const TREE_DETAIL = 'mr-[5px] mb-[7px] ml-[26px] text-[10px] leading-[1.5] text-muted-foreground [overflow-wrap:anywhere]';
 const TREE_TOGGLE = 'h-[30px] w-[26px] flex-[0_0_26px]';
-const TREE_SELECT = cn('flex min-w-0 flex-1 flex-col items-start py-[5px] pr-[5px]', 'text-left [overflow-wrap:anywhere]', 'text-[11px]!');
-const TREE_MORE = 'm-1.5 p-[5px] text-[11px]! text-reference underline underline-offset-[3px]';
+const TREE_SELECT = cn('flex min-w-0 flex-1 flex-col items-start py-[5px] pr-[5px]', 'text-left [overflow-wrap:anywhere]', 'text-[11px]');
+const TREE_MORE = 'm-1.5 p-[5px] text-[11px] text-reference underline underline-offset-[3px]';
 
 export const PageTree = ({
   document,
@@ -128,12 +128,12 @@ export const PageTree = ({
               onClick={() => onNavigate(ref, pageRoot ? [{ id: ref, label }] : nextTrail)}
             >
               <span>{label}</span>
-              <code className="text-[10px]! text-muted-foreground">{ref} obj</code>
+              <code className="text-[10px] text-muted-foreground">{ref} obj</code>
             </button>
           ) : (
             <span className={TREE_SELECT}>
               <span>{label}</span>
-              {ref && <code className="text-[10px]! text-muted-foreground">{ref} R</code>}
+              {ref && <code className="text-[10px] text-muted-foreground">{ref} R</code>}
             </span>
           )}
         </div>

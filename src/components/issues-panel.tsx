@@ -110,10 +110,15 @@ export const IssuesPanel = ({
                 <h2 className="text-[12px] font-[550]">{issue.title}</h2>
               </div>
               <p className={COVERAGE_NOTE}>{issue.explanation}</p>
-              <pre className="my-2.5 rounded-[5px] bg-muted p-2.5 text-[11px]! [overflow-wrap:anywhere] whitespace-pre-wrap">
+              <pre className="my-2.5 rounded-[5px] bg-muted p-2.5 text-[11px] [overflow-wrap:anywhere] whitespace-pre-wrap">
                 {issue.evidence}
               </pre>
-              <Button variant="outline" size="sm" onClick={() => (issue.objectId ? onNavigate(issue.objectId) : onStructure())}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-[12px] leading-[1.7]"
+                onClick={() => (issue.objectId ? onNavigate(issue.objectId) : onStructure())}
+              >
                 {issue.objectId ? `Inspect ${issue.objectId} obj` : 'Inspect file structure'}
               </Button>
             </li>

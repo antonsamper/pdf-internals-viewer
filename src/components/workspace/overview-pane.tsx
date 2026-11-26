@@ -148,8 +148,7 @@ const StructureSection = ({ byteCount, document, onFollowReference, onSelectRang
     {document.startXref !== undefined ? (
       <Button
         variant="outline"
-        // The global `button` font rule outranks utilities.
-        className="font-mono! text-[12px]!"
+        className="font-mono text-[12px]"
         onClick={() => {
           onSelectRange({
             end: Math.min(byteCount, document.startXref! + 32),
@@ -222,7 +221,7 @@ const IssuesOverview = ({ document, issues, onChooseSection }: DocumentProps) =>
     ) : (
       <IssueSummary issues={issues} className="my-2 text-muted-foreground" />
     )}
-    <Button variant="outline" size="sm" onClick={() => onChooseSection('issues')}>
+    <Button variant="outline" size="sm" className="text-[12px] leading-[1.7]" onClick={() => onChooseSection('issues')}>
       View issues and coverage
     </Button>
   </section>

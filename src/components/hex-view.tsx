@@ -114,12 +114,10 @@ const HexJumpForm = ({
     </label>
     <input
       className={cn(
-        'w-full min-w-10 px-[7px] py-1',
+        'w-full min-w-10 px-[7px] py-1 font-mono text-[11px]',
         'bg-background text-foreground placeholder:text-muted-foreground',
         'rounded-[5px] border border-border',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-        // The global `input` font rule outranks utilities, so the family and size take `!`.
-        'font-mono! text-[11px]!'
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
       )}
       id={id}
       value={value}

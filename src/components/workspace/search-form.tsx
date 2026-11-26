@@ -32,12 +32,12 @@ const queryPadding = (query: string, hasResults: boolean) => {
 const inputClass = (query: string, hasResults: boolean) =>
   cn(
     'h-7 flex-1 px-1 py-0 [grid-area:query]',
-    'bg-transparent text-foreground',
+    'text-[12px] text-foreground',
+    'bg-transparent',
     'rounded-none border-0',
     'focus-visible:ring-0',
-    'narrow:h-9 narrow:text-[14px]! supports-[-webkit-touch-callout:none]:narrow:text-[16px]!',
+    'narrow:h-9 narrow:text-[14px] supports-[-webkit-touch-callout:none]:narrow:text-[16px]',
     'dark:bg-transparent',
-    'text-[12px]!',
     query && 'max-w360:pr-9',
     queryPadding(query, hasResults)
   );
@@ -58,7 +58,7 @@ const ResultsToggle = ({ count, onToggle, open, scope }: { count: number; onTogg
     data-search-show=""
     className={cn(
       'whitespace-nowrap',
-      'narrow:h-9 narrow:min-w-9 narrow:justify-between narrow:rounded-[6px] narrow:border-0 narrow:bg-muted narrow:text-[13px]! narrow:text-foreground',
+      'narrow:h-9 narrow:min-w-9 narrow:justify-between narrow:rounded-[6px] narrow:border-0 narrow:bg-muted narrow:text-[13px] narrow:text-foreground',
       'narrow:hover:bg-muted narrow:aria-expanded:bg-accent narrow:aria-expanded:hover:bg-accent',
       'narrow:dark:hover:bg-muted narrow:aria-expanded:dark:hover:bg-accent',
       'max-w360:w-full max-w360:px-2.5 max-w360:[grid-area:results]',
@@ -172,7 +172,7 @@ export const SearchForm = ({ busy, search }: { busy: boolean; search: ReturnType
         title="Run search"
         className={cn(
           '[grid-area:submit]',
-          'narrow:relative narrow:h-9 narrow:min-w-9 narrow:bg-[color-mix(in_oklch,var(--primary)_16%,transparent)] narrow:bg-clip-border narrow:font-semibold! narrow:text-(--brand-red-ink) narrow:before:absolute narrow:before:-inset-x-0.5 narrow:before:-inset-y-1',
+          'narrow:relative narrow:h-9 narrow:min-w-9 narrow:bg-[color-mix(in_oklch,var(--primary)_16%,transparent)] narrow:bg-clip-border narrow:font-semibold narrow:text-(--brand-red-ink) narrow:before:absolute narrow:before:-inset-x-0.5 narrow:before:-inset-y-1',
           'narrow:enabled:hover:bg-[color-mix(in_oklch,var(--primary)_26%,transparent)] narrow:enabled:hover:text-(--brand-red-ink)',
           'narrow:dark:enabled:hover:bg-[color-mix(in_oklch,var(--primary)_26%,transparent)]',
           'max-w360:w-auto max-w360:px-2.5',
