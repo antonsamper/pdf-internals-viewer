@@ -827,8 +827,8 @@ test('steps through search results, wraps, and resets for a new search', async (
   await search.fill('0');
   await search.press('Enter');
   const matches = results.locator('[data-search-matches] button');
+  await expect.poll(() => matches.count()).toBeGreaterThan(1);
   const count = await matches.count();
-  expect(count).toBeGreaterThan(1);
   await expect(results.getByRole('group')).toContainText(`1 of ${count}`);
   await expect(matches.first()).toHaveAttribute('aria-current', 'true');
   await results.getByRole('button', { exact: true, name: 'Next search result' }).click();
@@ -2929,7 +2929,7 @@ for (const width of [1440, 390]) {
     });
     const rows = results.locator('[data-search-result]');
     await expect(results).toBeVisible();
-    expect(await rows.count()).toBeGreaterThan(10);
+    await expect.poll(() => rows.count()).toBeGreaterThan(10);
     const after = await workspace.boundingBox();
     expect(after!.y).toBe(before!.y);
     expect(after!.height).toBe(before!.height);
