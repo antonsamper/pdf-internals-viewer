@@ -15,9 +15,9 @@ const formClass = (hasResults: boolean) =>
     'gap-1 py-0.5 pr-1 pl-2 text-muted-foreground',
     'rounded-[6px] border',
     'has-[input:focus]:border-ring has-[input:focus]:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_20%,transparent)]',
-    'max-w900:grid max-w900:h-auto max-w900:w-full max-w900:max-w-none max-w900:gap-x-1.5 max-w900:gap-y-1 max-w900:py-1 max-w900:pr-1 max-w900:pl-2.5',
+    'narrow:grid narrow:h-auto narrow:w-full narrow:max-w-none narrow:gap-x-1.5 narrow:gap-y-1 narrow:py-1 narrow:pr-1 narrow:pl-2.5',
     'max-w360:grid-cols-[18px_minmax(0,1.3fr)_minmax(0,1fr)_auto]',
-    "min-w360:max-w900:grid-cols-[18px_minmax(0,1fr)_auto_auto] min-w360:max-w900:[grid-template-areas:'icon_query_mode_submit']",
+    "w360-w900:grid-cols-[18px_minmax(0,1fr)_auto_auto] w360-w900:[grid-template-areas:'icon_query_mode_submit']",
     hasResults
       ? "max-w360:[grid-template-areas:'icon_query_query_submit'_'mode_mode_results_results']"
       : "max-w360:[grid-template-areas:'icon_query_query_submit'_'mode_mode_mode_mode']"
@@ -25,8 +25,8 @@ const formClass = (hasResults: boolean) =>
 
 /** From 361px to 900px the results toggle sits inside the field, so the query keeps room on its right. */
 const queryPadding = (query: string, hasResults: boolean) => {
-  if (hasResults) return 'min-w360:max-w900:pr-[84px]';
-  return query ? 'min-w360:max-w900:pr-9' : '';
+  if (hasResults) return 'w360-w900:pr-[84px]';
+  return query ? 'w360-w900:pr-9' : '';
 };
 
 const inputClass = (query: string, hasResults: boolean) =>
@@ -35,7 +35,7 @@ const inputClass = (query: string, hasResults: boolean) =>
     'bg-transparent text-foreground',
     'rounded-none border-0',
     'focus-visible:ring-0',
-    'max-w900:h-9 max-w900:text-[14px]! supports-[-webkit-touch-callout:none]:max-w900:text-[16px]!',
+    'narrow:h-9 narrow:text-[14px]! supports-[-webkit-touch-callout:none]:narrow:text-[16px]!',
     'dark:bg-transparent',
     'text-[12px]!',
     query && 'max-w360:pr-9',
@@ -58,19 +58,19 @@ const ResultsToggle = ({ count, onToggle, open, scope }: { count: number; onTogg
     data-search-show=""
     className={cn(
       'whitespace-nowrap',
-      'max-w900:h-9 max-w900:min-w-9 max-w900:justify-between max-w900:rounded-[6px] max-w900:border-0 max-w900:bg-muted max-w900:text-[13px]! max-w900:text-foreground',
-      'max-w900:hover:bg-muted max-w900:aria-expanded:bg-accent max-w900:aria-expanded:hover:bg-accent',
-      'max-w900:dark:hover:bg-muted max-w900:aria-expanded:dark:hover:bg-accent',
+      'narrow:h-9 narrow:min-w-9 narrow:justify-between narrow:rounded-[6px] narrow:border-0 narrow:bg-muted narrow:text-[13px]! narrow:text-foreground',
+      'narrow:hover:bg-muted narrow:aria-expanded:bg-accent narrow:aria-expanded:hover:bg-accent',
+      'narrow:dark:hover:bg-muted narrow:aria-expanded:dark:hover:bg-accent',
       'max-w360:w-full max-w360:px-2.5 max-w360:[grid-area:results]',
-      'min-w360:max-w900:z-1 min-w360:max-w900:mr-9 min-w360:max-w900:h-6.5 min-w360:max-w900:min-w-0 min-w360:max-w900:gap-0.5 min-w360:max-w900:self-center min-w360:max-w900:justify-self-end min-w360:max-w900:rounded-[13px] min-w360:max-w900:px-2 min-w360:max-w900:[grid-area:query]'
+      'w360-w900:z-1 w360-w900:mr-9 w360-w900:h-6.5 w360-w900:min-w-0 w360-w900:gap-0.5 w360-w900:self-center w360-w900:justify-self-end w360-w900:rounded-[13px] w360-w900:px-2 w360-w900:[grid-area:query]'
     )}
     aria-haspopup="dialog"
     aria-expanded={open}
     onClick={onToggle}
   >
-    <span className="min-w360:max-w900:hidden">Results</span>{' '}
-    <span className="max-w900:text-[12px] max-w900:text-muted-foreground max-w360:mr-auto">
-      {count} <span className="min-w360:max-w900:hidden">{resultUnit(count, scope)}</span>
+    <span className="w360-w900:hidden">Results</span>{' '}
+    <span className="max-w360:mr-auto narrow:text-[12px] narrow:text-muted-foreground">
+      {count} <span className="w360-w900:hidden">{resultUnit(count, scope)}</span>
     </span>
     <ChevronDown size={12} />
   </Button>
@@ -82,7 +82,7 @@ const ClearButton = ({ onClear }: { onClear: () => void }) => (
     variant="ghost"
     aria-label="Clear search"
     title="Clear query and results"
-    className="max-w900:relative max-w900:z-1 max-w900:size-9 max-w900:justify-self-end max-w900:[grid-area:query] max-w900:before:absolute max-w900:before:-inset-x-0.5 max-w900:before:-inset-y-1"
+    className="narrow:relative narrow:z-1 narrow:size-9 narrow:justify-self-end narrow:[grid-area:query] narrow:before:absolute narrow:before:-inset-x-0.5 narrow:before:-inset-y-1"
     type="button"
     onClick={onClear}
   >
@@ -172,11 +172,11 @@ export const SearchForm = ({ busy, search }: { busy: boolean; search: ReturnType
         title="Run search"
         className={cn(
           '[grid-area:submit]',
-          'max-w900:relative max-w900:h-9 max-w900:min-w-9 max-w900:bg-[color-mix(in_oklch,var(--primary)_16%,transparent)] max-w900:bg-clip-border max-w900:font-semibold! max-w900:text-(--brand-red-ink) max-w900:before:absolute max-w900:before:-inset-x-0.5 max-w900:before:-inset-y-1',
-          'max-w900:enabled:hover:bg-[color-mix(in_oklch,var(--primary)_26%,transparent)] max-w900:enabled:hover:text-(--brand-red-ink)',
-          'max-w900:dark:enabled:hover:bg-[color-mix(in_oklch,var(--primary)_26%,transparent)]',
+          'narrow:relative narrow:h-9 narrow:min-w-9 narrow:bg-[color-mix(in_oklch,var(--primary)_16%,transparent)] narrow:bg-clip-border narrow:font-semibold! narrow:text-(--brand-red-ink) narrow:before:absolute narrow:before:-inset-x-0.5 narrow:before:-inset-y-1',
+          'narrow:enabled:hover:bg-[color-mix(in_oklch,var(--primary)_26%,transparent)] narrow:enabled:hover:text-(--brand-red-ink)',
+          'narrow:dark:enabled:hover:bg-[color-mix(in_oklch,var(--primary)_26%,transparent)]',
           'max-w360:w-auto max-w360:px-2.5',
-          'min-w360:max-w900:w-9 min-w360:max-w900:p-0'
+          'w360-w900:w-9 w360-w900:p-0'
         )}
         disabled={searching || busy}
         aria-busy={searching}

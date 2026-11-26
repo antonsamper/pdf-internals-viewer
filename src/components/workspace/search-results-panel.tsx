@@ -44,12 +44,12 @@ const statusText = ({ displayedScope, interrupted, results, resultsScope, search
 const CARD_BUTTON = cn(
   'h-auto min-h-6 max-w-full justify-start',
   'rounded-[4px] px-1.5 py-0.5 text-left whitespace-normal',
-  'max-w900:min-h-8 pointer-coarse:min-h-11',
+  'pointer-coarse:min-h-11 narrow:not-pointer-coarse:min-h-8',
   'text-[11px]!'
 );
 
 /** Header buttons grow to a 44px touch target on small screens. */
-const HEADER_BUTTON = 'max-w900:min-h-11 max-w900:min-w-11';
+const HEADER_BUTTON = 'narrow:min-h-11 narrow:min-w-11';
 
 /** Notes above and below the result cards. */
 const BODY_NOTE = 'px-3.5 py-2.5 text-[12px] [overflow-wrap:anywhere]';
@@ -78,15 +78,11 @@ const ResultsHeader = ({ search }: { search: Search }) => {
       className={cn(
         'flex shrink-0 items-center gap-2 px-3 py-2',
         'border-b bg-sidebar text-[12px] text-muted-foreground',
-        'max-w900:px-2 max-w900:py-1.5'
+        'narrow:px-2 narrow:py-1.5'
       )}
     >
       <span
-        className={cn(
-          'min-w-0 flex-1 overflow-hidden',
-          'text-ellipsis whitespace-nowrap',
-          'max-w900:leading-[1.4] max-w900:whitespace-normal'
-        )}
+        className={cn('min-w-0 flex-1 overflow-hidden', 'text-ellipsis whitespace-nowrap', 'narrow:leading-[1.4] narrow:whitespace-normal')}
         role="status"
         title={searching || interrupted ? searchingQuery : (resultsQuery ?? undefined)}
       >
@@ -370,7 +366,7 @@ const EmptyResults = ({ search }: { search: Search }) => {
       <p className="text-[13px] [overflow-wrap:anywhere] text-foreground">No results for “{resultsQuery}”</p>
       <span className="text-[12px]">{EMPTY_HINTS[resultsScope] ?? 'Try a shorter sequence of complete hexadecimal bytes.'}</span>
       {['objects', 'keys', 'text', 'decoded'].includes(resultsScope) && (
-        <Button className="max-w900:min-h-11" size="sm" variant="secondary" onClick={searchAsPageText}>
+        <Button className="narrow:min-h-11" size="sm" variant="secondary" onClick={searchAsPageText}>
           Search page text instead
         </Button>
       )}

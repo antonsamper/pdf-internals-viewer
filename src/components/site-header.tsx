@@ -20,15 +20,15 @@ export const SiteHeader = function SiteHeader({
   return (
     <header
       className={cn(
-        'relative flex h-(--header-height) min-h-(--header-height) items-center gap-5 border-b border-border px-(--header-inline-padding) pr-[calc(var(--header-inline-padding)+var(--theme-control-size)+12px)] surface-dark shadow-[inset_0_-2px_var(--brand-red)] [--header-height:58px] [--header-inline-padding:22px] [--theme-control-size:32px] max-w900:gap-3 max-w900:[--header-inline-padding:14px]',
+        'relative flex h-(--header-height) min-h-(--header-height) items-center gap-5 border-b border-border px-(--header-inline-padding) pr-[calc(var(--header-inline-padding)+var(--theme-control-size)+12px)] surface-dark shadow-[inset_0_-2px_var(--brand-red)] [--header-height:58px] [--header-inline-padding:22px] [--theme-control-size:32px] narrow:[--header-inline-padding:14px]',
         content
-          ? 'max-w760:gap-2 max-w760:pr-[calc(var(--header-inline-padding)+var(--theme-control-size)+8px)] max-w760:[--theme-control-size:36px] max-w760:has-[nav+button]:gap-1'
-          : 'max-w600:grid max-w600:grid-cols-[auto_minmax(0,1fr)_auto] max-w600:gap-2 max-w600:py-2 max-w600:[--theme-control-size:36px]'
+          ? 'max-w760:gap-2 max-w760:pr-[calc(var(--header-inline-padding)+var(--theme-control-size)+8px)] max-w760:[--theme-control-size:36px] max-w760:has-[nav+button]:gap-1 min-w760:narrow:gap-3'
+          : 'max-w600:grid max-w600:grid-cols-[auto_minmax(0,1fr)_auto] max-w600:gap-2 max-w600:py-2 max-w600:[--theme-control-size:36px] min-w600:narrow:gap-3'
       )}
     >
       <a
         className={cn(
-          'flex items-center gap-2.5 text-[14px] font-semibold tracking-tight whitespace-nowrap max-w900:text-[13px] max-w480:gap-1.75',
+          'flex items-center gap-2.5 text-[14px] font-semibold tracking-tight whitespace-nowrap max-w480:gap-1.75 narrow:text-[13px]',
           content && 'max-w760:min-w-0'
         )}
         data-app-identity=""
