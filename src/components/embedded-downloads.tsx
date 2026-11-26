@@ -28,7 +28,7 @@ export const EmbeddedDownloads = ({
     try {
       const result = await extractStream(asset.streamId);
       if (token !== request.current) return;
-      const failure = result.error ?? (result.truncated ? 'The stream is incomplete. No file was downloaded.' : null);
+      const failure = result.error || (result.truncated ? 'The stream is incomplete. No file was downloaded.' : null);
       if (failure) setError(failure);
       else
         saveFile(

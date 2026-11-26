@@ -14,7 +14,7 @@
 
 These three packages are pinned exactly because the preparation scripts below check those versions by hash. Upgrading `@embedpdf/engine` also needs the [notice review](NOTICES.md#upgrading-embedpdf), and upgrading `@libpdf/core` needs the [instrumentation review](PARSER.md#instrumentation-and-reproducibility).
 
-`@vitejs/plugin-react` runs React Compiler natively through `oxc-transform-react`, a Rust port that the plugin marks experimental. The compiler adds memoisation at build time in the dev server and the production build. It skips a component or hook that uses syntax it can't compile yet, such as `try` with `finally` or `throw` inside `try`, and leaves that code as written.
+`@vitejs/plugin-react` runs React Compiler natively through `oxc-transform-react`, a Rust port that the plugin marks experimental. The compiler adds memoisation at build time in the dev server and the production build. It skips a component or hook that uses syntax it can't compile yet, such as `try` with `finally` or `throw` inside `try`, and leaves that code as written. `logDiagnostics` prints a warning in the build output for each one it skips; the build still succeeds. `oxc-transform-react` is pinned exactly to a version inside the plugin's supported peer range, so upgrade the two together.
 
 ## Package manager
 
