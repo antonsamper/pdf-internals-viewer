@@ -1,6 +1,8 @@
+import type { ComponentProps, ReactNode } from 'react';
+
 import { cn } from 'cn';
 import { BookmarkPlus, Braces, Image, LoaderCircle, Pin, X } from 'lucide-react';
-import { lazy, Suspense, type ComponentProps, type ReactNode } from 'react';
+import { lazy, Suspense } from 'react';
 
 import type { PdfPreviewProps } from '@/components/pdf-preview';
 import type { PdfIssue } from '@/lib/pdf/issues';

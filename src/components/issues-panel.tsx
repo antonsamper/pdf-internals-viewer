@@ -3,14 +3,17 @@ import type { ComponentProps, ComponentType } from 'react';
 import { cn } from 'cn';
 import { FileWarning, CircleAlert, TriangleAlert, Info, ScanLine } from 'lucide-react';
 
+import type { PdfIssue, IssueSeverity } from '@/lib/pdf/issues';
+import type { ScrollPosition } from '@/lib/scroll-restoration';
+
 import { IssueNote } from '@/components/inspector/notes';
 import { PaneBody, PaneIntro, PaneSubtitle, SectionHeading } from '@/components/inspector/pane';
 import { SeverityPill } from '@/components/inspector/severity-pill';
 import { SEVERITY_TONE } from '@/components/inspector/severity-tone';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { issueOrder, issueSummary, type PdfIssue, type IssueSeverity } from '@/lib/pdf/issues';
-import { useScrollRestoration, type ScrollPosition } from '@/lib/scroll-restoration';
+import { issueOrder, issueSummary } from '@/lib/pdf/issues';
+import { useScrollRestoration } from '@/lib/scroll-restoration';
 
 /** Severity counts, or `empty` with a sentence when there are no issues. */
 export const IssueSummary = ({ empty: Empty, issues }: { empty: ComponentType<ComponentProps<'p'>>; issues: PdfIssue[] }) => {

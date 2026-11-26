@@ -1,7 +1,9 @@
+import type { EmbeddedDownload } from './downloads';
+import type { ResourceEntry } from './resource-catalog';
 import type { PdfDocumentInfo, PdfObjectRecord, PdfValue } from './types';
 
-import { embeddedDownloads, type EmbeddedDownload } from './downloads';
-import { resourceCatalog, type ResourceEntry } from './resource-catalog';
+import { embeddedDownloads } from './downloads';
+import { resourceCatalog } from './resource-catalog';
 const documentItems = function* documentItems(document: PdfDocumentInfo): Generator<DocumentTransferItem> {
   const { objects, ...header } = document;
   delete header.indexes;

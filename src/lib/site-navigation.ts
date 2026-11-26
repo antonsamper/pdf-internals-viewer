@@ -1,4 +1,6 @@
-import { SITE_PAGES, type SitePath } from './site-content';
+import type { SitePath } from './site-content';
+
+import { SITE_PAGES } from './site-content';
 export const navigationLabel = function navigationLabel(path: SitePath) {
   return CONTENT_GROUPS.flatMap((group) => group.items).find(([href]) => href === path)?.[1] ?? 'PDF Internals';
 };

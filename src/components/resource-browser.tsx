@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 
 import type { ResourceCategory, ResourceEntry } from '@/lib/pdf/resource-catalog';
 import type { PdfDocumentInfo, PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
+import type { ScrollPosition } from '@/lib/scroll-restoration';
 
 import { EmbeddedDownloads } from '@/components/embedded-downloads';
 import { ImageDownload } from '@/components/image-download';
@@ -11,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { property } from '@/lib/pdf/navigation';
 import { resourcePageAccess } from '@/lib/pdf/resource-tools';
-import { useScrollRestoration, type ScrollPosition } from '@/lib/scroll-restoration';
+import { useScrollRestoration } from '@/lib/scroll-restoration';
 const detail = function detail(object: PdfObjectRecord, key: string) {
   const value = property(object.value, key);
   return value?.text ?? 'Not specified';

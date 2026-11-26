@@ -4,6 +4,7 @@ import { cn } from 'cn';
 import { Braces, ChevronRight, FileCode2, FileWarning, Files, FolderOpen, Layers, LayoutDashboard, ListTree } from 'lucide-react';
 
 import type { PageTreeState } from '@/components/page-tree';
+import type { SessionBookmark } from '@/components/session-bookmarks';
 import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 import type { PdfIssue } from '@/lib/pdf/issues';
 import type { PdfDocumentInfo, PdfObjectRecord } from '@/lib/pdf/types';
@@ -11,7 +12,7 @@ import type { PdfDocumentInfo, PdfObjectRecord } from '@/lib/pdf/types';
 import { PaneHeading } from '@/components/inspector/pane';
 import { SEVERITY_TONE } from '@/components/inspector/severity-tone';
 import { PageTree } from '@/components/page-tree';
-import { SessionBookmarks, type SessionBookmark } from '@/components/session-bookmarks';
+import { SessionBookmarks } from '@/components/session-bookmarks';
 import { Badge } from '@/components/ui/badge';
 
 import type { Section, Selection } from './types';

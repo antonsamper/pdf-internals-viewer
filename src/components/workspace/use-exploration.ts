@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react';
 
 import type { InspectorTab } from '@/components/object-inspector';
+import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 import type { ByteRange, PdfDocumentInfo, PdfObjectRecord } from '@/lib/pdf/types';
 
-import { extendExplorationTrail, referencePathOwners, type ExplorationStep } from '@/lib/pdf/exploration-trail';
+import { extendExplorationTrail, referencePathOwners } from '@/lib/pdf/exploration-trail';
 
-import { newViewports, type Section, type Selection } from './types';
+import type { Section, Selection } from './types';
+
+import { newViewports } from './types';
 
 const initialHistory = (): Selection[] => [{ id: null, section: 'overview', tab: 'properties' }];
 

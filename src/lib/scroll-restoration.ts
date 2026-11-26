@@ -1,4 +1,6 @@
-import { useLayoutEffect, useRef, type UIEvent } from 'react';
+import type { UIEvent } from 'react';
+
+import { useLayoutEffect, useRef } from 'react';
 export const useScrollRestoration = function useScrollRestoration(positionRef: ScrollPosition, ready = true) {
   const onScroll = function onScroll(event: UIEvent<HTMLDivElement>) {
     if (!ready || restored.current?.positionRef !== positionRef) return;

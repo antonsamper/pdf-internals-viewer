@@ -2,13 +2,15 @@ import type { MouseEvent } from 'react';
 
 import { cn } from 'cn';
 
+import type { SitePage } from '@/lib/site-content';
+
 import { ContentHeaderLinks } from '@/components/content-navigation';
 import { ArticleActions, ArticleSource, ComparisonTable, Lead } from '@/components/prose';
 import { BackToWorkspace, ReadingPage } from '@/components/reading-page';
 import { SiteHeader } from '@/components/site-header';
 import { SiteLinks } from '@/components/site-links';
 import { MAX_INPUT_BYTES, MAX_DISPLAY_BYTES, MAX_OBJECTS, MAX_DECODED_BYTES, OPERATION_TIMEOUT_MS } from '@/lib/pdf/limits';
-import { PRIVACY_SUMMARY, PROJECT_URL, type SitePage } from '@/lib/site-content';
+import { PRIVACY_SUMMARY, PROJECT_URL } from '@/lib/site-content';
 import { navigationLabel } from '@/lib/site-navigation';
 
 import { Examples, LargePdfExample, IncorrectTextExample } from './examples';
