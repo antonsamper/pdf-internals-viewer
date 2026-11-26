@@ -17,7 +17,18 @@
     "no-unused-vars": ["error", { "ignoreRestSiblings": true }],
     "sort-keys": ["error", "asc", { "natural": true }],
     "unicorn/filename-case": ["error", { "case": "kebabCase", "ignore": ["^__root\\.tsx$", "^_app(\\..+)?\\.tsx$"] }],
-    "func-style": ["error", "expression"]
+    "func-style": ["error", "expression"],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "cn",
+            "message": "Import cn from '@/lib/utils', which knows the theme's type scale."
+          }
+        ]
+      }
+    ]
   },
   "overrides": [
     {

@@ -4,24 +4,47 @@ Components are styled with Tailwind utilities, shadcn variants on Base UI and th
 
 ## Where styles live
 
-- `src/index.css` holds the tokens (colours, radii, the `font-mono` family, the `reference`, `pdf-string` and `brand-*` colour utilities, dark-mode mappings) and a `base` layer with the page reset: full-height `html`, `body` and `#root`, the 13px body size, selection colours, thin scrollbars, pointer cursors on buttons, the 12px monospace on `code` and `pre`, the focus outline on `button`, `a` and `select`, and the reduced-motion rule.
+- `src/index.css` holds the tokens (colours, radii, the type scale, the `font-mono` family, the `reference`, `pdf-string` and `brand-*` colour utilities, dark-mode mappings) and a `base` layer with the page reset: full-height `html`, `body` and `#root`, the `text-body` size on `body`, selection colours, thin scrollbars, pointer cursors on buttons, `text-small` monospace on `code` and `pre`, the focus outline on `button`, `a` and `select`, and the reduced-motion rule.
 - `src/styles/breakpoints.css` defines the breakpoint tokens. See Layout.
 - `src/styles/surfaces.css` defines the `surface-dark` utility, which gives an element the plum header colours in both themes by redefining the colour tokens, so everything inside follows it.
 - `src/styles/shadcn.css` is the vendored shadcn stylesheet. Don't edit it.
 - The CSS layers are Tailwind's own: `properties`, `theme`, `base`, `components` and `utilities`, in that order. Global element rules go in the `base` layer, below the utilities, so a utility or a shadcn variant overrides them without `!`. Tailwind's preflight, also in `base`, gives form controls `font: inherit`. Don't add a layer above the utilities or an unlayered element rule.
 - No selector may restyle a shadcn component from outside. Change its variant or pass utilities to it.
-- The vendored files in `src/components/ui` are edited where the app's look differs from shadcn's. The `Button`, `Input` and `TabsTrigger` variants set the control type the app renders: 13px, normal weight, 1.5 line height, the same as body text. Every button size uses it. A call site whose container uses other type passes its own size, such as `text-[11px]` in the panes or `text-sm` inside a tab panel. `HeaderLink` in `content-navigation.tsx` gives header links the small ghost button's shape with their own 12.8px medium type.
+- The vendored files in `src/components/ui` are edited where the app's look differs from shadcn's. The `Button`, `Input` and `TabsTrigger` variants set the control type the app renders: `text-body` in normal weight, the same as body text. Every button size uses it. A call site whose container uses other type passes its own size, such as `text-detail` in the panes or `text-sm` inside a tab panel, and that size's line height comes with it. `HeaderLink` in `content-navigation.tsx` gives header links the small ghost button's shape with their own `text-nav` medium type.
 - The inspector panes share small components from `src/components/inspector/`: `PaneHeading`, `PaneBody`, `PaneIntro`, `PaneSubtitle` and `SectionHeading` in `pane.tsx`, `Note`, `IssueNote` and `Notice` in `notes.tsx`, and `Warning`, `LoadingMessage`, `SourceCode`, `ReferenceButton`, `ActionRow`, `ActionButton` and `SeverityPill` in their own files. Each owns its element and classes and passes `className` and the other props through. `Warning`, `LoadingMessage` and `SeverityPill` take a Base UI `render` prop for a different element, such as `render={<div />}` or `render={<Badge variant="outline" />}`. Pass extra classes through `className`, not on the `render` element: Base UI joins the element's own classes without tailwind-merge, so they can lose to the component's. A tab panel renders a pane body with `<TabsContent render={<PaneBody />}>`.
 - `SEVERITY_TONE` in `src/components/inspector/severity-tone.ts` maps each issue severity to the `--issue-ink` and `--issue-soft` colours. It stays a class map because it goes on several kinds of element, often an ancestor of the pills, icons and counts that read the colours.
 - The hex view keeps its grid and byte-column components in `src/components/hex-view.tsx`. The byte button and ASCII cell classes stay module constants there, because a row renders one of each per byte and the list is merged once instead of once per cell.
 - The About page and the public articles share `src/components/reading-page.tsx` (page layout, section navigation and the related-reading list) and `src/components/prose.tsx`. `Prose` styles the plain HTML elements of an article from its wrapper and skips any element with a `class`, so a styled paragraph or link carries its own utilities. `Lead`, `ExamplePreview` and `ComparisonTable` cover the rest.
-- `cn` drops a `leading-*` that comes before a later `text-[..]`, so put `leading-*` last. A `text-[..]` passed to `Button`, `Input` or `TabsTrigger` drops the variant's `leading-normal` the same way, so the control takes its parent's line height.
+- Import `cn` from `@/lib/utils`, not from the `cn` package. The configured `cn` knows the type scale: the package's default reads `text-detail` as a colour and drops it next to `text-muted-foreground`. It also keeps a `leading-*` that comes before a size, because in Tailwind 4 a `leading-*` utility wins over a size's own line height whatever the class order.
 
 ## Look and feel
 
 A compact developer workspace in the logo's colours: a deep plum header (`surface-dark`), white inspection surfaces, a pale lilac explorer, fine borders and small type that leave room for PDF structure and bytes. Geist is used for interface text and explanations. The `font-mono` token covers PDF syntax, code, object IDs, offsets and bytes. It starts with `ui-monospace`, which gives SF Mono in Safari; other browsers fall through to SF Mono, Menlo, Consolas or Liberation Mono, whichever is installed.
 
 The app follows the device's light or dark setting until the visitor picks one with the header's sun and moon button. `public/theme.js` applies the choice before the first render. Dark mode keeps every colour role on plum surfaces.
+
+## Type
+
+Font sizes come from the type scale in `src/index.css`, named by what each size is for:
+
+| Class             | Size   | Used for                                                                                     |
+| ----------------- | ------ | -------------------------------------------------------------------------------------------- |
+| `text-micro`      | 9px    | Hex column labels, explorer group labels, stream filter badges, status text on small screens |
+| `text-caption`    | 10px   | Counts, small badges, offsets, uppercase eyebrow labels, the status bar                      |
+| `text-detail`     | 11px   | Pane headings, explorer rows, actions, values and other secondary text                       |
+| `text-small`      | 12px   | Pane text, notes, tables, `code` and `pre`                                                   |
+| `text-nav`        | 12.8px | Header links                                                                                 |
+| `text-body`       | 13px   | Body text and the controls                                                                   |
+| `text-reading`    | 14px   | Article text, site navigation, the search field on mobile                                    |
+| `text-intro`      | 15px   | The welcome screen's introduction                                                            |
+| `text-subheading` | 16px   | Article and failure headings, the search field on iOS, where a smaller field zooms the page  |
+| `text-heading`    | 18px   | Object titles and article lead paragraphs                                                    |
+| `text-title`      | 21px   | Pane titles                                                                                  |
+
+- Every size has a 1.5 line height, the page default, apart from `text-nav`, which keeps the `text-sm` line height. Reading text and notes set a looser `leading-*` next to the size, from 1.6 to 1.85.
+- A size sets its own line height, so it doesn't take a line height inherited from its container. Inside a container with another line height, give the sized element its own `leading-*`. An element that follows the text around it in more than one kind of container, such as `ReferenceButton`, the dictionary rows in a tab panel or the severity pills, uses `leading-[inherit]`. It copies the container's line height only while the element's size has no breakpoint variant: a `narrow:text-*` on the same element falls back to the size's own line height, so give that element an explicit `leading-*` instead.
+- Tailwind's `text-xs` and `text-sm` stay in the shadcn components and the panels that use them, with their own line heights: 16px and 20px. The scale is in pixels apart from `text-nav`; text that should follow the visitor's browser font size, such as figure captions, uses `text-sm`.
+- Don't add `text-[Npx]`. Add a size to the scale and to the `font-size` group in `src/lib/utils.ts`. The fluid display headings (the article title, the welcome screen and the drop overlay) keep arbitrary `text-[clamp(…)]` sizes, and the status bar's links use `text-[length:inherit]` to match the text around them.
 
 ## Colour roles
 
@@ -73,7 +96,7 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 ```tsx
 className={cn(
   'flex h-[42px] w-full items-center',
-  'gap-2.5 px-[9px] text-left text-[11px] text-muted-foreground',
+  'gap-2.5 px-[9px] text-left text-detail text-muted-foreground',
   'rounded-[4px] bg-transparent',
   'hover:bg-accent hover:text-foreground',
   'narrow:h-11',

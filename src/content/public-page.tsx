@@ -1,7 +1,5 @@
 import type { MouseEvent } from 'react';
 
-import { cn } from 'cn';
-
 import type { SitePage } from '@/lib/site-content';
 
 import { ContentHeaderLinks } from '@/components/content-navigation';
@@ -12,6 +10,7 @@ import { SiteLinks } from '@/components/site-links';
 import { MAX_INPUT_BYTES, MAX_DISPLAY_BYTES, MAX_OBJECTS, MAX_DECODED_BYTES, OPERATION_TIMEOUT_MS } from '@/lib/pdf/limits';
 import { PRIVACY_SUMMARY, PROJECT_URL } from '@/lib/site-content';
 import { navigationLabel } from '@/lib/site-navigation';
+import { cn } from '@/lib/utils';
 
 import { Examples, LargePdfExample, IncorrectTextExample } from './examples';
 import {
@@ -343,7 +342,7 @@ Q`}</code>
       </p>
       <details
         className={cn(
-          'my-4 text-[14px] leading-[1.85]',
+          'my-4 text-reading leading-[1.85]',
           '[&_summary]:cursor-pointer [&_summary]:underline [&_summary]:underline-offset-3',
           '[&_p]:mt-3'
         )}
@@ -611,7 +610,7 @@ export const PublicPage = function PublicPage({
   return (
     <ReadingPage labelledBy="public-title" onClick={onFollowLink} path={page.path} standalone={standalone}>
       <BackToWorkspace />
-      <nav className="mb-6 text-[12px] leading-[1.8] [overflow-wrap:anywhere] text-muted-foreground" aria-label="Breadcrumb">
+      <nav className="mb-6 text-small leading-[1.8] [overflow-wrap:anywhere] text-muted-foreground" aria-label="Breadcrumb">
         <a href="/">PDF Internals</a>
         <span aria-hidden="true"> / </span>
         {page.path.startsWith('/guides/') && (
@@ -630,7 +629,7 @@ export const PublicPage = function PublicPage({
       </nav>
       <h1 id="public-title">{page.heading}</h1>
       {(page.path.startsWith('/guides/') || page.path.startsWith('/examples/')) && (
-        <p className="mb-8 text-[12px] leading-[1.85] text-muted-foreground">
+        <p className="mb-8 text-small leading-[1.85] text-muted-foreground">
           By <a href="https://github.com/antonsamper">Anton Samper</a> · Reviewed <time dateTime="2026-11-15">15 November 2026</time>
         </p>
       )}

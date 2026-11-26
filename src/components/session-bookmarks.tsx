@@ -1,8 +1,8 @@
-import { cn } from 'cn';
 import { Bookmark, Trash2 } from 'lucide-react';
 
 import { ReferenceButton } from '@/components/inspector/reference-button';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 export const SessionBookmarks = function SessionBookmarks<T>({
   bookmarks,
   saved,

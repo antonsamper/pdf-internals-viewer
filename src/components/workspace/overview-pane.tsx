@@ -1,6 +1,5 @@
 import type { ComponentProps, ReactNode } from 'react';
 
-import { cn } from 'cn';
 import { ArrowUpRight, FileCode2, Files, FolderOpen, Image, LockKeyhole } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -20,6 +19,7 @@ import { ValueView } from '@/components/value-view';
 import { hasSubtype } from '@/lib/pdf/navigation';
 import { pageRotationSummary } from '@/lib/pdf/page-rotation';
 import { useScrollRestoration } from '@/lib/scroll-restoration';
+import { cn } from '@/lib/utils';
 
 import type { Section } from './types';
 
@@ -52,11 +52,11 @@ type DocumentProps = OverviewPaneProps & { document: PdfDocumentInfo };
 
 /** A paragraph of muted body text in the overview. */
 const OverviewText = ({ className, ...props }: ComponentProps<'p'>) => (
-  <p className={cn('text-[11px] leading-[1.8] text-muted-foreground', className)} {...props} />
+  <p className={cn('text-detail leading-[1.8] text-muted-foreground', className)} {...props} />
 );
 
 const Fact = ({ children, label }: { children: ReactNode; label: string }) => (
-  <div className="flex justify-between gap-3 border-b py-[11px] text-[11px]">
+  <div className="flex justify-between gap-3 border-b py-[11px] text-detail">
     <dt className="text-muted-foreground">{label}</dt>
     <dd className="tabular-nums">{children}</dd>
   </div>
@@ -99,14 +99,14 @@ const UnlockForm = ({ unlockError, unlocking, onUnlock }: Pick<OverviewPaneProps
         id="pdf-password"
         name="password"
         type="password"
-        className="text-[11px] leading-[1.65]"
+        className="text-detail leading-[1.65]"
         autoComplete="off"
         disabled={unlocking}
         aria-invalid={Boolean(unlockError)}
         aria-describedby={unlockError ? 'pdf-password-help pdf-password-error' : 'pdf-password-help'}
       />
     </div>
-    <Button type="submit" className="text-[11px] leading-[1.65]" disabled={unlocking}>
+    <Button type="submit" className="text-detail leading-[1.65]" disabled={unlocking}>
       {unlocking ? 'Unlocking…' : 'Unlock PDF'}
     </Button>
     <p id="pdf-password-help" className="w-full text-xs text-muted-foreground">
@@ -151,7 +151,7 @@ const StructureSection = ({ byteCount, document, onFollowReference, onSelectRang
     {document.startXref !== undefined ? (
       <Button
         variant="outline"
-        className="font-mono text-[12px]"
+        className="font-mono text-small"
         onClick={() => {
           onSelectRange({
             end: Math.min(byteCount, document.startXref! + 32),
@@ -208,14 +208,14 @@ const ExploreSection = ({ document, objects, resourceObjects, onNavigate, onPrev
 );
 
 const IssuesOverview = ({ document, issues, onChooseSection }: DocumentProps) => (
-  <section className="mt-5 border-t py-3.5 text-[12px] leading-[1.7]">
-    <SectionHeading>Issues</SectionHeading>
+  <section className="mt-5 border-t py-3.5 text-small leading-[1.7]">
+    <SectionHeading className="leading-[1.7]">Issues</SectionHeading>
     {document.locked ? (
       <IssueNote>Structure checks unavailable while locked.</IssueNote>
     ) : (
       <IssueSummary issues={issues} empty={IssueNote} />
     )}
-    <Button variant="outline" size="sm" className="text-[12px] leading-[1.7]" onClick={() => onChooseSection('issues')}>
+    <Button variant="outline" size="sm" className="text-small leading-[1.7]" onClick={() => onChooseSection('issues')}>
       View issues and coverage
     </Button>
   </section>

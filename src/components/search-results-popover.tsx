@@ -1,8 +1,9 @@
 import type { CSSProperties, ReactNode, RefObject } from 'react';
 
 import { Popover } from '@base-ui/react/popover';
-import { cn } from 'cn';
 import { useLayoutEffect, useState } from 'react';
+
+import { cn } from '@/lib/utils';
 const isSearchControl = (target: EventTarget | null, anchor: RefObject<HTMLFormElement | null>) =>
   (target instanceof Node && anchor.current?.contains(target)) ||
   (target instanceof Element && target.closest('[data-search-scope-popup]'));

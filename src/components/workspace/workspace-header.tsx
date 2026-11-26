@@ -1,6 +1,5 @@
 import type { MouseEvent, ReactNode } from 'react';
 
-import { cn } from 'cn';
 import { BookOpen, File as FileIcon, FolderOpen, X } from 'lucide-react';
 
 import type { SitePath } from '@/lib/site-content';
@@ -9,6 +8,7 @@ import { ContentHeaderLinks, HeaderLink } from '@/components/content-navigation'
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
 import { sitePage } from '@/lib/site-content';
+import { cn } from '@/lib/utils';
 
 import { size } from './types';
 
@@ -57,8 +57,8 @@ const FileName = ({ byteCount, filename }: { byteCount: number; filename: string
     data-filename=""
     className={cn(
       'flex min-w-0 flex-1 items-center gap-[9px]',
-      'text-[12px] text-muted-foreground',
-      'max-w600:col-start-2 max-w600:row-start-1 max-w600:text-[11px]',
+      'text-small text-muted-foreground',
+      'max-w600:col-start-2 max-w600:row-start-1 max-w600:text-detail',
       !filename && 'max-w600:hidden'
     )}
   >
@@ -75,7 +75,7 @@ const FileName = ({ byteCount, filename }: { byteCount: number; filename: string
         >
           {filename}
         </span>
-        <span className="text-[11px] narrow:hidden">{size(byteCount)}</span>
+        <span className="text-detail narrow:hidden">{size(byteCount)}</span>
       </>
     ) : (
       <span>Local workspace</span>

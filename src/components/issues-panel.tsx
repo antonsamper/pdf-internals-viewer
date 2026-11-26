@@ -1,6 +1,5 @@
 import type { ComponentProps, ComponentType } from 'react';
 
-import { cn } from 'cn';
 import { FileWarning, CircleAlert, TriangleAlert, Info, ScanLine } from 'lucide-react';
 
 import type { PdfIssue, IssueSeverity } from '@/lib/pdf/issues';
@@ -14,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { issueOrder, issueSummary } from '@/lib/pdf/issues';
 import { useScrollRestoration } from '@/lib/scroll-restoration';
+import { cn } from '@/lib/utils';
 
 /** Severity counts, or `empty` with a sentence when there are no issues. */
 export const IssueSummary = ({ empty: Empty, issues }: { empty: ComponentType<ComponentProps<'p'>>; issues: PdfIssue[] }) => {
@@ -26,7 +26,10 @@ export const IssueSummary = ({ empty: Empty, issues }: { empty: ComponentType<Co
         const Icon = severityIcons[severity];
         const label = severity === 'info' ? 'information note' : severity === 'limitation' ? 'inspection limitation' : severity;
         return (
-          <SeverityPill key={severity} className={cn(SEVERITY_TONE[severity], 'rounded-[5px] px-[9px] py-[5px] text-[12px] font-semibold')}>
+          <SeverityPill
+            key={severity}
+            className={cn(SEVERITY_TONE[severity], 'rounded-[5px] px-[9px] py-[5px] text-small leading-[inherit] font-semibold')}
+          >
             <Icon size={14} aria-hidden="true" />
             {count} {label}
             {count === 1 ? '' : 's'}
@@ -66,8 +69,8 @@ export const IssuesPanel = ({
           <IssueSummary issues={issues} empty={PaneSubtitle} />
         )}
       </PaneIntro>
-      <div className="mt-5 border-t py-3.5 text-[12px] leading-[1.7]">
-        <SectionHeading>Checks and coverage</SectionHeading>
+      <div className="mt-5 border-t py-3.5 text-small leading-[1.7]">
+        <SectionHeading className="leading-[1.7]">Checks and coverage</SectionHeading>
         <IssueNote>
           {locked
             ? 'Unlock the PDF from Overview to check its structure.'
@@ -88,7 +91,7 @@ export const IssuesPanel = ({
               key={issue.id}
               className={cn(
                 SEVERITY_TONE[issue.severity],
-                'border-t py-4 text-[12px] leading-[1.7]',
+                'border-t py-4 text-small leading-[1.7]',
                 MARKED[issue.severity] && 'my-3 border-l-[3px] border-l-(--issue-ink) pl-3.5'
               )}
             >
@@ -97,16 +100,16 @@ export const IssuesPanel = ({
                   <Icon size={13} aria-hidden="true" />
                   {severityNames[issue.severity]}
                 </SeverityPill>
-                <h2 className="text-[12px] font-[550]">{issue.title}</h2>
+                <h2 className="font-[550]">{issue.title}</h2>
               </div>
               <IssueNote>{issue.explanation}</IssueNote>
-              <pre className="my-2.5 rounded-[5px] bg-muted p-2.5 text-[11px] [overflow-wrap:anywhere] whitespace-pre-wrap">
+              <pre className="my-2.5 rounded-[5px] bg-muted p-2.5 text-detail leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap">
                 {issue.evidence}
               </pre>
               <Button
                 variant="outline"
                 size="sm"
-                className="text-[12px] leading-[1.7]"
+                className="text-small leading-[1.7]"
                 onClick={() => (issue.objectId ? onNavigate(issue.objectId) : onStructure())}
               >
                 {issue.objectId ? `Inspect ${issue.objectId} obj` : 'Inspect file structure'}

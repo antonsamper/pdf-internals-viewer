@@ -1,9 +1,9 @@
-import { cn } from 'cn';
 import { ArrowRight, ChevronDown, Search, X } from 'lucide-react';
 
 import { SearchScopeSelect } from '@/components/search-scope-select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 import type { useDocumentSearch } from './use-document-search';
 
@@ -32,11 +32,11 @@ const queryPadding = (query: string, hasResults: boolean) => {
 const inputClass = (query: string, hasResults: boolean) =>
   cn(
     'h-7 flex-1 px-1 py-0 [grid-area:query]',
-    'text-[12px] text-foreground',
+    'text-small text-foreground',
     'bg-transparent',
     'rounded-none border-0',
     'focus-visible:ring-0',
-    'narrow:h-9 narrow:text-[14px] supports-[-webkit-touch-callout:none]:narrow:text-[16px]',
+    'narrow:h-9 narrow:text-reading supports-[-webkit-touch-callout:none]:narrow:text-subheading',
     'dark:bg-transparent',
     query && 'max-w360:pr-9',
     queryPadding(query, hasResults)
@@ -58,7 +58,7 @@ const ResultsToggle = ({ count, onToggle, open, scope }: { count: number; onTogg
     data-search-show=""
     className={cn(
       'whitespace-nowrap',
-      'narrow:h-9 narrow:min-w-9 narrow:justify-between narrow:rounded-[6px] narrow:border-0 narrow:bg-muted narrow:text-[13px] narrow:text-foreground',
+      'narrow:h-9 narrow:min-w-9 narrow:justify-between narrow:rounded-[6px] narrow:border-0 narrow:bg-muted narrow:text-body narrow:text-foreground',
       'narrow:hover:bg-muted narrow:aria-expanded:bg-accent narrow:aria-expanded:hover:bg-accent',
       'narrow:dark:hover:bg-muted narrow:aria-expanded:dark:hover:bg-accent',
       'max-w360:w-full max-w360:px-2.5 max-w360:[grid-area:results]',
@@ -69,7 +69,7 @@ const ResultsToggle = ({ count, onToggle, open, scope }: { count: number; onTogg
     onClick={onToggle}
   >
     <span className="w360-w900:hidden">Results</span>{' '}
-    <span className="max-w360:mr-auto narrow:text-[12px] narrow:text-muted-foreground">
+    <span className="max-w360:mr-auto narrow:text-small narrow:text-muted-foreground">
       {count} <span className="w360-w900:hidden">{resultUnit(count, scope)}</span>
     </span>
     <ChevronDown size={12} />

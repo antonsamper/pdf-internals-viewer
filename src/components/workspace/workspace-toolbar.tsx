@@ -1,9 +1,9 @@
-import { cn } from 'cn';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 import type { Section } from './types';
 import type { useDocumentSearch } from './use-document-search';

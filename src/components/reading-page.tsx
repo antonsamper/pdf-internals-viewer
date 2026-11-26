@@ -1,12 +1,12 @@
 import type { MouseEvent, MouseEventHandler, ReactNode } from 'react';
 
-import { cn } from 'cn';
 import { ArrowLeft } from 'lucide-react';
 
 import type { SitePath } from '@/lib/site-content';
 
 import { ContentNavigation, RelatedContent } from '@/components/content-navigation';
 import { Prose } from '@/components/prose';
+import { cn } from '@/lib/utils';
 
 type FollowLink = (event: MouseEvent<HTMLAnchorElement>) => boolean;
 
@@ -15,7 +15,7 @@ export const BackToWorkspace = function BackToWorkspace({ onClick }: { onClick?:
   return (
     <a
       className={cn(
-        'mb-10 inline-flex items-center gap-2 text-[12px] text-muted-foreground',
+        'mb-10 inline-flex items-center gap-2 text-small text-muted-foreground',
         'hover:text-foreground hover:underline hover:underline-offset-4'
       )}
       href={import.meta.env.BASE_URL}

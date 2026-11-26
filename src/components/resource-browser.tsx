@@ -85,7 +85,7 @@ export const ResourceBrowser = function ResourceBrowser({
           >
             <Icon aria-hidden="true" size={14} />
             {label}{' '}
-            <span className="rounded-[4px] bg-muted px-[5px] text-[10px] text-muted-foreground tabular-nums">
+            <span className="rounded-[4px] bg-muted px-[5px] text-caption text-muted-foreground tabular-nums">
               {value === 'All' ? resources.length : resources.filter((entry) => entry.kind === value).length}
             </span>
           </Button>
@@ -129,7 +129,7 @@ export const ResourceBrowser = function ResourceBrowser({
           return (
             <article key={object.id} aria-label={`${kind} ${object.id}`} className="min-w-0 py-4">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-[12px] leading-[calc(1.25/0.875)] font-[550]">{kind}</h2>
+                <h2 className="text-small leading-[calc(1.25/0.875)] font-[550]">{kind}</h2>
                 <ReferenceButton onClick={() => onNavigate(object.id)}>{object.id} obj</ReferenceButton>
               </div>
               <p className="mt-1 text-xs break-words text-muted-foreground">{object.label}</p>
@@ -141,11 +141,11 @@ export const ResourceBrowser = function ResourceBrowser({
                   {!downloads.length && <p className="my-3 text-xs text-muted-foreground">No embedded font file available to download.</p>}
                   <dl className="my-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
                     <dt className="text-muted-foreground">Base font</dt>
-                    <dd className="font-mono text-[12px] break-all">{detail(object, 'BaseFont')}</dd>
+                    <dd className="font-mono text-small leading-[inherit] break-all">{detail(object, 'BaseFont')}</dd>
                     <dt className="text-muted-foreground">Subtype</dt>
-                    <dd className="font-mono text-[12px] break-all">{detail(object, 'Subtype')}</dd>
+                    <dd className="font-mono text-small leading-[inherit] break-all">{detail(object, 'Subtype')}</dd>
                     <dt className="text-muted-foreground">Encoding</dt>
-                    <dd className="font-mono text-[12px] break-all">{detail(object, 'Encoding')}</dd>
+                    <dd className="font-mono text-small leading-[inherit] break-all">{detail(object, 'Encoding')}</dd>
                   </dl>
                 </>
               ) : kind === 'Image' ? (

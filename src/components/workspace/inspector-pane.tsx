@@ -1,6 +1,5 @@
 import type { ComponentProps, ReactNode } from 'react';
 
-import { cn } from 'cn';
 import { BookmarkPlus, Braces, Image, LoaderCircle, Pin, X } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 
@@ -18,12 +17,13 @@ import { ObjectComparison } from '@/components/object-comparison';
 import { ResourceBrowser } from '@/components/resource-browser';
 import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+import { cn } from '@/lib/utils';
 
 import type { Section } from './types';
 
 /** A small ghost button in the pane heading, in compact type. */
 const PaneAction = ({ className, ...props }: ComponentProps<typeof Button>) => (
-  <Button variant="ghost" size="sm" className={cn('gap-[5px] text-[10px] font-medium', className)} {...props} />
+  <Button variant="ghost" size="sm" className={cn('gap-[5px] text-caption font-medium', className)} {...props} />
 );
 
 const PdfPreview = lazy(() =>
@@ -157,8 +157,8 @@ const LoadingView = () => (
     aria-label="Opening PDF"
   >
     <LoaderCircle size={32} className="mb-5 shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none" aria-hidden="true" />
-    <h1 className="mb-2.5 text-[18px] font-medium">Opening PDF…</h1>
-    <p className="max-w-[38ch] text-[12px] leading-[1.8] text-muted-foreground">
+    <h1 className="mb-2.5 text-heading font-medium">Opening PDF…</h1>
+    <p className="max-w-[38ch] text-small leading-[1.8] text-muted-foreground">
       Reading objects and building the document structure. Larger documents can take a few seconds.
     </p>
   </section>

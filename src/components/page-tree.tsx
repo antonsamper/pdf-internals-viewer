@@ -1,20 +1,20 @@
 import type { ReactNode } from 'react';
 
-import { cn } from 'cn';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 import type { PdfDocumentInfo, PdfObjectRecord, PdfValue } from '@/lib/pdf/types';
 
 import { effectiveResources, property } from '@/lib/pdf/navigation';
+import { cn } from '@/lib/utils';
 /** A sentence at the top of the tree, or in place of it when there are no pages. */
 const TreeIntro = ({ children }: { children: ReactNode }) => (
-  <p className="mx-1.5 mt-1.5 mb-3 text-[11px] leading-[1.6] text-muted-foreground">{children}</p>
+  <p className="mx-1.5 mt-1.5 mb-3 text-detail leading-[1.6] text-muted-foreground">{children}</p>
 );
 
 /** Details under a node, such as its object kind or why it stops expanding. */
 const NodeDetail = ({ children }: { children: ReactNode }) => (
-  <p className="mr-[5px] mb-[7px] ml-[26px] text-[10px] leading-[1.5] [overflow-wrap:anywhere] text-muted-foreground">{children}</p>
+  <p className="mr-[5px] mb-[7px] ml-[26px] text-caption [overflow-wrap:anywhere] text-muted-foreground">{children}</p>
 );
 
 /** The expand button, or a spacer of the same width when the node has no children. */
@@ -34,7 +34,7 @@ const NodeToggle = ({ expanded, label, onToggle }: { expanded: boolean; label: s
 
 /** A node's label and object number: a button when the node opens an object. */
 const NodeLabel = ({ children, current, onSelect }: { children: ReactNode; current?: boolean; onSelect?: () => void }) => {
-  const className = cn('flex min-w-0 flex-1 flex-col items-start py-[5px] pr-[5px]', 'text-left text-[11px] [overflow-wrap:anywhere]');
+  const className = cn('flex min-w-0 flex-1 flex-col items-start py-[5px] pr-[5px]', 'text-left text-detail [overflow-wrap:anywhere]');
   return onSelect ? (
     <button className={className} aria-current={current ? 'true' : undefined} onClick={onSelect}>
       {children}
@@ -45,7 +45,7 @@ const NodeLabel = ({ children, current, onSelect }: { children: ReactNode; curre
 };
 
 const ShowMoreButton = ({ children, onClick }: { children: ReactNode; onClick: () => void }) => (
-  <button className="m-1.5 p-[5px] text-[11px] text-reference underline underline-offset-[3px]" onClick={onClick}>
+  <button className="m-1.5 p-[5px] text-detail text-reference underline underline-offset-[3px]" onClick={onClick}>
     {children}
   </button>
 );
@@ -156,12 +156,12 @@ export const PageTree = ({
           {ref && object ? (
             <NodeLabel current={selectedId === ref} onSelect={() => onNavigate(ref, pageRoot ? [{ id: ref, label }] : nextTrail)}>
               <span>{label}</span>
-              <code className="text-[10px] text-muted-foreground">{ref} obj</code>
+              <code className="text-caption text-muted-foreground">{ref} obj</code>
             </NodeLabel>
           ) : (
             <NodeLabel>
               <span>{label}</span>
-              {ref && <code className="text-[10px] text-muted-foreground">{ref} R</code>}
+              {ref && <code className="text-caption text-muted-foreground">{ref} R</code>}
             </NodeLabel>
           )}
         </div>

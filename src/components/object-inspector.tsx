@@ -1,6 +1,5 @@
 import type { ComponentProps, MouseEvent, ReactNode } from 'react';
 
-import { cn } from 'cn';
 import { ArrowUpRight, Braces, FileCode2, LoaderCircle } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -24,12 +23,13 @@ import { embeddedDownloads } from '@/lib/pdf/downloads';
 import { hasSubtype } from '@/lib/pdf/navigation';
 import { objectName, objectRelationships, objectSummary } from '@/lib/pdf/object-context';
 import { useScrollRestoration } from '@/lib/scroll-restoration';
+import { cn } from '@/lib/utils';
 
 /** Tabs sit on one flat line: violet when active, with a red underline. */
 const ObjectTab = ({ className, ...props }: ComponentProps<typeof TabsTrigger>) => (
   <TabsTrigger
     className={cn(
-      'h-8 flex-initial px-[3px] py-0 text-[11px]',
+      'h-8 flex-initial px-[3px] py-0 text-detail',
       'data-active:text-brand-purple data-active:after:bg-brand-red data-active:hover:text-brand-purple',
       'dark:data-active:text-brand-purple dark:data-active:hover:text-brand-purple',
       className
@@ -51,7 +51,7 @@ const RelationshipLink = ({ children, onClick }: { children: ReactNode; onClick:
   <button
     className={cn(
       'flex flex-wrap justify-between gap-x-3 gap-y-1 p-2',
-      'rounded-[5px] text-left text-[11px] [overflow-wrap:anywhere]',
+      'rounded-[5px] text-left text-detail leading-[inherit] [overflow-wrap:anywhere]',
       'hover:bg-accent'
     )}
     onClick={onClick}
@@ -63,9 +63,9 @@ const RelationshipLink = ({ children, onClick }: { children: ReactNode; onClick:
 /** A titled list of relationship links, with a sentence in place of the list when it is empty. */
 const Relationships = ({ children, count, empty, title }: { children: ReactNode; count: number; empty?: string; title: string }) => (
   <>
-    <SectionHeading>
+    <SectionHeading className="leading-[inherit]">
       {title}{' '}
-      <span className="ml-[5px] text-[10px] text-muted-foreground">
+      <span className="ml-[5px] text-caption leading-[inherit] text-muted-foreground">
         {count} {count === 1 ? 'object' : 'objects'}
       </span>
     </SectionHeading>
@@ -79,15 +79,15 @@ const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: s
   <header className="px-[22px] pt-[23px] pb-[15px] max-w480:px-[18px] max-w480:pt-5 max-w480:pb-3">
     <div className="flex items-center gap-[11px]">
       <Braces size={19} />
-      <h1 className="font-mono text-[18px] font-medium">
+      <h1 className="font-mono text-heading font-medium">
         {object.id} <span className="text-muted-foreground">obj</span>
       </h1>
-      <Badge variant="secondary" className="rounded-[4px] text-[10px] leading-[calc(4/3)]">
+      <Badge variant="secondary" className="rounded-[4px] text-caption leading-[calc(4/3)]">
         {object.kind}
       </Badge>
     </div>
-    <p className="mt-2 text-[11px] text-muted-foreground">{object.label}</p>
-    <p className="mt-2.5 max-w-[65ch] text-[12px] leading-[1.65] text-foreground" data-object-explanation>
+    <p className="mt-2 text-detail text-muted-foreground">{object.label}</p>
+    <p className="mt-2.5 max-w-[65ch] text-small leading-[1.65] text-foreground" data-object-explanation>
       {summary}
     </p>
   </header>
@@ -97,7 +97,7 @@ const ProvenanceNote = ({ object, onNavigate }: { object: PdfObjectRecord; onNav
   <div
     className={cn(
       'flex items-start gap-[7px] px-[22px] pb-[18px]',
-      'text-[10px] leading-[1.7] text-muted-foreground',
+      'text-caption leading-[1.7] text-muted-foreground',
       'max-w480:px-[18px] max-w480:pb-4'
     )}
     data-provenance
@@ -105,8 +105,8 @@ const ProvenanceNote = ({ object, onNavigate }: { object: PdfObjectRecord; onNav
     <FileCode2 size={14} className="mt-0.5 shrink-0 text-brand-orange-ink" />
     {object.provenance.type === 'file' ? (
       <span>
-        Original file · <code className="text-[10px]">0x{object.provenance.range.start.toString(16).toUpperCase()}</code> ·{' '}
-        {object.provenance.range.end - object.provenance.range.start} bytes
+        Original file · <code className="text-caption leading-[inherit]">0x{object.provenance.range.start.toString(16).toUpperCase()}</code>{' '}
+        · {object.provenance.range.end - object.provenance.range.start} bytes
       </span>
     ) : object.provenance.type === 'decoded' ? (
       <span>
@@ -230,7 +230,7 @@ export const ObjectInspector = function ObjectInspector({
           <section className="mt-[30px]">
             {resources && (
               <>
-                <SectionHeading>Effective page resources</SectionHeading>
+                <SectionHeading className="leading-[inherit]">Effective page resources</SectionHeading>
                 {resources.inheritedFrom ? (
                   <Note>
                     Inherited from{' '}
@@ -314,9 +314,9 @@ export const ObjectInspector = function ObjectInspector({
           (mode) =>
             object.stream && (
               <TabsContent key={mode} value={mode} render={<PaneBody />} {...(safeTab === mode ? scroll : {})}>
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-detail leading-[inherit]">
                   <span>{mode === 'raw' ? 'Stored stream bytes' : 'Decoded stream bytes'}</span>
-                  <Badge variant="outline" className="text-[9px] leading-[calc(4/3)]">
+                  <Badge variant="outline" className="text-micro leading-[calc(4/3)]">
                     {object.stream.filters.join(' → ') || 'No filters'}
                   </Badge>
                 </div>
@@ -329,7 +329,7 @@ export const ObjectInspector = function ObjectInspector({
                 ) : stream ? (
                   <>
                     {stream.error && <Warning role="alert">{stream.error}</Warning>}
-                    <p className="mb-2.5 text-[10px] text-muted-foreground">
+                    <p className="mb-2.5 text-caption leading-[inherit] text-muted-foreground">
                       {stream.bytes.length.toLocaleString()} bytes
                       {stream.truncated ? ' · display truncated' : ''}
                     </p>
