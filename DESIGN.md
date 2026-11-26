@@ -4,15 +4,16 @@ Components are styled with Tailwind utilities, shadcn variants on Base UI and th
 
 ## Where styles live
 
-- `src/index.css` holds the tokens (colours, radii, the `font-mono` family, the `reference`, `pdf-string` and `brand-*` colour utilities, dark-mode mappings) and a `base` layer with the page reset: full-height `html`, `body` and `#root`, the 13px body size, selection colours, thin scrollbars, pointer cursors on buttons and the reduced-motion rule.
+- `src/index.css` holds the tokens (colours, radii, the `font-mono` family, the `reference`, `pdf-string` and `brand-*` colour utilities, dark-mode mappings) and a `base` layer with the page reset: full-height `html`, `body` and `#root`, the 13px body size, selection colours, thin scrollbars, pointer cursors on buttons, the 12px monospace on `code` and `pre`, the focus outline on `button`, `a` and `select`, and the reduced-motion rule.
 - `src/styles/breakpoints.css` defines the breakpoint tokens. See Layout.
 - `src/styles/surfaces.css` defines the `surface-dark` utility, which gives an element the plum header colours in both themes by redefining the colour tokens, so everything inside follows it.
 - `src/styles/shadcn.css` is the vendored shadcn stylesheet. Don't edit it.
-- `src/styles/overrides.css` is the only place for global element rules. It is imported into the `overrides` layer, which sits above Tailwind's utilities, so its rules win over them: `font: inherit` on `button`, `input` and `select`, the 12px monospace on `code` and `pre`, and the focus outline on `button`, `a` and `select`. A utility that sets font or outline on one of those elements takes the `!` modifier. Add a rule here only when no utility can express it, and say why.
+- The CSS layers are Tailwind's own: `properties`, `theme`, `base`, `components` and `utilities`, in that order. Global element rules go in the `base` layer, below the utilities, so a utility or a shadcn variant overrides them without `!`. Tailwind's preflight, also in `base`, gives form controls `font: inherit`. Don't add a layer above the utilities or an unlayered element rule.
 - No selector may restyle a shadcn component from outside. Change its variant or pass utilities to it.
+- The vendored files in `src/components/ui` are edited where the app's look differs from shadcn's. The `Button`, `Input` and `TabsTrigger` variants set the control type the app renders: 13px, normal weight, 1.5 line height, the same as body text. Every button size uses it. A call site whose container uses other type passes its own size, such as `text-[11px]` in the panes or `text-sm` inside a tab panel. `HeaderLink` in `content-navigation.tsx` gives header links the small ghost button's shape with their own 12.8px medium type.
 - The inspector panes share class strings from `src/components/inspector-styles.ts` (pane headings, references, notes, warnings and severity colours). The hex view keeps its row and column classes in `src/components/hex-view.tsx`.
 - The About page and the public articles share `src/components/reading-page.tsx` (page layout, section navigation and the related-reading list) and `src/components/prose.tsx`. `Prose` styles the plain HTML elements of an article from its wrapper and skips any element with a `class`, so a styled paragraph or link carries its own utilities. `Lead`, `ExamplePreview` and `ComparisonTable` cover the rest.
-- `cn` drops a `leading-*` that comes before a later `text-[..]`, so put `leading-*` last.
+- `cn` drops a `leading-*` that comes before a later `text-[..]`, so put `leading-*` last. A `text-[..]` passed to `Button`, `Input` or `TabsTrigger` drops the variant's `leading-normal` the same way, so the control takes its parent's line height.
 
 ## Look and feel
 
@@ -48,7 +49,7 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 - Inspector tabs: a flat line list, with the active tab in violet and a red underline.
 - Badges label data and are never actions.
 - References are violet, underline on hover and keep a visible focus ring.
-- Keyboard focus on buttons, tab triggers, links and selects is one 2px solid `--ring` outline with a 2px offset, the same on native and shadcn controls. The global rule in `overrides.css` gives it to every `button`, `a` and `select`. The shadcn button and tab trigger variants set the same outline in place of shadcn's ring and border, so a focused control never shows more than one ring. The search scope and the search result rows draw the 2px ring inside their edge so it isn't clipped. The shadcn `Input` keeps its violet border and soft ring, and the search field shows that highlight only while the query input has focus.
+- Keyboard focus on buttons, tab triggers, links and selects is one 2px solid `--ring` outline with a 2px offset, the same on native and shadcn controls. The `base` rule in `index.css` gives it to every `button`, `a` and `select` that doesn't set its own outline. The shadcn button and tab trigger variants set the same outline in place of shadcn's ring and border, so a focused control never shows more than one ring. The search scope and the search result rows draw the 2px ring inside their edge so it isn't clipped. The shadcn `Input` keeps its violet border and soft ring, and the search field shows that highlight only while the query input has focus.
 - The byte grid keeps offsets, hex and ASCII in fixed-width columns, and selected bytes use the peach selection colours.
 - Notices use neutral surfaces with an icon and short explanatory text.
 - Transitions and animations respect reduced-motion preferences.
@@ -67,11 +68,10 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 ```tsx
 className={cn(
   'flex h-[42px] w-full items-center',
-  'gap-2.5 px-[9px] text-left text-muted-foreground',
+  'gap-2.5 px-[9px] text-left text-[11px] text-muted-foreground',
   'rounded-[4px] bg-transparent',
   'hover:bg-accent hover:text-foreground',
   'narrow:h-11',
-  'text-[11px]!',
   selected && 'bg-accent text-accent-foreground'
 )}
 ```

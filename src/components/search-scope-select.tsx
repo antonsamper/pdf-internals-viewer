@@ -21,12 +21,12 @@ export const SearchScopeSelect = function SearchScopeSelect({
         className={cn(
           'flex flex-[0_0_132px] items-center justify-between [grid-area:mode]',
           'h-7 w-[132px] gap-2 pr-2 pl-0',
-          'bg-background whitespace-nowrap text-foreground',
+          'text-[11px] whitespace-nowrap text-foreground',
+          'bg-background outline-none',
           'focus-visible:shadow-[inset_0_0_0_2px_var(--ring)] data-[popup-open]:bg-muted',
           'narrow:relative narrow:h-9 narrow:rounded-[6px] narrow:bg-muted narrow:before:absolute narrow:before:-inset-x-0.5 narrow:before:-inset-y-1 narrow:data-[popup-open]:bg-accent',
-          'max-w360:w-full max-w360:px-2.5 max-w360:text-[13px]!',
-          'w360-w900:w-auto w360-w900:max-w-[104px] w360-w900:gap-1 w360-w900:px-2 w360-w900:text-[12px]!',
-          'text-[11px]! outline-none!'
+          'max-w360:w-full max-w360:px-2.5 max-w360:text-[13px]',
+          'w360-w900:w-auto w360-w900:max-w-[104px] w360-w900:gap-1 w360-w900:px-2 w360-w900:text-[12px]'
         )}
         aria-label="Search scope"
       >

@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react';
+import type { ComponentProps, MouseEvent } from 'react';
 
 import { cn } from 'cn';
 import { Menu, X } from 'lucide-react';
@@ -7,8 +7,21 @@ import type { SitePath } from '@/lib/site-content';
 
 import { buttonVariants } from '@/components/ui/button-variants';
 import { CONTENT_GROUPS, contentType, relatedPages } from '@/lib/site-navigation';
-/* `cn` would merge away `text-sm`'s line-height and `rounded-lg` from `buttonVariants`, so these classes are joined as plain strings. Overrides take `!`. */
-const join = (...parts: (string | false)[]) => parts.filter(Boolean).join(' ');
+/** A header link shaped like a small ghost button, in medium-weight type a little under 13px. */
+export const HeaderLink = function HeaderLink({ className, ...props }: ComponentProps<'a'>) {
+  return (
+    <a
+      className={cn(
+        buttonVariants({ size: 'sm', variant: 'ghost' }),
+        'text-[0.8rem] leading-(--text-sm--line-height) font-medium',
+        // The base button's radius and icon size, which the `sm` size would otherwise replace.
+        "rounded-lg [&_svg:not([class*='size-'])]:size-4",
+        className
+      )}
+      {...props}
+    />
+  );
+};
 
 const SECTION_LINK = 'text-inherit underline-offset-5 no-underline';
 
@@ -17,24 +30,20 @@ const SectionLinks = function SectionLinks({ menu, path, onFollowLink }: { menu:
     const href = group.items[0][0];
     const active = group.items.some(([item]) => item === path);
     return (
-      <a
+      <HeaderLink
         key={href}
         href={href}
         aria-current={path === href ? 'page' : undefined}
-        className={join(
-          buttonVariants({ size: 'sm', variant: 'ghost' }),
+        className={cn(
           SECTION_LINK,
-          menu && 'min-h-11',
-          menu && 'hover:bg-muted',
-          menu && 'dark:hover:bg-muted!',
-          menu && 'flex! rounded-[4px]! px-3! hover:bg-clip-border!',
+          menu && ['flex min-h-11 px-3', 'rounded-[4px]', 'hover:bg-muted hover:bg-clip-border', 'dark:hover:bg-muted'],
           active && 'underline',
-          menu && active && 'bg-muted bg-clip-border!'
+          menu && active && 'bg-muted bg-clip-border'
         )}
         onClick={onFollowLink}
       >
         {group.label}
-      </a>
+      </HeaderLink>
     );
   });
 };
@@ -46,21 +55,18 @@ export const ContentHeaderLinks = function ContentHeaderLinks({ path, onFollowLi
       <div className="flex items-center gap-1 max-w760:hidden">
         <SectionLinks menu={false} path={path} onFollowLink={onFollowLink} />
       </div>
-      <a
-        className={join(buttonVariants({ size: 'sm', variant: 'ghost' }), SECTION_LINK, 'max-w760:min-h-9')}
-        href="/"
-        onClick={onFollowLink}
-      >
+      <HeaderLink className={cn(SECTION_LINK, 'max-w760:min-h-9')} href="/" onClick={onFollowLink}>
         <span className="max-w760:hidden">Open the inspector →</span>
         <span className="hidden max-w760:inline">Inspector →</span>
-      </a>
+      </HeaderLink>
       <details className="group relative hidden max-w760:block" key={path}>
         <summary
-          className={join(
+          className={cn(
             buttonVariants({ size: 'icon-lg', variant: 'ghost' }),
-            'cursor-pointer list-none [&::-webkit-details-marker]:hidden',
-            'group-open:bg-muted group-open:bg-clip-border! hover:bg-clip-border! dark:hover:bg-muted!',
-            'flex!'
+            'flex list-none [&::-webkit-details-marker]:hidden',
+            'cursor-pointer',
+            'group-open:bg-muted group-open:bg-clip-border hover:bg-clip-border',
+            'dark:hover:bg-muted'
           )}
         >
           <Menu className="group-open:hidden" size={16} aria-hidden="true" />

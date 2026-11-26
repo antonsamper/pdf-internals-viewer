@@ -4,7 +4,6 @@
 @import '@fontsource-variable/geist';
 @import './styles/breakpoints.css';
 @import './styles/surfaces.css';
-@import './styles/overrides.css' layer(overrides);
 
 @custom-variant dark (&:is(.dark *));
 
@@ -178,6 +177,18 @@
   }
   button:disabled {
     cursor: default;
+  }
+  /* Element defaults. Utilities and the shadcn variants override them without `!`. */
+  code,
+  pre {
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+  button:focus-visible,
+  a:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
   @media (prefers-reduced-motion: reduce) {
     *,

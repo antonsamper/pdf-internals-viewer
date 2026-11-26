@@ -60,7 +60,7 @@ export const WorkspaceFooter = ({
 export const OpeningProgress = ({ onCancel }: { onCancel: () => void }) => (
   <div className={cn(LOADING_INLINE, 'border-b py-1.5 text-[11px]')}>
     Opening PDF…{' '}
-    <Button variant="ghost" size="xs" onClick={onCancel}>
+    <Button variant="ghost" size="xs" className="text-[11px]" onClick={onCancel}>
       Cancel
     </Button>
   </div>

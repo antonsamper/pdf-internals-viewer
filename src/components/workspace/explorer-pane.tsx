@@ -91,10 +91,9 @@ export const ExplorerPane = ({
             key={key}
             className={cn(
               'flex items-center gap-[9px] px-2.5 py-2',
-              'rounded-[5px] bg-transparent text-left text-muted-foreground',
+              'rounded-[5px] bg-transparent text-left text-[11px] text-muted-foreground',
               'hover:bg-accent hover:text-foreground',
-              'text-[11px]!',
-              section === key && 'bg-accent font-medium! text-accent-foreground shadow-[inset_3px_0_var(--brand-purple)]'
+              section === key && 'bg-accent font-medium text-accent-foreground shadow-[inset_3px_0_var(--brand-purple)]'
             )}
             onClick={() => onChooseSection(key)}
           >
@@ -156,7 +155,7 @@ export const ExplorerPane = ({
                   selectedId === object.id && [
                     'bg-accent text-accent-foreground',
                     'hover:text-accent-foreground',
-                    '[outline:1px_solid_var(--border)]! [outline-offset:-1px]!',
+                    '[outline:1px_solid_var(--border)] [outline-offset:-1px]',
                   ]
                 )}
                 style={{ position: 'absolute', top: (listStart + index) * 42 }}

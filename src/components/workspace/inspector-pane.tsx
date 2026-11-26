@@ -18,7 +18,7 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/componen
 import type { Section } from './types';
 
 /** Toolbar buttons in the pane heading: compact type and gap. */
-const PANE_ACTION = 'gap-[5px] text-[10px]!';
+const PANE_ACTION = 'gap-[5px] text-[10px] font-medium';
 
 const PdfPreview = lazy(() =>
   import('@/components/pdf-preview').then((module) => ({

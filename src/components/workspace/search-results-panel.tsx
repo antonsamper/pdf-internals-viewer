@@ -43,13 +43,12 @@ const statusText = ({ displayedScope, interrupted, results, resultsScope, search
 /** Buttons inside a result card: compact, left aligned, and tall enough to tap on small and touch screens. */
 const CARD_BUTTON = cn(
   'h-auto min-h-6 max-w-full justify-start',
-  'rounded-[4px] px-1.5 py-0.5 text-left whitespace-normal',
-  'pointer-coarse:min-h-11 narrow:not-pointer-coarse:min-h-8',
-  'text-[11px]!'
+  'rounded-[4px] px-1.5 py-0.5 text-left text-[11px] whitespace-normal',
+  'pointer-coarse:min-h-11 narrow:not-pointer-coarse:min-h-8'
 );
 
-/** Header buttons grow to a 44px touch target on small screens. */
-const HEADER_BUTTON = 'narrow:min-h-11 narrow:min-w-11';
+/** Header buttons use the header's 12px type and grow to a 44px touch target on small screens. */
+const HEADER_BUTTON = 'text-[12px] narrow:min-h-11 narrow:min-w-11';
 
 /** Notes above and below the result cards. */
 const BODY_NOTE = 'px-3.5 py-2.5 text-[12px] [overflow-wrap:anywhere]';
@@ -190,7 +189,7 @@ const SourceButtons = ({
           }}
         >
           <FileCode2 size={12} />
-          <code className="text-[11px]! font-normal max-w400:[overflow-wrap:anywhere]">
+          <code className="text-[11px] font-normal max-w400:[overflow-wrap:anywhere]">
             {source.ranges.length ? source.id : `Candidate ${source.id}`}
             {source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}
           </code>
@@ -262,7 +261,7 @@ const ResultSummary = ({ result, resultsScope }: { result: SearchResult; results
   if (!snippet)
     return (
       <>
-        <code className="col-start-1 text-[12px]! font-semibold text-foreground">{result.label}</code>
+        <code className="col-start-1 text-[12px] font-semibold text-foreground">{result.label}</code>
         <span className="col-start-1 text-[12px] leading-normal [overflow-wrap:anywhere] text-muted-foreground">{result.detail}</span>
       </>
     );
@@ -280,7 +279,7 @@ const ResultSummary = ({ result, resultsScope }: { result: SearchResult; results
         {snippet.after}
       </span>
       {!result.pageText && (
-        <code className="col-start-1 text-[11px]! font-normal text-muted-foreground" data-search-result-meta="">
+        <code className="col-start-1 text-[11px] font-normal text-muted-foreground" data-search-result-meta="">
           {result.label}
           <span className="font-sans"> · {result.detail}</span>
         </code>
@@ -314,7 +313,7 @@ const ResultItem = ({
         className={cn(
           'grid w-full grid-cols-[minmax(0,1fr)_18px]',
           'gap-x-3 gap-y-1 bg-transparent px-3.5 py-3 text-left',
-          'hover:bg-muted focus-visible:-outline-offset-2! aria-[current=true]:bg-accent'
+          'hover:bg-muted focus-visible:-outline-offset-2 aria-[current=true]:bg-accent'
         )}
         data-search-result=""
         ref={index === activeResult ? activeMatchRef : undefined}

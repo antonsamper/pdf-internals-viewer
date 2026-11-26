@@ -3,10 +3,9 @@ import type { MouseEvent } from 'react';
 import { cn } from 'cn';
 import { BookOpen, File as FileIcon, FolderOpen, X } from 'lucide-react';
 
-import { ContentHeaderLinks } from '@/components/content-navigation';
+import { ContentHeaderLinks, HeaderLink } from '@/components/content-navigation';
 import { SiteHeader } from '@/components/site-header';
 import { Button } from '@/components/ui/button';
-import { buttonVariants } from '@/components/ui/button-variants';
 import { sitePage, type SitePath } from '@/lib/site-content';
 
 import { size } from './types';
@@ -119,18 +118,12 @@ const WorkspaceActions = ({
     <span className="h-[19px] w-px bg-border max-w600:hidden" />
     <FileName byteCount={byteCount} filename={filename} />
     <div className={cn('flex items-center gap-2', 'max-w600:col-start-3 max-w600:row-start-1', 'max-w480:gap-0.5')} data-header-actions="">
-      <a
-        className={`${buttonVariants({ size: 'sm', variant: 'ghost' })} ${ACTION_COMPACT}`}
-        href="/guide"
-        aria-label="User guide"
-        title="User guide"
-        onClick={onFollowLink}
-      >
+      <HeaderLink className={ACTION_COMPACT} href="/guide" aria-label="User guide" title="User guide" onClick={onFollowLink}>
         <BookOpen size={15} aria-hidden="true" />{' '}
         <span data-action-label="" className={ACTION_LABEL}>
           User guide
         </span>
-      </a>
+      </HeaderLink>
       <FileAction busy={busy} hasFile={Boolean(filename)} onClose={onClose} onOpenFile={onOpenFile} />
     </div>
   </>

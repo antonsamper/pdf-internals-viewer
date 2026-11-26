@@ -198,8 +198,8 @@ test('follows page references, reads stream representations, and navigates histo
   });
 });
 test('renders pdf syntax, references, bytes and code in the monospace token', async ({ page }) => {
-  // Each element reaches the token by a different route: a utility, a `!` utility on a button, the
-  // hex row the byte buttons inherit from, and the global `code, pre` rule.
+  // Each element reaches the token by a different route: a utility, a utility on a button, the
+  // hex row the byte buttons inherit from, and the base-layer `code, pre` rule.
   const monospace = /^ui-monospace,/;
   await openMinimal(page);
   await page.getByRole('button', { exact: true, name: 'First page' }).click();

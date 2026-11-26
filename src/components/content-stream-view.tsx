@@ -42,10 +42,22 @@ export const ContentStreamView = ({
   return (
     <div>
       <div className="my-3 flex flex-wrap items-center gap-1.5" aria-label="Decoded stream representation">
-        <Button size="sm" variant={readable ? 'secondary' : 'ghost'} aria-pressed={readable} onClick={() => setReadable(true)}>
+        <Button
+          size="sm"
+          variant={readable ? 'secondary' : 'ghost'}
+          className="text-sm"
+          aria-pressed={readable}
+          onClick={() => setReadable(true)}
+        >
           Readable instructions
         </Button>
-        <Button size="sm" variant={!readable ? 'secondary' : 'ghost'} aria-pressed={!readable} onClick={() => setReadable(false)}>
+        <Button
+          size="sm"
+          variant={!readable ? 'secondary' : 'ghost'}
+          className="text-sm"
+          aria-pressed={!readable}
+          onClick={() => setReadable(false)}
+        >
           Decoded byte text
         </Button>
       </div>
@@ -138,7 +150,7 @@ export const ContentStreamView = ({
                   <span className="pt-0.5 font-mono text-[10px] leading-[normal] text-muted-foreground" title="Decoded byte offset">
                     0x{instruction.start.toString(16).toUpperCase()}
                   </span>
-                  <code className="text-[11px]! leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap">
+                  <code className="text-[11px] leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap">
                     {instruction.tokens.map((token, index) => {
                       const category =
                         token.kind === 'name' ? resourceCategory(instruction.operator, index, instruction.tokens.length - 1) : undefined;

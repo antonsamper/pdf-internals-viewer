@@ -20,6 +20,7 @@ const HEX_BYTE = cn(
   'rounded-[2px] border-0 bg-transparent py-[3px] text-center text-foreground',
   'hover:bg-accent hover:text-accent-foreground hover:shadow-[inset_0_0_0_1px_var(--border)]',
   'data-[cursor]:outline-1 data-[cursor]:-outline-offset-1 data-[cursor]:outline-ring',
+  'data-[cursor]:focus-visible:outline-2 data-[cursor]:focus-visible:outline-offset-2',
   'data-[zero]:text-muted-foreground',
   // A selected 00 byte keeps the selection colour, as it sorts after the zero rule.
   HEX_SELECTED,
@@ -114,12 +115,10 @@ const HexJumpForm = ({
     </label>
     <input
       className={cn(
-        'w-full min-w-10 px-[7px] py-1',
+        'w-full min-w-10 px-[7px] py-1 font-mono text-[11px]',
         'bg-background text-foreground placeholder:text-muted-foreground',
         'rounded-[5px] border border-border',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-        // The global `input` font rule outranks utilities, so the family and size take `!`.
-        'font-mono! text-[11px]!'
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
       )}
       id={id}
       value={value}

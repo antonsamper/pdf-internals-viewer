@@ -26,16 +26,14 @@ import { useScrollRestoration, type ScrollPosition } from '@/lib/scroll-restorat
 
 /** Tabs sit on one flat line: violet when active, with a red underline. */
 const TAB_TRIGGER = cn(
-  'h-8 flex-initial px-[3px] py-0',
+  'h-8 flex-initial px-[3px] py-0 text-[11px]',
   'data-active:text-brand-purple data-active:after:bg-brand-red data-active:hover:text-brand-purple',
-  'dark:data-active:text-brand-purple dark:data-active:hover:text-brand-purple',
-  'text-[11px]!'
+  'dark:data-active:text-brand-purple dark:data-active:hover:text-brand-purple'
 );
 const RELATIONSHIP_LINK = cn(
   'flex flex-wrap justify-between gap-x-3 gap-y-1 p-2',
-  'rounded-[5px] text-left [overflow-wrap:anywhere]',
-  'hover:bg-accent',
-  'text-[11px]!'
+  'rounded-[5px] text-left text-[11px] [overflow-wrap:anywhere]',
+  'hover:bg-accent'
 );
 const RELATIONSHIP_PART = 'inline-flex min-w-0 flex-wrap items-center gap-1';
 const RELATIONSHIP_PATH = 'font-mono text-muted-foreground';
@@ -70,7 +68,7 @@ const ProvenanceNote = ({ object, onNavigate }: { object: PdfObjectRecord; onNav
     <FileCode2 size={14} className="mt-0.5 shrink-0 text-brand-orange-ink" />
     {object.provenance.type === 'file' ? (
       <span>
-        Original file · <code className="text-[10px]!">0x{object.provenance.range.start.toString(16).toUpperCase()}</code> ·{' '}
+        Original file · <code className="text-[10px]">0x{object.provenance.range.start.toString(16).toUpperCase()}</code> ·{' '}
         {object.provenance.range.end - object.provenance.range.start} bytes
       </span>
     ) : object.provenance.type === 'decoded' ? (
