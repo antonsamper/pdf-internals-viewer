@@ -4,7 +4,7 @@
 
 | Area           | Packages                                                                   |
 | -------------- | -------------------------------------------------------------------------- |
-| App            | React 19, Vite 8, TypeScript 7                                             |
+| App            | React 19 with React Compiler, Vite 8, TypeScript 7                         |
 | UI             | Tailwind CSS 4, shadcn/ui components on Base UI, Lucide icons, Geist font  |
 | PDF inspection | `@libpdf/core` 0.5.3, pinned exactly                                       |
 | Page preview   | `@embedpdf/engine` 3.1.0 (PDFium compiled to WebAssembly), pinned exactly  |
@@ -13,6 +13,8 @@
 | Hosting        | Wrangler 4.160.1 for Cloudflare Pages, pinned exactly                      |
 
 These three packages are pinned exactly because the preparation scripts below check those versions by hash. Upgrading `@embedpdf/engine` also needs the [notice review](NOTICES.md#upgrading-embedpdf), and upgrading `@libpdf/core` needs the [instrumentation review](PARSER.md#instrumentation-and-reproducibility).
+
+`@vitejs/plugin-react` runs React Compiler natively through `oxc-transform-react`, a Rust port that the plugin marks experimental. The compiler adds memoisation at build time in the dev server and the production build. It skips a component or hook that uses syntax it can't compile yet, such as `try` with `finally` or `throw` inside `try`, and leaves that code as written.
 
 ## Package manager
 

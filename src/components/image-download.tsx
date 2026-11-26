@@ -42,9 +42,8 @@ export const ImageDownload = ({
       });
     } catch (reason) {
       if (request.current === token) setError(message(reason));
-    } finally {
-      if (request.current === token) setPending(false);
     }
+    if (request.current === token) setPending(false);
   };
   const { ref, visible } = useVisible();
   const [pending, setPending] = useState(false);

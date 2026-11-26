@@ -26,7 +26,7 @@ export default defineConfig({
     // full dependency graph so native development workers never load raw CJS.
     include: ['pdf-internals-viewer/inspection'],
   },
-  plugins: [react(), tailwindcss(), publicPages()],
+  plugins: [react({ compiler: true }), tailwindcss(), publicPages()],
   preview: { port, strictPort: true },
   resolve: {
     alias: {

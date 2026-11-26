@@ -17,6 +17,12 @@ interface LoaderDeps {
   setNotice: (notice: string | null) => void;
 }
 
+const fetchSample = async (file: string) => {
+  const response = await fetch(`${import.meta.env.BASE_URL}samples/${file}`);
+  if (!response.ok) throw new Error('The sample could not be loaded. Try opening a local PDF.');
+  return new File([await response.arrayBuffer()], file, { type: 'application/pdf' });
+};
+
 /** Opening, unlocking and reading from one PDF through a parser worker. */
 export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }: LoaderDeps) => {
   const client = useRef<PdfWorkerClient | null>(null);
@@ -136,11 +142,9 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
         setNotice('PDF unlocked. Structure inspection is available.');
       }
     } catch (reason) {
-      if (token !== requestId.current) return;
-      setUnlockError(reason instanceof Error ? reason.message : 'Could not unlock this PDF.');
-    } finally {
-      if (token === requestId.current) setUnlocking(false);
+      if (token === requestId.current) setUnlockError(reason instanceof Error ? reason.message : 'Could not unlock this PDF.');
     }
+    if (token === requestId.current) setUnlocking(false);
   };
 
   const sample = async (file: string) => {
@@ -148,17 +152,13 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
     const token = requestId.current;
     setBusy(true);
     try {
-      const response = await fetch(`${import.meta.env.BASE_URL}samples/${file}`);
-      if (!response.ok) throw new Error('The sample could not be loaded. Try opening a local PDF.');
-      const data = await response.arrayBuffer();
+      const sampleFile = await fetchSample(file);
       if (token !== requestId.current) return;
-      await open(new File([data], file, { type: 'application/pdf' }));
+      await open(sampleFile);
     } catch (reason) {
       if (token === requestId.current) setError(reason instanceof Error ? reason.message : 'Could not open sample.');
-    } finally {
-      // oxlint-disable-next-line react-doctor/no-loading-flag-reset-outside-finally -- only the request that is still current may clear the flag; a newer open owns it otherwise.
-      if (token === requestId.current) setBusy(false);
     }
+    if (token === requestId.current) setBusy(false);
   };
 
   return {

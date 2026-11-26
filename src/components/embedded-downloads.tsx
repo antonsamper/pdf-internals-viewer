@@ -28,19 +28,19 @@ export const EmbeddedDownloads = ({
     try {
       const result = await extractStream(asset.streamId);
       if (token !== request.current) return;
-      if (result.error) throw new Error(result.error);
-      if (result.truncated) throw new Error('The stream is incomplete. No file was downloaded.');
-      saveFile(
-        new Blob([new Uint8Array(result.bytes)], {
-          type: 'application/octet-stream',
-        }),
-        asset.filename
-      );
+      const failure = result.error ?? (result.truncated ? 'The stream is incomplete. No file was downloaded.' : null);
+      if (failure) setError(failure);
+      else
+        saveFile(
+          new Blob([new Uint8Array(result.bytes)], {
+            type: 'application/octet-stream',
+          }),
+          asset.filename
+        );
     } catch (reason) {
       if (token === request.current) setError(reason instanceof Error ? reason.message : 'Could not extract the embedded file.');
-    } finally {
-      if (token === request.current) setPending(null);
     }
+    if (token === request.current) setPending(null);
   };
   const request = useRef(0);
   const [pending, setPending] = useState<string | null>(null);
