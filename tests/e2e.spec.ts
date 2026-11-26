@@ -24,6 +24,19 @@ const selectSearchScope = async (page: Page, value: string) => {
   await page.getByRole('combobox', { exact: true, name: 'Search scope' }).click();
   await page.getByRole('option', { exact: true, name: labels[value] }).click();
 };
+/** `saveFile` clicks a temporary download link; count those clicks without waiting for a download event. */
+const countSaves = async (page: Page) => {
+  await page.evaluate(() => {
+    const target = window as typeof window & { saves: number };
+    target.saves = 0;
+    const click = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function (this: HTMLAnchorElement) {
+      if (this.download) target.saves += 1;
+      click.call(this);
+    };
+  });
+  return () => page.evaluate(() => (window as typeof window & { saves: number }).saves);
+};
 const openMinimal = async (page: Page) => {
   await page.getByRole('button', { name: /^A simple page/ }).click();
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
@@ -242,6 +255,14 @@ test('shows a prominent loading state and allows cancelling a slow open', async 
   await openMinimal(page);
   await expect(loading).toHaveCount(0);
   await expect(page.getByRole('main', { name: 'Document inspection' })).toHaveAttribute('aria-busy', 'false');
+});
+test('shows an error and clears the loading state when a sample fails to load', async ({ page }) => {
+  await page.route('**/samples/minimal.pdf', (route) => route.fulfill({ body: '', status: 404 }));
+  await page.getByRole('button', { name: /^A simple page/ }).click();
+  await expect(page.getByRole('alert').filter({ hasText: 'The sample could not be loaded. Try opening a local PDF.' })).toBeVisible();
+  await expect(page.getByRole('status', { exact: true, name: 'Opening PDF' })).toHaveCount(0);
+  await page.unrouteAll({ behavior: 'wait' });
+  await openMinimal(page);
 });
 test('explains parsing failures and retains the reason after dismissing the banner', async ({ page }) => {
   await page.getByLabel('Open local PDF').setInputFiles({
@@ -1653,6 +1674,72 @@ test('extracts embedded JPEG bytes unchanged and explains unsupported image expo
   await expect(resources).toContainText('Image export unavailable: custom decoding or image masks');
   await expect(resources).toContainText('Preview unavailable: custom decoding or image masks');
   await expect(resources.getByRole('img', { exact: true, name: 'Image object 6 0' })).toHaveCount(0);
+});
+test('reports an attachment that cannot be decoded without saving a file', async ({ page }) => {
+  const data = Buffer.from('not LZW data');
+  const attachment = Buffer.concat([
+    Buffer.from(`<< /Type /EmbeddedFile /Length ${data.length} /Filter /LZWDecode >>\nstream\n`, 'latin1'),
+    data,
+    Buffer.from('\nendstream', 'latin1'),
+  ]);
+  await page.getByLabel('Open local PDF').setInputFiles({
+    buffer: Buffer.from(
+      classicPdf([
+        [1, '<< /Type /Catalog /Pages 2 0 R /Names << /EmbeddedFiles 4 0 R >> >>'],
+        [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+        [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] >>'],
+        [4, '<< /Names [(broken.txt) 5 0 R] >>'],
+        [5, '<< /Type /Filespec /F (broken.txt) /EF << /F 6 0 R >> >>'],
+        [6, attachment],
+      ]).bytes
+    ),
+    mimeType: 'application/pdf',
+    name: 'broken-attachment.pdf',
+  });
+  await expect(page.getByRole('heading', { exact: true, name: 'Document overview' })).toBeVisible();
+  await page
+    .getByRole('navigation', { name: 'Document sections' })
+    .getByRole('button', { exact: true, name: 'Document catalogue' })
+    .click();
+  await page.getByRole('button', { exact: true, name: '4 0 R' }).first().click();
+  await page.getByRole('button', { exact: true, name: '5 0 R' }).first().click();
+  const saves = await countSaves(page);
+  const downloads = page.getByRole('region', { name: 'Embedded file downloads' });
+  const button = downloads.getByRole('button', { exact: true, name: 'Download attachment' });
+  await expect(downloads.getByRole('alert')).toHaveCount(0);
+  await button.click();
+  await expect(downloads.getByRole('alert')).toHaveText(
+    'Decoded inspection does not support /LZWDecode. Raw stream bytes remain available.'
+  );
+  await expect(button).toBeEnabled();
+  expect(await saves()).toBe(0);
+});
+test('reports an image that cannot be decoded and allows another attempt', async ({ page }) => {
+  const bytes = Buffer.from(imageExportPdf().bytes);
+  const start = bytes.indexOf('stream\n', bytes.indexOf('/Subtype /Image')) + 'stream\n'.length;
+  // Keep the 2-byte zlib header so inflate fails with "invalid block type".
+  bytes.fill(0xff, start + 2, start + 200);
+  await page.getByLabel('Open local PDF').setInputFiles({
+    buffer: bytes,
+    mimeType: 'application/pdf',
+    name: 'broken-image.pdf',
+  });
+  await expect(page.getByRole('heading', { exact: true, name: 'Document overview' })).toBeVisible();
+  await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { exact: true, name: 'Resources' }).click();
+  const resources = page.getByRole('region', { name: 'Visual resource browser' });
+  await resources.getByRole('button', { name: /^Images 1$/ }).click();
+  await expect(resources).toContainText('Preview unavailable: invalid block type');
+  await resources.getByRole('button', { exact: true, name: '6 0 obj' }).click();
+  // The inspector prepares the export as soon as it opens, so the error shows before any click.
+  await expect(page.getByRole('alert').filter({ hasText: 'invalid block type' })).toBeVisible();
+  const saves = await countSaves(page);
+  const button = page.getByRole('button', { exact: true, name: 'Download image' });
+  await button.click();
+  await expect(button).toBeEnabled();
+  await button.click();
+  await expect(button).toBeEnabled();
+  await expect(page.getByRole('alert').filter({ hasText: 'invalid block type' })).toBeVisible();
+  expect(await saves()).toBe(0);
 });
 test('lists and downloads inline attachment file specifications', async ({ page }) => {
   const fixture = classicPdf([
