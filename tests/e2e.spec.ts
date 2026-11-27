@@ -3356,7 +3356,7 @@ test('page text search says when a page stops at the source limit', async ({ pag
   await expect(results.getByRole('button', { name: /Show bytes · 103 0 obj/ })).toBeVisible();
   await expect(page.locator('[data-text-source-note]')).toContainText('Highlighted original bytes');
   await expect(page.locator('[data-text-source-note]')).not.toContainText('incomplete');
-  await page.screenshot({ path: screenshotPath('page-text-source-limit.png') });
+  await results.screenshot({ path: screenshotPath('page-text-source-limit.png') });
 });
 test('page text search highlights bytes encoded through a Unicode range font map', async ({ page }) => {
   await cacheEngineAssets(page);
