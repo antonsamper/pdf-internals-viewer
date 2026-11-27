@@ -329,8 +329,9 @@ export const ActionExample = function ActionExample() {
       </p>
       <h2>1. Locate the opening action</h2>
       <p>
-        Choose <strong>Document catalogue</strong>, object <strong>1 0 R</strong>. It has <code>/OpenAction 6 0 R</code>. You can also
-        select <strong>Keys</strong> in search and look for <code>OpenAction</code>. Follow the value to read the requested action.
+        Choose <strong>Actions</strong> in the explorer. One row lists the opening action: <strong>Document opens</strong>, type{' '}
+        <code>/S /GoTo</code>, a destination of <code>[ 3 0 R /Fit ]</code>, held by the catalogue, object <strong>1 0 R</strong>. To find
+        it by hand, choose <strong>Document catalogue</strong> and follow <code>/OpenAction 6 0 R</code>.
       </p>
       <Preview
         sample="opening-action"
@@ -339,7 +340,8 @@ export const ActionExample = function ActionExample() {
       />
       <h2>2. Read the action dictionary</h2>
       <p>
-        Follow <strong>6 0 R</strong> and check <strong>Properties</strong> or <strong>Source</strong>:
+        Choose <strong>Inspect action 6 0 obj</strong>, or follow <strong>6 0 R</strong>, and check <strong>Properties</strong> or{' '}
+        <strong>Source</strong>:
       </p>
       <pre>
         <code>{'<< /Type /Action /S /GoTo /D [3 0 R /Fit] >>'}</code>
@@ -356,9 +358,10 @@ export const ActionExample = function ActionExample() {
       </p>
       <h2>Investigate other action types</h2>
       <p>
-        For another PDF, inspect the action's <code>/S</code> value and follow its references. An opening action can serve a routine
-        navigation purpose, as it does here. Its presence alone does not make a file malicious, and its absence does not establish safety.
-        See the <a href="/guides/investigate-suspicious-features">suspicious features guide</a> for scripts, additional actions, and
+        For another PDF, open <strong>Actions</strong> to list its actions, then inspect each action's <code>/S</code> value and follow its
+        references. Scripts, launch actions and form submissions or imports are marked so they stand out. An opening action can serve a
+        routine navigation purpose, as it does here. Its presence alone does not make a file malicious, and its absence does not establish
+        safety. See the <a href="/guides/investigate-suspicious-features">suspicious features guide</a> for scripts, additional actions, and
         inspection limits.
       </p>
     </>

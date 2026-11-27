@@ -8,7 +8,7 @@ Every engine uses Playwright's Desktop Chrome device settings with a 1440 × 100
 
 - Opening documents: the empty workspace and starter samples, drag and drop, uploading and replacing files, cancelling a slow open, parse failures, and encrypted PDFs with and without a password.
 - Navigation: following references, Back and Forward history across sections and exact byte ranges, and restoring inspector tabs, hex-pane positions and list scroll positions.
-- Inspection: raw and decoded streams, `TJ` explanations, compressed-object provenance, hex offsets and keyboard controls, exploration trails, cyclic references, the page tree and the Issues panel.
+- Inspection: raw and decoded streams, `TJ` explanations, compressed-object provenance, hex offsets and keyboard controls, exploration trails, cyclic references, the page tree, the Issues panel and the Actions panel.
 - Search: key, hex and page-text search, result stepping, preview highlights that follow rotation and zoom, and the results popover at several widths.
 - Resources: fonts, image thumbnails, PNG and JPEG export, and attachment and embedded-font downloads.
 - Bookmarks, notes and comparison, including blocked browser storage and synchronisation between two tabs.

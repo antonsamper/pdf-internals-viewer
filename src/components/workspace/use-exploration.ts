@@ -120,7 +120,8 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
   };
 
   const chooseSection = (next: Section) => {
-    if (next === 'overview' || next === 'structure' || next === 'resources' || next === 'issues') navigate(null, 'properties', next);
+    if (next === 'overview' || next === 'structure' || next === 'resources' || next === 'issues' || next === 'actions')
+      navigate(null, 'properties', next);
     else if (next === 'catalog' && document?.catalogId) navigate(document.catalogId, 'properties', next);
     else visit({ ...selection, section: next });
   };

@@ -27,6 +27,7 @@ These read the build output and fail the build when something is wrong. They nev
 | Script                            | Use                                                                                                                                           |
 | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pdf-fixtures.mjs`                | Builders for the starter PDFs and the test fixtures. Imported by most unit tests and the e2e tests.                                           |
+| `action-fixtures.mjs`             | Builds a PDF with an action from every source the Actions panel reads. Imported by `tests/document-actions.test.ts` and the e2e tests.        |
 | `example-fixtures.mjs`            | Builders for the example PDFs on the site. Imported by `generate-samples.mjs` and `tests/example-fixtures.test.ts`.                           |
 | `generate-samples.mjs`            | Writes the thirteen PDFs in `public/samples/`. Run `node scripts/fixtures/generate-samples.mjs` after changing either builder.                |
 | `generate-encryption-fixtures.py` | Writes the encrypted test PDFs in `tests/fixtures/encryption/` with pypdf 6.14.2. Run after `generate-samples.mjs`. See that folder's README. |

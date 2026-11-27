@@ -10,6 +10,7 @@ import type { Section } from './types';
 import { uniqueKeys } from './keys';
 
 const SECTION_LABELS: Partial<Record<Section, string>> = {
+  actions: 'Actions',
   issues: 'Issues',
   resources: 'Resources',
   structure: 'File structure',

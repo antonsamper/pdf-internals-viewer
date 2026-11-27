@@ -28,9 +28,11 @@ import { WorkspaceContent, OpeningProgress, WorkspaceFooter } from '@/components
 import { WorkspaceHeader } from '@/components/workspace/workspace-header';
 import { WorkspaceLayout } from '@/components/workspace/workspace-layout';
 import { WorkspaceToolbar } from '@/components/workspace/workspace-toolbar';
+import { actionCount, documentActions } from '@/lib/pdf/document-actions';
 import { sitePage } from '@/lib/site-content';
 import { useSiteRoute } from '@/lib/site-route';
 
+const NO_ACTIONS = { actions: [], notes: [] };
 const useNarrow = () => {
   // Match the build-time render; adapt after hydration on narrow screens.
   const [narrow, setNarrow] = useState(false);
@@ -93,6 +95,10 @@ const PdfWorkspace = ({
   const drop = useFileDrop((file) => void loader.open(file));
   const objects = useMemo(() => document?.objects ?? [], [document]);
   const objectMap = useMemo(() => new Map(objects.map((object) => [object.id, object])), [objects]);
+  const actionReport = useMemo(
+    () => (document && !document.locked ? documentActions(document, objectMap) : NO_ACTIONS),
+    [document, objectMap]
+  );
   const onArrive = useArrival({ document, reveal, setNotice, setObjectScroll, setPreview, setPreviewPage });
   const exploration = useExploration({
     document,
@@ -146,6 +152,7 @@ const PdfWorkspace = ({
   const { downloadIndex, resourceEntries, resourceObjects } = useResourceIndex(document, objectMap);
   const explorer = (
     <ExplorerPane
+      actionTotal={actionCount(actionReport.actions)}
       bookmarks={bookmarks.bookmarks}
       bookmarksSaved={bookmarks.saved}
       document={document}
@@ -237,6 +244,7 @@ const PdfWorkspace = ({
   ) : null;
   const inspector = (
     <InspectorPane
+      actionReport={actionReport}
       busy={busy}
       bytes={bytes}
       document={document}
@@ -261,6 +269,7 @@ const PdfWorkspace = ({
       selected={selected}
       extractImage={loader.extractImage}
       extractStream={loader.extractStream}
+      readStream={loader.readStream}
       onBookmark={() => bookmarks.add(selection)}
       onBrowseResources={() => navigate(null, 'properties', 'resources')}
       onCategoryChange={setResourceCategory}
