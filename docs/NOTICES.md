@@ -24,5 +24,4 @@ Any change to EmbedPDF, its PDFium fork, its toolchain or the WASM needs a fresh
 1. Identify the new runtime commit, static-library release, payload and Emscripten commit, and update `public/licenses/embedpdf-runtime-provenance.json`.
 2. Gather the notice texts for the new revisions, update `public/licenses/native/`, the provenance indexes and `public/licenses/embedpdf-native-notices.txt`, and include the bundle in `public/THIRD-PARTY-NOTICES.txt`.
 3. Update `public/licenses/native-notice-manifest.json`: components, file hashes, `wasmSha256`, `runtimeCommit`, `emscriptenCommit` and `bundleSha256`.
-4. Update the Zod backport pins in `scripts/prepare-preview.mjs` (see [PREVIEW-VALIDATION.md](PREVIEW-VALIDATION.md)).
-5. Run `pnpm run check:native-notices` and `pnpm run build`, then the browser tests.
+4. Run `pnpm run check:native-notices` and `pnpm run build`, then the browser tests.

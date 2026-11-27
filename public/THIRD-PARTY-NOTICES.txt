@@ -1,12 +1,13 @@
 THIRD-PARTY NOTICES
 PDF Internals Viewer
-Inventory recorded 2026-11-12 from the installed packages.
+Inventory recorded 2026-11-12 from the installed packages; EmbedPDF
+packages re-recorded 2026-11-27.
 
 This file preserves available notices for the JavaScript, CSS, and font
 packages conservatively included by the application's runtime dependency
 graph. Some package code may be tree-shaken from a particular build.
 
-The EmbedPDF WASM source/build is matched to its public v3.1.0 payload.
+The EmbedPDF WASM source/build is matched to its public v3.4.0 payload.
 Its complete conservative native notice inventory is appended below and is
 also served as licenses/embedpdf-native-notices.txt. That inventory was
 reconstructed from exact pinned dependency and toolchain sources; it is
@@ -18,15 +19,14 @@ The application's original code is licensed under the Apache License 2.0;
 dependencies retain their own licenses.
 
 Additional fallback-font copyright information preserved from the installed
-@embedpdf/default-fallback-fonts@1.0.0 README:
+@embedpdf/default-fallback-fonts@1.0.1 README:
 Noto Sans Hebrew © 2012 Google Inc. · Noto Naskh Arabic © 2014 Google Inc.
 Noto is a trademark of Google LLC.
 
-Locally modified dependencies: the application preparation scripts expose
-LibPDF inspection internals and modify bounded decoding; the EmbedPDF/Zod
-validation copies receive a collection-bound backport. These changes were
-made by this project and are described in docs/PARSER.md and
-docs/PREVIEW-VALIDATION.md in the source distribution.
+Locally modified dependencies: the application preparation script exposes
+LibPDF inspection internals and modifies bounded decoding. These changes
+were made by this project and are described in docs/PARSER.md in the
+source distribution. EmbedPDF and Zod are used unmodified.
 
 ========================================================================
 @babel/runtime@8.1.0 — LICENSE
@@ -83,12 +83,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ========================================================================
-@embedpdf/core-fonts@3.1.0 — LICENSE
-@embedpdf/engine-core@3.1.0 — LICENSE
-@embedpdf/engine-runtime-wasm32@3.1.0 — LICENSE
-@embedpdf/engine-runtime@3.1.0 — LICENSE
-@embedpdf/engine-services@3.1.0 — LICENSE
-@embedpdf/engine@3.1.0 — LICENSE
+@embedpdf/core-fonts@3.4.0 — LICENSE
+@embedpdf/engine-core@3.4.0 — LICENSE
+@embedpdf/engine-runtime-wasm32@3.4.0 — LICENSE
+@embedpdf/engine-runtime@3.4.0 — LICENSE
+@embedpdf/engine-services@3.4.0 — LICENSE
+@embedpdf/engine@3.4.0 — LICENSE
 ========================================================================
 
 Copyright 2026 CloudPDF LTD
@@ -285,7 +285,7 @@ limitations under the License.
    END OF TERMS AND CONDITIONS
 
 ========================================================================
-@embedpdf/core-fonts@3.1.0 — THIRD_PARTY_NOTICES
+@embedpdf/core-fonts@3.4.0 — THIRD_PARTY_NOTICES
 ========================================================================
 
 This package contains the standard fonts built into PDFium
@@ -322,7 +322,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ========================================================================
-@embedpdf/default-fallback-fonts@1.0.0 — licenses/Noto-Apache-2.0.txt
+@embedpdf/default-fallback-fonts@1.0.1 — NOTICE.md
+========================================================================
+
+The fonts are Google's Noto fonts, licensed under the Apache License 2.0
+(`licenses/Noto-Apache-2.0.txt`), as their files say; the package's code is
+Apache-2.0 too. Noto is a trademark of Google LLC.
+
+Noto Sans Hebrew © 2012 Google Inc. · Noto Naskh Arabic © 2014 Google Inc.
+
+========================================================================
+@embedpdf/default-fallback-fonts@1.0.1 — licenses/Noto-Apache-2.0.txt
 ========================================================================
 
 
@@ -527,6 +537,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+========================================================================
+@embedpdf/engine-runtime-wasm32@3.4.0 — NOTICE.md
+========================================================================
+
+Derived from PDFium; not affiliated with or endorsed by Google.
+
+========================================================================
+@embedpdf/engine-runtime@3.4.0 — NOTICE.md
+========================================================================
+
+PDFium is a Google project; EmbedPDF Runtime is an independent fork, not affiliated with or endorsed by Google.
 
 ========================================================================
 @floating-ui/core@1.8.0 — LICENSE
@@ -1645,7 +1667,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ========================================================================
-zod@3.25.76 — LICENSE
+zod@4.6.7 — LICENSE
 ========================================================================
 
 MIT License
@@ -1697,8 +1719,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ========================================================================
-embedpdf-runtime-pdfium-license.txt — exact matched EmbedPDF 3.1.0 source/build
-Source: https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/LICENSE
+embedpdf-runtime-pdfium-license.txt — exact matched EmbedPDF 3.4.0 source/build
+Source: https://github.com/embedpdf/runtime/blob/7f399f838df31a96393fdac0f8faa0ef30468f68/LICENSE
 ========================================================================
 
 // Copyright 2014 The PDFium Authors
@@ -1934,8 +1956,8 @@ Source: https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e1
 
 
 ========================================================================
-embedpdf-runtime-NOTICE.txt — exact matched EmbedPDF 3.1.0 source/build
-Source: https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/NOTICE
+embedpdf-runtime-NOTICE.txt — exact matched EmbedPDF 3.4.0 source/build
+Source: https://github.com/embedpdf/runtime/blob/7f399f838df31a96393fdac0f8faa0ef30468f68/NOTICE
 ========================================================================
 
 CloudPDF Runtime Additions
@@ -1966,8 +1988,8 @@ contain standalone CloudPDF-authored source.
 
 
 ========================================================================
-embedpdf-NOTICE.txt — exact matched EmbedPDF 3.1.0 source/build
-Source: https://github.com/embedpdf/embed-pdf-viewer/blob/37273d7d149f893255344f0f8e9ff7b2dfbc8057/NOTICE
+embedpdf-NOTICE.txt — exact matched EmbedPDF 3.4.0 source/build
+Source: https://github.com/embedpdf/embed-pdf-viewer/blob/9af4d9ee755d6e5c20a8055654e895a81b95fb83/NOTICE
 ========================================================================
 
 EmbedPDF & CloudPDF
@@ -1975,12 +1997,12 @@ Copyright 2026 CloudPDF LTD
 
 NATIVE RUNTIME DEPENDENCY NOTICES
 
-EMBEDPDF 3.1.0 NATIVE RUNTIME NOTICES
+EMBEDPDF 3.4.0 NATIVE RUNTIME NOTICES
 PDF Internals Viewer
 
-Artifact: @embedpdf/engine-runtime-wasm32@3.1.0
-WASM SHA-256: 7195838021c8318416117611b961614ab52eedcad585db5945681f86164e40f9
-PDFium fork: aa59ce554aab55879b728dbb86714e13e5cb327f
+Artifact: @embedpdf/engine-runtime-wasm32@3.4.0
+WASM SHA-256: 98a6d887fe314928b66c21f969380180645bb4b74ce3e697fc03fca7a15a7986
+PDFium fork: 7f399f838df31a96393fdac0f8faa0ef30468f68
 Emscripten: 3.1.72 (437140d149d9c977ffc8b09dbaf9b0f5a02db190)
 
 This is a conservative notice inventory reconstructed from the exact pinned
@@ -1988,7 +2010,7 @@ PDFium source dependencies and toolchain sources. It includes notices for
 optional components and code that may not survive compilation or linking.
 It is not a supplier-issued SBOM or a claim that every listed component is
 linked. Each component retains its own license; these texts do not change
-the MIT license of the original application code.
+the Apache License 2.0 of the original application code.
 
 Source URLs, text hashes, extraction descriptions and source comment
 provenance are recorded in native-notice-manifest.json and the accompanying
@@ -2001,7 +2023,7 @@ Portions of this software are copyright © 1996-2026 The FreeType Project (https
 
 ==============================================================================
 pdfium: pdfium-runtime-top-level-1
-Source: https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/LICENSE
+Source: https://github.com/embedpdf/runtime/blob/7f399f838df31a96393fdac0f8faa0ef30468f68/LICENSE
 
 // Copyright 2014 The PDFium Authors
 //
@@ -2236,7 +2258,7 @@ Source: https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e1
 
 ==============================================================================
 pdfium: pdfium-runtime-top-level-2
-Source: https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/NOTICE
+Source: https://github.com/embedpdf/runtime/blob/7f399f838df31a96393fdac0f8faa0ef30468f68/NOTICE
 
 CloudPDF Runtime Additions
 Copyright 2025-2026 CloudPDF LTD
@@ -2266,7 +2288,7 @@ contain standalone CloudPDF-authored source.
 
 ==============================================================================
 pdfium: pdfium-runtime-top-level-3
-Source: https://github.com/embedpdf/embed-pdf-viewer/blob/37273d7d149f893255344f0f8e9ff7b2dfbc8057/NOTICE
+Source: https://github.com/embedpdf/embed-pdf-viewer/blob/9af4d9ee755d6e5c20a8055654e895a81b95fb83/NOTICE
 
 EmbedPDF & CloudPDF
 Copyright 2026 CloudPDF LTD
@@ -3576,7 +3598,7 @@ Copyright notice:
 
 ==============================================================================
 llvm-libc: llvm-libc-LICENSE.TXT
-Source: https://chromium.googlesource.com/external/github.com/llvm/llvm-project/libc.git/+/d8f2045008e230f3c5f50095d918c11f1997e477/LICENSE.TXT?format=TEXT
+Source: https://chromium.googlesource.com/external/github.com/llvm/llvm-project/libc.git/+/7840ec9fbb6be122103494a8f763e45775ef6353/LICENSE.TXT?format=TEXT
 
 ==============================================================================
 The LLVM Project is under the Apache License v2.0 with LLVM Exceptions:
@@ -4324,7 +4346,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==============================================================================
 freetype: freetype-src_autofit_ft-hb.c
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb.c?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/ft-hb.c?format=TEXT
 
 /****************************************************************************
  *
@@ -4345,7 +4367,7 @@ Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git
 
 ==============================================================================
 freetype: freetype-include_freetype_internal_fthash.h
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/include/freetype/internal/fthash.h?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/include/freetype/internal/fthash.h?format=TEXT
 
 /*
  * Copyright 2000 Computing Research Labs, New Mexico State University
@@ -4373,7 +4395,7 @@ Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git
 
 ==============================================================================
 freetype: freetype-docs_FTL.TXT
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/docs/FTL.TXT?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/docs/FTL.TXT?format=TEXT
 
                     The FreeType Project LICENSE
                     ----------------------------
@@ -4547,7 +4569,7 @@ Legal Terms
 
 ==============================================================================
 freetype: freetype-LICENSE.TXT
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/LICENSE.TXT?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/LICENSE.TXT?format=TEXT
 
 FREETYPE LICENSES
 -----------------
@@ -4599,7 +4621,7 @@ builds) is in the public domain.
 
 ==============================================================================
 freetype: freetype-src_gzip_zlib.h
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/gzip/zlib.h?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/gzip/zlib.h?format=TEXT
 
 /* zlib.h -- interface of the 'zlib' general purpose compression library
   version 1.3.1, January 22nd, 2024
@@ -4633,7 +4655,7 @@ Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git
 
 ==============================================================================
 agg: agg-third_party_agg23_agg_array.h
-Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/agg23/agg_array.h
+Source: https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/agg23/agg_array.h
 
 
 //----------------------------------------------------------------------------
@@ -4653,7 +4675,7 @@ Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728
 
 ==============================================================================
 bigint: bigint-third_party_bigint_LICENSE
-Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/bigint/LICENSE
+Source: https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/bigint/LICENSE
 
 
                             C++ Big Integer Library
@@ -4729,7 +4751,7 @@ absolutely no warranty.
 
 ==============================================================================
 freetype: freetype-src_pcf_README
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/pcf/README?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/pcf/README?format=TEXT
 
                   FreeType font driver for PCF fonts
 
@@ -4830,7 +4852,7 @@ PCF format.  Undoubtedly, this driver is inspired from his work.
 
 ==============================================================================
 lcms: lcms-third_party_lcms_src_LICENSE
-Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/lcms/src/LICENSE
+Source: https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/lcms/src/LICENSE
 
 MIT License
 
@@ -4857,7 +4879,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ==============================================================================
 freetype: freetype-src_bdf_README
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/bdf/README?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/bdf/README?format=TEXT
 
                   FreeType font driver for BDF fonts
 
@@ -5014,7 +5036,7 @@ me.
 
 ==============================================================================
 openjpeg: openjpeg-third_party_libopenjpeg_src_LICENSE
-Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libopenjpeg/src/LICENSE
+Source: https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/libopenjpeg/src/LICENSE
 
 /*
  * The copyright in this software is being made available under the 2-clauses 
@@ -5058,7 +5080,7 @@ Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728
 
 ==============================================================================
 libtiff: libtiff-third_party_libtiff_src_t4.h
-Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libtiff/src/t4.h
+Source: https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/libtiff/src/t4.h
 
 /*
  * Copyright (c) 1988-1997 Sam Leffler
@@ -5086,7 +5108,7 @@ Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728
 
 ==============================================================================
 fp16: fp16-third_party_fp16_LICENSE
-Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/fp16/LICENSE
+Source: https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/fp16/LICENSE
 
 The MIT License (MIT)
 
@@ -5103,7 +5125,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ==============================================================================
 agg: agg-third_party_agg23_copying
-Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/agg23/copying
+Source: https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/agg23/copying
 
 The Anti-Grain Geometry Project
 A high quality rendering engine for C++
@@ -5119,7 +5141,7 @@ warranty, and with no claim as to its suitability for any purpose.
 
 ==============================================================================
 openjpeg: openjpeg-third_party_libopenjpeg_src_openjpeg.c
-Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libopenjpeg/src/openjpeg.c
+Source: https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/libopenjpeg/src/openjpeg.c
 
 /*
  * The copyright in this software is being made available under the 2-clauses
@@ -5156,7 +5178,7 @@ Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728
 
 ==============================================================================
 freetype: freetype-src_autofit_ft-hb.h
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb.h?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/ft-hb.h?format=TEXT
 
 /****************************************************************************
  *
@@ -5177,7 +5199,7 @@ Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git
 
 ==============================================================================
 lcms: lcms-third_party_lcms_src_include_lcms2.h
-Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/lcms/src/include/lcms2.h
+Source: https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/lcms/src/include/lcms2.h
 
 //---------------------------------------------------------------------------------
 //
@@ -5210,7 +5232,7 @@ Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728
 
 ==============================================================================
 libtiff: libtiff-third_party_libtiff_src_LICENSE.md
-Source: https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libtiff/src/LICENSE.md
+Source: https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/libtiff/src/LICENSE.md
 
 # LibTIFF license
 
@@ -5639,7 +5661,7 @@ express Statement of Purpose.
     this CC0 or use of the Work.
 ==============================================================================
 freetype: freetype-src_base_fthash.c
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/base/fthash.c?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/base/fthash.c?format=TEXT
 
 /*
  * Copyright 2000 Computing Research Labs, New Mexico State University
@@ -5667,7 +5689,7 @@ Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git
 
 ==============================================================================
 freetype: freetype-src_autofit_hb-script-list.h
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/hb-script-list.h?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/hb-script-list.h?format=TEXT
 
 /*
  * Copyright © 2007,2008,2009  Red Hat, Inc.
@@ -5947,7 +5969,7 @@ reason of your accepting any such warranty or additional liability.
 END OF TERMS AND CONDITIONS
 ==============================================================================
 freetype: freetype-src_autofit_ft-hb-decls.h
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb-decls.h?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/ft-hb-decls.h?format=TEXT
 
 /*
  * Copyright © 2009, 2023  Red Hat, Inc.
@@ -6113,7 +6135,7 @@ Source: https://skia.googlesource.com/skia.git/+/607de4b035dcf7fdbaafb66c6cc04f2
 
 ==============================================================================
 freetype: freetype-src_autofit_ft-hb-ft.c
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb-ft.c?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/ft-hb-ft.c?format=TEXT
 
 /*
  * Copyright © 2009, 2023  Red Hat, Inc.
@@ -6143,7 +6165,7 @@ Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git
 
 ==============================================================================
 freetype: freetype-src_autofit_ft-hb-types.h
-Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb-types.h?format=TEXT
+Source: https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/ft-hb-types.h?format=TEXT
 
 /*
  * Copyright © 2009, 2023  Red Hat, Inc.
