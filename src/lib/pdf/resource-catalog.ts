@@ -11,28 +11,45 @@ export const resourceCatalog = function resourceCatalog(
   const entries: ResourceEntry[] = [];
   for (const object of objects.values()) {
     const kind = resourceKind(object);
-    if (kind)
+    if (kind) {
       entries.push({
-        downloads: (downloads.get(object.id) ?? []).filter((asset) => asset.kind === 'font'),
+        downloads: (downloads.get(object.id) ?? []).filter((asset) => {
+          return asset.kind === 'font';
+        }),
         kind,
         object,
       });
+    }
   }
   const seen = new Set<string>();
-  const attachments = [...downloads.entries()].filter(([, assets]) => assets.some((asset) => asset.kind === 'attachment'));
+  const attachments = [...downloads.entries()].filter(([, assets]) => {
+    return assets.some((asset) => {
+      return asset.kind === 'attachment';
+    });
+  });
   // A named file specification is more helpful than its bare stream.
-  attachments.sort(([a], [b]) => Number(Boolean(objects.get(a)?.stream)) - Number(Boolean(objects.get(b)?.stream)));
+  attachments.sort(([a], [b]) => {
+    return Number(Boolean(objects.get(a)?.stream)) - Number(Boolean(objects.get(b)?.stream));
+  });
   for (const [id, assets] of attachments) {
     const object = objects.get(id);
-    if (!object) continue;
+    if (!object) {
+      continue;
+    }
     const unique = assets.filter((asset) => {
-      if (asset.kind !== 'attachment') return false;
+      if (asset.kind !== 'attachment') {
+        return false;
+      }
       const key = `${asset.streamId}:${asset.filename}`;
-      if (seen.has(key)) return false;
+      if (seen.has(key)) {
+        return false;
+      }
       seen.add(key);
       return true;
     });
-    if (unique.length) entries.push({ downloads: unique, kind: 'Attachment', object });
+    if (unique.length) {
+      entries.push({ downloads: unique, kind: 'Attachment', object });
+    }
   }
   return entries;
 };

@@ -15,7 +15,11 @@ const inspect = async function inspect(parent = '', first = '', second = '') {
     ]).bytes
   );
   return {
-    objects: new Map(document.objects.map((object) => [object.id, object])),
+    objects: new Map(
+      document.objects.map((object) => {
+        return [object.id, object];
+      })
+    ),
     pages: document.pages,
   };
 };

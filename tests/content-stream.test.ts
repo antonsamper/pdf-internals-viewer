@@ -4,41 +4,55 @@ import type { PdfObjectRecord, PdfValue } from '../src/lib/pdf/types';
 
 import { contentInstructions, explainInstruction, namedResource, resourceCategory, resourceContexts } from '../src/lib/pdf/content-stream';
 
-const dict = (entries: Record<string, PdfValue>): PdfValue => ({
-  entries: Object.entries(entries).map(([key, value]) => ({ key, value })),
-  text: '<<>>',
-  type: 'dictionary',
-});
-const ref = (id: string): PdfValue => ({
-  ref: id,
-  text: `${id} R`,
-  type: 'reference',
-});
-const name = (value: string): PdfValue => ({
-  text: `/${value}`,
-  type: 'name',
-  value,
-});
-const record = (id: string, value: PdfValue): PdfObjectRecord => ({
-  generation: 0,
-  id,
-  kind: 'Dictionary',
-  label: id,
-  objectNumber: Number(id.split(' ')[0]),
-  provenance: { reason: 'test', type: 'unknown' },
-  referencedBy: [],
-  references: [],
-  source: '',
-  value,
-  warnings: [],
-});
+const dict = (entries: Record<string, PdfValue>): PdfValue => {
+  return {
+    entries: Object.entries(entries).map(([key, value]) => {
+      return { key, value };
+    }),
+    text: '<<>>',
+    type: 'dictionary',
+  };
+};
+const ref = (id: string): PdfValue => {
+  return {
+    ref: id,
+    text: `${id} R`,
+    type: 'reference',
+  };
+};
+const name = (value: string): PdfValue => {
+  return {
+    text: `/${value}`,
+    type: 'name',
+    value,
+  };
+};
+const record = (id: string, value: PdfValue): PdfObjectRecord => {
+  return {
+    generation: 0,
+    id,
+    kind: 'Dictionary',
+    label: id,
+    objectNumber: Number(id.split(' ')[0]),
+    provenance: { reason: 'test', type: 'unknown' },
+    referencedBy: [],
+    references: [],
+    source: '',
+    value,
+    warnings: [],
+  };
+};
 
 describe('content instruction interpretation', () => {
   it('keeps operators in strings, arrays, dictionaries, hex data and comments opaque', () => {
     const text =
       '% fake /Wrong 99 Tf\nBT /F1 12 Tf (Hello \\( nested (Tf) text) Tj [(Do) -12 <5466>] TJ /Tag << /ActualText (Tf) >> BDC ET';
     const parsed = contentInstructions(text);
-    expect(parsed.instructions.map((row) => row.operator)).toEqual(['BT', 'Tf', 'Tj', 'TJ', 'BDC', 'ET']);
+    expect(
+      parsed.instructions.map((row) => {
+        return row.operator;
+      })
+    ).toEqual(['BT', 'Tf', 'Tj', 'TJ', 'BDC', 'ET']);
     const font = parsed.instructions[1];
     expect(text.slice(font.start, font.end)).toBe('/F1 12 Tf');
     expect(explainInstruction(font)).toBe('Select font /F1 at size 12.');
@@ -46,7 +60,11 @@ describe('content instruction interpretation', () => {
   });
   it('stops at opaque inline images instead of treating image bytes as instructions', () => {
     const parsed = contentInstructions('q BI /W 1 /H 1 ID /Fake 12 Tf EI Q');
-    expect(parsed.instructions.map((row) => row.operator)).toEqual(['q', 'BI']);
+    expect(
+      parsed.instructions.map((row) => {
+        return row.operator;
+      })
+    ).toEqual(['q', 'BI']);
     expect(parsed.instructions[1].warning).toContain('stops at inline image data');
     expect(parsed.incomplete).toBe(true);
   });
@@ -84,12 +102,20 @@ describe('content resource provenance', () => {
     type: 'array',
   });
   const stream = record('10 0', dict({}));
-  const map = new Map([fontA, fontB, parent, resourcesA, fonts, pageA, pageB, contentArray, stream].map((object) => [object.id, object]));
+  const map = new Map(
+    [fontA, fontB, parent, resourcesA, fonts, pageA, pageB, contentArray, stream].map((object) => {
+      return [object.id, object];
+    })
+  );
   const pages = [pageA.id, pageB.id];
 
   it('preserves distinct page scopes for a shared content stream, including inherited and indirect resources', () => {
     const contexts = resourceContexts(stream, map, pages);
-    expect(contexts.map((context) => context.id)).toEqual(pages);
+    expect(
+      contexts.map((context) => {
+        return context.id;
+      })
+    ).toEqual(pages);
     expect(namedResource(contexts[0], 'Font', '/F#31', map)?.id).toBe(fontA.id);
     expect(namedResource(contexts[1], 'Font', '/F1', map)?.id).toBe(fontB.id);
     expect(resourceContexts(stream, map, pages, pageB.id)[0].id).toBe(pageB.id);
@@ -115,5 +141,25 @@ describe('content resource provenance', () => {
     expect(resourceCategory('Tf', 0, 2)).toBe('Font');
     expect(resourceCategory('BDC', 0, 2)).toBeUndefined();
     expect(resourceCategory('BDC', 1, 2)).toBe('Properties');
+  });
+  it('names the resource operand of each operator that uses one', () => {
+    const cases: [string, number, number, string][] = [
+      ['Do', 0, 2, 'XObject'],
+      ['gs', 0, 2, 'ExtGState'],
+      ['sh', 0, 2, 'Shading'],
+      ['cs', 0, 2, 'ColorSpace'],
+      ['CS', 0, 2, 'ColorSpace'],
+      ['scn', 2, 3, 'Pattern'],
+      ['SCN', 0, 1, 'Pattern'],
+      ['DP', 1, 2, 'Properties'],
+    ];
+    for (const [operator, index, count, category] of cases) {
+      expect(resourceCategory(operator, index, count)).toBe(category);
+    }
+    expect(resourceCategory('scn', 0, 3)).toBeUndefined();
+    expect(resourceCategory('Do', 1, 2)).toBeUndefined();
+    expect(resourceCategory(undefined, 0, 1)).toBeUndefined();
+    expect(resourceCategory('constructor', 0, 1)).toBeUndefined();
+    expect(resourceCategory('toString', 0, 1)).toBeUndefined();
   });
 });

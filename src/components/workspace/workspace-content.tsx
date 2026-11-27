@@ -30,8 +30,12 @@ export const WorkspaceContent = ({
   showWorkspace: boolean;
   workspace: ReactNode;
 }) => {
-  if (about) return <AboutPage onFollowLink={onFollowLink} />;
-  if (path !== '/') return <PublicPage key={path} page={sitePage(path)!} onFollowLink={onFollowLink} />;
+  if (about) {
+    return <AboutPage onFollowLink={onFollowLink} />;
+  }
+  if (path !== '/') {
+    return <PublicPage key={path} page={sitePage(path)!} onFollowLink={onFollowLink} />;
+  }
   return showWorkspace ? workspace : empty;
 };
 
@@ -52,15 +56,19 @@ export const WorkspaceFooter = ({
   path: SitePath;
 }) => {
   const hasWorkspace = byteCount > 0 || busy;
-  if (path !== '/' || !hasWorkspace) return <SiteLinks onFollowLink={onFollowLink} />;
+  if (path !== '/' || !hasWorkspace) {
+    return <SiteLinks onFollowLink={onFollowLink} />;
+  }
   return <StatusBar busy={busy} byteCount={byteCount} document={document} objectCount={objectCount} onFollowLink={onFollowLink} />;
 };
 
-export const OpeningProgress = ({ onCancel }: { onCancel: () => void }) => (
-  <LoadingMessage render={<div />} className="border-b py-1.5 text-[11px]">
-    Opening PDF…{' '}
-    <Button variant="ghost" size="xs" className="text-[11px]" onClick={onCancel}>
-      Cancel
-    </Button>
-  </LoadingMessage>
-);
+export const OpeningProgress = ({ onCancel }: { onCancel: () => void }) => {
+  return (
+    <LoadingMessage render={<div />} className="border-b py-1.5 text-detail">
+      Opening PDF…{' '}
+      <Button variant="ghost" size="xs" className="text-detail" onClick={onCancel}>
+        Cancel
+      </Button>
+    </LoadingMessage>
+  );
+};

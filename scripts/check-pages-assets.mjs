@@ -10,8 +10,9 @@ const walk = async function walk(directory) {
         assert.ok(!info.isSymbolicLink(), `Upload contains a symlink: ${local}`);
         assert.ok(!name.startsWith('.'), `Upload contains a hidden file: ${local}`);
         assert.ok(!['node_modules', 'functions', '_worker.js', '_worker.js.map'].includes(name), `Unexpected private/server-side upload: ${local}`);
-        if (info.isDirectory())
+        if (info.isDirectory()) {
             await walk(path);
+        }
         else {
             assert.ok(info.size <= 25 * 1024 * 1024, `Pages asset exceeds 25 MiB: ${local}`);
             count++;

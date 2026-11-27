@@ -2,13 +2,29 @@ import type { SitePath } from './site-content';
 
 import { SITE_PAGES } from './site-content';
 export const navigationLabel = function navigationLabel(path: SitePath) {
-  return CONTENT_GROUPS.flatMap((group) => group.items).find(([href]) => href === path)?.[1] ?? 'PDF Internals';
+  return (
+    CONTENT_GROUPS.flatMap((group) => {
+      return group.items;
+    }).find(([href]) => {
+      return href === path;
+    })?.[1] ?? 'PDF Internals'
+  );
 };
 export const relatedPages = function relatedPages(path: SitePath) {
-  return (RELATED[path] ?? []).map((href) => SITE_PAGES.find((page) => page.path === href)!);
+  return (RELATED[path] ?? []).map((href) => {
+    return SITE_PAGES.find((page) => {
+      return page.path === href;
+    })!;
+  });
 };
 export const contentType = function contentType(path: SitePath) {
-  return CONTENT_GROUPS.find((group) => group.items.some(([href]) => href === path))?.label.replace(/s$/, '') ?? 'Overview';
+  return (
+    CONTENT_GROUPS.find((group) => {
+      return group.items.some(([href]) => {
+        return href === path;
+      });
+    })?.label.replace(/s$/, '') ?? 'Overview'
+  );
 };
 export const CONTENT_GROUPS: ReadonlyArray<{
   label: string;

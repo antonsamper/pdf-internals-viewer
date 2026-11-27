@@ -14,14 +14,18 @@ self.addEventListener('message', async (event: MessageEvent<ParserRequest>) => {
       transfer = new DocumentTransfer(await inspector.open(request.bytes, request.filename, request.password));
     }
     if (request.type === 'open' || request.type === 'open-next') {
-      if (!transfer) throw new Error('No document transfer is available.');
+      if (!transfer) {
+        throw new Error('No document transfer is available.');
+      }
       const batch = transfer.next();
       response = {
         requestId: request.requestId,
         type: 'opened-batch',
         ...batch,
       };
-      if (batch.done) transfer = undefined;
+      if (batch.done) {
+        transfer = undefined;
+      }
     } else {
       response = {
         requestId: request.requestId,

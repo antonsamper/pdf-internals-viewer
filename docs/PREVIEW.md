@@ -1,10 +1,10 @@
 # Page preview
 
-`src/components/pdf-preview.tsx` renders a small, read-only page preview with EmbedPDF Engine 3.1.0, using the app's own controls: previous and next page, and zoom from 50% to 200%. The preview is an image, so it does not support text selection, annotation editing or picking rendered content to find its PDF object.
+`src/components/pdf-preview.tsx` renders a small, read-only page preview with EmbedPDF Engine 3.4.0, using the app's own controls: previous and next page, and zoom from 50% to 200%. The preview is an image, so it does not support text selection, annotation editing or picking rendered content to find its PDF object.
 
 ## Privacy
 
-The engine is PDFium compiled to WebAssembly and runs in a Web Worker. Vite bundles the worker, the WASM and the fallback fonts, and the app serves them from its own origin. The preview opens a copy of the file's bytes; nothing is uploaded and no document-dependent URL is requested. The bundled workers carry a patched copy of Zod; see [PREVIEW-VALIDATION.md](PREVIEW-VALIDATION.md).
+The engine is PDFium compiled to WebAssembly and runs in a Web Worker. Vite bundles the worker, the WASM and the fallback fonts, and the app serves them from its own origin. The preview opens a copy of the file's bytes; nothing is uploaded and no document-dependent URL is requested.
 
 ## Separate from inspection
 
