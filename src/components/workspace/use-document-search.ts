@@ -6,7 +6,7 @@ import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 import type { PageTextLocation, TextSource } from '@/lib/pdf/page-text';
 import type { PdfDocumentInfo, PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 
-import { MAX_RESULTS, runDocumentSearch } from '@/lib/pdf/document-search';
+import { runDocumentSearch } from '@/lib/pdf/document-search';
 
 import type { Section, Selection } from './types';
 import type { useSourceReveal } from './use-source-reveal';
@@ -197,7 +197,7 @@ export const useDocumentSearch = (deps: SearchDeps) => {
     reveal.setTextSource(null);
     setActiveResult(null);
     if (found.length) selectLatest.current(found[0], 0, searchScope);
-    setMessage(found.length === MAX_RESULTS ? `Showing the first ${MAX_RESULTS} matches. Narrow your search.` : note);
+    setMessage(note);
     setSearching(false);
   };
 

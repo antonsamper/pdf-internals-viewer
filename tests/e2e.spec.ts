@@ -3378,6 +3378,41 @@ test('page result actions are visible before choosing an unselected page', async
     page.getByRole('region', { exact: true, name: 'Original file bytes' }).locator('button[data-hex-byte][data-selected]')
   ).toHaveCount(5);
 });
+test('page text search keeps its coverage note when 500 pages match', async ({ page }) => {
+  await cacheEngineAssets(page);
+  const pages = Array.from({ length: 500 }, (_, index) => index + 3);
+  const content = 'BT /F1 12 Tf 20 100 Td (Hello) Tj ET';
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, `<< /Type /Pages /Kids [${pages.map((id) => `${id} 0 R`).join(' ')}] /Count 500 /Resources << /Font << /F1 504 0 R >> >> >>`],
+    ...pages.map((id) => [id, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Contents 503 0 R >>']),
+    [503, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`],
+    [504, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'],
+  ]);
+  await page.getByLabel('Open local PDF').setInputFiles({
+    buffer: Buffer.from(fixture.bytes),
+    mimeType: 'application/pdf',
+    name: 'five-hundred-pages.pdf',
+  });
+  await expect(page.getByRole('contentinfo')).toContainText('504 objects indexed');
+  await selectSearchScope(page, 'pageText');
+  await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Hello');
+  await page.getByRole('button', { exact: true, name: 'Run search' }).click();
+  const results = page.getByRole('region', { exact: true, name: 'Search results' });
+  await expect(results).toContainText('500 pages', { timeout: 30_000 });
+  await expect(results).toContainText('Showing 500 pages for the first 500 text matches. Results are grouped by page.');
+  await expect(results).not.toContainText('Showing the first 500 matches');
+  await results.locator('[data-search-results-body]').evaluate((body) => body.scrollTo({ top: body.scrollHeight }));
+  await results.screenshot({ path: screenshotPath('page-text-limit-note.png') });
+  await selectSearchScope(page, 'objects');
+  await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Page');
+  await page.getByRole('button', { exact: true, name: 'Run search' }).click();
+  await expect(results).toContainText('500 matches');
+  await expect(results).toContainText('Showing the first 500 matches. Narrow your search.');
+  await selectSearchScope(page, 'text');
+  await expect(results).toContainText('500 matches · Latin-1 file bytes');
+  await expect(results).toContainText('Showing the first 500 matches. Narrow your search.');
+});
 test('page text search says when a page stops at the source limit', async ({ page }) => {
   await cacheEngineAssets(page);
   const contents = [
