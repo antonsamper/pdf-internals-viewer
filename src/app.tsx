@@ -28,7 +28,6 @@ import { WorkspaceContent, OpeningProgress, WorkspaceFooter } from '@/components
 import { WorkspaceHeader } from '@/components/workspace/workspace-header';
 import { WorkspaceLayout } from '@/components/workspace/workspace-layout';
 import { WorkspaceToolbar } from '@/components/workspace/workspace-toolbar';
-import { documentActions } from '@/lib/pdf/document-actions';
 import { sitePage } from '@/lib/site-content';
 import { useSiteRoute } from '@/lib/site-route';
 
@@ -95,10 +94,8 @@ const PdfWorkspace = ({
   const drop = useFileDrop((file) => void loader.open(file));
   const objects = useMemo(() => document?.objects ?? [], [document]);
   const objectMap = useMemo(() => new Map(objects.map((object) => [object.id, object])), [objects]);
-  const actionReport = useMemo(
-    () => (document && !document.locked ? documentActions(document, objectMap) : NO_ACTIONS),
-    [document, objectMap]
-  );
+  // The parser worker builds the report, and leaves it empty for a locked document.
+  const actionReport = useMemo(() => document?.indexes?.actions ?? NO_ACTIONS, [document]);
   const onArrive = useArrival({ document, reveal, setNotice, setObjectScroll, setPreview, setPreviewPage });
   const exploration = useExploration({
     document,

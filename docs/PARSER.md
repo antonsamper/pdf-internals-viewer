@@ -16,7 +16,7 @@ The viewer never claims original bytes it cannot prove. Compressed objects link 
 
 ## Worker delivery
 
-A dedicated worker parses the document and indexes every object, reference, resource and download up front. It sends the result to the page in acknowledged batches (`src/lib/pdf/document-transfer.ts`) so no single message has to carry the whole graph. The page only shows the document once every batch has arrived. Closing or replacing a document terminates its worker.
+A dedicated worker parses the document and indexes every object, reference, resource, download and action up front. It sends the result to the page in acknowledged batches (`src/lib/pdf/document-transfer.ts`) so no single message has to carry the whole graph. The page only shows the document once every batch has arrived. Closing or replacing a document terminates its worker. A locked document has an empty action list. Unlocking opens it again in a new worker, which builds the list.
 
 ## Instrumentation and reproducibility
 

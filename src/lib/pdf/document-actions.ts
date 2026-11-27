@@ -75,6 +75,8 @@ interface Walk {
   noted: Set<string>;
   hiddenNotes: number;
   total: number;
+  /** Pages, annotations, action entries and tree items visited, repeats included. */
+  steps: number;
 }
 /** The action objects and `/Next` arrays above an action, and how many actions deep it is. */
 interface Chain {
@@ -90,6 +92,8 @@ const MAX_CHAIN = 64;
 const MAX_ACTIONS = 5000;
 const MAX_NOTES = 200;
 const MAX_WALK = 10_000;
+/** Visits per walk. A shared `/Annots` array is visited once per page, so a small file can ask for millions. */
+const MAX_STEPS = 500_000;
 const MAX_SCRIPT_TEXT = 4096;
 const MAX_TARGET_TEXT = 1000;
 const MAX_LABEL_TEXT = 120;
@@ -290,12 +294,18 @@ const readValue = (walk: Walk, action: PdfAction, value: PdfValue, origin: Origi
   }
 };
 
-/** True once the report holds `MAX_ACTIONS` actions. Every loop over the sources stops then, so the rest of a large file isn't read. */
-const isFull = (walk: Walk) => walk.total >= MAX_ACTIONS;
+/** True once the report holds `MAX_ACTIONS` actions or the walk has used `MAX_STEPS`. Every loop over the sources stops then, so the rest of a large file isn't read. */
+const isFull = (walk: Walk) => walk.total >= MAX_ACTIONS || walk.steps > MAX_STEPS;
+
+/** Counts one visit. False once the walk is full, so the caller reads nothing more. */
+const spend = (walk: Walk) => {
+  walk.steps++;
+  return !isFull(walk);
+};
 
 /** Reads one action and its `/Next` chain, or nothing once the report holds `MAX_ACTIONS` actions. */
 const readAction = (walk: Walk, value: PdfValue, origin: Origin, key: string, chain: Chain): PdfAction | undefined => {
-  if (isFull(walk)) return undefined;
+  if (!spend(walk)) return undefined;
   walk.total++;
   const resolved = resolve(value, walk.objects);
   // Link the action's own object only when it exists, so a missing reference offers nothing to inspect.
@@ -331,7 +341,7 @@ const readNext = (walk: Walk, action: PdfAction, value: PdfValue, chain: Chain) 
 };
 
 const addAction = (walk: Walk, value: PdfValue | undefined, origin: Origin, place: string) => {
-  if (!value || isFull(walk)) return;
+  if (!value || !spend(walk)) return;
   const key = `${place}|${origin.entry}`;
   if (walk.rows.has(key)) return;
   const action = readAction(walk, value, origin, key, { depth: 0, ids: [] });
@@ -414,6 +424,7 @@ const annotationContext = (value: PdfValue, objects: Objects, pageNumber: number
 };
 
 const addAnnotation = (walk: Walk, page: PdfObjectRecord, pageNumber: number, item: PdfValue, index: number) => {
+  if (!spend(walk)) return;
   const annotation = resolve(item, walk.objects);
   if (!annotation.value || !isDictionary(annotation.value)) {
     addNote(walk, `Page ${pageNumber} (${page.id} obj): annotation ${index + 1} ${annotation.note ?? 'is not a dictionary'}`);
@@ -436,6 +447,7 @@ const addAnnotations = (walk: Walk, page: PdfObjectRecord, pageNumber: number) =
 };
 
 const addPage = (walk: Walk, id: string, pageNumber: number) => {
+  if (!spend(walk)) return;
   const page = walk.objects.get(id);
   if (!page) return addNote(walk, `Page ${pageNumber} (${id} obj) could not be read, so its actions are not listed.`);
   addAdditional(walk, page.value, { context: `Page ${pageNumber}`, holderId: id }, id, PAGE_TRIGGERS);
@@ -455,6 +467,7 @@ interface TreeItem {
 
 /** Visits one tree item and returns its children, or none when it repeats or isn't a dictionary. */
 const visitItem = (walk: Walk, label: string, seen: Set<PdfValue>, { place, value }: TreeItem, visit: Visit): TreeItem[] => {
+  if (!spend(walk)) return [];
   const resolved = resolve(value, walk.objects);
   // Parsed values are shared, so one dictionary reached twice, directly or through a reference, is the same object.
   if (resolved.value && seen.has(resolved.value)) {
@@ -535,14 +548,15 @@ const walkSources = (walk: Walk, document: PdfDocumentInfo) => {
 
 /** Every action reachable from the catalogue, pages, annotations, form fields and outline. Nothing is run. */
 export const documentActions = function documentActions(document: PdfDocumentInfo, objects: Objects): PdfActionReport {
-  const walk: Walk = { hiddenNotes: 0, noted: new Set(), notes: [], objects, rows: new Map(), total: 0 };
+  const walk: Walk = { hiddenNotes: 0, noted: new Set(), notes: [], objects, rows: new Map(), steps: 0, total: 0 };
   try {
     walkSources(walk, document);
   } catch (error) {
     // Keep what was read: a failure here must not hide the rest of the inspection.
     addNote(walk, `The action walk stopped early: ${error instanceof Error ? error.message : String(error)}`);
   }
-  if (isFull(walk)) walk.notes.push(`The list stops at ${MAX_ACTIONS} actions. Later actions are not listed.`);
+  if (walk.total >= MAX_ACTIONS) walk.notes.push(`The list stops at ${MAX_ACTIONS} actions. Later actions are not listed.`);
+  if (walk.steps > MAX_STEPS) walk.notes.push(`The list stops after ${MAX_STEPS} steps. Later actions are not listed.`);
   if (walk.hiddenNotes) walk.notes.push(`${walk.hiddenNotes} more parse notes are not shown.`);
   return { actions: [...walk.rows.values()], notes: walk.notes, total: walk.total };
 };
