@@ -83,43 +83,46 @@ const paneTitle = ({ busy, preview, section, selected }: Pick<InspectorPaneProps
   return titles[section] ?? 'Overview';
 };
 
-const PaneActions = ({
+/** Pins the selected object to compare it with the next one, or unpins it. */
+const PinAction = ({ pinnedId, selected, onPin }: Pick<InspectorPaneProps, 'pinnedId' | 'onPin'> & { selected: PdfObjectRecord }) => {
+  const pinned = pinnedId === selected.id;
+  return (
+    <PaneAction variant={pinned ? 'secondary' : 'ghost'} onClick={() => onPin(pinned ? null : selected.id)} aria-pressed={pinned}>
+      <Pin size={14} />
+      {pinned ? 'Unpin' : 'Pin to compare'}
+    </PaneAction>
+  );
+};
+
+/** Switches between the page preview and the inspector. */
+const PreviewAction = ({
   busy,
   bytes,
-  hasRange,
-  pinnedId,
   preview,
-  section,
-  selected,
-  onBookmark,
-  onBrowseResources,
-  onPin,
   onPreviewChange,
-}: InspectorPaneProps) => (
-  <div className="flex items-center gap-1 narrow:flex-wrap">
-    {section === 'resources' && selected && <PaneAction onClick={onBrowseResources}>Browse resources</PaneAction>}
-    {(selected || hasRange) && (
-      <PaneAction onClick={onBookmark}>
-        <BookmarkPlus size={14} />
-        Bookmark
-      </PaneAction>
-    )}
-    {selected && (
-      <PaneAction
-        variant={pinnedId === selected.id ? 'secondary' : 'ghost'}
-        onClick={() => onPin(pinnedId === selected.id ? null : selected.id)}
-        aria-pressed={pinnedId === selected.id}
-      >
-        <Pin size={14} />
-        {pinnedId === selected.id ? 'Unpin' : 'Pin to compare'}
-      </PaneAction>
-    )}
-    <PaneAction variant={preview ? 'secondary' : 'ghost'} disabled={!bytes.length || busy} onClick={() => onPreviewChange(!preview)}>
-      {preview ? <Braces size={14} /> : <Image size={14} />}
-      {preview ? 'Inspect' : 'Preview'}
-    </PaneAction>
-  </div>
+}: Pick<InspectorPaneProps, 'busy' | 'bytes' | 'preview' | 'onPreviewChange'>) => (
+  <PaneAction variant={preview ? 'secondary' : 'ghost'} disabled={!bytes.length || busy} onClick={() => onPreviewChange(!preview)}>
+    {preview ? <Braces size={14} /> : <Image size={14} />}
+    {preview ? 'Inspect' : 'Preview'}
+  </PaneAction>
 );
+
+const PaneActions = (props: InspectorPaneProps) => {
+  const { hasRange, section, selected, onBookmark, onBrowseResources } = props;
+  return (
+    <div className="flex items-center gap-1 narrow:flex-wrap">
+      {section === 'resources' && selected && <PaneAction onClick={onBrowseResources}>Browse resources</PaneAction>}
+      {(selected || hasRange) && (
+        <PaneAction onClick={onBookmark}>
+          <BookmarkPlus size={14} />
+          Bookmark
+        </PaneAction>
+      )}
+      {selected && <PinAction pinnedId={props.pinnedId} selected={selected} onPin={props.onPin} />}
+      <PreviewAction {...props} />
+    </div>
+  );
+};
 
 const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, onNavigate, onPin }: InspectorPaneProps) => {
   const pinned = pinnedId ? objectMap.get(pinnedId) : undefined;

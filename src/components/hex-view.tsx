@@ -47,28 +47,59 @@ const HEX_ASCII_CELL = cn(
 const printable = (byte: number) => {
   return byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '.';
 };
-const cursorMove = (event: KeyboardEvent<HTMLDivElement>, current: number, columns: number, length: number): number | 'select' | null => {
-  const modified = event.ctrlKey || event.metaKey;
-  const rowStart = Math.floor(current / columns) * columns;
-  switch (event.key) {
-    case 'ArrowLeft':
-      return current - 1;
-    case 'ArrowRight':
-      return current + 1;
-    case 'ArrowUp':
-      return current - columns;
-    case 'ArrowDown':
-      return current + columns;
-    case 'Home':
-      return modified ? 0 : rowStart;
-    case 'End':
-      return modified ? length - 1 : Math.min(length - 1, rowStart + columns - 1);
-    case 'Enter':
-    case ' ':
-      return 'select';
-    default:
-      return null;
-  }
+const rowStart = (current: number, columns: number) => Math.floor(current / columns) * columns;
+type CursorMove = (current: number, columns: number, length: number, modified: boolean) => number | 'select';
+const CURSOR_MOVES = new Map<string, CursorMove>([
+  ['ArrowLeft', (current) => current - 1],
+  ['ArrowRight', (current) => current + 1],
+  ['ArrowUp', (current, columns) => current - columns],
+  ['ArrowDown', (current, columns) => current + columns],
+  ['Home', (current, columns, _length, modified) => (modified ? 0 : rowStart(current, columns))],
+  ['End', (current, columns, length, modified) => (modified ? length - 1 : Math.min(length - 1, rowStart(current, columns) + columns - 1))],
+  ['Enter', () => 'select'],
+  [' ', () => 'select'],
+]);
+const cursorMove = (event: KeyboardEvent<HTMLDivElement>, current: number, columns: number, length: number): number | 'select' | null =>
+  CURSOR_MOVES.get(event.key)?.(current, columns, length, event.ctrlKey || event.metaKey) ?? null;
+/** The selected span: the given range, or the byte under the cursor. */
+const selectionBounds = (length: number, range: HexViewProps['range'], cursor: number | null) => {
+  const start = Math.max(0, Math.min(length, range?.start ?? cursor ?? 0));
+  const end = Math.max(start, Math.min(length, range?.end ?? (cursor === null ? 0 : cursor + 1)));
+  return { end, start };
+};
+/** Whether a byte click selected the object around it, so the view keeps its place instead of jumping to the object's start. */
+const keepsLocalSelection = (
+  local: { bytes: Uint8Array; offset: number } | null,
+  bytes: Uint8Array,
+  range: { start?: number; end?: number }
+) =>
+  local?.bytes === bytes && range.start !== undefined && range.end !== undefined && local.offset >= range.start && local.offset < range.end;
+type SavedScroll = NonNullable<ScrollPosition['current']>;
+/** Whether the saved scroll position was taken with a different number of byte columns. */
+const reflows = (saved: SavedScroll | undefined, columns: number): saved is SavedScroll & { byteColumns: number } =>
+  saved?.byteColumns !== undefined && saved.byteColumns !== columns;
+/** Where to scroll after the range or the column count changes. */
+const nextScrollTop = (
+  saved: SavedScroll | undefined,
+  columns: number,
+  reveal: boolean,
+  length: number,
+  rangeStart: number | undefined
+) => {
+  const start = Math.max(0, Math.min(length - 1, rangeStart ?? 0));
+  const rangeTop = Math.floor(start / columns) * ROW_HEIGHT;
+  if (reveal) return rangeTop;
+  // Pixel positions refer to different bytes in the 8- and 16-column grids.
+  // Reflow around the previously visible byte, aligned to a complete row.
+  if (reflows(saved, columns)) return Math.floor(((saved.top / ROW_HEIGHT) * saved.byteColumns) / columns) * ROW_HEIGHT;
+  return saved?.top ?? rangeTop;
+};
+const storeScroll = (position: ScrollPosition, columns: number, element: HTMLElement) => {
+  position.current = {
+    byteColumns: columns,
+    left: element.scrollLeft,
+    top: element.scrollTop,
+  };
 };
 const HexToolbar = ({
   canCopy,
@@ -295,8 +326,7 @@ export const HexView = ({
   const totalRows = Math.ceil(bytes.length / columns);
   const firstRow = Math.max(0, Math.floor(viewport.top / ROW_HEIGHT) - OVERSCAN);
   const lastRow = Math.min(totalRows, firstRow + Math.ceil(viewport.height / ROW_HEIGHT) + OVERSCAN * 2);
-  const selectionStart = Math.max(0, Math.min(bytes.length, range?.start ?? cursor ?? 0));
-  const selectionEnd = Math.max(selectionStart, Math.min(bytes.length, range?.end ?? (cursor === null ? 0 : cursor + 1)));
+  const { end: selectionEnd, start: selectionStart } = selectionBounds(bytes.length, range, cursor);
   const selectedLength = ranges ? ranges.reduce((sum, part) => sum + part.end - part.start, 0) : selectionEnd - selectionStart;
   const isSelected = (position: number) =>
     ranges ? ranges.some((part) => position >= part.start && position < part.end) : position >= selectionStart && position < selectionEnd;
@@ -319,29 +349,14 @@ export const HexView = ({
   useLayoutEffect(() => {
     const viewportElement = viewportRef.current;
     if (!viewportElement) return;
-    const start = Math.max(0, Math.min(bytes.length - 1, rangeStart ?? 0));
     const reveal = revealKey !== undefined && revealKey !== lastReveal.current;
     lastReveal.current = revealKey;
     const saved = scrollPositionRef.current;
-    const reflow = saved?.byteColumns !== undefined && saved.byteColumns !== columns;
-    const local = localSelection.current;
     // A byte click may select its enclosing object, whose start can be far
     // above the viewport. Preserve the clicked byte's position and cursor.
-    if (
-      !reveal &&
-      !reflow &&
-      local?.bytes === bytes &&
-      rangeStart !== undefined &&
-      rangeEnd !== undefined &&
-      local.offset >= rangeStart &&
-      local.offset < rangeEnd
-    ) {
+    if (!reveal && !reflows(saved, columns) && keepsLocalSelection(localSelection.current, bytes, { end: rangeEnd, start: rangeStart })) {
       localSelection.current = null;
-      scrollPositionRef.current = {
-        byteColumns: columns,
-        left: viewportElement.scrollLeft,
-        top: viewportElement.scrollTop,
-      };
+      storeScroll(scrollPositionRef, columns, viewportElement);
       setMessage('');
       setCopying(false);
       return;
@@ -349,20 +364,11 @@ export const HexView = ({
     if (reveal) {
       localSelection.current = null;
     }
-    // Pixel positions refer to different bytes in the 8- and 16-column grids.
-    // Reflow around the previously visible byte, aligned to a complete row.
-    const restoredTop = reflow ? Math.floor(((saved.top / ROW_HEIGHT) * saved.byteColumns!) / columns) * ROW_HEIGHT : saved?.top;
-    viewportElement.scrollTop = reveal
-      ? Math.floor(start / columns) * ROW_HEIGHT
-      : (restoredTop ?? Math.floor(start / columns) * ROW_HEIGHT);
+    viewportElement.scrollTop = nextScrollTop(saved, columns, reveal, bytes.length, rangeStart);
     viewportElement.scrollLeft = saved?.left ?? 0;
     // Store synchronously too: Strict Mode may repeat this layout effect
     // before the browser emits a scroll event for the explicit reveal.
-    scrollPositionRef.current = {
-      byteColumns: columns,
-      left: viewportElement.scrollLeft,
-      top: viewportElement.scrollTop,
-    };
+    storeScroll(scrollPositionRef, columns, viewportElement);
     setViewport((current) => ({ ...current, top: viewportElement.scrollTop }));
     const frame = requestAnimationFrame(() => {
       setCursor(null);
@@ -481,11 +487,7 @@ export const HexView = ({
         aria-label="Hexadecimal bytes. Use arrow keys to move; Enter to inspect the object containing the byte."
         onScroll={(event) => {
           const top = event.currentTarget.scrollTop;
-          scrollPositionRef.current = {
-            byteColumns: columns,
-            left: event.currentTarget.scrollLeft,
-            top,
-          };
+          storeScroll(scrollPositionRef, columns, event.currentTarget);
           setViewport((current) => ({ ...current, top }));
         }}
         onKeyDown={moveCursor}
