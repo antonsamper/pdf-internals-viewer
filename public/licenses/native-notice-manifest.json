@@ -1,9 +1,9 @@
 {
-  "recordedAt": "2026-11-12",
+  "recordedAt": "2026-11-27",
   "status": "verified-source-superset",
   "scope": "Conservative exact-source and toolchain notice superset, not a supplier-issued binary SBOM",
-  "wasmSha256": "7195838021c8318416117611b961614ab52eedcad585db5945681f86164e40f9",
-  "runtimeCommit": "aa59ce554aab55879b728dbb86714e13e5cb327f",
+  "wasmSha256": "98a6d887fe314928b66c21f969380180645bb4b74ce3e697fc03fca7a15a7986",
+  "runtimeCommit": "7f399f838df31a96393fdac0f8faa0ef30468f68",
   "emscriptenCommit": "437140d149d9c977ffc8b09dbaf9b0f5a02db190",
   "components": [
     "abseil",
@@ -37,7 +37,7 @@
       "component": "pdfium",
       "sha256": "1fe9dea718fbd75cf149adaf4d8a22a4335604d964ddb76d1b45383dec8668c9",
       "source": {
-        "url": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/LICENSE",
+        "url": "https://github.com/embedpdf/runtime/blob/7f399f838df31a96393fdac0f8faa0ef30468f68/LICENSE",
         "sha256": "1fe9dea718fbd75cf149adaf4d8a22a4335604d964ddb76d1b45383dec8668c9",
         "extraction": "Complete supplied text"
       }
@@ -47,7 +47,7 @@
       "component": "pdfium",
       "sha256": "1d03c44d3af36ccffe2586e0bb0f8471223b71ce2e38069725d1da7859fc5b5d",
       "source": {
-        "url": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/NOTICE",
+        "url": "https://github.com/embedpdf/runtime/blob/7f399f838df31a96393fdac0f8faa0ef30468f68/NOTICE",
         "sha256": "1d03c44d3af36ccffe2586e0bb0f8471223b71ce2e38069725d1da7859fc5b5d",
         "extraction": "Complete supplied text"
       }
@@ -57,7 +57,7 @@
       "component": "pdfium",
       "sha256": "6c08af23e1951b7058957cafd600a21d9d50a020c600c3276df69ba0b89631cf",
       "source": {
-        "url": "https://github.com/embedpdf/embed-pdf-viewer/blob/37273d7d149f893255344f0f8e9ff7b2dfbc8057/NOTICE",
+        "url": "https://github.com/embedpdf/embed-pdf-viewer/blob/9af4d9ee755d6e5c20a8055654e895a81b95fb83/NOTICE",
         "sha256": "6c08af23e1951b7058957cafd600a21d9d50a020c600c3276df69ba0b89631cf",
         "extraction": "Complete supplied text"
       }
@@ -158,7 +158,7 @@
       "component": "llvm-libc",
       "sha256": "ebcd9bbf783a73d05c53ba4d586b8d5813dcdf3bbec50265860ccc885e606f47",
       "source": {
-        "url": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/libc.git/+/d8f2045008e230f3c5f50095d918c11f1997e477/LICENSE.TXT?format=TEXT",
+        "url": "https://chromium.googlesource.com/external/github.com/llvm/llvm-project/libc.git/+/7840ec9fbb6be122103494a8f763e45775ef6353/LICENSE.TXT?format=TEXT",
         "encoding": "base64",
         "sha256": "ebcd9bbf783a73d05c53ba4d586b8d5813dcdf3bbec50265860ccc885e606f47",
         "extraction": "Complete supplied text",
@@ -262,7 +262,7 @@
       "component": "freetype",
       "sha256": "09e4a05cd6a32658e605bfb1fa98474bfde8a614470f7fbdf32d191ec918093b",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb.c?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/ft-hb.c?format=TEXT",
         "encoding": "base64",
         "sha256": "b6fbcc6a2a7b6c291326b24de313ad21edf2c7bbfd82e6844f0c90b20802040a",
         "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
@@ -275,7 +275,7 @@
       "component": "freetype",
       "sha256": "5285d96f6aa3188193d5fbefd8710ed6a46af185e0a43817c17acee5f4b1ab3d",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/include/freetype/internal/fthash.h?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/include/freetype/internal/fthash.h?format=TEXT",
         "encoding": "base64",
         "sha256": "023d88d49d29ecf3833db7717a3f7ae223c17ec2012bdb5bf33bb67abaf616c4",
         "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
@@ -288,7 +288,7 @@
       "component": "freetype",
       "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/docs/FTL.TXT?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/docs/FTL.TXT?format=TEXT",
         "encoding": "base64",
         "sha256": "5a5ee54c5001bbad1cdc1a57cc3dd4c42199b2da09d39c7ee41fab002d02967f",
         "extraction": "Complete supplied text",
@@ -301,7 +301,7 @@
       "component": "freetype",
       "sha256": "bd36c8b474855fa294c2ec5c184544478ef3720aad37d65a6296a4f264fd2d3b",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/LICENSE.TXT?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/LICENSE.TXT?format=TEXT",
         "encoding": "base64",
         "sha256": "bd36c8b474855fa294c2ec5c184544478ef3720aad37d65a6296a4f264fd2d3b",
         "extraction": "Complete supplied text",
@@ -314,7 +314,7 @@
       "component": "freetype",
       "sha256": "02421fcfbfb1d656ef0b6ff4cd3c39f2946f08c3219fa42db482add7ce1f53ea",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/gzip/zlib.h?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/gzip/zlib.h?format=TEXT",
         "encoding": "base64",
         "sha256": "5d2ff8b7083eec4ffc13d7c542b53f9771060449973d55d347f044fb2c45dfb8",
         "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
@@ -327,7 +327,7 @@
       "component": "agg",
       "sha256": "c5663042e0adaa89a68897599f93350e606bd51cfdf5be15d8825d15aeb964eb",
       "source": {
-        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/agg23/agg_array.h",
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/agg23/agg_array.h",
         "encoding": "raw",
         "sha256": "05f7077b756f2c4f515245566bf84c1215552e633848fe3c4de3535a9c1d07f2",
         "extraction": "Original leading // copyright/license comment header before first #ifndef, unchanged bytes",
@@ -340,7 +340,7 @@
       "component": "bigint",
       "sha256": "32759d1397d8f7b9e15ece146e4038b22b90e93b4935b5a840bcef4d2ba5ea55",
       "source": {
-        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/bigint/LICENSE",
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/bigint/LICENSE",
         "encoding": "raw",
         "sha256": "32759d1397d8f7b9e15ece146e4038b22b90e93b4935b5a840bcef4d2ba5ea55",
         "extraction": "Complete supplied text",
@@ -353,7 +353,7 @@
       "component": "freetype",
       "sha256": "18d9782898d9eac04476e2f744678137b2a889689ed3e923e052fc396a86f86b",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/pcf/README?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/pcf/README?format=TEXT",
         "encoding": "base64",
         "sha256": "18d9782898d9eac04476e2f744678137b2a889689ed3e923e052fc396a86f86b",
         "extraction": "Complete supplied text",
@@ -366,7 +366,7 @@
       "component": "lcms",
       "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
       "source": {
-        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/lcms/src/LICENSE",
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/lcms/src/LICENSE",
         "encoding": "raw",
         "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
         "extraction": "Complete supplied text",
@@ -379,7 +379,7 @@
       "component": "freetype",
       "sha256": "7984455e7e5a9faba3797c8bf095fbe10cc846316b7320aff8c58402e22b82fe",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/bdf/README?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/bdf/README?format=TEXT",
         "encoding": "base64",
         "sha256": "7984455e7e5a9faba3797c8bf095fbe10cc846316b7320aff8c58402e22b82fe",
         "extraction": "Complete supplied text",
@@ -392,7 +392,7 @@
       "component": "openjpeg",
       "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
       "source": {
-        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libopenjpeg/src/LICENSE",
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/libopenjpeg/src/LICENSE",
         "encoding": "raw",
         "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
         "extraction": "Complete supplied text",
@@ -405,7 +405,7 @@
       "component": "libtiff",
       "sha256": "91a66ab36f6b9dd3db1b0984f5e17c4c8fc079d79ec7ac13e38e4f25997b440a",
       "source": {
-        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libtiff/src/t4.h",
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/libtiff/src/t4.h",
         "encoding": "raw",
         "sha256": "68fea8b3e6ac6f9c02395de1ac7759686d82c773024caa9c112784dfa967cae5",
         "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
@@ -418,7 +418,7 @@
       "component": "fp16",
       "sha256": "c91377adafa2f498211a4fe017788e20c38892124673860f068f2919c289193d",
       "source": {
-        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/fp16/LICENSE",
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/fp16/LICENSE",
         "encoding": "raw",
         "sha256": "c91377adafa2f498211a4fe017788e20c38892124673860f068f2919c289193d",
         "extraction": "Complete supplied text",
@@ -431,7 +431,7 @@
       "component": "agg",
       "sha256": "0e16f9c2285583269242e94c6f502de0c9910dfcbbc7b386e236cdf29ecd4333",
       "source": {
-        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/agg23/copying",
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/agg23/copying",
         "encoding": "raw",
         "sha256": "0e16f9c2285583269242e94c6f502de0c9910dfcbbc7b386e236cdf29ecd4333",
         "extraction": "Complete supplied text",
@@ -444,7 +444,7 @@
       "component": "openjpeg",
       "sha256": "c5ab0890a737c2dfa7ba675036554f6d17741d98629b0c2a145354d00617e6b2",
       "source": {
-        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libopenjpeg/src/openjpeg.c",
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/libopenjpeg/src/openjpeg.c",
         "encoding": "raw",
         "sha256": "688b555f028531033d7cdc500dffe981cd0c826fc07833b1980a64bbde175250",
         "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
@@ -457,7 +457,7 @@
       "component": "freetype",
       "sha256": "5387adeb738c74170f75d0bf42cdbcc43ee0d2c72bf803fd38e6e709d2895cf3",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb.h?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/ft-hb.h?format=TEXT",
         "encoding": "base64",
         "sha256": "e1ca76cbe0df2850f38b974dbff58f0322d19bafecc4125f52077f0c82411534",
         "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
@@ -470,7 +470,7 @@
       "component": "lcms",
       "sha256": "f212299301e36d2373a1d7e835432ca34dca80cc9cfce3fed08aeb6c8c8738d9",
       "source": {
-        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/lcms/src/include/lcms2.h",
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/lcms/src/include/lcms2.h",
         "encoding": "raw",
         "sha256": "fca5c8c6c65f51b64478bbcf52aff5c9757b6f8c3fa2a872751e8833a8978434",
         "extraction": "Original leading // copyright/license comment header before first #ifndef, unchanged bytes",
@@ -483,7 +483,7 @@
       "component": "libtiff",
       "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
       "source": {
-        "url": "https://raw.githubusercontent.com/embedpdf/runtime/aa59ce554aab55879b728dbb86714e13e5cb327f/third_party/libtiff/src/LICENSE.md",
+        "url": "https://raw.githubusercontent.com/embedpdf/runtime/7f399f838df31a96393fdac0f8faa0ef30468f68/third_party/libtiff/src/LICENSE.md",
         "encoding": "raw",
         "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
         "extraction": "Complete supplied text",
@@ -509,7 +509,7 @@
       "component": "freetype",
       "sha256": "5285d96f6aa3188193d5fbefd8710ed6a46af185e0a43817c17acee5f4b1ab3d",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/base/fthash.c?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/base/fthash.c?format=TEXT",
         "encoding": "base64",
         "sha256": "693e5a54b3ce30140975a94a3369dbe706eb1f280c69e80da426d39cc45b94ef",
         "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
@@ -522,7 +522,7 @@
       "component": "freetype",
       "sha256": "260cfd522bf354ed9c2666777db248c0608e8c7a4110c672f16100aca98c772d",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/hb-script-list.h?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/hb-script-list.h?format=TEXT",
         "encoding": "base64",
         "sha256": "898de25adaf9253471d9f1351a6c90e3547e1470dd2f468ab19a86561868182b",
         "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
@@ -587,9 +587,9 @@
       "component": "freetype",
       "sha256": "9eb9395c70e884f61081775892fae5949ad7762461bea5753dc5478b0c080302",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb-decls.h?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/ft-hb-decls.h?format=TEXT",
         "encoding": "base64",
-        "sha256": "ed05eec3b5657f98a0c106fa4aa2e5a4bc7f0864e5d34bd5989eee6d8b718bcf",
+        "sha256": "c014a5698549ee74ab62fdf049f8e634a7615a0ea8e637e76f82ac2d517a800e",
         "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
         "licenseChoice": "upstream supplied terms",
         "coverageEvidence": "ExplicitdelegationinFreeTyperootLICENSE.TXT"
@@ -652,7 +652,7 @@
       "component": "freetype",
       "sha256": "9eb9395c70e884f61081775892fae5949ad7762461bea5753dc5478b0c080302",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb-ft.c?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/ft-hb-ft.c?format=TEXT",
         "encoding": "base64",
         "sha256": "84dd5ddff1cec222e1755b4962faf45836238dfa3a46854dabd969eb4e50f8be",
         "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
@@ -665,7 +665,7 @@
       "component": "freetype",
       "sha256": "9eb9395c70e884f61081775892fae5949ad7762461bea5753dc5478b0c080302",
       "source": {
-        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/25167984d2435930f9178e8d9d2ca3bdfa71a4e7/src/autofit/ft-hb-types.h?format=TEXT",
+        "url": "https://chromium.googlesource.com/chromium/src/third_party/freetype2.git/+/2b01fa2d6723bf12490822268c9627697ed89643/src/autofit/ft-hb-types.h?format=TEXT",
         "encoding": "base64",
         "sha256": "f106bf7cc41f52cd70907266a74a293c57bc5f71285b01c36bf198ad8b1c6234",
         "extraction": "Original C comment blocks matching copyright/license/permission/warranty/public-domain/copied-from; exact unchanged comment bytes, joined with blank lines",
@@ -805,11 +805,11 @@
     {
       "file": "public/licenses/pdfium-archive-coverage.json",
       "component": "pdfium",
-      "sha256": "62b0a8687f9af112585b0c0e6f08168ee0d1b6810496d8913cf1adc672898acf",
+      "sha256": "1c82cc3c371f6bc4e2ae5f7a598bb5a32c4b183c673cedd451efdaa7ce70646f",
       "source": {
         "description": "All 597 distinct external archive object names mapped to exact DEPS-pinned source trees; not proof of final linkage or header-only coverage"
       }
     }
   ],
-  "bundleSha256": "ec5dc138a4da89655d2d32929b38a7727066fb5305026044d19bab6a85355dda"
+  "bundleSha256": "b2cb429fa92aa78493650a56bf1f7b7330841ee0659875332435baefbf868535"
 }
