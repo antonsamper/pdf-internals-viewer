@@ -13,7 +13,7 @@ import { contentInstructions, explainInstruction, namedResource, resourceCategor
 import { cn } from '@/lib/utils';
 /** A link in the explanations above the instructions. */
 const ExplanationLink = ({ className, ...props }: ComponentProps<'a'>) => (
-  <a className={cn('underline underline-offset-[3px]', className)} {...props} />
+  <a className={cn('underline underline-offset-3', className)} {...props} />
 );
 
 export const ContentStreamView = ({
@@ -191,7 +191,7 @@ export const ContentStreamView = ({
                       );
                     })}
                   </code>
-                  <p className="col-start-2 mt-[5px] text-detail leading-[1.7] text-muted-foreground">{explainInstruction(instruction)}</p>
+                  <p className="col-start-2 mt-1.25 text-detail leading-[1.7] text-muted-foreground">{explainInstruction(instruction)}</p>
                 </li>
               );
             })}

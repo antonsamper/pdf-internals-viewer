@@ -14,14 +14,14 @@ const TreeIntro = ({ children }: { children: ReactNode }) => (
 
 /** Details under a node, such as its object kind or why it stops expanding. */
 const NodeDetail = ({ children }: { children: ReactNode }) => (
-  <p className="mr-[5px] mb-[7px] ml-[26px] text-caption [overflow-wrap:anywhere] text-muted-foreground">{children}</p>
+  <p className="mr-1.25 mb-1.75 ml-6.5 text-caption [overflow-wrap:anywhere] text-muted-foreground">{children}</p>
 );
 
 /** The expand button, or a spacer of the same width when the node has no children. */
 const NodeToggle = ({ expanded, label, onToggle }: { expanded: boolean; label: string; onToggle?: () => void }) =>
   onToggle ? (
     <button
-      className="grid h-[30px] w-[26px] flex-[0_0_26px] place-items-center rounded-[4px]"
+      className="grid h-7.5 w-6.5 shrink-0 grow-0 basis-6.5 place-items-center rounded-[4px]"
       aria-label={label}
       aria-expanded={expanded}
       onClick={onToggle}
@@ -29,12 +29,12 @@ const NodeToggle = ({ expanded, label, onToggle }: { expanded: boolean; label: s
       {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
     </button>
   ) : (
-    <span className="h-[30px] w-[26px] flex-[0_0_26px]" />
+    <span className="h-7.5 w-6.5 shrink-0 grow-0 basis-6.5" />
   );
 
 /** A node's label and object number: a button when the node opens an object. */
 const NodeLabel = ({ children, current, onSelect }: { children: ReactNode; current?: boolean; onSelect?: () => void }) => {
-  const className = cn('flex min-w-0 flex-1 flex-col items-start py-[5px] pr-[5px]', 'text-left text-detail [overflow-wrap:anywhere]');
+  const className = cn('flex min-w-0 flex-1 flex-col items-start py-1.25 pr-1.25', 'text-left text-detail [overflow-wrap:anywhere]');
   return onSelect ? (
     <button className={className} aria-current={current ? 'true' : undefined} onClick={onSelect}>
       {children}
@@ -45,7 +45,7 @@ const NodeLabel = ({ children, current, onSelect }: { children: ReactNode; curre
 };
 
 const ShowMoreButton = ({ children, onClick }: { children: ReactNode; onClick: () => void }) => (
-  <button className="m-1.5 p-[5px] text-detail text-reference underline underline-offset-[3px]" onClick={onClick}>
+  <button className="m-1.5 p-1.25 text-detail text-reference underline underline-offset-3" onClick={onClick}>
     {children}
   </button>
 );
@@ -144,7 +144,7 @@ export const PageTree = ({
       <li key={key}>
         <div
           className={cn(
-            'flex min-h-[34px] items-center rounded-[5px] hover:bg-accent',
+            'flex min-h-8.5 items-center rounded-[5px] hover:bg-accent',
             ref && selectedId === ref && 'bg-accent shadow-[inset_0_0_0_1px_var(--border)]'
           )}
         >
@@ -179,7 +179,7 @@ export const PageTree = ({
           </NodeDetail>
         )}
         {expanded && expandable && (
-          <ul className="ml-2.5 border-l pl-[7px]">
+          <ul className="ml-2.5 border-l pl-1.75">
             {children.slice(0, limit).map((child, index) =>
               node(
                 child.value,

@@ -56,7 +56,7 @@ const OverviewText = ({ className, ...props }: ComponentProps<'p'>) => (
 );
 
 const Fact = ({ children, label }: { children: ReactNode; label: string }) => (
-  <div className="flex justify-between gap-3 border-b py-[11px] text-detail">
+  <div className="flex justify-between gap-3 border-b py-2.75 text-detail">
     <dt className="text-muted-foreground">{label}</dt>
     <dd className="tabular-nums">{children}</dd>
   </div>

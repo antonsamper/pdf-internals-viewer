@@ -23,7 +23,7 @@ import type { Section } from './types';
 
 /** A small ghost button in the pane heading, in compact type. */
 const PaneAction = ({ className, ...props }: ComponentProps<typeof Button>) => (
-  <Button variant="ghost" size="sm" className={cn('gap-[5px] text-caption font-medium', className)} {...props} />
+  <Button variant="ghost" size="sm" className={cn('gap-1.25 text-caption font-medium', className)} {...props} />
 );
 
 const PdfPreview = lazy(() =>

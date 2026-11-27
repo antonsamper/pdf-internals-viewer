@@ -1,10 +1,19 @@
 import { Moon, Sun } from 'lucide-react';
+
+import { cn } from '@/lib/utils';
+
 /** CSS reflects the active theme on both interactive and static pages. Sits in the corner of the header. */
 export const ThemeControl = function ThemeControl() {
   return (
     <button
       type="button"
-      className="absolute top-[calc((var(--header-height)_-_var(--theme-control-size))/2)] right-(--header-inline-padding) inline-flex size-(--theme-control-size) shrink-0 cursor-pointer items-center justify-center rounded-[6px] border border-border bg-background p-0 text-foreground [color-scheme:dark] hover:bg-muted"
+      className={cn(
+        'absolute top-[calc((var(--header-height)_-_var(--theme-control-size))/2)] right-(--header-inline-padding)',
+        'inline-flex size-(--theme-control-size) shrink-0 items-center justify-center p-0',
+        'bg-background text-foreground [color-scheme:dark]',
+        'cursor-pointer rounded-sm border border-border',
+        'hover:bg-muted'
+      )}
       title="Toggle light and dark mode"
       data-theme-control=""
     >

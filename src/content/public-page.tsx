@@ -279,7 +279,7 @@ Q`}</code>
       <ComparisonTable>
         <caption>Reading a TJ text instruction</caption>
         <colgroup>
-          <col style={{ width: '30%' }} />
+          <col className="w-3/10" />
           <col />
         </colgroup>
         <thead>

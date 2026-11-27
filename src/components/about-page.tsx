@@ -56,7 +56,7 @@ export const AboutPage = function AboutPage({ onFollowLink }: { onFollowLink: (e
         </p>
         <a
           className={cn(
-            'inline-flex items-center gap-[5px] py-1',
+            'inline-flex items-center gap-1.25 py-1',
             'text-body text-foreground underline underline-offset-3',
             'hover:underline-offset-4'
           )}

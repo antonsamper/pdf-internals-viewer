@@ -8,7 +8,7 @@ export const LoadingMessage = function LoadingMessage({ className, render, ...pr
   return useRender({
     defaultTagName: 'p',
     props: mergeProps<'p'>(
-      { className: cn('flex items-center gap-2 p-[15px] text-small leading-[inherit] text-muted-foreground', className) },
+      { className: cn('flex items-center gap-2 p-3.75 text-small leading-[inherit] text-muted-foreground', className) },
       props
     ),
     render,

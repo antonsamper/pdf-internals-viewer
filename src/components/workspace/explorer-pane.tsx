@@ -17,6 +17,9 @@ import { cn } from '@/lib/utils';
 
 import type { Section, Selection } from './types';
 
+// The object list is virtualised: rows are positioned from this pixel height, so it also sets each row's height.
+const OBJECT_ROW_HEIGHT = 42;
+
 /** The count at the end of a section button. */
 const SectionCount = ({ className, ...props }: ComponentProps<'span'>) => (
   <span className={cn('ml-auto text-caption tabular-nums', className)} {...props} />
@@ -71,18 +74,18 @@ export const ExplorerPane = ({
       : section === 'resources'
         ? resourceObjects
         : objects;
-  const listStart = Math.max(0, Math.floor(objectScroll / 42) - 5);
+  const listStart = Math.max(0, Math.floor(objectScroll / OBJECT_ROW_HEIGHT) - 5);
   const visibleObjects = listedObjects.slice(listStart, listStart + 45);
   return (
     <aside className="flex h-full min-h-0 flex-col bg-sidebar" aria-label="Structure explorer">
       <PaneHeading>
         <ListTree size={15} />
         <span>Explorer</span>
-        <Badge variant="outline" className="ml-auto rounded-[4px] px-[5px] py-0 text-caption leading-[calc(4/3)] text-muted-foreground">
+        <Badge variant="outline" className="ml-auto rounded-[4px] px-1.25 py-0 text-caption leading-[calc(4/3)] text-muted-foreground">
           {objects.length}
         </Badge>
       </PaneHeading>
-      <nav className="flex flex-col gap-0.5 px-[9px] py-[13px]" aria-label="Document sections">
+      <nav className="flex flex-col gap-0.5 px-2.25 py-3.25" aria-label="Document sections">
         {(
           [
             ['overview', LayoutDashboard, 'Overview'],
@@ -97,7 +100,7 @@ export const ExplorerPane = ({
           <button
             key={key}
             className={cn(
-              'flex items-center gap-[9px] px-2.5 py-2',
+              'flex items-center gap-2.25 px-2.5 py-2',
               'rounded-[5px] bg-transparent text-left text-detail text-muted-foreground',
               'hover:bg-accent hover:text-foreground',
               section === key && 'bg-accent font-medium text-accent-foreground shadow-[inset_3px_0_var(--brand-purple)]'
@@ -125,7 +128,7 @@ export const ExplorerPane = ({
       <div
         className={cn(
           'flex justify-between',
-          'mx-[15px] pt-[13px] pb-[9px]',
+          'mx-3.75 pt-3.25 pb-2.25',
           'text-micro font-medium tracking-[0.06em] text-muted-foreground',
           'border-t'
         )}
@@ -144,18 +147,18 @@ export const ExplorerPane = ({
         />
       ) : (
         <div
-          className="min-h-0 flex-1 overflow-auto px-[7px]"
+          className="min-h-0 flex-1 overflow-auto px-1.75"
           data-object-list
           key={section}
           onScroll={(event) => onScroll(event.currentTarget.scrollTop)}
         >
-          <div style={{ height: listedObjects.length * 42, position: 'relative' }}>
+          <div className="relative" style={{ height: listedObjects.length * OBJECT_ROW_HEIGHT }}>
             {visibleObjects.map((object, index) => (
               <button
                 key={object.id}
                 className={cn(
-                  'flex h-[42px] w-full items-center',
-                  'gap-2.5 px-[9px] text-left text-muted-foreground',
+                  'absolute flex w-full items-center',
+                  'gap-2.5 px-2.25 text-left text-muted-foreground',
                   'rounded-[4px] bg-transparent',
                   'hover:bg-accent hover:text-foreground',
                   selectedId === object.id && [
@@ -164,7 +167,7 @@ export const ExplorerPane = ({
                     '[outline:1px_solid_var(--border)] [outline-offset:-1px]',
                   ]
                 )}
-                style={{ position: 'absolute', top: (listStart + index) * 42 }}
+                style={{ height: OBJECT_ROW_HEIGHT, top: (listStart + index) * OBJECT_ROW_HEIGHT }}
                 onClick={() => onNavigate(object.id)}
               >
                 <Braces size={14} />

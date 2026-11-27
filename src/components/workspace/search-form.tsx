@@ -11,9 +11,9 @@ import type { useDocumentSearch } from './use-document-search';
 const formClass = (hasResults: boolean) =>
   cn(
     'flex items-center',
-    'min-h-[34px] w-1/2 max-w-[600px]',
+    'min-h-8.5 w-1/2 max-w-150',
     'gap-1 py-0.5 pr-1 pl-2 text-muted-foreground',
-    'rounded-[6px] border',
+    'rounded-sm border',
     'has-[input:focus]:border-ring has-[input:focus]:shadow-[0_0_0_2px_color-mix(in_oklch,var(--ring)_20%,transparent)]',
     'narrow:grid narrow:h-auto narrow:w-full narrow:max-w-none narrow:gap-x-1.5 narrow:gap-y-1 narrow:py-1 narrow:pr-1 narrow:pl-2.5',
     'max-w360:grid-cols-[18px_minmax(0,1.3fr)_minmax(0,1fr)_auto]',
@@ -25,7 +25,7 @@ const formClass = (hasResults: boolean) =>
 
 /** From 361px to 900px the results toggle sits inside the field, so the query keeps room on its right. */
 const queryPadding = (query: string, hasResults: boolean) => {
-  if (hasResults) return 'w360-w900:pr-[84px]';
+  if (hasResults) return 'w360-w900:pr-21';
   return query ? 'w360-w900:pr-9' : '';
 };
 
@@ -58,7 +58,7 @@ const ResultsToggle = ({ count, onToggle, open, scope }: { count: number; onTogg
     data-search-show=""
     className={cn(
       'whitespace-nowrap',
-      'narrow:h-9 narrow:min-w-9 narrow:justify-between narrow:rounded-[6px] narrow:border-0 narrow:bg-muted narrow:text-body narrow:text-foreground',
+      'narrow:h-9 narrow:min-w-9 narrow:justify-between narrow:rounded-sm narrow:border-0 narrow:bg-muted narrow:text-body narrow:text-foreground',
       'narrow:hover:bg-muted narrow:aria-expanded:bg-accent narrow:aria-expanded:hover:bg-accent',
       'narrow:dark:hover:bg-muted narrow:aria-expanded:dark:hover:bg-accent',
       'max-w360:w-full max-w360:px-2.5 max-w360:[grid-area:results]',
@@ -82,7 +82,10 @@ const ClearButton = ({ onClear }: { onClear: () => void }) => (
     variant="ghost"
     aria-label="Clear search"
     title="Clear query and results"
-    className="narrow:relative narrow:z-1 narrow:size-9 narrow:justify-self-end narrow:[grid-area:query] narrow:before:absolute narrow:before:-inset-x-0.5 narrow:before:-inset-y-1"
+    className={cn(
+      'narrow:relative narrow:z-1 narrow:size-9 narrow:justify-self-end narrow:[grid-area:query]',
+      'narrow:before:absolute narrow:before:-inset-x-0.5 narrow:before:-inset-y-1'
+    )}
     type="button"
     onClick={onClear}
   >

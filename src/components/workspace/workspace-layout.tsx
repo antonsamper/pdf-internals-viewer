@@ -23,7 +23,7 @@ export const WorkspaceLayout = ({
 }) =>
   narrow ? (
     <>
-      <nav className="flex gap-[5px] border-b px-3 py-[5px]" aria-label="Workspace pane">
+      <nav className="flex gap-1.25 border-b px-3 py-1.25" aria-label="Workspace pane">
         {PANES.map((pane) => (
           <Button
             key={pane}

@@ -28,7 +28,7 @@ export const IssueSummary = ({ empty: Empty, issues }: { empty: ComponentType<Co
         return (
           <SeverityPill
             key={severity}
-            className={cn(SEVERITY_TONE[severity], 'rounded-[5px] px-[9px] py-[5px] text-small leading-[inherit] font-semibold')}
+            className={cn(SEVERITY_TONE[severity], 'rounded-[5px] px-2.25 py-1.25 text-small leading-[inherit] font-semibold')}
           >
             <Icon size={14} aria-hidden="true" />
             {count} {label}
@@ -92,7 +92,7 @@ export const IssuesPanel = ({
               className={cn(
                 SEVERITY_TONE[issue.severity],
                 'border-t py-4 text-small leading-[1.7]',
-                MARKED[issue.severity] && 'my-3 border-l-[3px] border-l-(--issue-ink) pl-3.5'
+                MARKED[issue.severity] && 'my-3 border-l-3 border-l-(--issue-ink) pl-3.5'
               )}
             >
               <div className="flex flex-wrap items-center gap-2">
@@ -103,7 +103,13 @@ export const IssuesPanel = ({
                 <h2 className="font-[550]">{issue.title}</h2>
               </div>
               <IssueNote>{issue.explanation}</IssueNote>
-              <pre className="my-2.5 rounded-[5px] bg-muted p-2.5 text-detail leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap">
+              <pre
+                className={cn(
+                  'my-2.5 p-2.5',
+                  'text-detail leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap',
+                  'rounded-[5px] bg-muted'
+                )}
+              >
                 {issue.evidence}
               </pre>
               <Button

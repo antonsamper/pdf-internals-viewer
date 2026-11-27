@@ -56,7 +56,7 @@ const FileName = ({ byteCount, filename }: { byteCount: number; filename: string
   <div
     data-filename=""
     className={cn(
-      'flex min-w-0 flex-1 items-center gap-[9px]',
+      'flex min-w-0 flex-1 items-center gap-2.25',
       'text-small text-muted-foreground',
       'max-w600:col-start-2 max-w600:row-start-1 max-w600:text-detail',
       !filename && 'max-w600:hidden'
@@ -122,7 +122,7 @@ const WorkspaceActions = ({
   onOpenFile: () => void;
 }) => (
   <>
-    <span className="h-[19px] w-px bg-border max-w600:hidden" />
+    <span className="h-4.75 w-px bg-border max-w600:hidden" />
     <FileName byteCount={byteCount} filename={filename} />
     <div className={cn('flex items-center gap-2', 'max-w600:col-start-3 max-w600:row-start-1', 'max-w480:gap-0.5')} data-header-actions="">
       <HeaderLink className={ACTION_COMPACT} href="/guide" aria-label="User guide" title="User guide" onClick={onFollowLink}>

@@ -31,7 +31,7 @@ export const DropOverlay = () => (
       >
         <BrandIcon className="block size-full object-contain" />
       </div>
-      <span className="font-mono text-caption leading-[normal] font-medium tracking-[0.1em] text-(--brand-purple) uppercase">
+      <span className="font-mono text-caption leading-[normal] font-medium tracking-[0.1em] text-brand-purple uppercase">
         Ready to investigate
       </span>
       <p className="mt-3.5 mb-3 text-[clamp(28px,4vw,38px)] leading-[1.15] font-[550] tracking-[-0.035em]">Let’s look inside.</p>
@@ -39,11 +39,11 @@ export const DropOverlay = () => (
       <div
         className={cn(
           'inline-flex items-center',
-          'mt-7 gap-[7px] px-3 py-[7px]',
+          'mt-7 gap-1.75 px-3 py-1.75',
           'rounded-full bg-background text-detail text-muted-foreground'
         )}
       >
-        <ShieldCheck className="shrink-0 text-(--brand-purple)" size={14} aria-hidden="true" />
+        <ShieldCheck className="shrink-0 text-brand-purple" size={14} aria-hidden="true" />
         Processed locally · up to 64 MiB
       </div>
     </div>

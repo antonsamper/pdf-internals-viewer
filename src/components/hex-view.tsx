@@ -12,9 +12,9 @@ import { cn } from '@/lib/utils';
 const HexGrid = ({ className, ...props }: ComponentProps<'div'>) => (
   <div
     className={cn(
-      'grid grid-cols-[67px_calc(var(--hex-columns)*23px)_calc(var(--hex-columns)*8px)] items-center gap-x-[13px]',
+      'grid grid-cols-[67px_calc(var(--hex-columns)*23px)_calc(var(--hex-columns)*8px)] items-center gap-x-3.25',
       'px-3.5 whitespace-nowrap',
-      'max-w400:grid-cols-[59px_calc(var(--hex-columns)*22px)_calc(var(--hex-columns)*7px)] max-w400:gap-[7px] max-w400:px-[9px]',
+      'max-w400:grid-cols-[59px_calc(var(--hex-columns)*22px)_calc(var(--hex-columns)*7px)] max-w400:gap-1.75 max-w400:px-2.25',
       className
     )}
     {...props}
@@ -23,12 +23,14 @@ const HexGrid = ({ className, ...props }: ComponentProps<'div'>) => (
 
 /** The byte columns in the heading and in each row. */
 const ByteColumns = ({ children }: { children: ReactNode }) => (
-  <span className="grid grid-cols-[repeat(var(--hex-columns),23px)] max-w400:grid-cols-[repeat(var(--hex-columns),22px)]">{children}</span>
+  <span className={cn('grid grid-cols-[repeat(var(--hex-columns),23px)]', 'max-w400:grid-cols-[repeat(var(--hex-columns),22px)]')}>
+    {children}
+  </span>
 );
 
 // A row renders a button and an ASCII cell per byte, so these two class lists stay module constants: they are merged once, not once per cell.
 const HEX_BYTE = cn(
-  'rounded-[2px] border-0 bg-transparent py-[3px] text-center text-foreground',
+  'rounded-xs border-0 bg-transparent py-0.75 text-center text-foreground',
   'hover:bg-accent hover:text-accent-foreground hover:shadow-[inset_0_0_0_1px_var(--border)]',
   'data-[cursor]:outline-1 data-[cursor]:-outline-offset-1 data-[cursor]:outline-ring',
   'data-[cursor]:focus-visible:outline-2 data-[cursor]:focus-visible:outline-offset-2',
@@ -38,7 +40,7 @@ const HEX_BYTE = cn(
   'data-[selected]:data-[zero]:text-byte-selection-foreground'
 );
 const HEX_ASCII_CELL = cn(
-  'inline-block w-2 py-[3px] text-center',
+  'inline-block w-2 py-0.75 text-center',
   'max-w400:w-[7px]',
   'data-[selected]:bg-byte-selection data-[selected]:text-byte-selection-foreground'
 );
@@ -83,12 +85,12 @@ const HexToolbar = ({
   onToggleDecimal: () => void;
   title: string;
 }) => (
-  <div className="flex h-[42px] min-h-[42px] shrink-0 items-center justify-between gap-2 border-b px-3.5">
+  <div className="flex h-10.5 min-h-10.5 shrink-0 items-center justify-between gap-2 border-b px-3.5">
     <div className="flex items-center gap-2 text-small font-semibold">
       <FileCode2 aria-hidden="true" size={15} />
       <span>{title}</span>
     </div>
-    <div className="flex items-center gap-[3px]">
+    <div className="flex items-center gap-0.75">
       <Button
         size="xs"
         variant="ghost"
@@ -124,13 +126,13 @@ const HexJumpForm = ({
   onSubmit: (event: FormEvent) => void;
   value: string;
 }) => (
-  <form className="flex items-center gap-2 border-b px-3.5 py-[9px] text-detail" onSubmit={onSubmit}>
+  <form className="flex items-center gap-2 border-b px-3.5 py-2.25 text-detail" onSubmit={onSubmit}>
     <label className="whitespace-nowrap text-muted-foreground" htmlFor={id}>
       Go to offset
     </label>
     <input
       className={cn(
-        'w-full min-w-10 px-[7px] py-1 font-mono text-detail',
+        'w-full min-w-10 px-1.75 py-1 font-mono text-detail',
         'bg-background text-foreground placeholder:text-muted-foreground',
         'rounded-[5px] border border-border',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
@@ -214,7 +216,7 @@ const HexRow = ({
 const HexColumnHead = ({ columns }: { columns: number }) => (
   <HexGrid
     className={cn(
-      'shrink-0 overflow-hidden bg-muted py-[9px] font-mono text-micro tracking-[0.025em] text-muted-foreground',
+      'shrink-0 overflow-hidden bg-muted py-2.25 font-mono text-micro tracking-[0.025em] text-muted-foreground',
       'leading-[normal]'
     )}
     style={{ '--hex-columns': columns } as CSSProperties}
@@ -249,12 +251,7 @@ const HexStatus = ({
   totalBytes: number;
 }) => (
   <div
-    className={cn(
-      'min-h-[34px] px-3.5 py-[9px]',
-      'text-caption [overflow-wrap:anywhere] text-muted-foreground',
-      'border-t',
-      'leading-[1.5]'
-    )}
+    className={cn('min-h-8.5 px-3.5 py-2.25', 'text-caption [overflow-wrap:anywhere] text-muted-foreground', 'border-t', 'leading-[1.5]')}
     data-hex-status=""
     aria-live="polite"
   >
@@ -474,7 +471,7 @@ export const HexView = ({
       <div
         ref={viewportRef}
         className={cn(
-          'relative min-h-[150px] flex-1 overflow-auto',
+          'relative min-h-37.5 flex-1 overflow-auto',
           '[scrollbar-gutter:stable] -outline-offset-2',
           'focus-visible:outline-2 focus-visible:outline-ring'
         )}
@@ -520,7 +517,7 @@ export const HexView = ({
         ) : (
           <div
             className={cn(
-              'flex h-full min-h-[180px] flex-col items-center justify-center gap-2.5 p-[25px]',
+              'flex h-full min-h-45 flex-col items-center justify-center gap-2.5 p-6.25',
               'text-center text-small text-muted-foreground'
             )}
           >
