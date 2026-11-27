@@ -9,27 +9,35 @@ export const documentBookmarkKey = async function documentBookmarkKey(bytes: Uin
 const validBookmark = function validBookmark(value: unknown): value is SessionBookmark<BookmarkSelection> {
   if (!value || typeof value !== 'object') return false;
   const b = value as SessionBookmark<BookmarkSelection>;
-  const s = b.selection;
   return (
-    Number.isSafeInteger(b.key) &&
-    b.key > 0 &&
-    typeof b.label === 'string' &&
-    typeof b.note === 'string' &&
+    Number.isSafeInteger(b.key) && b.key > 0 && typeof b.label === 'string' && typeof b.note === 'string' && validSelection(b.selection)
+  );
+};
+const validSelection = function validSelection(s: BookmarkSelection | undefined): boolean {
+  return (
     !!s &&
-    (s.id === null || typeof s.id === 'string') &&
+    nullableString(s.id) &&
     ['properties', 'source', 'raw', 'decoded'].includes(s.tab) &&
     ['overview', 'catalog', 'pages', 'resources', 'objects', 'structure', 'issues'].includes(s.section) &&
     (s.notice === undefined || typeof s.notice === 'string') &&
-    (s.range === undefined ||
-      (!!s.range &&
-        Number.isSafeInteger(s.range.start) &&
-        s.range.start >= 0 &&
-        Number.isSafeInteger(s.range.end) &&
-        s.range.end > s.range.start)) &&
-    (s.trail === undefined ||
-      (Array.isArray(s.trail) &&
-        s.trail.every((step) => !!step && (step.id === null || typeof step.id === 'string') && typeof step.label === 'string')))
+    validRange(s.range) &&
+    validTrail(s.trail)
   );
+};
+const validRange = function validRange(range: ByteRange | undefined): boolean {
+  return (
+    range === undefined ||
+    (!!range && Number.isSafeInteger(range.start) && range.start >= 0 && Number.isSafeInteger(range.end) && range.end > range.start)
+  );
+};
+const validTrail = function validTrail(trail: ExplorationStep[] | undefined): boolean {
+  return (
+    trail === undefined ||
+    (Array.isArray(trail) && trail.every((step) => !!step && nullableString(step.id) && typeof step.label === 'string'))
+  );
+};
+const nullableString = function nullableString(value: unknown): boolean {
+  return value === null || typeof value === 'string';
 };
 export const readBookmarks = function readBookmarks(key: string): SessionBookmark<BookmarkSelection>[] {
   const raw = localStorage.getItem(key);
