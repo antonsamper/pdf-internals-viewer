@@ -5,9 +5,9 @@ import { join } from 'node:path'
 
 const origin = 'https://pdf-internals-viewer.pages.dev'
 const sitemap = await readFile('dist/sitemap.xml', 'utf8')
-const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => new URL(url))
+const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(([, url]) => { return new URL(url) })
 assert.equal(urls.length, 24, 'Publish home, About, two overview articles, guide, six tutorials, eleven example pages, privacy, and limitations')
-const routes = new Set(urls.map(url => url.pathname))
+const routes = new Set(urls.map(url => { return url.pathname }))
 for (const url of urls) {
   assert.equal(url.origin, origin)
   const file = join('dist', url.pathname === '/' ? 'index.html' : `${url.pathname.slice(1)}.html`)
@@ -24,7 +24,7 @@ for (const url of urls) {
   assert.ok(html.includes(`<link rel="canonical" href="${url.href}"`))
   assert.ok(html.includes(`property="og:url" content="${url.href}"`))
   const schema = JSON.parse(html.match(/<script type="application\/ld\+json" id="site-schema">([\s\S]*?)<\/script>/)?.[1] ?? 'null')
-  assert.ok(schema?.['@graph'].some(node => node.url === url.href))
+  assert.ok(schema?.['@graph'].some(node => { return node.url === url.href }))
   if (url.pathname !== '/' && url.pathname !== '/about') {
     assert.doesNotMatch(html.replace('<script src="/theme.js"></script>', ''), /<script[^>]*\bsrc=/, 'Static articles must not require inspector JavaScript')
     assert.ok(html.includes('Back to the workspace'))
@@ -38,7 +38,7 @@ for (const url of urls) {
   }
   for (const [, href] of html.matchAll(/href="(\/[^"#]*)"/g)) {
     const target = new URL(href.replaceAll('&amp;', '&'), origin)
-    if (routes.has(target.pathname)) continue
+    if (routes.has(target.pathname)) { continue }
     assert.ok((await stat(join('dist', target.pathname))).isFile(), `${url.pathname}: missing local link ${href}`)
   }
 }

@@ -55,11 +55,17 @@ export const SelectedObjectPane = ({
       resources={selected.kind === 'Page' ? effectiveResources(selected, objectMap) : undefined}
       onTabChange={onTabChange}
       onNavigate={onFollowReference}
-      onInspect={(id) => onNavigate(id)}
+      onInspect={(id) => {
+        return onNavigate(id);
+      }}
       objects={objectMap}
       downloadIndex={downloadIndex}
       pages={pages}
-      contextPageId={(trail ?? []).toReversed().find((step) => step.id !== null && pageIds.has(step.id))?.id ?? undefined}
+      contextPageId={
+        (trail ?? []).toReversed().find((step) => {
+          return step.id !== null && pageIds.has(step.id);
+        })?.id ?? undefined
+      }
       readStream={readStream}
       extractStream={extractStream}
       extractImage={extractImage}

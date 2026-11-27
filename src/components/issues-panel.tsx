@@ -17,12 +17,18 @@ import { cn } from '@/lib/utils';
 
 /** Severity counts, or `empty` with a sentence when there are no issues. */
 export const IssueSummary = ({ empty: Empty, issues }: { empty: ComponentType<ComponentProps<'p'>>; issues: PdfIssue[] }) => {
-  if (!issues.length) return <Empty role="status">{issueSummary(issues)}</Empty>;
+  if (!issues.length) {
+    return <Empty role="status">{issueSummary(issues)}</Empty>;
+  }
   return (
     <div role="status" className="my-3 flex flex-wrap gap-2">
       {issueOrder.map((severity) => {
-        const count = issues.filter((issue) => issue.severity === severity).length;
-        if (!count) return null;
+        const count = issues.filter((issue) => {
+          return issue.severity === severity;
+        }).length;
+        if (!count) {
+          return null;
+        }
         const Icon = severityIcons[severity];
         const label = severity === 'info' ? 'information note' : severity === 'limitation' ? 'inspection limitation' : severity;
         return (
@@ -59,7 +65,9 @@ export const IssuesPanel = ({
   onStructure: () => void;
 }) => {
   const scroll = useScrollRestoration(scrollPositionRef);
-  const sorted = issues.toSorted((a, b) => issueOrder.indexOf(a.severity) - issueOrder.indexOf(b.severity));
+  const sorted = issues.toSorted((a, b) => {
+    return issueOrder.indexOf(a.severity) - issueOrder.indexOf(b.severity);
+  });
   return (
     <PaneBody {...scroll} role="region" aria-label="PDF issues">
       <PaneIntro icon={FileWarning} title="Issues">
@@ -116,7 +124,9 @@ export const IssuesPanel = ({
                 variant="outline"
                 size="sm"
                 className="text-small leading-[1.7]"
-                onClick={() => (issue.objectId ? onNavigate(issue.objectId) : onStructure())}
+                onClick={() => {
+                  return issue.objectId ? onNavigate(issue.objectId) : onStructure();
+                }}
               >
                 {issue.objectId ? `Inspect ${issue.objectId} obj` : 'Inspect file structure'}
               </Button>
@@ -125,7 +135,13 @@ export const IssuesPanel = ({
         })}
       </ol>
       {sorted.length > limit && (
-        <Button variant="outline" size="sm" onClick={() => onLimitChange(limit + 50)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            return onLimitChange(limit + 50);
+          }}
+        >
           Show more ({sorted.length - limit} remaining)
         </Button>
       )}

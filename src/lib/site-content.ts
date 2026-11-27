@@ -1,11 +1,17 @@
 export const sitePage = function sitePage(pathname: string): SitePage | undefined {
   const path = pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
-  return SITE_PAGES.find((page) => page.path === path);
+  return SITE_PAGES.find((page) => {
+    return page.path === path;
+  });
 };
 /** The index an article sits under: guides under the guide, examples under the examples. Other pages have none. */
 export const articleSection = function articleSection(path: string) {
-  if (path.startsWith('/guides/')) return { href: '/guide', label: 'Guide' };
-  if (path.startsWith('/examples/')) return { href: '/examples', label: 'Examples' };
+  if (path.startsWith('/guides/')) {
+    return { href: '/guide', label: 'Guide' };
+  }
+  if (path.startsWith('/examples/')) {
+    return { href: '/examples', label: 'Examples' };
+  }
   return null;
 };
 /** Guides and examples are dated, authored articles; the other pages are plain web pages. */
@@ -13,7 +19,9 @@ export const isArticlePath = function isArticlePath(path: string) {
   return articleSection(path) !== null;
 };
 const articleDetails = function articleDetails(page: SitePage) {
-  if (!isArticlePath(page.path)) return {};
+  if (!isArticlePath(page.path)) {
+    return {};
+  }
   return {
     author: { '@id': `${SITE_URL}/#author` },
     dateModified: page.path.startsWith('/examples/') ? '2026-11-15' : '2026-11-14',
@@ -21,7 +29,9 @@ const articleDetails = function articleDetails(page: SitePage) {
 };
 /** The breadcrumb trail for every page except the home page, with the guide or examples index between home and an article. */
 const breadcrumbs = function breadcrumbs(page: SitePage, url: string) {
-  if (page.path === '/') return [];
+  if (page.path === '/') {
+    return [];
+  }
   const section = articleSection(page.path);
   return [
     {
@@ -363,5 +373,6 @@ export const EXAMPLE_SAMPLES = [
   },
 ] as const;
 export const ALL_SAMPLES = [...SAMPLES, ...EXAMPLE_SAMPLES];
-const escapeHtml = (value: string) =>
-  value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+const escapeHtml = (value: string) => {
+  return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+};

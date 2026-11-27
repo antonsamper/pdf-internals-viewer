@@ -43,8 +43,9 @@ describe('PDF diagnostics', () => {
       'Decoded stream exceeds the 32 MiB inspection limit.',
       'The encryption information is invalid or unsupported. Try an unencrypted copy.',
       'PDF parser worker failed.',
-    ])
+    ]) {
       expect(diagnosticIssue(evidence).severity).toBe('limitation');
+    }
     expect(diagnosticIssue('Encrypted document unlocked locally.').severity).toBe('info');
     expect(diagnosticIssue('Cross-reference target has a different object identity.').severity).toBe('error');
     expect(diagnosticIssue('Something unexpected').severity).toBe('warning');

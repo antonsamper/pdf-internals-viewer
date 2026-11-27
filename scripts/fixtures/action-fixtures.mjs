@@ -2,20 +2,20 @@
 import { deflateSync } from 'node:zlib';
 import { classicPdf } from './pdf-fixtures.mjs';
 
-const ascii = text => Buffer.from(text, 'latin1');
+const ascii = text => { return Buffer.from(text, 'latin1'); };
 const stream = (data, dictionary = '', compress = false) => {
     const raw = ascii(data);
     const bytes = compress ? deflateSync(raw) : raw;
     return Buffer.concat([ascii(`<< /Length ${bytes.length} ${compress ? '/Filter /FlateDecode ' : ''}${dictionary} >>\nstream\n`), bytes, ascii('\nendstream')]);
 };
-const page = (extra = '') => `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 5 0 R ${extra} >>`;
+const page = (extra = '') => { return `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 5 0 R ${extra} >>`; };
 
 /**
  * One document with an action from every source the Actions panel reads:
  * the catalogue's /OpenAction and /AA, page /AA, link and widget annotations, a form field and the outline.
  * Object 7 chains to 8 and 8 back to 7, a /Next cycle. Object 30 is missing, and object 12 has no /S.
  */
-export const actionsPdf = () => classicPdf([
+export const actionsPdf = () => { return classicPdf([
     [1, '<< /Type /Catalog /Pages 2 0 R /OpenAction 6 0 R /AA << /WC 9 0 R >> /AcroForm << /Fields [13 0 R] >> /Outlines 16 0 R >>'],
     [2, '<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>'],
     [3, page('/AA << /O 7 0 R >> /Annots [10 0 R << /Type /Annot /Subtype /Link /Rect [72 600 300 620] /A << /S /Launch /F (report.exe) >> >>]')],
@@ -33,4 +33,4 @@ export const actionsPdf = () => classicPdf([
     [16, '<< /Type /Outlines /First 17 0 R /Last 18 0 R /Count 2 >>'],
     [17, '<< /Title (Chapter one) /Parent 16 0 R /Next 18 0 R /A << /S /GoTo /D [3 0 R /XYZ 0 792 0] >> >>'],
     [18, '<< /Title (Chapter two) /Parent 16 0 R /Prev 17 0 R /A 99 0 R >>'],
-]);
+]); };

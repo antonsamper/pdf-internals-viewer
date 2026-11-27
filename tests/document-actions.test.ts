@@ -11,30 +11,44 @@ import { PdfInspector } from '../src/lib/pdf/inspector';
 
 const inspect = async (bytes: Uint8Array) => {
   const document = await new PdfInspector().open(bytes, 'actions.pdf');
-  return documentActions(document, new Map(document.objects.map((object) => [object.id, object])));
+  return documentActions(
+    document,
+    new Map(
+      document.objects.map((object) => {
+        return [object.id, object];
+      })
+    )
+  );
 };
 
-const page = (extra = '') => `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] ${extra} >>`;
-const minimal = (catalog: string, pageExtra = '', more: [number, string][] = []) =>
-  classicPdf([
+const page = (extra = '') => {
+  return `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] ${extra} >>`;
+};
+const minimal = (catalog: string, pageExtra = '', more: [number, string][] = []) => {
+  return classicPdf([
     [1, `<< /Type /Catalog /Pages 2 0 R ${catalog} >>`],
     [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
     [3, page(pageExtra)],
     ...more,
   ]).bytes as Uint8Array;
+};
 
-const streamResult = (bytes: number[], text = '') => ({
-  bytes: new Uint8Array(bytes),
-  mode: 'decoded' as const,
-  objectId: '9 0',
-  text,
-  truncated: false,
-});
+const streamResult = (bytes: number[], text = '') => {
+  return {
+    bytes: new Uint8Array(bytes),
+    mode: 'decoded' as const,
+    objectId: '9 0',
+    text,
+    truncated: false,
+  };
+};
 
 describe('documentActions', () => {
   it('lists actions from the catalogue, pages, annotations, form fields and outline', async () => {
     const report = await inspect(actionsPdf().bytes);
-    const rows = report.actions.map((action) => [action.trigger, action.entry, action.holderId, action.type]);
+    const rows = report.actions.map((action) => {
+      return [action.trigger, action.entry, action.holderId, action.type];
+    });
     expect(rows).toEqual([
       ['Document opens', '/OpenAction', '1 0', 'JavaScript'],
       ['Before the document closes', '/AA /WC', '1 0', 'SubmitForm'],
@@ -60,13 +74,11 @@ describe('documentActions', () => {
     expect(close.target).toEqual({ label: 'Submit to', text: 'https://example.invalid/collect' });
     expect(uri.target).toEqual({ label: 'URI', text: 'https://example.invalid/' });
     expect(launch.target).toEqual({ label: 'File', text: 'report.exe' });
-    expect([open, close, launch, keystroke, validate].map((action) => action.sensitive)).toEqual([
-      'Runs a script',
-      'Sends form data',
-      'Opens a file or app',
-      'Runs a script',
-      'Loads form data',
-    ]);
+    expect(
+      [open, close, launch, keystroke, validate].map((action) => {
+        return action.sensitive;
+      })
+    ).toEqual(['Runs a script', 'Sends form data', 'Opens a file or app', 'Runs a script', 'Loads form data']);
     expect(uri.sensitive).toBeUndefined();
     expect(keystroke.target).toEqual({ decodedString: true, label: 'Script', text: 'event.rc = true;' });
     expect(validate.target).toEqual({ label: 'File', text: 'values.fdf' });
@@ -74,7 +86,11 @@ describe('documentActions', () => {
 
   it('keeps /Next chains in order, including arrays and shared actions', async () => {
     const uri = (await inspect(actionsPdf().bytes)).actions[3];
-    expect(uri.next.map((action) => [action.entry, action.type, action.target?.text])).toEqual([
+    expect(
+      uri.next.map((action) => {
+        return [action.entry, action.type, action.target?.text];
+      })
+    ).toEqual([
       ['/Next', 'Named', 'PrevPage'],
       ['/Next', 'JavaScript', undefined],
     ]);
@@ -107,7 +123,11 @@ describe('documentActions', () => {
 
   it('lists a widget reached from both the page and the form fields once', async () => {
     const actions = flattenActions((await inspect(actionsPdf().bytes)).actions);
-    expect(actions.filter((action) => action.holderId === '13 0')).toHaveLength(2);
+    expect(
+      actions.filter((action) => {
+        return action.holderId === '13 0';
+      })
+    ).toHaveLength(2);
   });
 
   it('reads an /OpenAction destination array and explains other non-action values', async () => {
@@ -122,7 +142,11 @@ describe('documentActions', () => {
 
   it('notes a broken /AA entry, an unknown event and a missing target', async () => {
     const report = await inspect(minimal('/AA 5 0 R', '/AA << /Zz << /S /URI >> >>', [[5, '(not a dictionary)']]));
-    expect(report.actions.map((action) => [action.trigger, action.notes])).toEqual([
+    expect(
+      report.actions.map((action) => {
+        return [action.trigger, action.notes];
+      })
+    ).toEqual([
       ['Additional actions', ['Expected an action dictionary, found a string.']],
       ['Event /Zz', ['The /URI entry is missing or could not be read.']],
     ]);
@@ -137,7 +161,11 @@ describe('documentActions', () => {
         [9, '<< /Not /AnArray >>'],
       ])
     );
-    expect(report.actions.map((action) => action.context)).toEqual(['Outline item (Loop)']);
+    expect(
+      report.actions.map((action) => {
+        return action.context;
+      })
+    ).toEqual(['Outline item (Loop)']);
     expect(report.notes).toEqual([
       'Page 1 (3 0 obj): /Annots is not an array',
       'Outline: 6 0 obj is reached more than once, so the walk stops there.',
@@ -162,10 +190,9 @@ describe('documentActions', () => {
   });
 
   it('caps /Next fan-out through shared actions with a report note', async () => {
-    const more = Array.from({ length: 30 }, (_, i): [number, string] => [
-      10 + i,
-      `<< /S /Named /N /NextPage /Next [${11 + i} 0 R ${11 + i} 0 R] >>`,
-    ]);
+    const more = Array.from({ length: 30 }, (_, i): [number, string] => {
+      return [10 + i, `<< /S /Named /N /NextPage /Next [${11 + i} 0 R ${11 + i} 0 R] >>`];
+    });
     more.push([40, '<< /S /Named /N /NextPage >>']);
     const report = await inspect(minimal('/OpenAction 10 0 R', '', more));
     expect(report.total).toBe(5000);
@@ -174,14 +201,12 @@ describe('documentActions', () => {
   });
 
   it('stops a long chain of direct /Next dictionaries at 64 actions', async () => {
-    const nested = Array.from({ length: 50 }).reduce<string>(
-      (inner) => `<< /S /Named /N /NextPage /Next ${inner} >>`,
-      '<< /S /Named /N /LastPage >>'
-    );
-    const more = Array.from({ length: 3 }, (_, i): [number, string] => [
-      10 + i,
-      nested.replace(/>>$/, ` >>`).replace('/LastPage', `/LastPage /Next ${11 + i} 0 R`),
-    ]);
+    const nested = Array.from({ length: 50 }).reduce<string>((inner) => {
+      return `<< /S /Named /N /NextPage /Next ${inner} >>`;
+    }, '<< /S /Named /N /LastPage >>');
+    const more = Array.from({ length: 3 }, (_, i): [number, string] => {
+      return [10 + i, nested.replace(/>>$/, ` >>`).replace('/LastPage', `/LastPage /Next ${11 + i} 0 R`)];
+    });
     more.push([13, '<< /S /Named /N /FirstPage >>']);
     const report = await inspect(minimal('/OpenAction 10 0 R', '', more));
     const chain = flattenActions(report.actions);
@@ -202,7 +227,9 @@ describe('documentActions', () => {
   });
 
   it('bounds form fields whose /Kids repeat or loop through an indirect array', async () => {
-    const kids = Array.from({ length: 3000 }, () => '6 0 R').join(' ');
+    const kids = Array.from({ length: 3000 }, () => {
+      return '6 0 R';
+    }).join(' ');
     const repeated = await inspect(
       minimal('/AcroForm << /Fields [5 0 R] >>', '', [
         [5, `<< /T (parent) /Kids [${kids}] >>`],
@@ -221,7 +248,11 @@ describe('documentActions', () => {
     const report = await inspect(
       minimal('/OpenAction << /S /__proto__ /Next << /S /constructor >> >> /AA << /__proto__ << /S /URI /URI (x) >> >>')
     );
-    expect(report.actions.map((action) => [action.trigger, action.type, action.sensitive, action.target])).toEqual([
+    expect(
+      report.actions.map((action) => {
+        return [action.trigger, action.type, action.sensitive, action.target];
+      })
+    ).toEqual([
       ['Document opens', '__proto__', undefined, undefined],
       ['Event /__proto__', 'URI', undefined, { label: 'URI', text: 'x' }],
     ]);
@@ -260,7 +291,11 @@ describe('documentActions', () => {
       'The form in 1 0 obj has an /XFA entry. Scripts inside XFA forms are not listed here.',
     ]);
     const document = await new PdfInspector().open(minimal(''), 'broken.pdf');
-    const objects = new Map(document.objects.map((object) => [object.id, object]));
+    const objects = new Map(
+      document.objects.map((object) => {
+        return [object.id, object];
+      })
+    );
     objects.delete('1 0');
     objects.delete('3 0');
     expect(documentActions(document, objects).notes).toEqual([
@@ -281,14 +316,27 @@ describe('documentActions', () => {
 
   it('stops reading pages, form fields and the outline once the list holds 5000 actions', async () => {
     const link = '<< /Subtype /Link /Rect [0 0 1 1] /A << /S /Named /N /NextPage >> >> ';
-    const pages = Array.from({ length: 60 }, (_, i): [number, string] => [10 + i, page(`/Annots [${link.repeat(100)}]`)]);
+    const pages = Array.from({ length: 60 }, (_, i): [number, string] => {
+      return [10 + i, page(`/Annots [${link.repeat(100)}]`)];
+    });
     const bytes = classicPdf([
       [1, '<< /Type /Catalog /Pages 2 0 R /AcroForm << /Fields [998 0 R] >> /Outlines << /First 999 0 R >> >>'],
-      [2, `<< /Type /Pages /Kids [${pages.map(([id]) => `${id} 0 R`).join(' ')}] /Count 60 >>`],
+      [
+        2,
+        `<< /Type /Pages /Kids [${pages
+          .map(([id]) => {
+            return `${id} 0 R`;
+          })
+          .join(' ')}] /Count 60 >>`,
+      ],
       ...pages,
     ]).bytes as Uint8Array;
     const document = await new PdfInspector().open(bytes, 'many-links.pdf');
-    const objects = new Map(document.objects.map((object) => [object.id, object]));
+    const objects = new Map(
+      document.objects.map((object) => {
+        return [object.id, object];
+      })
+    );
     // Pages 51 to 60 hold actions past the cap. Removing one would add a "could not be read" note if the walk reached it,
     // and the missing field and outline objects would add notes too.
     objects.delete(document.pages[55]);
@@ -300,17 +348,27 @@ describe('documentActions', () => {
 
   it('stops a walk that would visit one shared /Annots array on every page, and the document still opens', async () => {
     // 2,000 pages share one array of 2,000 references to the same link, so a full walk makes 4,000,000 visits.
-    const pages = Array.from({ length: 2000 }, (_, index) => 100 + index);
-    const kids = pages.map((id) => `${id} 0 R`).join(' ');
+    const pages = Array.from({ length: 2000 }, (_, index) => {
+      return 100 + index;
+    });
+    const kids = pages
+      .map((id) => {
+        return `${id} 0 R`;
+      })
+      .join(' ');
     const bytes = classicPdf([
       [1, '<< /Type /Catalog /Pages 2 0 R >>'],
       [2, `<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`],
-      [9, `[${Array.from({ length: 2000 }, () => '10 0 R').join(' ')}]`],
+      [
+        9,
+        `[${Array.from({ length: 2000 }, () => {
+          return '10 0 R';
+        }).join(' ')}]`,
+      ],
       [10, '<< /Type /Annot /Subtype /Link /Rect [0 0 10 10] >>'],
-      ...pages.map((id, index): [number, string] => [
-        id,
-        page(`/Annots 9 0 R${index ? '' : ' /AA << /O << /S /GoTo /D [100 0 R /Fit] >> >>'}`),
-      ]),
+      ...pages.map((id, index): [number, string] => {
+        return [id, page(`/Annots 9 0 R${index ? '' : ' /AA << /O << /S /GoTo /D [100 0 R /Fit] >> >>'}`)];
+      }),
     ]).bytes as Uint8Array;
     const document = await new PdfInspector().open(bytes, 'shared-annots.pdf');
     const sender = new DocumentTransfer(document);
@@ -326,7 +384,11 @@ describe('documentActions', () => {
     const opened = receiver.finish();
     expect(opened.pages).toHaveLength(2000);
     const report = opened.indexes?.actions;
-    expect(report?.actions.map((action) => [action.trigger, action.context, action.type])).toEqual([['Page opens', 'Page 1', 'GoTo']]);
+    expect(
+      report?.actions.map((action) => {
+        return [action.trigger, action.context, action.type];
+      })
+    ).toEqual([['Page opens', 'Page 1', 'GoTo']]);
     expect(report?.notes).toEqual(['The list stops after 500000 steps. Later actions are not listed.']);
     // The full walk takes several seconds; the budget keeps the whole transfer well under the 15-second request limit.
     expect(elapsed).toBeLessThan(5000);

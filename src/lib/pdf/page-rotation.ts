@@ -20,17 +20,29 @@ export const pageRotationSummary = (pages: string[], objects: Map<string, PdfObj
       }
       id = step.parent;
     }
-    for (const ancestor of chain) cache.set(ancestor, result);
+    for (const ancestor of chain) {
+      cache.set(ancestor, result);
+    }
     return result;
   };
-  if (!pages.length) return 'Not available';
+  if (!pages.length) {
+    return 'Not available';
+  }
   const cache = new Map<string, number | null>();
   const rotations = new Set(pages.map(rotation));
   const angles = [...rotations]
-    .filter((angle): angle is number => angle !== null)
-    .toSorted((a, b) => a - b)
-    .map((angle) => `${angle}°`);
-  if (rotations.has(null)) angles.push('Unknown');
+    .filter((angle): angle is number => {
+      return angle !== null;
+    })
+    .toSorted((a, b) => {
+      return a - b;
+    })
+    .map((angle) => {
+      return `${angle}°`;
+    });
+  if (rotations.has(null)) {
+    angles.push('Unknown');
+  }
   return angles.length === 1 ? angles[0] : `Mixed (${angles.join(', ')})`;
 };
 /** One node's answer: its angle (null when unknown), or the parent it inherits from. */
@@ -38,13 +50,20 @@ const rotationStep = (
   object: PdfObjectRecord | undefined,
   objects: Map<string, PdfObjectRecord>
 ): { angle: number | null } | { parent: string } => {
-  if (!object || object.value.type !== 'dictionary') return { angle: null };
+  if (!object || object.value.type !== 'dictionary') {
+    return { angle: null };
+  }
   const stored = property(object.value, 'Rotate');
   const value = resolveValue(stored, objects);
-  if (stored && value?.type !== 'null') return { angle: rotationAngle(value) };
+  if (stored && value?.type !== 'null') {
+    return { angle: rotationAngle(value) };
+  }
   const parent = property(object.value, 'Parent');
-  if (!parent || parent.type === 'null') return { angle: 0 };
+  if (!parent || parent.type === 'null') {
+    return { angle: 0 };
+  }
   return parent.type === 'reference' ? { parent: parent.ref } : { angle: null };
 };
-const rotationAngle = (value: PdfValue | undefined): number | null =>
-  value?.type === 'number' && Number.isSafeInteger(value.value) && value.value % 90 === 0 ? ((value.value % 360) + 360) % 360 : null;
+const rotationAngle = (value: PdfValue | undefined): number | null => {
+  return value?.type === 'number' && Number.isSafeInteger(value.value) && value.value % 90 === 0 ? ((value.value % 360) + 360) % 360 : null;
+};

@@ -4,9 +4,9 @@ import { PROJECT_URL } from '@/lib/site-content';
 import { cn } from '@/lib/utils';
 
 /** A group of footer links that wraps as one unit. */
-const LinkGroup = ({ children }: { children: ReactNode }) => (
-  <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5 max-w600:justify-center">{children}</div>
-);
+const LinkGroup = ({ children }: { children: ReactNode }) => {
+  return <div className="flex flex-wrap items-center gap-x-4 gap-y-2.5 max-w600:justify-center">{children}</div>;
+};
 
 export const SiteLinks = function SiteLinks({ onFollowLink }: { onFollowLink?: (event: MouseEvent<HTMLAnchorElement>) => boolean }) {
   return (

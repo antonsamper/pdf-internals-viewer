@@ -33,11 +33,17 @@ const countSaves = async (page: Page) => {
     target.saves = 0;
     const click = HTMLAnchorElement.prototype.click;
     HTMLAnchorElement.prototype.click = function (this: HTMLAnchorElement) {
-      if (this.download) target.saves += 1;
+      if (this.download) {
+        target.saves += 1;
+      }
       click.call(this);
     };
   });
-  return () => page.evaluate(() => (window as typeof window & { saves: number }).saves);
+  return () => {
+    return page.evaluate(() => {
+      return (window as typeof window & { saves: number }).saves;
+    });
+  };
 };
 const openMinimal = async (page: Page) => {
   await page.getByRole('button', { name: /^A simple page/ }).click();
@@ -45,14 +51,19 @@ const openMinimal = async (page: Page) => {
   await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
 };
 /** Outline style, width and offset, then box-shadow: one string to compare focus rings. */
-const focusRing = (element: Locator) =>
-  element.evaluate((node) => {
+const focusRing = (element: Locator) => {
+  return element.evaluate((node) => {
     const style = getComputedStyle(node);
     return `${style.outlineStyle} ${style.outlineWidth} ${style.outlineOffset} | ${style.boxShadow}`;
   });
-const samplePath = (name: string) => resolve('public/samples', name);
+};
+const samplePath = (name: string) => {
+  return resolve('public/samples', name);
+};
 // Keep artifacts separate when --browser=all runs engines concurrently.
-const screenshotPath = (name: string) => resolve('.context', test.info().project.use.browserName ?? 'chromium', name);
+const screenshotPath = (name: string) => {
+  return resolve('.context', test.info().project.use.browserName ?? 'chromium', name);
+};
 type CachedAsset = { body: Buffer; headers: Record<string, string>; status: number };
 const engineAssets = new Map<string, Promise<CachedAsset>>();
 const serveEngineAsset = async (route: Route) => {
@@ -65,8 +76,12 @@ const serveEngineAsset = async (route: Route) => {
     engineAssets.set(url, cached);
     // A failed or partial fetch is not cached, so a later boot retries the server.
     cached.then(
-      (asset) => asset.status === 200 || engineAssets.delete(url),
-      () => engineAssets.delete(url)
+      (asset) => {
+        return asset.status === 200 || engineAssets.delete(url);
+      },
+      () => {
+        return engineAssets.delete(url);
+      }
     );
   }
   try {
@@ -74,7 +89,9 @@ const serveEngineAsset = async (route: Route) => {
   } catch (error) {
     // The page closed or the fetch failed; let the request fail as it would without the cache.
     console.warn(`Engine asset ${url} not served: ${error instanceof Error ? error.message : error}`);
-    await route.abort().catch(() => undefined);
+    await route.abort().catch(() => {
+      return undefined;
+    });
   }
 };
 /**
@@ -83,7 +100,9 @@ const serveEngineAsset = async (route: Route) => {
  * past the expect timeout. Call this in tests that boot the engine: it fetches each hashed engine asset once per
  * test worker and serves repeats from memory. Routing turns off the HTTP cache for the context, so other tests skip it.
  */
-const cacheEngineAssets = (page: Page) => page.context().route('**/assets/embedpdf*', serveEngineAsset);
+const cacheEngineAssets = (page: Page) => {
+  return page.context().route('**/assets/embedpdf*', serveEngineAsset);
+};
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
@@ -110,7 +129,13 @@ test('uses the matching logo on the welcome and About pages in each theme', asyn
       const visibleLogo = page.locator(`[data-brand-artwork=${mode}]`);
       await expect(visibleLogo).toBeVisible();
       await expect(page.locator(`[data-brand-artwork=${mode === 'light' ? 'dark' : 'light'}]`)).toBeHidden();
-      await expect.poll(() => visibleLogo.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+      await expect
+        .poll(() => {
+          return visibleLogo.evaluate((image: HTMLImageElement) => {
+            return image.complete && image.naturalWidth > 0;
+          });
+        })
+        .toBe(true);
       await expect(visibleLogo).toHaveAttribute('src', `/brand/pdf-internals-logo${mode === 'dark' ? '-dark' : ''}.png`);
     }
   }
@@ -136,7 +161,11 @@ test('shows the mascot drop target, dismisses on leaving, and opens a dropped PD
     await expect(overlay).toBeVisible();
     await expect(overlay).toContainText('Processed locally · up to 64 MiB');
     await expect
-      .poll(() => overlay.locator('img').evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0))
+      .poll(() => {
+        return overlay.locator('img').evaluate((image: HTMLImageElement) => {
+          return image.complete && image.naturalWidth > 0;
+        });
+      })
       .toBe(true);
     await shell.dispatchEvent('dragleave', { relatedTarget: null });
     await expect(overlay).toHaveCount(0);
@@ -144,7 +173,11 @@ test('shows the mascot drop target, dismisses on leaving, and opens a dropped PD
   await page.setViewportSize({ height: 844, width: 390 });
   await shell.dispatchEvent('dragover', { dataTransfer });
   await expect(page.getByTestId('drop-target')).toBeInViewport();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+  expect(
+    await page.evaluate(() => {
+      return document.documentElement.scrollWidth > innerWidth;
+    })
+  ).toBe(false);
   await shell.dispatchEvent('drop', { dataTransfer });
   await expect(overlay).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Document overview' })).toBeVisible();
@@ -326,7 +359,9 @@ test('shows a prominent loading state and allows cancelling a slow open', async 
   await expect(page.getByRole('main', { name: 'Document inspection' })).toHaveAttribute('aria-busy', 'false');
 });
 test('shows an error and clears the loading state when a sample fails to load', async ({ page }) => {
-  await page.route('**/samples/minimal.pdf', (route) => route.fulfill({ body: '', status: 404 }));
+  await page.route('**/samples/minimal.pdf', (route) => {
+    return route.fulfill({ body: '', status: 404 });
+  });
   await page.getByRole('button', { name: /^A simple page/ }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'The sample could not be loaded. Try opening a local PDF.' })).toBeVisible();
   await expect(page.getByRole('status', { exact: true, name: 'Opening PDF' })).toHaveCount(0);
@@ -417,8 +452,8 @@ test('keeps a clicked byte in place while selecting its containing object', asyn
   await viewport.evaluate((element) => {
     element.scrollTop = 2600;
   });
-  const chooseMiddleByte = () =>
-    viewport.evaluate((element) => {
+  const chooseMiddleByte = () => {
+    return viewport.evaluate((element) => {
       const bounds = element.getBoundingClientRect();
       const target = Array.from(element.querySelectorAll('button[data-hex-byte]')).find((byteElement) => {
         const rect = byteElement.getBoundingClientRect();
@@ -431,28 +466,59 @@ test('keeps a clicked byte in place while selecting its containing object', asyn
           }
         : null;
     });
+  };
   // Wait for the virtualized rows to reflect the scrolled viewport.
-  await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(2600);
+  await expect
+    .poll(() => {
+      return viewport.evaluate((element) => {
+        return element.scrollTop;
+      });
+    })
+    .toBe(2600);
   await expect.poll(chooseMiddleByte).not.toBeNull();
   const target = (await chooseMiddleByte())!;
   const byte = page.getByRole('button', { exact: true, name: target.label });
   await byte.click();
   await expect(page.getByRole('heading', { name: /4 0\s+obj/ })).toBeVisible();
-  await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(2600);
-  await expect.poll(() => byte.evaluate((element) => element.getBoundingClientRect().top)).toBeCloseTo(target.top, 0);
+  await expect
+    .poll(() => {
+      return viewport.evaluate((element) => {
+        return element.scrollTop;
+      });
+    })
+    .toBe(2600);
+  await expect
+    .poll(() => {
+      return byte.evaluate((element) => {
+        return element.getBoundingClientRect().top;
+      });
+    })
+    .toBeCloseTo(target.top, 0);
   await expect(byte).toHaveAttribute('data-cursor', '');
   // Keyboard selection inside the same object should preserve the viewport too.
   await viewport.focus();
   await viewport.press('ArrowDown');
   await viewport.press('Enter');
-  await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBe(2600);
+  await expect
+    .poll(() => {
+      return viewport.evaluate((element) => {
+        return element.scrollTop;
+      });
+    })
+    .toBe(2600);
   // External object navigation should still reveal its original file range.
   await page
     .getByRole('navigation', { name: 'Document sections' })
     .getByRole('button', { exact: true, name: 'Document catalogue' })
     .click();
   await expect(page.getByRole('heading', { name: /1 0\s+obj/ })).toBeVisible();
-  await expect.poll(() => viewport.evaluate((element) => element.scrollTop)).toBeLessThan(2600);
+  await expect
+    .poll(() => {
+      return viewport.evaluate((element) => {
+        return element.scrollTop;
+      });
+    })
+    .toBeLessThan(2600);
 });
 test('keeps exploration paths and expands cyclic references without leaving the object', async ({ page }) => {
   await openMinimal(page);
@@ -535,14 +601,26 @@ test('pins an object and compares typed dictionary differences', async ({ page }
   const initial = await comparison.boundingBox();
   await divider.focus();
   await page.keyboard.press('ArrowDown');
-  await expect.poll(async () => (await comparison.boundingBox())!.height).toBeGreaterThan(initial!.height);
+  await expect
+    .poll(async () => {
+      return (await comparison.boundingBox())!.height;
+    })
+    .toBeGreaterThan(initial!.height);
   const handle = (await divider.boundingBox())!;
   await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
   await page.mouse.down();
   await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2 + 60, { steps: 8 });
   await page.mouse.up();
-  await expect.poll(async () => (await comparison.boundingBox())!.height).toBeGreaterThan(initial!.height + 40);
-  expect(await comparison.evaluate((el) => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === 'auto')).toBe(true);
+  await expect
+    .poll(async () => {
+      return (await comparison.boundingBox())!.height;
+    })
+    .toBeGreaterThan(initial!.height + 40);
+  expect(
+    await comparison.evaluate((el) => {
+      return el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === 'auto';
+    })
+  ).toBe(true);
   await comparison.getByRole('checkbox', { name: 'Show differences only' }).check();
   await page.screenshot({
     animations: 'disabled',
@@ -551,7 +629,11 @@ test('pins an object and compares typed dictionary differences', async ({ page }
   });
   await page.setViewportSize({ height: 844, width: 390 });
   await expect(comparison).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(
+    await page.evaluate(() => {
+      return document.documentElement.scrollWidth <= window.innerWidth;
+    })
+  ).toBe(true);
   await page.screenshot({
     animations: 'disabled',
     fullPage: true,
@@ -634,7 +716,9 @@ test('explains split text and returns from the guide to the loaded PDF', async (
 test('browses font details, generates local image thumbnails and follows using pages', async ({ page }) => {
   const remote: string[] = [];
   page.on('request', (request) => {
-    if (/^https?:/.test(request.url()) && new URL(request.url()).origin !== new URL(page.url()).origin) remote.push(request.url());
+    if (/^https?:/.test(request.url()) && new URL(request.url()).origin !== new URL(page.url()).origin) {
+      remote.push(request.url());
+    }
   });
   await upload(page, 'resources.pdf');
   await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { exact: true, name: 'Resources' }).click();
@@ -646,7 +730,11 @@ test('browses font details, generates local image thumbnails and follows using p
     name: 'Image object 6 0',
   });
   await expect(image).toBeVisible();
-  expect(await image.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBeGreaterThan(0);
+  expect(
+    await image.evaluate((element: HTMLImageElement) => {
+      return element.naturalWidth;
+    })
+  ).toBeGreaterThan(0);
   await mkdir(resolve('.context'), { recursive: true });
   await page.screenshot({
     animations: 'disabled',
@@ -773,11 +861,11 @@ for (const width of [1440, 390]) {
     });
     await query.fill('Hello');
     await expect
-      .poll(() =>
-        page
-          .locator('form', { has: page.getByRole('textbox', { name: 'Search document' }) })
-          .evaluate((el) => getComputedStyle(el).boxShadow)
-      )
+      .poll(() => {
+        return page.locator('form', { has: page.getByRole('textbox', { name: 'Search document' }) }).evaluate((el) => {
+          return getComputedStyle(el).boxShadow;
+        });
+      })
       .toContain('0px 0px 0px 2px');
     await query.press('Enter');
     const results = page.getByRole('region', {
@@ -840,7 +928,11 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await page.emulateMedia({ colorScheme });
     await openMinimal(page);
     const form = page.locator('form', { has: page.getByRole('textbox', { name: 'Search document' }) });
-    const formShadow = () => form.evaluate((node) => getComputedStyle(node).boxShadow);
+    const formShadow = () => {
+      return form.evaluate((node) => {
+        return getComputedStyle(node).boxShadow;
+      });
+    };
 
     await page.getByRole('textbox', { exact: true, name: 'Search document' }).focus();
     await expect.poll(formShadow).toContain('0px 0px 0px 2px');
@@ -848,7 +940,11 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await page.keyboard.press('Tab');
     const runSearch = page.getByRole('button', { exact: true, name: 'Run search' });
     await expect(runSearch).toBeFocused();
-    await expect.poll(() => focusRing(runSearch)).toBe('solid 2px 2px | none');
+    await expect
+      .poll(() => {
+        return focusRing(runSearch);
+      })
+      .toBe('solid 2px 2px | none');
     await expect.poll(formShadow).toBe('none');
 
     await page.getByRole('complementary', { name: 'Structure explorer' }).locator('button:has(code)').first().click();
@@ -859,7 +955,11 @@ for (const colorScheme of ['light', 'dark'] as const) {
     await page.keyboard.press('Shift+Tab');
     await page.keyboard.press('ArrowRight');
     await expect(sourceTab).toBeFocused();
-    await expect.poll(() => focusRing(sourceTab)).toBe('solid 2px 2px | none');
+    await expect
+      .poll(() => {
+        return focusRing(sourceTab);
+      })
+      .toBe('solid 2px 2px | none');
   });
 }
 test('searches keys and original hex bytes with distinct navigation', async ({ page }) => {
@@ -898,7 +998,11 @@ test('steps through search results, wraps, and resets for a new search', async (
   await search.fill('0');
   await search.press('Enter');
   const matches = results.locator('[data-search-matches] button');
-  await expect.poll(() => matches.count()).toBeGreaterThan(1);
+  await expect
+    .poll(() => {
+      return matches.count();
+    })
+    .toBeGreaterThan(1);
   const count = await matches.count();
   await expect(results.getByRole('group')).toContainText(`1 of ${count}`);
   await expect(matches.first()).toHaveAttribute('aria-current', 'true');
@@ -934,12 +1038,17 @@ test('preserves intervening navigation when an asynchronous search finishes', as
     }[] = [];
     let released = false;
     Worker.prototype.postMessage = function (message) {
-      if (!released && message?.type === 'stream') pending.push({ message, worker: this });
-      else postMessage.call(this, message, []);
+      if (!released && message?.type === 'stream') {
+        pending.push({ message, worker: this });
+      } else {
+        postMessage.call(this, message, []);
+      }
     };
     window.addEventListener('release-search', () => {
       released = true;
-      for (const { worker, message } of pending) postMessage.call(worker, message, []);
+      for (const { worker, message } of pending) {
+        postMessage.call(worker, message, []);
+      }
     });
   });
   await page.reload();
@@ -950,7 +1059,9 @@ test('preserves intervening navigation when an asynchronous search finishes', as
   await expect(page.getByRole('region', { exact: true, name: 'Search results' })).toContainText('Searching for “Hello”…');
   await page.getByRole('button', { exact: true, name: 'First page' }).click();
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
-  await page.evaluate(() => window.dispatchEvent(new Event('release-search')));
+  await page.evaluate(() => {
+    return window.dispatchEvent(new Event('release-search'));
+  });
   await expect(page.getByRole('heading', { name: /4 0\s+obj/ })).toBeVisible();
   await page.getByRole('button', { exact: true, name: 'Back' }).click();
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
@@ -973,16 +1084,23 @@ test('keeps the mobile header compact with a long filename and search results', 
     expect(filename!.x).toBeGreaterThanOrEqual(identity!.x + identity!.width);
     expect(filename!.x + filename!.width).toBeLessThanOrEqual(actions!.x);
     expect((await header.boundingBox())!.height).toBe(58);
-    if (width <= 390)
-      expect(await header.locator('[data-filename] > span[title]').evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(
-        true
-      );
+    if (width <= 390) {
+      expect(
+        await header.locator('[data-filename] > span[title]').evaluate((element) => {
+          return element.scrollWidth > element.clientWidth;
+        })
+      ).toBe(true);
+    }
     await expect(header.getByRole('button', { exact: true, name: 'Close PDF' })).toBeVisible();
     await expect(header.locator('[data-action-label]').first()).toBeHidden();
     await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('0');
     await page.getByRole('button', { exact: true, name: 'Run search' }).click();
     await expect(page.getByRole('button', { exact: true, name: 'Next search result' })).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect(
+      await page.evaluate(() => {
+        return document.documentElement.scrollWidth <= window.innerWidth;
+      })
+    ).toBe(true);
     await expect(page.locator('[data-workspace="mobile"]')).toBeVisible();
   }
   await page.setViewportSize({ height: 844, width: 390 });
@@ -1070,11 +1188,23 @@ test('restores inspector tabs and byte viewports per history visit', async ({ pa
   await hex.evaluate((el) => {
     el.scrollTop = 2600;
   });
-  await expect.poll(() => source.evaluate((el) => el.scrollTop)).toBe(1200);
+  await expect
+    .poll(() => {
+      return source.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(1200);
   await page.getByRole('tab', { exact: true, name: 'Raw stream' }).click();
   const raw = page.getByRole('tabpanel', { exact: true, name: 'Raw stream' });
   await expect(raw).toContainText('q Q');
-  await expect.poll(() => raw.evaluate((el) => el.scrollTop)).toBe(0);
+  await expect
+    .poll(() => {
+      return raw.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(0);
   await raw.evaluate((el) => {
     el.scrollTop = 1800;
   });
@@ -1083,12 +1213,36 @@ test('restores inspector tabs and byte viewports per history visit', async ({ pa
   });
   await back.click();
   await expect(source).toBeVisible();
-  await expect.poll(() => source.evaluate((el) => el.scrollTop)).toBe(1200);
-  await expect.poll(() => hex.evaluate((el) => el.scrollTop)).toBe(2600);
+  await expect
+    .poll(() => {
+      return source.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(1200);
+  await expect
+    .poll(() => {
+      return hex.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(2600);
   await forward.click();
   await expect(raw).toContainText('q Q');
-  await expect.poll(() => raw.evaluate((el) => el.scrollTop)).toBe(1800);
-  await expect.poll(() => hex.evaluate((el) => el.scrollTop)).toBe(5200);
+  await expect
+    .poll(() => {
+      return raw.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(1800);
+  await expect
+    .poll(() => {
+      return hex.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(5200);
   // Decoded content arrives asynchronously too; switching away unmounts it.
   await page.getByRole('tab', { exact: true, name: 'Decoded' }).click();
   const decoded = page.getByRole('tabpanel', { exact: true, name: 'Decoded' });
@@ -1099,15 +1253,33 @@ test('restores inspector tabs and byte viewports per history visit', async ({ pa
     el.scrollTop = 1100;
   });
   await back.click();
-  await expect.poll(() => raw.evaluate((el) => el.scrollTop)).toBe(1800);
+  await expect
+    .poll(() => {
+      return raw.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(1800);
   await forward.click();
-  await expect.poll(() => decoded.evaluate((el) => el.scrollTop)).toBe(1100);
+  await expect
+    .poll(() => {
+      return decoded.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(1100);
   await back.click();
   // A second visit to the same tab starts at the top and replaces Forward.
   await back.click();
   await page.getByRole('tab', { exact: true, name: 'Raw stream' }).click();
   await expect(raw).toContainText('q Q');
-  await expect.poll(() => raw.evaluate((el) => el.scrollTop)).toBe(0);
+  await expect
+    .poll(() => {
+      return raw.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(0);
   await expect(forward).toBeDisabled();
   // Mobile pane unmounts retain the current visit, including async streams.
   await raw.evaluate((el) => {
@@ -1115,7 +1287,13 @@ test('restores inspector tabs and byte viewports per history visit', async ({ pa
   });
   await page.setViewportSize({ height: 844, width: 390 });
   await expect(raw).toContainText('q Q');
-  await expect.poll(() => raw.evaluate((el) => el.scrollTop)).toBe(900);
+  await expect
+    .poll(() => {
+      return raw.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(900);
   const panes = page.getByRole('navigation', { name: 'Workspace pane' });
   await panes.getByRole('button', { exact: true, name: 'Original bytes' }).click();
   await hex.evaluate((el) => {
@@ -1123,17 +1301,37 @@ test('restores inspector tabs and byte viewports per history visit', async ({ pa
   });
   await panes.getByRole('button', { exact: true, name: 'Inspector' }).click();
   await expect(raw).toContainText('q Q');
-  await expect.poll(() => raw.evaluate((el) => el.scrollTop)).toBe(900);
+  await expect
+    .poll(() => {
+      return raw.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(900);
   await panes.getByRole('button', { exact: true, name: 'Original bytes' }).click();
-  await expect.poll(() => hex.evaluate((el) => el.scrollTop)).toBe(3900);
+  await expect
+    .poll(() => {
+      return hex.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(3900);
   await page.setViewportSize({ height: 1000, width: 1440 });
   await page.getByRole('button', { exact: true, name: 'Close PDF' }).click();
   await openMinimal(page);
-  await expect.poll(() => hex.evaluate((el) => el.scrollTop)).toBe(0);
+  await expect
+    .poll(() => {
+      return hex.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(0);
   await expect(back).toBeDisabled();
 });
 test('restores the resource browser scroll and expanded list after inspecting an object', async ({ page }) => {
-  const fonts = Array.from({ length: 70 }, (_, index) => [index + 4, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>']);
+  const fonts = Array.from({ length: 70 }, (_, index) => {
+    return [index + 4, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'];
+  });
   const fixture = classicPdf([
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
     [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
@@ -1151,20 +1349,30 @@ test('restores the resource browser scroll and expanded list after inspecting an
   await browser.getByRole('button', { name: /Show.*more/i }).click();
   const target = browser.getByRole('button', { exact: true, name: '73 0 obj' });
   await target.scrollIntoViewIfNeeded();
-  const top = await browser.evaluate((el) => el.scrollTop);
+  const top = await browser.evaluate((el) => {
+    return el.scrollTop;
+  });
   expect(top).toBeGreaterThan(1200);
   await target.click();
   await expect(page.getByRole('heading', { name: /73 0\s+obj/ })).toBeVisible();
   await page.getByRole('button', { exact: true, name: 'Back' }).click();
   await expect(target).toBeVisible();
-  await expect.poll(() => browser.evaluate((el) => el.scrollTop)).toBe(top);
+  await expect
+    .poll(() => {
+      return browser.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBe(top);
 });
 test('keeps smaller object lists visible when history changes sections', async ({ page }) => {
   const fixture = classicPdf([
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
     [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
     [3, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>'],
-    ...Array.from({ length: 200 }, (_, index) => [index + 4, 'null']),
+    ...Array.from({ length: 200 }, (_, index) => {
+      return [index + 4, 'null'];
+    }),
   ]);
   await page.getByLabel('Open local PDF').setInputFiles({
     buffer: Buffer.from(fixture.bytes),
@@ -1196,10 +1404,16 @@ test('renders a local EmbedPDF preview without external requests or runtime erro
   const externalRequests: string[] = [];
   const writes: string[] = [];
   const appOrigin = new URL(page.url()).origin;
-  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('pageerror', (error) => {
+    return errors.push(error.message);
+  });
   page.on('request', (request) => {
-    if (!request.url().startsWith(`${appOrigin}/`) && !/^(?:blob:|data:)/.test(request.url())) externalRequests.push(request.url());
-    if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method())) writes.push(`${request.method()} ${request.url()}`);
+    if (!request.url().startsWith(`${appOrigin}/`) && !/^(?:blob:|data:)/.test(request.url())) {
+      externalRequests.push(request.url());
+    }
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method())) {
+      writes.push(`${request.method()} ${request.url()}`);
+    }
   });
   await upload(page, 'minimal.pdf');
   await page.getByRole('button', { exact: true, name: 'Page preview' }).click();
@@ -1208,7 +1422,13 @@ test('renders a local EmbedPDF preview without external requests or runtime erro
     name: 'minimal.pdf, page 1',
   });
   await expect(image).toBeVisible({ timeout: 60000 });
-  await expect.poll(() => image.evaluate((element: HTMLImageElement) => element.complete && element.naturalWidth > 0)).toBe(true);
+  await expect
+    .poll(() => {
+      return image.evaluate((element: HTMLImageElement) => {
+        return element.complete && element.naturalWidth > 0;
+      });
+    })
+    .toBe(true);
   await expect(page.getByRole('button', { exact: true, name: 'Previous preview page' })).toBeDisabled();
   await expect(page.getByRole('button', { exact: true, name: 'Next preview page' })).toBeDisabled();
   await page.getByRole('button', { exact: true, name: 'Zoom in preview' }).click();
@@ -1237,7 +1457,11 @@ test('uses pane navigation at mobile widths without horizontal page overflow', a
   await expect(page.getByRole('complementary', { exact: true, name: 'Structure explorer' })).toBeVisible();
   await panes.getByRole('button', { exact: true, name: 'Inspector' }).click();
   await expect(page.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(
+    await page.evaluate(() => {
+      return document.documentElement.scrollWidth <= window.innerWidth;
+    })
+  ).toBe(true);
   await page.screenshot({
     animations: 'disabled',
     fullPage: true,
@@ -1317,7 +1541,11 @@ test('explores a page tree with inherited resources, explanations and labelled c
   await expect(page.locator('[data-object-explanation]')).toContainText('font dictionary');
   await panes.getByRole('button', { exact: true, name: 'Explorer' }).click();
   await expect(tree.getByRole('button', { exact: true, name: '/F1 5 0 obj' })).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(
+    await page.evaluate(() => {
+      return document.documentElement.scrollWidth <= innerWidth;
+    })
+  ).toBe(true);
   await page.screenshot({
     animations: 'disabled',
     fullPage: true,
@@ -1360,11 +1588,22 @@ test('labels cyclic, shared and unavailable page connections', async ({ page }) 
   await expect(tree).toContainText('Unavailable reference');
 });
 test('pages large trees and preserves later-page expansion through navigation', async ({ page }) => {
-  const ids = Array.from({ length: 52 }, (_, index) => index + 3);
+  const ids = Array.from({ length: 52 }, (_, index) => {
+    return index + 3;
+  });
   const fixture = classicPdf([
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
-    [2, `<< /Type /Pages /Kids [${ids.map((id) => `${id} 0 R`).join(' ')}] /Count 52 >>`],
-    ...ids.map((id) => [id, '<< /Type /Page /Parent 2 0 R /Annots [55 0 R] >>']),
+    [
+      2,
+      `<< /Type /Pages /Kids [${ids
+        .map((id) => {
+          return `${id} 0 R`;
+        })
+        .join(' ')}] /Count 52 >>`,
+    ],
+    ...ids.map((id) => {
+      return [id, '<< /Type /Page /Parent 2 0 R /Annots [55 0 R] >>'];
+    }),
     [55, '<< /Subtype /Text /Contents (A note) >>'],
   ]);
   await page.getByLabel('Open local PDF').setInputFiles({
@@ -1512,8 +1751,12 @@ test('synchronizes bookmarks and notes across tabs without overwriting additions
   await other.getByRole('button', { exact: true, name: 'First page' }).click();
   const first = page.getByRole('region', { name: 'Bookmarks' });
   const second = other.getByRole('region', { name: 'Bookmarks' });
-  const addFirst = () => page.getByRole('button', { exact: true, name: 'Bookmark' }).click();
-  const addSecond = () => other.getByRole('button', { exact: true, name: 'Bookmark' }).click();
+  const addFirst = () => {
+    return page.getByRole('button', { exact: true, name: 'Bookmark' }).click();
+  };
+  const addSecond = () => {
+    return other.getByRole('button', { exact: true, name: 'Bookmark' }).click();
+  };
   if (browserName === 'webkit') {
     // WebKit propagates localStorage writes to other tab processes asynchronously, so a Web Lock
     // alone cannot guarantee a fresh snapshot for near-simultaneous additions. Wait until the
@@ -1563,7 +1806,9 @@ test('downloads complete attachments and embedded subset fonts', async ({ page }
   await expect(page.getByRole('region', { name: 'Embedded file downloads' })).toContainText('Download: 293.0 KiB');
   const attachmentStream = await attachment.createReadStream();
   const attachmentChunks: Buffer[] = [];
-  for await (const chunk of attachmentStream!) attachmentChunks.push(Buffer.from(chunk));
+  for await (const chunk of attachmentStream!) {
+    attachmentChunks.push(Buffer.from(chunk));
+  }
   expect(Buffer.concat(attachmentChunks)).toEqual(fixture.attachment);
   await page.getByRole('navigation', { name: 'Document sections' }).getByRole('button', { exact: true, name: 'Resources' }).click();
   await page.getByRole('button', { exact: true, name: '8 0 obj' }).click();
@@ -1577,7 +1822,9 @@ test('downloads complete attachments and embedded subset fonts', async ({ page }
   await expect(page.getByRole('region', { name: 'Embedded file downloads' })).toContainText('Download: 8 B');
   const fontStream = await font.createReadStream();
   const fontChunks: Buffer[] = [];
-  for await (const chunk of fontStream!) fontChunks.push(Buffer.from(chunk));
+  for await (const chunk of fontStream!) {
+    fontChunks.push(Buffer.from(chunk));
+  }
   expect(Buffer.concat(fontChunks)).toEqual(fixture.font);
   await page.screenshot({
     animations: 'disabled',
@@ -1656,11 +1903,15 @@ test('downloads full-size PNG images from Resources and the object inspector', a
   expect(download.suggestedFilename()).toBe('image-6-0.png');
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];
-  for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
+  for await (const chunk of stream!) {
+    chunks.push(Buffer.from(chunk));
+  }
   const png = Buffer.concat(chunks);
   expect([...png.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
   const exported = await page.evaluate(async (base64) => {
-    const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+    const bytes = Uint8Array.from(atob(base64), (char) => {
+      return char.charCodeAt(0);
+    });
     const image = await createImageBitmap(new Blob([bytes], { type: 'image/png' }));
     const canvas = document.createElement('canvas');
     canvas.width = image.width;
@@ -1730,7 +1981,9 @@ test('extracts embedded JPEG bytes unchanged and explains unsupported image expo
   expect(download.suggestedFilename()).toBe('image-6-0.jpg');
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];
-  for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
+  for await (const chunk of stream!) {
+    chunks.push(Buffer.from(chunk));
+  }
   expect(Buffer.concat(chunks)).toEqual(jpeg);
   await expect(resources.getByRole('img', { exact: true, name: 'Image object 6 0' })).toBeVisible();
   await expect(resources.locator('[data-image-file-size]')).toHaveAttribute('title', `${jpeg.length.toLocaleString()} bytes`);
@@ -1843,7 +2096,9 @@ test('lists and downloads inline attachment file specifications', async ({ page 
   expect(download.suggestedFilename()).toBe('inline.txt');
   const stream = await download.createReadStream();
   const chunks: Buffer[] = [];
-  for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
+  for await (const chunk of stream!) {
+    chunks.push(Buffer.from(chunk));
+  }
   expect(Buffer.concat(chunks).toString()).toBe('abc');
 });
 test('serves public answers without JavaScript and keeps articles free of inspector requests', async ({ browser, baseURL }) => {
@@ -1896,10 +2151,16 @@ test('serves public answers without JavaScript and keeps articles free of inspec
   const requests: string[] = [];
   {
     const article = await browser.newPage({ baseURL });
-    article.on('request', (request) => requests.push(request.url()));
+    article.on('request', (request) => {
+      return requests.push(request.url());
+    });
     await article.goto('/guides/decode-pdf-streams');
     await expect(article.getByRole('heading', { level: 1 })).toBeVisible();
-    expect(requests.filter((url) => /\.wasm|pdf\.worker|assets\/main-.*\.js/.test(url))).toEqual([]);
+    expect(
+      requests.filter((url) => {
+        return /\.wasm|pdf\.worker|assets\/main-.*\.js/.test(url);
+      })
+    ).toEqual([]);
     await article.close();
   }
 });
@@ -1912,7 +2173,11 @@ test('opens each public page at the top when following links from the bottom', a
     await main.evaluate((element) => {
       element.scrollTop = element.scrollHeight;
     });
-    expect(await main.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+    expect(
+      await main.evaluate((element) => {
+        return element.scrollTop;
+      })
+    ).toBeGreaterThan(0);
     await page
       .getByRole('link', {
         exact: true,
@@ -1920,7 +2185,13 @@ test('opens each public page at the top when following links from the bottom', a
       })
       .click();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Investigate suspicious PDF features');
-    await expect.poll(() => main.evaluate((element) => element.scrollTop)).toBe(0);
+    await expect
+      .poll(() => {
+        return main.evaluate((element) => {
+          return element.scrollTop;
+        });
+      })
+      .toBe(0);
     await expect(main).toBeFocused();
     await main.evaluate((element) => {
       element.scrollTop = element.scrollHeight;
@@ -1933,7 +2204,13 @@ test('opens each public page at the top when following links from the bottom', a
       })
       .click();
     await expect(page).toHaveURL(/\/limitations$/);
-    await expect.poll(() => main.evaluate((element) => element.scrollTop)).toBe(0);
+    await expect
+      .poll(() => {
+        return main.evaluate((element) => {
+          return element.scrollTop;
+        });
+      })
+      .toBe(0);
     await expect(main).toBeFocused();
   }
 });
@@ -1958,9 +2235,13 @@ test('keeps document state and route metadata across public content navigation',
 });
 test('opens only bundled samples from tutorial links and reports no hydration errors', async ({ page }) => {
   const errors: string[] = [];
-  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('pageerror', (error) => {
+    return errors.push(error.message);
+  });
   page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text());
+    if (message.type() === 'error') {
+      errors.push(message.text());
+    }
   });
   await page.goto('/guides/decode-pdf-streams');
   await page.getByRole('link', { exact: true, name: 'Explore Fonts & resources' }).click();
@@ -1998,7 +2279,11 @@ test('prerenders home and About for readers without JavaScript', async ({ browse
   await reader.setViewportSize({ height: 844, width: 390 });
   await reader.goto('/guides/decode-pdf-streams');
   await expect(reader.getByRole('heading', { level: 1 })).toBeVisible();
-  expect(await reader.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(
+    await reader.evaluate(() => {
+      return document.documentElement.scrollWidth <= window.innerWidth;
+    })
+  ).toBe(true);
   await reader.screenshot({
     fullPage: true,
     path: screenshotPath('public-stream-guide-mobile.png'),
@@ -2012,7 +2297,9 @@ test('replaces a document during an acknowledged object transfer without exposin
     window.Worker = class extends NativeWorker {
       constructor(...args: ConstructorParameters<typeof Worker>) {
         super(...args);
-        if (!first) return;
+        if (!first) {
+          return;
+        }
         first = false;
         const send = this.postMessage.bind(this);
         this.postMessage = (...messageArgs: Parameters<Worker['postMessage']>) => {
@@ -2035,7 +2322,9 @@ test('replaces a document during an acknowledged object transfer without exposin
   const objects: [number, string][] = [
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
     [2, '<< /Type /Pages /Kids [] /Count 0 >>'],
-    ...Array.from({ length: 300 }, (_, i): [number, string] => [i + 3, '<< /Marker (old document) >>']),
+    ...Array.from({ length: 300 }, (_, i): [number, string] => {
+      return [i + 3, '<< /Marker (old document) >>'];
+    }),
   ];
   const fixture = classicPdf(objects);
   await page.getByLabel('Open local PDF').setInputFiles({
@@ -2065,7 +2354,11 @@ for (const [route, sample, instruction] of [
       path: screenshotPath(`${sample}-article.png`),
     });
     await page.setViewportSize({ height: 844, width: 390 });
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect(
+      await page.evaluate(() => {
+        return document.documentElement.scrollWidth <= window.innerWidth;
+      })
+    ).toBe(true);
     await page.screenshot({
       fullPage: true,
       path: screenshotPath(`${sample}-article-mobile.png`),
@@ -2096,13 +2389,23 @@ for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'pa
     const image = page.getByRole('figure').getByRole('img');
     await image.scrollIntoViewIfNeeded();
     await expect(image).toBeVisible();
-    await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+    await expect
+      .poll(() => {
+        return image.evaluate((img: HTMLImageElement) => {
+          return img.naturalWidth;
+        });
+      })
+      .toBeGreaterThan(0);
     await page.screenshot({
       fullPage: false,
       path: screenshotPath(`${sample}-article.png`),
     });
     await page.setViewportSize({ height: 844, width: 390 });
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect(
+      await page.evaluate(() => {
+        return document.documentElement.scrollWidth <= innerWidth;
+      })
+    ).toBe(true);
     await page.screenshot({
       fullPage: true,
       path: screenshotPath(`${sample}-article-mobile.png`),
@@ -2119,7 +2422,9 @@ for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'pa
     await expect(page.locator('[data-filename]')).toContainText(`${sample}.pdf`);
     await expect(page.getByRole('heading', { exact: true, name: 'Document overview' })).toBeVisible();
     const ref = async (name: string) => {
-      if (/^\d+ \d+ R$/.test(name)) await page.getByRole('tab', { exact: true, name: 'Properties' }).click();
+      if (/^\d+ \d+ R$/.test(name)) {
+        await page.getByRole('tab', { exact: true, name: 'Properties' }).click();
+      }
       await page.getByRole('button', { exact: true, name }).first().click();
     };
     const source = async () => {
@@ -2215,9 +2520,19 @@ test('opens example find-text-source and follows a page-text match to its source
   );
   const image = page.getByRole('figure').getByRole('img');
   await image.scrollIntoViewIfNeeded();
-  await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  await expect
+    .poll(() => {
+      return image.evaluate((img: HTMLImageElement) => {
+        return img.naturalWidth;
+      });
+    })
+    .toBeGreaterThan(0);
   await page.setViewportSize({ height: 844, width: 390 });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(
+    await page.evaluate(() => {
+      return document.documentElement.scrollWidth <= innerWidth;
+    })
+  ).toBe(true);
   await expect(page.getByRole('complementary', { name: 'Related reading' }).getByRole('link')).toHaveCount(3);
   await page.setViewportSize({ height: 1000, width: 1440 });
   await page.getByRole('link', { exact: true, name: 'Open this example' }).click();
@@ -2259,7 +2574,11 @@ test('navigates grouped public content without JavaScript on desktop and mobile'
     await navigation.getByRole('link', { exact: true, name: 'Inspector vs viewer' }).click();
     await expect(reader.getByRole('heading', { level: 1 })).toHaveText('Why use a PDF inspector instead of a PDF viewer?');
     await expect(reader.getByRole('table')).toContainText('Your task');
-    expect(await reader.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    expect(
+      await reader.evaluate(() => {
+        return document.documentElement.scrollWidth <= innerWidth;
+      })
+    ).toBe(true);
     await expect(reader.getByRole('complementary', { name: 'Related reading' }).getByRole('link')).toHaveCount(3);
     await reader.screenshot({
       fullPage: width !== 1440,
@@ -2389,7 +2708,9 @@ test('preserves later issues and scroll position when returning from evidence', 
   const objects = [
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
     [2, '<< /Type /Pages /Kids [] /Count 0 >>'],
-    ...Array.from({ length: 55 }, (_, index) => [index + 3, '<< /Missing 999 0 R >>']),
+    ...Array.from({ length: 55 }, (_, index) => {
+      return [index + 3, '<< /Missing 999 0 R >>'];
+    }),
   ];
   const fixture = classicPdf(objects);
   await page.getByLabel('Open local PDF').setInputFiles({
@@ -2404,7 +2725,13 @@ test('preserves later issues and scroll position when returning from evidence', 
   await expect(panel.getByRole('listitem')).toHaveCount(55);
   const target = panel.getByRole('button', { name: 'Inspect 57 0 obj' });
   await target.scrollIntoViewIfNeeded();
-  await expect.poll(() => panel.evaluate((el) => el.scrollTop)).toBeGreaterThan(1200);
+  await expect
+    .poll(() => {
+      return panel.evaluate((el) => {
+        return el.scrollTop;
+      });
+    })
+    .toBeGreaterThan(1200);
   await target.click();
   await page.getByRole('button', { exact: true, name: 'Back' }).click();
   await expect(panel.getByRole('button', { name: 'Inspect 57 0 obj' })).toBeInViewport();
@@ -2456,7 +2783,13 @@ test('appearance button toggles modes and remembers the choice across visits and
   await darkButton.focus();
   await page.keyboard.press('Enter');
   await expect(root).toHaveClass('dark');
-  await expect.poll(() => page.evaluate(() => localStorage.getItem('pdf-internals-theme'))).toBe('dark');
+  await expect
+    .poll(() => {
+      return page.evaluate(() => {
+        return localStorage.getItem('pdf-internals-theme');
+      });
+    })
+    .toBe('dark');
   await page.reload();
   await expect(root).toHaveClass('dark');
   await page.goto('/guide');
@@ -2502,7 +2835,9 @@ test('appearance remains usable when browser storage is blocked', async ({ page 
   await expect(page.locator('html')).not.toHaveClass('dark');
 });
 test('appearance synchronises across tabs and falls back to system for invalid saved choices', async ({ page, context }) => {
-  await page.evaluate(() => localStorage.setItem('pdf-internals-theme', 'invalid'));
+  await page.evaluate(() => {
+    return localStorage.setItem('pdf-internals-theme', 'invalid');
+  });
   await page.emulateMedia({ colorScheme: 'light' });
   await page.reload();
   await expect(page.getByRole('button', { name: 'Switch to dark mode' })).toBeVisible();
@@ -2512,7 +2847,9 @@ test('appearance synchronises across tabs and falls back to system for invalid s
   await other.getByRole('button', { name: 'Switch to dark mode' }).click();
   await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible();
   await expect(page.locator('html')).toHaveClass('dark');
-  await other.evaluate(() => localStorage.removeItem('pdf-internals-theme'));
+  await other.evaluate(() => {
+    return localStorage.removeItem('pdf-internals-theme');
+  });
   await expect(page.getByRole('button', { name: 'Switch to dark mode' })).toBeVisible();
   await expect(page.locator('html')).not.toHaveClass('dark');
   await other.close();
@@ -2655,7 +2992,9 @@ for (const compressed of [false, true]) {
       fullPage: true,
       path: screenshotPath(`page-text-${compressed ? 'decoded' : 'original'}.png`),
     });
-    if (compressed) await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
+    if (compressed) {
+      await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
+    }
     await results.getByRole('button', { exact: true, name: 'Open page preview' }).click();
     await expect(page.getByRole('img', { exact: true, name: 'split-text.pdf, page 1' })).toBeVisible();
     const preview = page.getByRole('region', {
@@ -2722,7 +3061,9 @@ test('preview search highlights follow page rotation, zoom and page navigation',
   await expect(preview.getByText('125%', { exact: true })).toBeVisible();
   await expect(polygons).toHaveCount(2);
   const after = await relativeHighlight();
-  for (const key of ['x', 'y', 'width', 'height'] as const) expect(after[key]).toBeCloseTo(before[key], 3);
+  for (const key of ['x', 'y', 'width', 'height'] as const) {
+    expect(after[key]).toBeCloseTo(before[key], 3);
+  }
   await preview.getByRole('button', { exact: true, name: 'Next preview page' }).click();
   await expect(image).toHaveAttribute('alt', 'rotated-search.pdf, page 2');
   await expect(polygons).toHaveCount(0);
@@ -2769,7 +3110,11 @@ test('page text search labels unsupported font mappings as candidate streams on 
   await expect(
     page.getByRole('region', { exact: true, name: 'Decoded stream bytes' }).locator('button[data-hex-byte][data-selected]')
   ).toHaveCount(0);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+  expect(
+    await page.evaluate(() => {
+      return document.documentElement.scrollWidth > innerWidth;
+    })
+  ).toBe(false);
   await page.getByRole('button', { exact: true, name: 'Show search results' }).click();
   await results.getByRole('button', { exact: true, name: 'Open page preview' }).click();
   const preview = page.getByRole('region', {
@@ -2809,11 +3154,15 @@ test('cancels a pending page text search when the document is replaced', async (
   });
   await page.route('**/*.wasm*', async (route) => {
     await gate;
-    await route.continue().catch(() => undefined);
+    await route.continue().catch(() => {
+      return undefined;
+    });
   });
   await selectSearchScope(page, 'pageText');
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Hello');
-  const loading = page.waitForRequest((request) => request.url().includes('.wasm'));
+  const loading = page.waitForRequest((request) => {
+    return request.url().includes('.wasm');
+  });
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   await loading;
   await page.getByLabel('Open local PDF').setInputFiles(samplePath('minimal.pdf'));
@@ -2841,11 +3190,15 @@ test('page text search waits for a slow engine download before its time limit st
   await page.route('**/*.wasm*', async (route) => {
     await gate;
     // Fall back to the cached engine asset route rather than the network.
-    await route.fallback().catch(() => undefined);
+    await route.fallback().catch(() => {
+      return undefined;
+    });
   });
   await selectSearchScope(page, 'pageText');
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('internals');
-  const loading = page.waitForRequest((request) => request.url().includes('.wasm'));
+  const loading = page.waitForRequest((request) => {
+    return request.url().includes('.wasm');
+  });
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   await loading;
   await page.clock.fastForward(30_000);
@@ -2865,12 +3218,16 @@ test('page text search blames the engine, not the file, when the engine fails to
   });
   await page.route('**/*.wasm*', async (route) => {
     await gate;
-    await route.abort().catch(() => undefined);
+    await route.abort().catch(() => {
+      return undefined;
+    });
   });
   await selectSearchScope(page, 'pageText');
   const search = page.getByRole('textbox', { exact: true, name: 'Search document' });
   await search.fill('internals');
-  const loading = page.waitForRequest((request) => request.url().includes('.wasm'));
+  const loading = page.waitForRequest((request) => {
+    return request.url().includes('.wasm');
+  });
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   await loading;
   await page.clock.fastForward(121_000);
@@ -2891,12 +3248,17 @@ for (const width of [1440, 390]) {
       }[] = [];
       let released = false;
       Worker.prototype.postMessage = function (message) {
-        if (!released && message?.type === 'stream') pending.push({ message, worker: this });
-        else postMessage.call(this, message, []);
+        if (!released && message?.type === 'stream') {
+          pending.push({ message, worker: this });
+        } else {
+          postMessage.call(this, message, []);
+        }
       };
       window.addEventListener('release-search', () => {
         released = true;
-        for (const { worker, message } of pending) postMessage.call(worker, message, []);
+        for (const { worker, message } of pending) {
+          postMessage.call(worker, message, []);
+        }
       });
     });
     await page.reload();
@@ -2926,11 +3288,17 @@ for (const width of [1440, 390]) {
     await expect(results.locator('[data-search-matches]')).toHaveCSS('opacity', '0.55');
     expect((await results.boundingBox())!.height).toBe(height);
     await expect(matches.first()).toBeDisabled();
-    await page.evaluate(() => window.dispatchEvent(new Event('release-search')));
+    await page.evaluate(() => {
+      return window.dispatchEvent(new Event('release-search'));
+    });
     await expect(matches).toHaveCount(1);
     await expect(results).toContainText('1 match');
     expect((await results.boundingBox())!.height).toBeLessThan(height);
-    expect(await panel!.evaluate((element) => element === document.querySelector('[data-search-results]'))).toBe(true);
+    expect(
+      await panel!.evaluate((element) => {
+        return element === document.querySelector('[data-search-results]');
+      })
+    ).toBe(true);
     await search.fill('no-such-text');
     await search.press('Enter');
     await expect(results).toContainText('0 matches');
@@ -2959,12 +3327,17 @@ test('clearing a query cancels the pending results and the close button clears t
     }[] = [];
     let released = false;
     Worker.prototype.postMessage = function (message) {
-      if (!released && message?.type === 'stream') pending.push({ message, worker: this });
-      else postMessage.call(this, message, []);
+      if (!released && message?.type === 'stream') {
+        pending.push({ message, worker: this });
+      } else {
+        postMessage.call(this, message, []);
+      }
     };
     window.addEventListener('release-search', () => {
       released = true;
-      for (const { worker, message } of pending) postMessage.call(worker, message, []);
+      for (const { worker, message } of pending) {
+        postMessage.call(worker, message, []);
+      }
     });
   });
   await page.reload();
@@ -2983,7 +3356,9 @@ test('clearing a query cancels the pending results and the close button clears t
   await expect(results).toContainText('Searching for “Hello”…');
   await search.fill('');
   await expect(results).toHaveCount(0);
-  await page.evaluate(() => window.dispatchEvent(new Event('release-search')));
+  await page.evaluate(() => {
+    return window.dispatchEvent(new Event('release-search'));
+  });
   // A subsequent search must work and must not inherit results from the cancelled query.
   await selectSearchScope(page, 'text');
   await search.fill('not-present');
@@ -3003,12 +3378,17 @@ for (const width of [1440, 390]) {
       }[] = [];
       let released = false;
       Worker.prototype.postMessage = function (message) {
-        if (!released && message?.type === 'stream') pending.push({ message, worker: this });
-        else postMessage.call(this, message, []);
+        if (!released && message?.type === 'stream') {
+          pending.push({ message, worker: this });
+        } else {
+          postMessage.call(this, message, []);
+        }
       };
       window.addEventListener('release-search', () => {
         released = true;
-        for (const { worker, message } of pending) postMessage.call(worker, message, []);
+        for (const { worker, message } of pending) {
+          postMessage.call(worker, message, []);
+        }
       });
     });
     await page.reload();
@@ -3036,7 +3416,11 @@ for (const width of [1440, 390]) {
     await expect(decoded).toBeVisible();
     // Freeze before the search starts, using the browser clock rather than host
     // time. Force the click because actionability's animation frames are paused.
-    await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
+    await page.clock.pauseAt(
+      await page.evaluate(() => {
+        return Date.now() + 1000;
+      })
+    );
     await decoded.click({ force: true });
     await expect(results).toContainText('Searching for “Hello”…');
     await page.clock.runFor(599);
@@ -3061,7 +3445,9 @@ for (const width of [1440, 390]) {
     await expect(matches).toHaveCount(5);
     await expect(matches.first()).toBeEnabled();
     await expect(results.locator('[data-search-matches]')).toHaveCSS('opacity', '1');
-    await page.evaluate(() => window.dispatchEvent(new Event('release-search')));
+    await page.evaluate(() => {
+      return window.dispatchEvent(new Event('release-search'));
+    });
     await selectSearchScope(page, 'hex');
     await search.fill('ZZ');
     await search.press('Enter');
@@ -3075,7 +3461,11 @@ for (const width of [1440, 390]) {
     await expect(results).toContainText('0 matches');
     await expect(results.locator('[data-search-previous]')).toHaveCount(0);
     expect((await results.boundingBox())!.height).toBeLessThan(400);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+    expect(
+      await page.evaluate(() => {
+        return document.documentElement.scrollWidth > innerWidth;
+      })
+    ).toBe(false);
   });
 }
 for (const width of [1440, 390]) {
@@ -3097,7 +3487,11 @@ for (const width of [1440, 390]) {
     });
     const rows = results.locator('[data-search-result]');
     await expect(results).toBeVisible();
-    await expect.poll(() => rows.count()).toBeGreaterThan(10);
+    await expect
+      .poll(() => {
+        return rows.count();
+      })
+      .toBeGreaterThan(10);
     const after = await workspace.boundingBox();
     expect(after!.y).toBe(before!.y);
     expect(after!.height).toBe(before!.height);
@@ -3107,7 +3501,11 @@ for (const width of [1440, 390]) {
     expect(second.y).toBeGreaterThanOrEqual(first.y + first.height);
     expect(first.height).toBeGreaterThan(40);
     const body = results.locator('[data-search-results-body]');
-    expect(await body.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(true);
+    expect(
+      await body.evaluate((element) => {
+        return element.scrollHeight > element.clientHeight;
+      })
+    ).toBe(true);
     const bounds = (await results.boundingBox())!;
     expect(bounds.x).toBeGreaterThanOrEqual(0);
     expect(bounds.x + bounds.width).toBeLessThanOrEqual(width);
@@ -3217,7 +3615,11 @@ for (const width of [1440, 390, 320]) {
     await expect(results).toHaveCount(0);
     await expect(page.getByRole('group', { exact: true, name: 'Current search match' })).toHaveCount(0);
     await expect(page.locator('[data-hex-status]')).toContainText('5 bytes selected');
-    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+    expect(
+      await page.evaluate(() => {
+        return document.documentElement.scrollWidth > innerWidth;
+      })
+    ).toBe(false);
   });
 }
 for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
@@ -3418,12 +3820,23 @@ test('page result actions are visible before choosing an unselected page', async
 });
 test('page text search keeps its coverage note when 500 pages match', async ({ page }) => {
   await cacheEngineAssets(page);
-  const pages = Array.from({ length: 500 }, (_, index) => index + 3);
+  const pages = Array.from({ length: 500 }, (_, index) => {
+    return index + 3;
+  });
   const content = 'BT /F1 12 Tf 20 100 Td (Hello) Tj ET';
   const fixture = classicPdf([
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
-    [2, `<< /Type /Pages /Kids [${pages.map((id) => `${id} 0 R`).join(' ')}] /Count 500 /Resources << /Font << /F1 504 0 R >> >> >>`],
-    ...pages.map((id) => [id, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Contents 503 0 R >>']),
+    [
+      2,
+      `<< /Type /Pages /Kids [${pages
+        .map((id) => {
+          return `${id} 0 R`;
+        })
+        .join(' ')}] /Count 500 /Resources << /Font << /F1 504 0 R >> >> >>`,
+    ],
+    ...pages.map((id) => {
+      return [id, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Contents 503 0 R >>'];
+    }),
     [503, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`],
     [504, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'],
   ]);
@@ -3440,7 +3853,9 @@ test('page text search keeps its coverage note when 500 pages match', async ({ p
   await expect(results).toContainText('500 pages', { timeout: 30_000 });
   await expect(results).toContainText('Showing 500 pages for the first 500 text matches. Results are grouped by page.');
   await expect(results).not.toContainText('Showing the first 500 matches');
-  await results.locator('[data-search-results-body]').evaluate((body) => body.scrollTo({ top: body.scrollHeight }));
+  await results.locator('[data-search-results-body]').evaluate((body) => {
+    return body.scrollTo({ top: body.scrollHeight });
+  });
   await results.screenshot({ path: screenshotPath('page-text-limit-note.png') });
   await selectSearchScope(page, 'objects');
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Page');
@@ -3454,15 +3869,26 @@ test('page text search keeps its coverage note when 500 pages match', async ({ p
 test('page text search says when a page stops at the source limit', async ({ page }) => {
   await cacheEngineAssets(page);
   const contents = [
-    ...Array.from({ length: 99 }, () => '0 0 m 1 1 l S'),
+    ...Array.from({ length: 99 }, () => {
+      return '0 0 m 1 1 l S';
+    }),
     'BT /F1 12 Tf 72 700 Td (Hello) Tj ET',
     'BT /F1 12 Tf 72 600 Td (Hello) Tj ET',
   ];
   const fixture = classicPdf([
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
     [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 /Resources << /Font << /F1 105 0 R >> >> >>'],
-    [3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents [${contents.map((_, index) => `${index + 4} 0 R`).join(' ')}] >>`],
-    ...contents.map((content, index) => [index + 4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`]),
+    [
+      3,
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents [${contents
+        .map((_, index) => {
+          return `${index + 4} 0 R`;
+        })
+        .join(' ')}] >>`,
+    ],
+    ...contents.map((content, index) => {
+      return [index + 4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`];
+    }),
     [105, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'],
   ]);
   await page.getByLabel('Open local PDF').setInputFiles({

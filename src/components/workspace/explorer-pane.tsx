@@ -21,9 +21,9 @@ import type { Section, Selection } from './types';
 const OBJECT_ROW_HEIGHT = 42;
 
 /** The count at the end of a section button. */
-const SectionCount = ({ className, ...props }: ComponentProps<'span'>) => (
-  <span className={cn('ml-auto text-caption tabular-nums', className)} {...props} />
-);
+const SectionCount = ({ className, ...props }: ComponentProps<'span'>) => {
+  return <span className={cn('ml-auto text-caption tabular-nums', className)} {...props} />;
+};
 
 const SECTIONS = [
   ['overview', LayoutDashboard, 'Overview'],
@@ -46,19 +46,32 @@ const sectionObjects = (
   resourceObjects: PdfObjectRecord[],
   objects: PdfObjectRecord[]
 ) => {
-  if (section === 'pages')
-    return (document?.pages ?? []).map((id) => objectMap.get(id)).filter((object): object is PdfObjectRecord => !!object);
+  if (section === 'pages') {
+    return (document?.pages ?? [])
+      .map((id) => {
+        return objectMap.get(id);
+      })
+      .filter((object): object is PdfObjectRecord => {
+        return !!object;
+      });
+  }
   return section === 'resources' ? resourceObjects : objects;
 };
 
 /** The issue count, tinted by the most severe issue. */
-const IssueCount = ({ issues, severity }: { issues: PdfIssue[]; severity: 'error' | 'warning' | undefined }) => (
-  <SectionCount
-    className={cn(severity && ['rounded-[4px] bg-(--issue-soft) px-1.5 py-0.5 font-[650] text-(--issue-ink)', SEVERITY_TONE[severity]])}
-  >
-    {issues.filter((issue) => issue.severity !== 'info').length}
-  </SectionCount>
-);
+const IssueCount = ({ issues, severity }: { issues: PdfIssue[]; severity: 'error' | 'warning' | undefined }) => {
+  return (
+    <SectionCount
+      className={cn(severity && ['rounded-[4px] bg-(--issue-soft) px-1.5 py-0.5 font-[650] text-(--issue-ink)', SEVERITY_TONE[severity]])}
+    >
+      {
+        issues.filter((issue) => {
+          return issue.severity !== 'info';
+        }).length
+      }
+    </SectionCount>
+  );
+};
 
 /** A button in the section list, with the issue or page count where the section has one. */
 const SectionButton = ({
@@ -77,23 +90,27 @@ const SectionButton = ({
   issues: PdfIssue[];
   issueSeverity: 'error' | 'warning' | undefined;
   onChoose: (section: Section) => void;
-}) => (
-  <button
-    className={cn(
-      'flex items-center gap-2.25 px-2.5 py-2',
-      'rounded-[5px] bg-transparent text-left text-detail text-muted-foreground',
-      'hover:bg-accent hover:text-foreground',
-      active && 'bg-accent font-medium text-accent-foreground shadow-[inset_3px_0_var(--brand-purple)]'
-    )}
-    onClick={() => onChoose(key)}
-  >
-    <Icon size={15} className={cn(key === 'issues' && issueSeverity && ['text-(--issue-ink)', SEVERITY_TONE[issueSeverity]])} />
-    <span>{label}</span>
-    {key === 'issues' && <IssueCount issues={issues} severity={issueSeverity} />}
-    {key === 'pages' && <SectionCount>{document?.pages.length ?? '—'}</SectionCount>}
-    {key === 'actions' && <SectionCount>{actionTotal ?? '—'}</SectionCount>}
-  </button>
-);
+}) => {
+  return (
+    <button
+      className={cn(
+        'flex items-center gap-2.25 px-2.5 py-2',
+        'rounded-[5px] bg-transparent text-left text-detail text-muted-foreground',
+        'hover:bg-accent hover:text-foreground',
+        active && 'bg-accent font-medium text-accent-foreground shadow-[inset_3px_0_var(--brand-purple)]'
+      )}
+      onClick={() => {
+        return onChoose(key);
+      }}
+    >
+      <Icon size={15} className={cn(key === 'issues' && issueSeverity && ['text-(--issue-ink)', SEVERITY_TONE[issueSeverity]])} />
+      <span>{label}</span>
+      {key === 'issues' && <IssueCount issues={issues} severity={issueSeverity} />}
+      {key === 'pages' && <SectionCount>{document?.pages.length ?? '—'}</SectionCount>}
+      {key === 'actions' && <SectionCount>{actionTotal ?? '—'}</SectionCount>}
+    </button>
+  );
+};
 
 /** A row in the virtualised object list. */
 const ObjectRow = ({
@@ -106,30 +123,34 @@ const ObjectRow = ({
   selected: boolean;
   top: number;
   onNavigate: (id: string) => void;
-}) => (
-  <button
-    className={cn(
-      'absolute flex w-full items-center',
-      'gap-2.5 px-2.25 text-left text-muted-foreground',
-      'rounded-[4px] bg-transparent',
-      'hover:bg-accent hover:text-foreground',
-      selected && [
-        'bg-accent text-accent-foreground',
-        'hover:text-accent-foreground',
-        '[outline:1px_solid_var(--border)] [outline-offset:-1px]',
-      ]
-    )}
-    style={{ height: OBJECT_ROW_HEIGHT, top }}
-    onClick={() => onNavigate(object.id)}
-  >
-    <Braces size={14} />
-    <span className="flex min-w-0 flex-1 items-baseline gap-2.5">
-      <code className="min-w-8 text-foreground">{object.id}</code>
-      <span className="overflow-hidden text-caption text-ellipsis whitespace-nowrap">{object.kind}</span>
-    </span>
-    {object.provenance.type === 'decoded' ? <Layers size={12} aria-label="Inside object stream" /> : <ChevronRight size={12} />}
-  </button>
-);
+}) => {
+  return (
+    <button
+      className={cn(
+        'absolute flex w-full items-center',
+        'gap-2.5 px-2.25 text-left text-muted-foreground',
+        'rounded-[4px] bg-transparent',
+        'hover:bg-accent hover:text-foreground',
+        selected && [
+          'bg-accent text-accent-foreground',
+          'hover:text-accent-foreground',
+          '[outline:1px_solid_var(--border)] [outline-offset:-1px]',
+        ]
+      )}
+      style={{ height: OBJECT_ROW_HEIGHT, top }}
+      onClick={() => {
+        return onNavigate(object.id);
+      }}
+    >
+      <Braces size={14} />
+      <span className="flex min-w-0 flex-1 items-baseline gap-2.5">
+        <code className="min-w-8 text-foreground">{object.id}</code>
+        <span className="overflow-hidden text-caption text-ellipsis whitespace-nowrap">{object.kind}</span>
+      </span>
+      {object.provenance.type === 'decoded' ? <Layers size={12} aria-label="Inside object stream" /> : <ChevronRight size={12} />}
+    </button>
+  );
+};
 
 /** The virtualised list of the section's objects. */
 const ObjectList = ({
@@ -149,17 +170,25 @@ const ObjectList = ({
 }) => {
   const listStart = Math.max(0, Math.floor(scrollTop / OBJECT_ROW_HEIGHT) - 5);
   return (
-    <div className="min-h-0 flex-1 overflow-auto px-1.75" data-object-list onScroll={(event) => onScroll(event.currentTarget.scrollTop)}>
+    <div
+      className="min-h-0 flex-1 overflow-auto px-1.75"
+      data-object-list
+      onScroll={(event) => {
+        return onScroll(event.currentTarget.scrollTop);
+      }}
+    >
       <div className="relative" style={{ height: objects.length * OBJECT_ROW_HEIGHT }}>
-        {objects.slice(listStart, listStart + 45).map((object, index) => (
-          <ObjectRow
-            key={object.id}
-            object={object}
-            selected={selectedId === object.id}
-            top={(listStart + index) * OBJECT_ROW_HEIGHT}
-            onNavigate={onNavigate}
-          />
-        ))}
+        {objects.slice(listStart, listStart + 45).map((object, index) => {
+          return (
+            <ObjectRow
+              key={object.id}
+              object={object}
+              selected={selectedId === object.id}
+              top={(listStart + index) * OBJECT_ROW_HEIGHT}
+              onNavigate={onNavigate}
+            />
+          );
+        })}
       </div>
       {!objects.length && (
         <p className="px-2 py-4 text-xs text-muted-foreground">{locked ? 'Object inspection is locked.' : 'No objects in this section.'}</p>
@@ -224,18 +253,20 @@ export const ExplorerPane = ({
         </Badge>
       </PaneHeading>
       <nav className="flex flex-col gap-0.5 px-2.25 py-3.25" aria-label="Document sections">
-        {SECTIONS.map((entry) => (
-          <SectionButton
-            key={entry[0]}
-            actionTotal={actionTotal}
-            active={section === entry[0]}
-            document={document}
-            entry={entry}
-            issues={issues}
-            issueSeverity={issueSeverity}
-            onChoose={onChooseSection}
-          />
-        ))}
+        {SECTIONS.map((entry) => {
+          return (
+            <SectionButton
+              key={entry[0]}
+              actionTotal={actionTotal}
+              active={section === entry[0]}
+              document={document}
+              entry={entry}
+              issues={issues}
+              issueSeverity={issueSeverity}
+              onChoose={onChooseSection}
+            />
+          );
+        })}
       </nav>
       <div
         className={cn(

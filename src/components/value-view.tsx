@@ -23,77 +23,98 @@ interface ValueContext {
 const ReferenceSuffix = ({ value, ...context }: ValueContext & { value: Extract<PdfValue, { type: 'reference' }> }) => {
   const { ancestors, depth, objects, referenceDepth } = context;
   const target = objects?.get(value.ref);
-  if (objects && !target) return <span className="text-muted-foreground"> · unavailable reference</span>;
-  if (ancestors.includes(value.ref)) return <span className="text-muted-foreground"> · already in this path</span>;
-  if (!target) return null;
-  if (referenceDepth < 4 && depth < 12) return <InlineReference key={value.ref} target={target} {...context} />;
+  if (objects && !target) {
+    return <span className="text-muted-foreground"> · unavailable reference</span>;
+  }
+  if (ancestors.includes(value.ref)) {
+    return <span className="text-muted-foreground"> · already in this path</span>;
+  }
+  if (!target) {
+    return null;
+  }
+  if (referenceDepth < 4 && depth < 12) {
+    return <InlineReference key={value.ref} target={target} {...context} />;
+  }
   return <span className="text-muted-foreground"> · inline depth limit; open object to continue</span>;
 };
 
-const ReferenceValue = ({ value, ...context }: ValueContext & { value: Extract<PdfValue, { type: 'reference' }> }) => (
-  <span className="inline-block max-w-full align-top">
-    <ReferenceButton onClick={() => context.onNavigate(value.ref, context.path)} title={`Open object ${value.ref} in the inspector`}>
-      {value.text}
-      <ChevronRight size={12} />
-    </ReferenceButton>
-    <ReferenceSuffix value={value} {...context} />
-  </span>
-);
+const ReferenceValue = ({ value, ...context }: ValueContext & { value: Extract<PdfValue, { type: 'reference' }> }) => {
+  return (
+    <span className="inline-block max-w-full align-top">
+      <ReferenceButton
+        onClick={() => {
+          return context.onNavigate(value.ref, context.path);
+        }}
+        title={`Open object ${value.ref} in the inspector`}
+      >
+        {value.text}
+        <ChevronRight size={12} />
+      </ReferenceButton>
+      <ReferenceSuffix value={value} {...context} />
+    </span>
+  );
+};
 
 /** A dictionary key, with an explanation for the common ones. */
-const EntryKey = ({ name }: { name: string }) => (
-  <div
-    className={cn(
-      'flex flex-wrap items-center gap-1.25',
-      'font-mono text-detail leading-[inherit] [overflow-wrap:anywhere] text-muted-foreground'
-    )}
-  >
-    <span>/{name}</span>
-    {explanations[name] && (
-      <Tooltip>
-        <TooltipTrigger aria-label={`Explain /${name}`} className="inline-flex bg-transparent p-0 text-muted-foreground opacity-70">
-          <Info size={12} />
-        </TooltipTrigger>
-        <TooltipContent>{explanations[name]}</TooltipContent>
-      </Tooltip>
-    )}
-  </div>
-);
+const EntryKey = ({ name }: { name: string }) => {
+  return (
+    <div
+      className={cn(
+        'flex flex-wrap items-center gap-1.25',
+        'font-mono text-detail leading-[inherit] [overflow-wrap:anywhere] text-muted-foreground'
+      )}
+    >
+      <span>/{name}</span>
+      {explanations[name] && (
+        <Tooltip>
+          <TooltipTrigger aria-label={`Explain /${name}`} className="inline-flex bg-transparent p-0 text-muted-foreground opacity-70">
+            <Info size={12} />
+          </TooltipTrigger>
+          <TooltipContent>{explanations[name]}</TooltipContent>
+        </Tooltip>
+      )}
+    </div>
+  );
+};
 
-const DictionaryValue = ({ value, ...context }: ValueContext & { value: Extract<PdfValue, { type: 'dictionary' | 'stream' }> }) => (
-  <div className="w-full">
-    {value.entries.length === 0 && <span className="text-muted-foreground">Empty dictionary</span>}
-    {value.entries.map(({ key, value: child }, index) => {
-      const bareKey = key.replace(/^\//, '');
-      return (
-        <div
-          className={cn(
-            'grid grid-cols-[minmax(90px,32%)_minmax(0,1fr)] items-start',
-            'gap-3 border-b py-2.75',
-            // Inside another entry's value, the two-column row stacks.
-            'first:pt-0.75 in-data-[slot=pdf-value]:flex in-data-[slot=pdf-value]:flex-col in-data-[slot=pdf-value]:gap-1.5 in-data-[slot=pdf-value]:last:border-0'
-          )}
-          key={`${key}-${index}`}
-        >
-          <EntryKey name={bareKey} />
-          <div className="min-w-0 text-detail leading-[inherit] [overflow-wrap:anywhere]" data-slot="pdf-value">
-            <ValueView {...context} value={child} depth={context.depth + 1} path={[...context.path, `/${bareKey}`]} />
+const DictionaryValue = ({ value, ...context }: ValueContext & { value: Extract<PdfValue, { type: 'dictionary' | 'stream' }> }) => {
+  return (
+    <div className="w-full">
+      {value.entries.length === 0 && <span className="text-muted-foreground">Empty dictionary</span>}
+      {value.entries.map(({ key, value: child }, index) => {
+        const bareKey = key.replace(/^\//, '');
+        return (
+          <div
+            className={cn(
+              'grid grid-cols-[minmax(90px,32%)_minmax(0,1fr)] items-start',
+              'gap-3 border-b py-2.75',
+              // Inside another entry's value, the two-column row stacks.
+              'first:pt-0.75 in-data-[slot=pdf-value]:flex in-data-[slot=pdf-value]:flex-col in-data-[slot=pdf-value]:gap-1.5 in-data-[slot=pdf-value]:last:border-0'
+            )}
+            key={`${key}-${index}`}
+          >
+            <EntryKey name={bareKey} />
+            <div className="min-w-0 text-detail leading-[inherit] [overflow-wrap:anywhere]" data-slot="pdf-value">
+              <ValueView {...context} value={child} depth={context.depth + 1} path={[...context.path, `/${bareKey}`]} />
+            </div>
           </div>
-        </div>
-      );
-    })}
-  </div>
-);
+        );
+      })}
+    </div>
+  );
+};
 
-const ArrayValue = ({ value, ...context }: ValueContext & { value: Extract<PdfValue, { type: 'array' }> }) => (
-  <div className="flex flex-wrap items-baseline gap-1.75 text-detail leading-[inherit]">
-    <span className="text-muted-foreground">[</span>
-    {value.items.map((child, index) => (
-      <ValueView key={index} {...context} value={child} depth={context.depth + 1} path={[...context.path, `[${index}]`]} />
-    ))}
-    <span className="text-muted-foreground">]</span>
-  </div>
-);
+const ArrayValue = ({ value, ...context }: ValueContext & { value: Extract<PdfValue, { type: 'array' }> }) => {
+  return (
+    <div className="flex flex-wrap items-baseline gap-1.75 text-detail leading-[inherit]">
+      <span className="text-muted-foreground">[</span>
+      {value.items.map((child, index) => {
+        return <ValueView key={index} {...context} value={child} depth={context.depth + 1} path={[...context.path, `[${index}]`]} />;
+      })}
+      <span className="text-muted-foreground">]</span>
+    </div>
+  );
+};
 
 export const ValueView = function ValueView({
   value,
@@ -113,10 +134,18 @@ export const ValueView = function ValueView({
   referenceDepth?: number;
 }) {
   const context = { ancestors, depth, objects, onNavigate, path, referenceDepth };
-  if (depth > 12) return <span className="text-muted-foreground">Expand this object in Source to inspect deeper nesting.</span>;
-  if (value.type === 'reference') return <ReferenceValue value={value} {...context} />;
-  if (value.type === 'dictionary' || value.type === 'stream') return <DictionaryValue value={value} {...context} />;
-  if (value.type === 'array') return <ArrayValue value={value} {...context} />;
+  if (depth > 12) {
+    return <span className="text-muted-foreground">Expand this object in Source to inspect deeper nesting.</span>;
+  }
+  if (value.type === 'reference') {
+    return <ReferenceValue value={value} {...context} />;
+  }
+  if (value.type === 'dictionary' || value.type === 'stream') {
+    return <DictionaryValue value={value} {...context} />;
+  }
+  if (value.type === 'array') {
+    return <ArrayValue value={value} {...context} />;
+  }
   return <span className={cn('font-mono text-detail leading-[inherit] whitespace-pre-wrap', SCALAR_TONE[value.type])}>{value.text}</span>;
 };
 const InlineReference = function InlineReference({
@@ -138,7 +167,12 @@ const InlineReference = function InlineReference({
 }) {
   const [expanded, setExpanded] = useState(false);
   return (
-    <details className="mt-1.5 text-detail leading-[inherit]" onToggle={(event) => setExpanded(event.currentTarget.open)}>
+    <details
+      className="mt-1.5 text-detail leading-[inherit]"
+      onToggle={(event) => {
+        return setExpanded(event.currentTarget.open);
+      }}
+    >
       <summary
         className={cn(
           'cursor-pointer py-0.75 text-muted-foreground',

@@ -27,9 +27,15 @@ export const EmbeddedDownloads = ({
     setError(null);
     try {
       const result = await extractStream(asset.streamId);
-      if (token !== request.current) return;
-      if (result.error) throw new Error(result.error);
-      if (result.truncated) throw new Error('The stream is incomplete. No file was downloaded.');
+      if (token !== request.current) {
+        return;
+      }
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      if (result.truncated) {
+        throw new Error('The stream is incomplete. No file was downloaded.');
+      }
       saveFile(
         new Blob([new Uint8Array(result.bytes)], {
           type: 'application/octet-stream',
@@ -37,46 +43,61 @@ export const EmbeddedDownloads = ({
         asset.filename
       );
     } catch (reason) {
-      if (token === request.current) setError(reason instanceof Error ? reason.message : 'Could not extract the embedded file.');
+      if (token === request.current) {
+        setError(reason instanceof Error ? reason.message : 'Could not extract the embedded file.');
+      }
     } finally {
-      if (token === request.current) setPending(null);
+      if (token === request.current) {
+        setPending(null);
+      }
     }
   };
   const request = useRef(0);
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  useEffect(
-    () => () => {
-      // oxlint-disable-next-line react/exhaustive-effect-dependencies -- object identity is the trigger that cancels in-flight extractions.
-      request.current++;
-    },
-    [object]
-  );
-  const hasFont = assets.some((asset) => asset.kind === 'font');
+  useEffect(() => {
+    // oxlint-disable-next-line react/exhaustive-effect-dependencies -- object identity is the trigger that cancels in-flight extractions.
+    const counter = request;
+    return () => {
+      counter.current++;
+    };
+  }, [object]);
+  const hasFont = assets.some((asset) => {
+    return asset.kind === 'font';
+  });
   return (
     <section className={cn('mx-5.5 mb-4 rounded-md border bg-sidebar p-3', className)} aria-label="Embedded file downloads">
-      {assets.map((asset) => (
-        <div
-          className="flex flex-wrap items-center justify-between gap-2.5 not-first:mt-3"
-          key={`${asset.kind}-${asset.streamId}-${asset.filename}`}
-        >
-          <div className="flex min-w-0 flex-col gap-0.75">
-            <strong className="text-small font-medium [overflow-wrap:anywhere]">{asset.filename}</strong>
-            <span className="text-caption text-muted-foreground">
-              {asset.kind === 'font' ? (asset.subset ? 'Embedded font · subset indicated' : 'Embedded font') : 'Embedded attachment'}
-            </span>
-            <DownloadSize id={asset.streamId} extractStream={extractStream} />
+      {assets.map((asset) => {
+        return (
+          <div
+            className="flex flex-wrap items-center justify-between gap-2.5 not-first:mt-3"
+            key={`${asset.kind}-${asset.streamId}-${asset.filename}`}
+          >
+            <div className="flex min-w-0 flex-col gap-0.75">
+              <strong className="text-small font-medium [overflow-wrap:anywhere]">{asset.filename}</strong>
+              <span className="text-caption text-muted-foreground">
+                {asset.kind === 'font' ? (asset.subset ? 'Embedded font · subset indicated' : 'Embedded font') : 'Embedded attachment'}
+              </span>
+              <DownloadSize id={asset.streamId} extractStream={extractStream} />
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={pending !== null}
+              onClick={() => {
+                return void download(asset);
+              }}
+            >
+              {pending === asset.streamId ? (
+                <LoaderCircle aria-hidden="true" className="animate-spin motion-reduce:animate-none" />
+              ) : (
+                <Download aria-hidden="true" />
+              )}
+              {pending === asset.streamId ? 'Extracting…' : asset.kind === 'font' ? 'Download font' : 'Download attachment'}
+            </Button>
           </div>
-          <Button variant="outline" size="sm" disabled={pending !== null} onClick={() => void download(asset)}>
-            {pending === asset.streamId ? (
-              <LoaderCircle aria-hidden="true" className="animate-spin motion-reduce:animate-none" />
-            ) : (
-              <Download aria-hidden="true" />
-            )}
-            {pending === asset.streamId ? 'Extracting…' : asset.kind === 'font' ? 'Download font' : 'Download attachment'}
-          </Button>
-        </div>
-      ))}
+        );
+      })}
       {hasFont && (
         <Note className="mt-2.5 mb-0 text-detail leading-[1.7]">
           Fonts may be partial: an embedded font can contain only the characters used in this PDF. Downloading it does not restore the

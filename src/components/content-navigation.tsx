@@ -24,14 +24,16 @@ export const HeaderLink = function HeaderLink({ className, ...props }: Component
 };
 
 /** A main-navigation link in the header's text colour. The caller underlines the current section. */
-const NavigationLink = ({ className, ...props }: ComponentProps<'a'>) => (
-  <HeaderLink className={cn('text-inherit no-underline underline-offset-5', className)} {...props} />
-);
+const NavigationLink = ({ className, ...props }: ComponentProps<'a'>) => {
+  return <HeaderLink className={cn('text-inherit no-underline underline-offset-5', className)} {...props} />;
+};
 
 const SectionLinks = function SectionLinks({ menu, path, onFollowLink }: { menu: boolean; path: SitePath; onFollowLink?: FollowLink }) {
   return CONTENT_GROUPS.slice(0, 3).map((group) => {
     const href = group.items[0][0];
-    const active = group.items.some(([item]) => item === path);
+    const active = group.items.some(([item]) => {
+      return item === path;
+    });
     return (
       <NavigationLink
         key={href}
@@ -98,30 +100,34 @@ const NavigationGroups = function NavigationGroups({
 }) {
   return (
     <nav className={className} aria-label="Content navigation">
-      {CONTENT_GROUPS.map((group) => (
-        <div className="not-first:mt-5.5" key={group.label}>
-          <h2 className="mb-1.5 text-small font-[650] text-foreground">{group.label}</h2>
-          <ul className="grid gap-0.5 text-small">
-            {group.items.map(([href, label]) => (
-              <li key={href}>
-                <a
-                  className={cn(
-                    'block px-2.5 py-1.5 text-muted-foreground',
-                    'rounded-[5px]',
-                    'hover:bg-muted',
-                    'aria-[current=page]:bg-secondary aria-[current=page]:font-semibold aria-[current=page]:text-reference'
-                  )}
-                  href={href}
-                  aria-current={path === href ? 'page' : undefined}
-                  onClick={onFollowLink}
-                >
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+      {CONTENT_GROUPS.map((group) => {
+        return (
+          <div className="not-first:mt-5.5" key={group.label}>
+            <h2 className="mb-1.5 text-small font-[650] text-foreground">{group.label}</h2>
+            <ul className="grid gap-0.5 text-small">
+              {group.items.map(([href, label]) => {
+                return (
+                  <li key={href}>
+                    <a
+                      className={cn(
+                        'block px-2.5 py-1.5 text-muted-foreground',
+                        'rounded-[5px]',
+                        'hover:bg-muted',
+                        'aria-[current=page]:bg-secondary aria-[current=page]:font-semibold aria-[current=page]:text-reference'
+                      )}
+                      href={href}
+                      aria-current={path === href ? 'page' : undefined}
+                      onClick={onFollowLink}
+                    >
+                      {label}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      })}
     </nav>
   );
 };
@@ -169,18 +175,20 @@ export const RelatedContent = function RelatedContent({
     <aside className="mt-10 border-t border-border" aria-label="Related reading">
       <h2 className="mt-8 mb-3 text-subheading font-[550]">Keep exploring</h2>
       <ul className={cn(!about && 'mt-4 mb-6 text-reading leading-[1.85] text-muted-foreground')}>
-        {relatedPages(path).map((page) => (
-          <li className="my-4" key={page.path}>
-            <span className="block text-detail leading-[inherit] text-muted-foreground">{contentType(page.path)}</span>
-            <a
-              className="text-reading leading-[inherit] text-reference underline-offset-3 hover:underline"
-              href={page.path}
-              onClick={onFollowLink}
-            >
-              {page.heading}
-            </a>
-          </li>
-        ))}
+        {relatedPages(path).map((page) => {
+          return (
+            <li className="my-4" key={page.path}>
+              <span className="block text-detail leading-[inherit] text-muted-foreground">{contentType(page.path)}</span>
+              <a
+                className="text-reading leading-[inherit] text-reference underline-offset-3 hover:underline"
+                href={page.path}
+                onClick={onFollowLink}
+              >
+                {page.heading}
+              </a>
+            </li>
+          );
+        })}
       </ul>
     </aside>
   );

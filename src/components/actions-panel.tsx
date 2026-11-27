@@ -21,12 +21,20 @@ import { cn } from '@/lib/utils';
 type ReadStream = (id: string, mode: 'raw' | 'decoded') => Promise<StreamResult>;
 type Navigate = (id: string) => void;
 
-const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
+const plural = (count: number, word: string) => {
+  return `${count} ${word}${count === 1 ? '' : 's'}`;
+};
 
 const summary = ({ actions, notes }: PdfActionReport) => {
   const all = flattenActions(actions);
-  const sensitive = all.filter((action) => action.sensitive).length;
-  const noteCount = notes.length + all.reduce((total, action) => total + action.notes.length, 0);
+  const sensitive = all.filter((action) => {
+    return action.sensitive;
+  }).length;
+  const noteCount =
+    notes.length +
+    all.reduce((total, action) => {
+      return total + action.notes.length;
+    }, 0);
   return [
     all.length ? plural(all.length, 'action') : 'No actions found in the sources below',
     sensitive && `${sensitive} marked for review`,
@@ -37,27 +45,29 @@ const summary = ({ actions, notes }: PdfActionReport) => {
 };
 
 /** An outline button in an action row, in the pane's text size. */
-const InspectButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
-  <Button variant="outline" size="sm" className={cn('text-small leading-[1.7]', 'narrow:min-h-11', className)} {...props} />
-);
+const InspectButton = ({ className, ...props }: ComponentProps<typeof Button>) => {
+  return <Button variant="outline" size="sm" className={cn('text-small leading-[1.7]', 'narrow:min-h-11', className)} {...props} />;
+};
 
 /** Decoded text shown as plain text, never as markup or a link. */
-const DecodedText = ({ className, ...props }: ComponentProps<'pre'>) => (
-  <pre
-    className={cn(
-      'my-2 max-h-60 overflow-auto p-2.5',
-      'text-detail leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap',
-      'rounded-[5px] bg-muted',
-      className
-    )}
-    {...props}
-  />
-);
+const DecodedText = ({ className, ...props }: ComponentProps<'pre'>) => {
+  return (
+    <pre
+      className={cn(
+        'my-2 max-h-60 overflow-auto p-2.5',
+        'text-detail leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap',
+        'rounded-[5px] bg-muted',
+        className
+      )}
+      {...props}
+    />
+  );
+};
 
 /** A caption above decoded text, saying where it came from. */
-const DecodedLabel = ({ className, ...props }: ComponentProps<'p'>) => (
-  <p className={cn('mt-2 text-caption text-muted-foreground', className)} {...props} />
-);
+const DecodedLabel = ({ className, ...props }: ComponentProps<'p'>) => {
+  return <p className={cn('mt-2 text-caption text-muted-foreground', className)} {...props} />;
+};
 
 /** A script read from a stream, labelled with how its bytes were decoded. */
 const DecodedScript = ({ result, streamId }: { result: StreamResult; streamId: string }) => {
@@ -94,11 +104,22 @@ const ScriptStream = ({ streamId, readStream, onNavigate }: { streamId: string; 
     <div className="my-2">
       <div className="flex flex-wrap gap-2">
         {!result && (
-          <InspectButton disabled={loading} onClick={() => void load()}>
+          <InspectButton
+            disabled={loading}
+            onClick={() => {
+              return void load();
+            }}
+          >
             {loading ? 'Reading script…' : 'Show decoded script'}
           </InspectButton>
         )}
-        <InspectButton onClick={() => onNavigate(streamId)}>Inspect {streamId} obj</InspectButton>
+        <InspectButton
+          onClick={() => {
+            return onNavigate(streamId);
+          }}
+        >
+          Inspect {streamId} obj
+        </InspectButton>
       </div>
       {error && <Warning role="alert">{error}</Warning>}
       {result && !result.error && <DecodedScript result={result} streamId={streamId} />}
@@ -107,7 +128,7 @@ const ScriptStream = ({ streamId, readStream, onNavigate }: { streamId: string; 
 };
 
 const ActionTarget = ({ target, readStream, onNavigate }: { target: PdfActionTarget; readStream: ReadStream; onNavigate: Navigate }) => {
-  if (target.streamId)
+  if (target.streamId) {
     return (
       <>
         <p className="mt-2">
@@ -116,7 +137,8 @@ const ActionTarget = ({ target, readStream, onNavigate }: { target: PdfActionTar
         <ScriptStream streamId={target.streamId} readStream={readStream} onNavigate={onNavigate} />
       </>
     );
-  if (target.decodedString)
+  }
+  if (target.decodedString) {
     return (
       <>
         <DecodedLabel>
@@ -125,6 +147,7 @@ const ActionTarget = ({ target, readStream, onNavigate }: { target: PdfActionTar
         <DecodedText>{target.text}</DecodedText>
       </>
     );
+  }
   return (
     <>
       <p className="mt-2 [overflow-wrap:anywhere]">
@@ -137,43 +160,64 @@ const ActionTarget = ({ target, readStream, onNavigate }: { target: PdfActionTar
 };
 
 /** The type badge, and a pill for the types that run code, open files or move form data. */
-const ActionType = ({ action }: { action: PdfAction }) => (
-  <>
-    {action.type ? (
-      <Badge variant="outline" className="font-mono text-detail">
-        /S /{action.type}
-      </Badge>
-    ) : (
-      <Badge variant="outline" className="text-detail">
-        {action.destination ? 'Destination' : 'No action type'}
-      </Badge>
-    )}
-    {action.sensitive && (
-      <SeverityPill render={<Badge variant="outline" />}>
-        <ShieldAlert size={13} aria-hidden="true" />
-        {action.sensitive}
-      </SeverityPill>
-    )}
-  </>
-);
+const ActionType = ({ action }: { action: PdfAction }) => {
+  return (
+    <>
+      {action.type ? (
+        <Badge variant="outline" className="font-mono text-detail">
+          /S /{action.type}
+        </Badge>
+      ) : (
+        <Badge variant="outline" className="text-detail">
+          {action.destination ? 'Destination' : 'No action type'}
+        </Badge>
+      )}
+      {action.sensitive && (
+        <SeverityPill render={<Badge variant="outline" />}>
+          <ShieldAlert size={13} aria-hidden="true" />
+          {action.sensitive}
+        </SeverityPill>
+      )}
+    </>
+  );
+};
 
-const ActionLinks = ({ action, onNavigate }: { action: PdfAction; onNavigate: Navigate }) => (
-  <div className="mt-2.5 flex flex-wrap gap-2">
-    {action.holderId && <InspectButton onClick={() => onNavigate(action.holderId!)}>Inspect holder {action.holderId} obj</InspectButton>}
-    {action.actionId && action.actionId !== action.holderId && (
-      <InspectButton onClick={() => onNavigate(action.actionId!)}>Inspect action {action.actionId} obj</InspectButton>
-    )}
-  </div>
-);
+const ActionLinks = ({ action, onNavigate }: { action: PdfAction; onNavigate: Navigate }) => {
+  return (
+    <div className="mt-2.5 flex flex-wrap gap-2">
+      {action.holderId && (
+        <InspectButton
+          onClick={() => {
+            return onNavigate(action.holderId!);
+          }}
+        >
+          Inspect holder {action.holderId} obj
+        </InspectButton>
+      )}
+      {action.actionId && action.actionId !== action.holderId && (
+        <InspectButton
+          onClick={() => {
+            return onNavigate(action.actionId!);
+          }}
+        >
+          Inspect action {action.actionId} obj
+        </InspectButton>
+      )}
+    </div>
+  );
+};
 
 /** Parse notes. The walk adds each report note once; the set keeps an action's own notes unique too, so the text is the key. */
-const ActionNotes = ({ notes }: { notes: string[] }) =>
-  [...new Set(notes)].map((note) => (
-    <Warning key={note} className="text-small">
-      <TriangleAlert size={14} className="mt-1 shrink-0" aria-hidden="true" />
-      <span>{note}</span>
-    </Warning>
-  ));
+const ActionNotes = ({ notes }: { notes: string[] }) => {
+  return [...new Set(notes)].map((note) => {
+    return (
+      <Warning key={note} className="text-small">
+        <TriangleAlert size={14} className="mt-1 shrink-0" aria-hidden="true" />
+        <span>{note}</span>
+      </Warning>
+    );
+  });
+};
 
 const ActionItem = ({
   action,
@@ -207,33 +251,35 @@ const ActionItem = ({
       <ActionLinks action={action} onNavigate={onNavigate} />
       {action.next.length > 0 && (
         <ol className="mt-3 ml-1.5 border-l pl-3.5" aria-label={`Actions after ${action.trigger.toLowerCase()}`}>
-          {action.next.map((next) => (
-            <ActionItem key={next.key} action={next} chained readStream={readStream} onNavigate={onNavigate} />
-          ))}
+          {action.next.map((next) => {
+            return <ActionItem key={next.key} action={next} chained readStream={readStream} onNavigate={onNavigate} />;
+          })}
         </ol>
       )}
     </li>
   );
 };
 
-const Coverage = ({ recovered }: { recovered: boolean }) => (
-  <div className="mt-5 border-t py-3.5 text-small leading-[1.7]">
-    <SectionHeading className="leading-[1.7]">Sources and limits</SectionHeading>
-    <IssueNote>
-      Read from the catalogue’s <code>/OpenAction</code> and <code>/AA</code>, page <code>/AA</code>, annotation <code>/A</code> and{' '}
-      <code>/AA</code>, form field <code>/A</code> and <code>/AA</code> and outline item <code>/A</code> entries, with their{' '}
-      <code>/Next</code> chains.
-    </IssueNote>
-    <IssueNote>
-      Document-level scripts in the <code>/Names /JavaScript</code> tree, XFA form scripts and actions inside other objects are not listed;
-      a note below says when this document has the first two. Search Keys for <code>JavaScript</code> to find them.
-    </IssueNote>
-    <IssueNote>
-      Nothing is run. Targets and scripts are decoded values; check the holder’s Source or Original bytes for the stored syntax.
-    </IssueNote>
-    {recovered && <IssueNote>Structure was recovered. The inspected object set may be incomplete.</IssueNote>}
-  </div>
-);
+const Coverage = ({ recovered }: { recovered: boolean }) => {
+  return (
+    <div className="mt-5 border-t py-3.5 text-small leading-[1.7]">
+      <SectionHeading className="leading-[1.7]">Sources and limits</SectionHeading>
+      <IssueNote>
+        Read from the catalogue’s <code>/OpenAction</code> and <code>/AA</code>, page <code>/AA</code>, annotation <code>/A</code> and{' '}
+        <code>/AA</code>, form field <code>/A</code> and <code>/AA</code> and outline item <code>/A</code> entries, with their{' '}
+        <code>/Next</code> chains.
+      </IssueNote>
+      <IssueNote>
+        Document-level scripts in the <code>/Names /JavaScript</code> tree, XFA form scripts and actions inside other objects are not
+        listed; a note below says when this document has the first two. Search Keys for <code>JavaScript</code> to find them.
+      </IssueNote>
+      <IssueNote>
+        Nothing is run. Targets and scripts are decoded values; check the holder’s Source or Original bytes for the stored syntax.
+      </IssueNote>
+      {recovered && <IssueNote>Structure was recovered. The inspected object set may be incomplete.</IssueNote>}
+    </div>
+  );
+};
 
 export const ActionsPanel = ({
   limit,
@@ -266,12 +312,19 @@ export const ActionsPanel = ({
       <Coverage recovered={recovered} />
       <ActionNotes notes={notes} />
       <ol aria-label="Actions">
-        {actions.slice(0, limit).map((action) => (
-          <ActionItem key={action.key} action={action} readStream={readStream} onNavigate={onNavigate} />
-        ))}
+        {actions.slice(0, limit).map((action) => {
+          return <ActionItem key={action.key} action={action} readStream={readStream} onNavigate={onNavigate} />;
+        })}
       </ol>
       {actions.length > limit && (
-        <Button variant="outline" size="sm" className="narrow:min-h-11" onClick={() => onLimitChange(limit + ACTION_PAGE_SIZE)}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="narrow:min-h-11"
+          onClick={() => {
+            return onLimitChange(limit + ACTION_PAGE_SIZE);
+          }}
+        >
           Show more ({actions.length - limit} remaining)
         </Button>
       )}

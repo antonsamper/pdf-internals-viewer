@@ -38,62 +38,78 @@ const PreviewToolbar = ({
   zoom: number;
   onNavigate: (page: number) => void;
   onZoom: Dispatch<SetStateAction<number>>;
-}) => (
-  <div className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-b px-3 py-2">
-    <div className="flex items-center gap-1">
-      <Button
-        aria-label="Previous preview page"
-        variant="ghost"
-        size="icon-sm"
-        disabled={opening || currentPage <= 1}
-        onClick={() => onNavigate(currentPage - 1)}
-      >
-        <ChevronLeft className="size-4" />
-      </Button>
-      <span className="min-w-20 text-center text-xs tabular-nums" aria-live="polite">
-        {pageCount ? `${currentPage} / ${pageCount}` : 'No page'}
-      </span>
-      <Button
-        aria-label="Next preview page"
-        variant="ghost"
-        size="icon-sm"
-        disabled={opening || currentPage >= pageCount}
-        onClick={() => onNavigate(currentPage + 1)}
-      >
-        <ChevronRight className="size-4" />
-      </Button>
+}) => {
+  return (
+    <div className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-b px-3 py-2">
+      <div className="flex items-center gap-1">
+        <Button
+          aria-label="Previous preview page"
+          variant="ghost"
+          size="icon-sm"
+          disabled={opening || currentPage <= 1}
+          onClick={() => {
+            return onNavigate(currentPage - 1);
+          }}
+        >
+          <ChevronLeft className="size-4" />
+        </Button>
+        <span className="min-w-20 text-center text-xs tabular-nums" aria-live="polite">
+          {pageCount ? `${currentPage} / ${pageCount}` : 'No page'}
+        </span>
+        <Button
+          aria-label="Next preview page"
+          variant="ghost"
+          size="icon-sm"
+          disabled={opening || currentPage >= pageCount}
+          onClick={() => {
+            return onNavigate(currentPage + 1);
+          }}
+        >
+          <ChevronRight className="size-4" />
+        </Button>
+      </div>
+      <div className="flex items-center gap-1">
+        <Button
+          aria-label="Zoom out preview"
+          variant="ghost"
+          size="icon-sm"
+          disabled={opening || zoom <= 0.5}
+          onClick={() => {
+            return onZoom((value) => {
+              return Math.max(0.5, value - 0.25);
+            });
+          }}
+        >
+          <ZoomOut className="size-4" />
+        </Button>
+        <span className="min-w-10 text-center text-xs tabular-nums">{Math.round(zoom * 100)}%</span>
+        <Button
+          aria-label="Zoom in preview"
+          variant="ghost"
+          size="icon-sm"
+          disabled={opening || zoom >= 2}
+          onClick={() => {
+            return onZoom((value) => {
+              return Math.min(2, value + 0.25);
+            });
+          }}
+        >
+          <ZoomIn className="size-4" />
+        </Button>
+      </div>
     </div>
-    <div className="flex items-center gap-1">
-      <Button
-        aria-label="Zoom out preview"
-        variant="ghost"
-        size="icon-sm"
-        disabled={opening || zoom <= 0.5}
-        onClick={() => onZoom((value) => Math.max(0.5, value - 0.25))}
-      >
-        <ZoomOut className="size-4" />
-      </Button>
-      <span className="min-w-10 text-center text-xs tabular-nums">{Math.round(zoom * 100)}%</span>
-      <Button
-        aria-label="Zoom in preview"
-        variant="ghost"
-        size="icon-sm"
-        disabled={opening || zoom >= 2}
-        onClick={() => onZoom((value) => Math.min(2, value + 0.25))}
-      >
-        <ZoomIn className="size-4" />
-      </Button>
+  );
+};
+const PreviewError = ({ error }: { error: string }) => {
+  return (
+    <div role="alert" className="mx-auto flex max-w-sm flex-col items-center gap-3 py-12 text-center">
+      <FileWarning className="size-6 text-muted-foreground" aria-hidden="true" />
+      <p className="text-sm font-medium">Page preview unavailable</p>
+      <p className="text-xs leading-relaxed break-words text-muted-foreground">{error}</p>
+      <p className="text-xs leading-relaxed text-muted-foreground">You can continue exploring the objects and original bytes.</p>
     </div>
-  </div>
-);
-const PreviewError = ({ error }: { error: string }) => (
-  <div role="alert" className="mx-auto flex max-w-sm flex-col items-center gap-3 py-12 text-center">
-    <FileWarning className="size-6 text-muted-foreground" aria-hidden="true" />
-    <p className="text-sm font-medium">Page preview unavailable</p>
-    <p className="text-xs leading-relaxed break-words text-muted-foreground">{error}</p>
-    <p className="text-xs leading-relaxed text-muted-foreground">You can continue exploring the objects and original bytes.</p>
-  </div>
-);
+  );
+};
 /** The rendered page with the search matches drawn over it. */
 const PreviewImage = ({
   alt,
@@ -109,46 +125,52 @@ const PreviewImage = ({
   imageUrl: string;
   transform: PageRenderTransform | undefined;
   zoom: number;
-}) => (
-  <div className="relative mx-auto bg-white shadow-sm" style={{ width: `${zoom * 100}%` }}>
-    <img
-      src={imageUrl}
-      alt={alt}
-      draggable={false}
-      width={transform?.width}
-      height={transform?.height}
-      className="block h-auto w-full max-w-none"
-    />
-    {highlights.length > 0 && transform && (
-      <svg
-        className="pointer-events-none absolute inset-0 h-full w-full"
-        data-pdf-search-highlights
-        viewBox={`0 0 ${transform.width} ${transform.height}`}
-        aria-hidden="true"
-      >
-        {highlights.map((points, index) => (
-          <polygon
-            key={index}
-            ref={index === 0 ? firstHighlight : undefined}
-            className="fill-preview-highlight mix-blend-multiply"
-            points={points}
-            fillOpacity={0.4}
-          />
-        ))}
-      </svg>
-    )}
-  </div>
-);
-const PreviewFooter = ({ hasPages, matchCount, search }: { hasPages: boolean; matchCount: number; search: PdfPreviewProps['search'] }) => (
-  <div className="border-t px-3 py-2 text-detail text-muted-foreground">
-    {search && hasPages && (
-      <p role="status" className="break-words">
-        {matchCount} text {matchCount === 1 ? 'match' : 'matches'} on this page for “{search.query}”
-      </p>
-    )}
-    <p>Rendered locally with EmbedPDF · preview positions are not file offsets</p>
-  </div>
-);
+}) => {
+  return (
+    <div className="relative mx-auto bg-white shadow-sm" style={{ width: `${zoom * 100}%` }}>
+      <img
+        src={imageUrl}
+        alt={alt}
+        draggable={false}
+        width={transform?.width}
+        height={transform?.height}
+        className="block h-auto w-full max-w-none"
+      />
+      {highlights.length > 0 && transform && (
+        <svg
+          className="pointer-events-none absolute inset-0 h-full w-full"
+          data-pdf-search-highlights
+          viewBox={`0 0 ${transform.width} ${transform.height}`}
+          aria-hidden="true"
+        >
+          {highlights.map((points, index) => {
+            return (
+              <polygon
+                key={index}
+                ref={index === 0 ? firstHighlight : undefined}
+                className="fill-preview-highlight mix-blend-multiply"
+                points={points}
+                fillOpacity={0.4}
+              />
+            );
+          })}
+        </svg>
+      )}
+    </div>
+  );
+};
+const PreviewFooter = ({ hasPages, matchCount, search }: { hasPages: boolean; matchCount: number; search: PdfPreviewProps['search'] }) => {
+  return (
+    <div className="border-t px-3 py-2 text-detail text-muted-foreground">
+      {search && hasPages && (
+        <p role="status" className="break-words">
+          {matchCount} text {matchCount === 1 ? 'match' : 'matches'} on this page for “{search.query}”
+        </p>
+      )}
+      <p>Rendered locally with EmbedPDF · preview positions are not file offsets</p>
+    </div>
+  );
+};
 /** Read-only local rendering. Never save/rewrite these bytes for the inspector. */
 export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange, search }: PdfPreviewProps) => {
   const navigate = (nextPage: number) => {
@@ -163,32 +185,48 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
   const firstHighlight = useRef<SVGPolygonElement | null>(null);
   const { document, error: openError, opening, pages } = currentDocument(openedPreview, bytes);
   const currentPage = Math.max(1, Math.min(pageNumber ?? localPage, Math.max(1, pages.length)));
-  const renderIdentity = useMemo(() => ({ document, page: currentPage, zoom }), [document, currentPage, zoom]);
+  const renderIdentity = useMemo(() => {
+    return { document, page: currentPage, zoom };
+  }, [document, currentPage, zoom]);
   const { error: renderError, imageUrl, rendered, transform } = currentRender(renderedPreview, renderIdentity);
   const rendering = document !== null && pages.length > 0 && rendered === null;
   const error = openError ?? renderError;
   const searchMatches = useMemo(() => {
     const page = pages[currentPage - 1]?.ref;
-    return search?.matches.filter((match) => match.page.objectNumber === page?.objectNumber) ?? [];
+    return (
+      search?.matches.filter((match) => {
+        return match.page.objectNumber === page?.objectNumber;
+      }) ?? []
+    );
   }, [search, pages, currentPage]);
   const highlights = useMemo(() => {
-    if (!transform) return [];
-    return searchMatches.flatMap((match) =>
-      match.segments.map((segment) => {
+    if (!transform) {
+      return [];
+    }
+    return searchMatches.flatMap((match) => {
+      return match.segments.map((segment) => {
         const quad = transform.pageToPixels(segment.quad);
-        return [quad.upperLeft, quad.upperRight, quad.lowerRight, quad.lowerLeft].map((point) => `${point.x},${point.y}`).join(' ');
-      })
-    );
+        return [quad.upperLeft, quad.upperRight, quad.lowerRight, quad.lowerLeft]
+          .map((point) => {
+            return `${point.x},${point.y}`;
+          })
+          .join(' ');
+      });
+    });
   }, [searchMatches, transform]);
   useEffect(() => {
-    if (!highlights.length) return;
+    if (!highlights.length) {
+      return;
+    }
     const frame = requestAnimationFrame(() => {
       firstHighlight.current?.scrollIntoView({
         block: 'nearest',
         inline: 'nearest',
       });
     });
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      return cancelAnimationFrame(frame);
+    };
   }, [highlights]);
   useEffect(() => {
     // Creating here is safe under Strict Mode's setup/cleanup/setup cycle.
@@ -201,9 +239,13 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
     void request
       .then(async (openedDoc) => {
         openedDocument = openedDoc;
-        if (!active) return;
+        if (!active) {
+          return;
+        }
         const listed = await openedDoc.pages.list();
-        if (!active) return;
+        if (!active) {
+          return;
+        }
         setLocalPage(1);
         setZoom(1);
         setOpenedPreview({
@@ -214,26 +256,35 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
         });
       })
       .catch((reason: unknown) => {
-        if (active)
+        if (active) {
           setOpenedPreview({
             bytes,
             document: null,
             error: errorMessage(reason),
             pages: EMPTY_PAGES,
           });
+        }
       });
     return () => {
       active = false;
       request.abort();
       // Explicit close releases document resources; destroy also terminates the
       // dedicated worker, including a renderer stuck on a malformed document.
-      if (openedDocument) void openedDocument.close().catch(() => undefined);
-      void engine.destroy().catch(() => undefined);
+      if (openedDocument) {
+        void openedDocument.close().catch(() => {
+          return undefined;
+        });
+      }
+      void engine.destroy().catch(() => {
+        return undefined;
+      });
     };
     // oxlint-disable-next-line react/exhaustive-effect-dependencies -- engine is recreated only when the document bytes or password change.
   }, [bytes, password]);
   useEffect(() => {
-    if (!document || !pages[currentPage - 1]) return;
+    if (!document || !pages[currentPage - 1]) {
+      return;
+    }
     let active = true;
     let image: {
       url: string;
@@ -252,7 +303,9 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
     });
     void request
       .then(async (renderedImage) => {
-        if (!active) return;
+        if (!active) {
+          return;
+        }
         const pending = renderedImage.objectUrl();
         imageRequest = pending;
         const nextImage = await pending;
@@ -269,12 +322,13 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
         });
       })
       .catch((reason: unknown) => {
-        if (active)
+        if (active) {
           setRenderedPreview({
             error: errorMessage(reason),
             request: renderIdentity,
             url: null,
           });
+        }
       });
     return () => {
       active = false;

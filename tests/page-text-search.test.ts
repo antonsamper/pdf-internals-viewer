@@ -2,15 +2,35 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { searchPageText } from '../src/lib/pdf/page-text-search';
 
-const engine = vi.hoisted(() => ({
-  destroy: vi.fn(async () => undefined),
-  open: vi.fn(),
-}));
-vi.mock('@embedpdf/engine', () => ({ localEngine: () => engine }));
+const engine = vi.hoisted(() => {
+  return {
+    destroy: vi.fn(async () => {
+      return undefined;
+    }),
+    open: vi.fn(),
+  };
+});
+vi.mock('@embedpdf/engine', () => {
+  return {
+    localEngine: () => {
+      return engine;
+    },
+  };
+});
 
-const never = () => new Promise<never>(() => undefined);
-const blank = { close: async () => undefined };
-const search = (signal = new AbortController().signal) => searchPageText(new Uint8Array([1]), 'term', undefined, signal);
+const never = () => {
+  return new Promise<never>(() => {
+    return undefined;
+  });
+};
+const blank = {
+  close: async () => {
+    return undefined;
+  },
+};
+const search = (signal = new AbortController().signal) => {
+  return searchPageText(new Uint8Array([1]), 'term', undefined, signal);
+};
 
 describe('page text search time limits', () => {
   beforeEach(() => {
@@ -23,7 +43,13 @@ describe('page text search time limits', () => {
   });
   it('waits for a slow engine load without starting the search limit', async () => {
     let loaded!: (value: typeof blank) => void;
-    engine.open.mockReturnValueOnce(new Promise((done) => (loaded = done))).mockReturnValueOnce(never());
+    engine.open
+      .mockReturnValueOnce(
+        new Promise((done) => {
+          return (loaded = done);
+        })
+      )
+      .mockReturnValueOnce(never());
     const result = search();
     const settled = vi.fn();
     result.catch(settled);
@@ -52,7 +78,11 @@ describe('page text search time limits', () => {
   it('reports a cancellation during the engine load as a cancellation', async () => {
     const controller = new AbortController();
     engine.open.mockReturnValueOnce(
-      new Promise((_, reject) => controller.signal.addEventListener('abort', () => reject(new Error('engine destroyed'))))
+      new Promise((_, reject) => {
+        return controller.signal.addEventListener('abort', () => {
+          return reject(new Error('engine destroyed'));
+        });
+      })
     );
     const result = search(controller.signal);
     controller.abort();
