@@ -1,4 +1,5 @@
-import type { PageTextLocation } from '@/lib/pdf/page-text';
+import type { PageTextLocation, TextSource } from '@/lib/pdf/page-text';
+import type { PageTextHit } from '@/lib/pdf/page-text-search';
 import type { SearchSnippet } from '@/lib/pdf/search-snippet';
 import type { PdfDocumentInfo, PdfObjectRecord, PdfValue, StreamResult } from '@/lib/pdf/types';
 
@@ -31,7 +32,25 @@ export interface SearchRequest {
 /** Results plus an explanatory note; null when the search stopped being current. */
 export type SearchOutcome = { found: SearchResult[]; message: string } | null;
 
-const MAX_RESULTS = 500;
+export const MAX_RESULTS = 500;
+
+const pageTextResult = (hit: PageTextHit, pageId: string, pageNumber: number, sources: TextSource[]): SearchResult => ({
+  detail: `${hit.count} text match${hit.count === 1 ? '' : 'es'}`,
+  label: `Page ${pageNumber}`,
+  pageText: {
+    count: hit.count,
+    matches: hit.matches,
+    pageId,
+    pageNumber,
+    snippet: hit.snippet,
+    sources,
+  },
+  snippet: hit.context ?? {
+    after: '',
+    before: '',
+    match: hit.snippet,
+  },
+});
 
 const searchPageText = async (request: SearchRequest): Promise<SearchOutcome> => {
   const { bytes, document, isCurrent, objectMap, objects, password, readStream, signal, term } = request;
@@ -51,24 +70,7 @@ const searchPageText = async (request: SearchRequest): Promise<SearchOutcome> =>
     // oxlint-disable-next-line react-doctor/async-await-in-loop -- sequential: every page reads streams through the shared cache and must stop as soon as the search is cancelled.
     const sources = await pageTextSources(page, objectMap, term, cachedRead, document.encrypted, () => !isCurrent());
     sources.sort((a, b) => Number(Boolean(b.ranges.length)) - Number(Boolean(a.ranges.length)));
-    const pageNumber = pageSearch.pages.get(hit.objectNumber) ?? document.pages.indexOf(page.id) + 1;
-    found.push({
-      detail: `${hit.count} text match${hit.count === 1 ? '' : 'es'}`,
-      label: `Page ${pageNumber}`,
-      pageText: {
-        count: hit.count,
-        matches: hit.matches,
-        pageId: page.id,
-        pageNumber,
-        snippet: hit.snippet,
-        sources,
-      },
-      snippet: hit.context ?? {
-        after: '',
-        before: '',
-        match: hit.snippet,
-      },
-    });
+    found.push(pageTextResult(hit, page.id, pageSearch.pages.get(hit.objectNumber) ?? document.pages.indexOf(page.id) + 1, sources));
   }
   if (!isCurrent()) return null;
   return {
@@ -125,16 +127,31 @@ const searchDecoded = async ({ isCurrent, objects, readStream, term }: SearchReq
   return { found, message: skipped ? `${skipped} stream(s) unsupported or incomplete. Results are partial.` : '' };
 };
 
-const searchBytes = async ({ bytes, isCurrent, scope, term }: SearchRequest): Promise<SearchOutcome> => {
+/** The bytes to find; throws when the term is not valid for the scope. */
+const byteNeedle = (scope: string, term: string) => {
   const compact = term.replace(/\s/g, '');
   if (scope === 'hex' && (!/^[\da-f]+$/i.test(compact) || compact.length % 2))
     throw new Error('Enter complete hex bytes, for example 25 50 44 46.');
   if (scope === 'text' && [...term].some((character) => character.charCodeAt(0) > 255))
     throw new Error('Original byte-text search accepts Latin-1 characters (0–255). Use decoded search for stream content.');
-  const needle =
-    scope === 'hex'
-      ? Uint8Array.from(compact.match(/../g) ?? [], (pair) => parseInt(pair, 16))
-      : Uint8Array.from(term, (character) => character.charCodeAt(0));
+  return scope === 'hex'
+    ? Uint8Array.from(compact.match(/../g) ?? [], (pair) => parseInt(pair, 16))
+    : Uint8Array.from(term, (character) => character.charCodeAt(0));
+};
+/** Compares the rest of the needle once its first byte has matched. */
+const matchesAt = (bytes: Uint8Array, needle: Uint8Array, offset: number) => {
+  for (let index = 1; index < needle.length; index++) if (bytes[offset + index] !== needle[index]) return false;
+  return true;
+};
+const byteResult = (bytes: Uint8Array, offset: number, length: number, hex: boolean): SearchResult => ({
+  detail: `${length} original file byte${length === 1 ? '' : 's'}`,
+  label: `0x${offset.toString(16).toUpperCase()}`,
+  range: { end: offset + length, start: offset },
+  snippet: byteSearchSnippet(bytes, offset, offset + length, hex),
+});
+
+const searchBytes = async ({ bytes, isCurrent, scope, term }: SearchRequest): Promise<SearchOutcome> => {
+  const needle = byteNeedle(scope, term);
   const found: SearchResult[] = [];
   for (let offset = 0; offset <= bytes.length - needle.length; offset++) {
     if (offset % 100000 === 0) {
@@ -142,20 +159,8 @@ const searchBytes = async ({ bytes, isCurrent, scope, term }: SearchRequest): Pr
       await new Promise((resolve) => setTimeout(resolve, 0));
       if (!isCurrent()) return null;
     }
-    if (bytes[offset] !== needle[0]) continue;
-    let matches = true;
-    for (let index = 1; index < needle.length; index++)
-      if (bytes[offset + index] !== needle[index]) {
-        matches = false;
-        break;
-      }
-    if (!matches) continue;
-    found.push({
-      detail: `${needle.length} original file byte${needle.length === 1 ? '' : 's'}`,
-      label: `0x${offset.toString(16).toUpperCase()}`,
-      range: { end: offset + needle.length, start: offset },
-      snippet: byteSearchSnippet(bytes, offset, offset + needle.length, scope === 'hex'),
-    });
+    if (bytes[offset] !== needle[0] || !matchesAt(bytes, needle, offset)) continue;
+    found.push(byteResult(bytes, offset, needle.length, scope === 'hex'));
     if (found.length === MAX_RESULTS) break;
   }
   return { found, message: '' };

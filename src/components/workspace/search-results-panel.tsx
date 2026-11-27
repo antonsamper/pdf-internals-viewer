@@ -1,4 +1,4 @@
-import type { ComponentProps } from 'react';
+import type { ComponentProps, KeyboardEvent } from 'react';
 
 import { ChevronDown, ChevronRight, ChevronUp, Eye, FileCode2, Search } from 'lucide-react';
 
@@ -69,22 +69,41 @@ const ResultsNote = ({ className, ...props }: ComponentProps<'p'>) => (
 const focusSearchToggle = (search: Search) =>
   search.formRef.current?.querySelector<HTMLButtonElement>('[data-search-show]')?.focus({ preventScroll: true });
 
-const ResultsHeader = ({ search }: { search: Search }) => {
-  const {
-    activeResult,
-    cancel,
-    cancelReady,
-    cancelRequest,
-    inputRef,
-    interrupted,
-    move,
-    resultsQuery,
-    resultsScope,
-    searching,
-    searchingQuery,
-  } = search;
+/** The active result's position and the previous and next buttons. */
+const ResultNavigation = ({ search }: { search: Search }) => {
+  const { activeResult, move, resultsScope, searching } = search;
   const results = search.results ?? [];
   const pageText = resultsScope === 'pageText';
+  return (
+    <div className="ml-auto flex items-center gap-0.5 whitespace-nowrap" aria-label="Search result navigation" role="group">
+      <span className="mr-1.5 text-detail" aria-live="polite" aria-atomic="true">
+        {pageText ? 'Page ' : 'Match '}
+        {results.length ? `${(activeResult ?? 0) + 1} of ${results.length}` : '0 of 0'}
+      </span>
+      <HeaderButton
+        size="icon-sm"
+        aria-label="Previous search result"
+        title={pageText ? 'Previous matching page' : 'Previous match'}
+        disabled={searching || results.length < 2}
+        onClick={() => move(-1)}
+      >
+        <ChevronUp size={14} />
+      </HeaderButton>
+      <HeaderButton
+        size="icon-sm"
+        aria-label="Next search result"
+        title={pageText ? 'Next matching page' : 'Next match'}
+        disabled={searching || results.length < 2}
+        onClick={() => move(1)}
+      >
+        <ChevronDown size={14} />
+      </HeaderButton>
+    </div>
+  );
+};
+
+const ResultsHeader = ({ search }: { search: Search }) => {
+  const { cancel, cancelReady, cancelRequest, inputRef, interrupted, resultsQuery, searching, searchingQuery } = search;
   return (
     <div
       className={cn(
@@ -100,30 +119,7 @@ const ResultsHeader = ({ search }: { search: Search }) => {
       >
         {statusText(search)}
       </span>
-      <div className="ml-auto flex items-center gap-0.5 whitespace-nowrap" aria-label="Search result navigation" role="group">
-        <span className="mr-1.5 text-detail" aria-live="polite" aria-atomic="true">
-          {pageText ? 'Page ' : 'Match '}
-          {results.length ? `${(activeResult ?? 0) + 1} of ${results.length}` : '0 of 0'}
-        </span>
-        <HeaderButton
-          size="icon-sm"
-          aria-label="Previous search result"
-          title={pageText ? 'Previous matching page' : 'Previous match'}
-          disabled={searching || results.length < 2}
-          onClick={() => move(-1)}
-        >
-          <ChevronUp size={14} />
-        </HeaderButton>
-        <HeaderButton
-          size="icon-sm"
-          aria-label="Next search result"
-          title={pageText ? 'Next matching page' : 'Next match'}
-          disabled={searching || results.length < 2}
-          onClick={() => move(1)}
-        >
-          <ChevronDown size={14} />
-        </HeaderButton>
-      </div>
+      <ResultNavigation search={search} />
       {searching && cancelReady === cancelRequest && (
         <HeaderButton
           size="xs"
@@ -379,25 +375,46 @@ const CoverageNote = ({ message, resultsScope }: { message: string; resultsScope
     <ResultsNote className="text-muted-foreground">{message}</ResultsNote>
   );
 
-export const SearchResultsPanel = ({ search, textSource }: { search: Search; textSource: TextSource | null }) => {
-  const {
-    activeMatchRef,
-    formRef,
-    inputRef,
-    interrupted,
-    message,
-    move,
-    open,
-    results,
-    resultsId,
-    resultsQuery,
-    resultsScope,
-    searching,
-    setOpen,
-    showPrevious,
-  } = search;
-  if (results === null) return null;
+/** Arrow keys on a result card step through the results and keep focus on the active card. */
+const stepWithArrows = (search: Search) => (event: KeyboardEvent<HTMLElement>) => {
+  if ((event.key !== 'ArrowDown' && event.key !== 'ArrowUp') || !(event.target as HTMLElement).matches('[data-search-result]')) return;
+  event.preventDefault();
+  search.move(event.key === 'ArrowDown' ? 1 : -1);
+  requestAnimationFrame(() =>
+    search.activeMatchRef.current?.focus({
+      preventScroll: true,
+    })
+  );
+};
+
+/** The scrolling list of result cards with its notes. */
+const ResultsBody = ({ search, textSource }: { search: Search; textSource: TextSource | null }) => {
+  const { interrupted, message, resultsQuery, resultsScope, searching, showPrevious } = search;
+  const results = search.results ?? [];
   const keys = uniqueKeys(results, (result) => result.label);
+  const settled = !searching && !interrupted;
+  return (
+    <div className="min-h-0 flex-1 overflow-auto overscroll-contain" data-search-results-body="" aria-busy={searching}>
+      {showPrevious && (
+        <ResultsNote className="text-muted-foreground" data-search-previous="">
+          Previous results for “{resultsQuery}”
+        </ResultsNote>
+      )}
+      {interrupted === 'failed' && message && <ResultsNote role="status">{message}</ResultsNote>}
+      <div className="flex flex-col gap-3 bg-muted p-3 group-data-searching/results:opacity-55" data-search-matches="">
+        {results.map((result, index) => (
+          <ResultItem key={keys[index]} index={index} result={result} search={search} textSource={textSource} />
+        ))}
+      </div>
+      {settled && !results.length && <EmptyResults search={search} />}
+      {settled && message && <CoverageNote message={message} resultsScope={resultsScope} />}
+    </div>
+  );
+};
+
+export const SearchResultsPanel = ({ search, textSource }: { search: Search; textSource: TextSource | null }) => {
+  const { formRef, inputRef, open, results, resultsId, searching, setOpen, showPrevious } = search;
+  if (results === null) return null;
   return (
     <SearchResultsPopover
       id={resultsId}
@@ -418,34 +435,10 @@ export const SearchResultsPanel = ({ search, textSource }: { search: Search; tex
         data-search-results=""
         data-searching={searching || undefined}
         data-hold-height={searching || showPrevious || undefined}
-        onKeyDown={(event) => {
-          if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && (event.target as HTMLElement).matches('[data-search-result]')) {
-            event.preventDefault();
-            move(event.key === 'ArrowDown' ? 1 : -1);
-            requestAnimationFrame(() =>
-              activeMatchRef.current?.focus({
-                preventScroll: true,
-              })
-            );
-          }
-        }}
+        onKeyDown={stepWithArrows(search)}
       >
         <ResultsHeader search={search} />
-        <div className="min-h-0 flex-1 overflow-auto overscroll-contain" data-search-results-body="" aria-busy={searching}>
-          {showPrevious && (
-            <ResultsNote className="text-muted-foreground" data-search-previous="">
-              Previous results for “{resultsQuery}”
-            </ResultsNote>
-          )}
-          {interrupted === 'failed' && message && <ResultsNote role="status">{message}</ResultsNote>}
-          <div className="flex flex-col gap-3 bg-muted p-3 group-data-searching/results:opacity-55" data-search-matches="">
-            {results.map((result, index) => (
-              <ResultItem key={keys[index]} index={index} result={result} search={search} textSource={textSource} />
-            ))}
-          </div>
-          {!searching && !interrupted && !results.length && <EmptyResults search={search} />}
-          {!searching && !interrupted && message && <CoverageNote message={message} resultsScope={resultsScope} />}
-        </div>
+        <ResultsBody search={search} textSource={textSource} />
       </section>
     </SearchResultsPopover>
   );
