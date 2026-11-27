@@ -32,7 +32,7 @@ export interface SearchRequest {
 /** Results plus an explanatory note; null when the search stopped being current. */
 export type SearchOutcome = { found: SearchResult[]; message: string } | null;
 
-export const MAX_RESULTS = 500;
+const MAX_RESULTS = 500;
 
 const pageTextResult = (hit: PageTextHit, pageId: string, pageNumber: number, { limited, sources }: PageTextSourceList): SearchResult => ({
   detail: `${hit.count} text match${hit.count === 1 ? '' : 'es'}`,

@@ -3409,6 +3409,9 @@ test('page text search keeps its coverage note when 500 pages match', async ({ p
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   await expect(results).toContainText('500 matches');
   await expect(results).toContainText('Showing the first 500 matches. Narrow your search.');
+  await selectSearchScope(page, 'text');
+  await expect(results).toContainText('500 matches · Latin-1 file bytes');
+  await expect(results).toContainText('Showing the first 500 matches. Narrow your search.');
 });
 test('page text search says when a page stops at the source limit', async ({ page }) => {
   await cacheEngineAssets(page);
