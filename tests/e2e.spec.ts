@@ -2792,6 +2792,56 @@ test('cancels a pending page text search when the document is replaced', async (
     page.getByRole('region', { exact: true, name: 'Original file bytes' }).locator('button[data-hex-byte][data-selected]')
   ).toHaveCount(9);
 });
+test('page text search waits for a slow engine download before its time limit starts', async ({ page }) => {
+  await cacheEngineAssets(page);
+  await page.clock.install();
+  await openMinimal(page);
+  let release!: () => void;
+  const gate = new Promise<void>((done) => {
+    release = done;
+  });
+  await page.route('**/*.wasm*', async (route) => {
+    await gate;
+    await route.continue().catch(() => undefined);
+  });
+  await selectSearchScope(page, 'pageText');
+  await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('internals');
+  const loading = page.waitForRequest((request) => request.url().includes('.wasm'));
+  await page.getByRole('button', { exact: true, name: 'Run search' }).click();
+  await loading;
+  await page.clock.fastForward(30_000);
+  const results = page.getByRole('region', { exact: true, name: 'Search results' });
+  await expect(results).toContainText('Searching for “internals”…');
+  release();
+  await expect(results).toContainText('1 page');
+  await expect(results).not.toContainText('exceeded 15 seconds');
+});
+test('page text search blames the engine, not the file, when the engine fails to load', async ({ page }) => {
+  await cacheEngineAssets(page);
+  await page.clock.install();
+  await openMinimal(page);
+  let release!: () => void;
+  const gate = new Promise<void>((done) => {
+    release = done;
+  });
+  await page.route('**/*.wasm*', async (route) => {
+    await gate;
+    await route.abort().catch(() => undefined);
+  });
+  await selectSearchScope(page, 'pageText');
+  const search = page.getByRole('textbox', { exact: true, name: 'Search document' });
+  await search.fill('internals');
+  const loading = page.waitForRequest((request) => request.url().includes('.wasm'));
+  await page.getByRole('button', { exact: true, name: 'Run search' }).click();
+  await loading;
+  await page.clock.fastForward(121_000);
+  const results = page.getByRole('region', { exact: true, name: 'Search results' });
+  await expect(results).toContainText('The page text engine did not load within 2 minutes. Check your connection and search again.');
+  await page.getByRole('button', { exact: true, name: 'Run search' }).click();
+  release();
+  await expect(results).toContainText('The page text engine could not load. Check your connection and search again.');
+  await expect(results).not.toContainText('smaller PDF');
+});
 for (const width of [1440, 390]) {
   test(`keeps popover results stable while searching and preserves them when hidden at ${width}px`, async ({ page }) => {
     await page.addInitScript(() => {

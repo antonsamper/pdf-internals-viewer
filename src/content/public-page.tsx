@@ -7,7 +7,14 @@ import { ArticleActions, ArticleSource, ComparisonTable, Lead } from '@/componen
 import { BackToWorkspace, ReadingPage } from '@/components/reading-page';
 import { SiteHeader } from '@/components/site-header';
 import { SiteLinks } from '@/components/site-links';
-import { MAX_INPUT_BYTES, MAX_DISPLAY_BYTES, MAX_OBJECTS, MAX_DECODED_BYTES, OPERATION_TIMEOUT_MS } from '@/lib/pdf/limits';
+import {
+  ENGINE_LOAD_TIMEOUT_MS,
+  MAX_INPUT_BYTES,
+  MAX_DISPLAY_BYTES,
+  MAX_OBJECTS,
+  MAX_DECODED_BYTES,
+  OPERATION_TIMEOUT_MS,
+} from '@/lib/pdf/limits';
 import { PRIVACY_SUMMARY, PROJECT_URL, articleSection, isArticlePath } from '@/lib/site-content';
 import { navigationLabel } from '@/lib/site-navigation';
 import { cn } from '@/lib/utils';
@@ -528,6 +535,11 @@ const Limitations = function Limitations() {
         <dd>{MAX_DISPLAY_BYTES / 1024} KiB</dd>
         <dt>Parser operation timeout</dt>
         <dd>{OPERATION_TIMEOUT_MS / 1000} seconds</dd>
+        <dt>Page text search timeout</dt>
+        <dd>
+          {OPERATION_TIMEOUT_MS / 1000} seconds, counted once the search engine has loaded. Loading may take up to{' '}
+          {ENGINE_LOAD_TIMEOUT_MS / 60_000} minutes.
+        </dd>
       </dl>
       <p>
         The inspector allows up to 128 MiB of decoded data across all streams in a document. The browser also needs memory for objects and

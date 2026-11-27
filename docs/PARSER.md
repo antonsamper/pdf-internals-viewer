@@ -44,7 +44,7 @@ Import the adapter as `pdf-internals-viewer/inspection`, which resolves in the b
 
 ## Page text source mapping
 
-Page text search uses the EmbedPDF engine to find words on each page (`src/lib/pdf/page-text-search.ts`). A separate mapper (`src/lib/pdf/page-text.ts`) then tries to trace each match back to the content-stream bytes that draw it. The renderer understands more encodings than the mapper, so a page can match without a mapped source; the UI labels that stream as a candidate and highlights no word bytes.
+Page text search uses the EmbedPDF engine to find words on each page (`src/lib/pdf/page-text-search.ts`). Each search starts its own engine and waits up to 2 minutes for it to download and load; the 15-second search limit starts after that. A separate mapper (`src/lib/pdf/page-text.ts`) then tries to trace each match back to the content-stream bytes that draw it. The renderer understands more encodings than the mapper, so a page can match without a mapped source; the UI labels that stream as a candidate and highlights no word bytes.
 
 The mapper supports:
 
