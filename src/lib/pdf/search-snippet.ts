@@ -1,14 +1,16 @@
+const visibleByte = (byte: number) => (byte >= 32 && byte !== 127 && (byte <= 126 || byte >= 160) ? String.fromCharCode(byte) : '·');
+const hexByte = (byte: number) => byte.toString(16).toUpperCase().padStart(2, '0');
+const snippetText = (data: Uint8Array, hex: boolean) =>
+  hex ? Array.from(data, hexByte).join(' ') : Array.from(data, visibleByte).join('');
 /** Bounded previews retain the actual matching bytes; control bytes remain visible. */
 export const byteSearchSnippet = function byteSearchSnippet(bytes: Uint8Array, start: number, end: number, hex = false): SearchSnippet {
   const context = hex ? 6 : 32;
   const limit = hex ? 24 : 96;
-  const text = (data: Uint8Array) =>
-    hex
-      ? Array.from(data, (byte) => byte.toString(16).toUpperCase().padStart(2, '0')).join(' ')
-      : Array.from(data, (byte) => (byte >= 32 && byte !== 127 && (byte <= 126 || byte >= 160) ? String.fromCharCode(byte) : '·')).join('');
+  const text = (data: Uint8Array) => snippetText(data, hex);
+  const gap = (show: boolean | number) => (hex && show ? ' ' : '');
   return {
-    after: `${hex && end < bytes.length ? ' ' : ''}${text(bytes.subarray(end, end + context))}${end + context < bytes.length ? '…' : ''}`,
-    before: `${start > context ? '…' : ''}${text(bytes.subarray(Math.max(0, start - context), start))}${hex && start ? ' ' : ''}`,
+    after: `${gap(end < bytes.length)}${text(bytes.subarray(end, end + context))}${end + context < bytes.length ? '…' : ''}`,
+    before: `${start > context ? '…' : ''}${text(bytes.subarray(Math.max(0, start - context), start))}${gap(start)}`,
     match: `${text(bytes.subarray(start, Math.min(end, start + limit)))}${end - start > limit ? '…' : ''}`,
   };
 };
