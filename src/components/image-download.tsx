@@ -17,6 +17,88 @@ import { cn } from '@/lib/utils';
 /** The text in the preview placeholder, at a readable measure. */
 const PreviewStatus = ({ children }: { children: ReactNode }) => <p className="max-w-[54ch] leading-[1.6]">{children}</p>;
 
+/** The export plan for an image, or why it cannot be exported. */
+const downloadPlan = (object: PdfObjectRecord) => {
+  try {
+    return { plan: imageDownloadPlan(object), unavailable: undefined };
+  } catch (reason) {
+    return { plan: undefined, unavailable: message(reason) };
+  }
+};
+
+/** The thumbnail, or a placeholder while it loads or when it cannot be drawn. */
+const ImagePreview = ({ error, image, objectId }: { error: string | undefined; image: string | undefined; objectId: string }) => {
+  if (image)
+    return (
+      <img
+        src={image}
+        alt={`Image object ${objectId}`}
+        className="my-3 block size-40 max-w-full rounded-md border bg-background object-contain p-2"
+      />
+    );
+  return (
+    <div
+      className={cn(
+        'my-3 flex items-center gap-2.5 p-3.5',
+        'bg-sidebar text-detail text-muted-foreground',
+        'rounded-md border border-dashed'
+      )}
+      role="status"
+    >
+      {error ? (
+        <>
+          <ImageOff aria-hidden="true" className="size-4.5 shrink-0" />
+          <PreviewStatus>Preview unavailable: {error}</PreviewStatus>
+        </>
+      ) : (
+        <>
+          <LoaderCircle aria-hidden="true" className="size-4.5 shrink-0 animate-spin motion-reduce:animate-none" />
+          <PreviewStatus>Loading image preview…</PreviewStatus>
+        </>
+      )}
+    </div>
+  );
+};
+
+/** The size of the exported file next to the stream's size in the PDF. */
+const DownloadSize = ({ failed, object, size }: { failed: boolean; object: PdfObjectRecord; size: number | undefined }) => {
+  let text = failed ? 'Download size unavailable' : 'Calculating download size…';
+  if (size !== undefined) text = `Download: ${fileSize(size)}`;
+  return (
+    <div
+      className="my-2.5 text-detail leading-[1.6] text-muted-foreground tabular-nums"
+      data-image-file-size
+      title={size !== undefined ? `${size.toLocaleString()} bytes` : undefined}
+    >
+      {text}
+      {object.stream && <span> · In PDF: {fileSize(object.stream.length)}</span>}
+    </div>
+  );
+};
+
+const DownloadButton = ({ disabled, pending, onClick }: { disabled: boolean; pending: boolean; onClick: () => void }) => (
+  <Button variant="outline" size="sm" disabled={disabled} onClick={onClick}>
+    {pending ? <LoaderCircle aria-hidden="true" className="animate-spin motion-reduce:animate-none" /> : <Download aria-hidden="true" />}
+    {pending ? 'Exporting image…' : 'Download image'}
+  </Button>
+);
+
+/** What the export keeps and drops for the image's format, or why there is no export. */
+const exportNote = (plan: ReturnType<typeof imageDownloadPlan> | undefined, unavailable: string | undefined) => {
+  if (unavailable) return `Image export unavailable: ${unavailable}`;
+  return plan?.format === 'jpeg'
+    ? 'JPEG · embedded file, without page masks, colour adjustments, or transforms.'
+    : 'PNG · full image dimensions, without page transforms. Up to 4 megapixels / 4096 pixels per side.';
+};
+
+/** Whether an export error says something the preview and the format note don't already show. */
+const showsDownloadError = (
+  downloadError: string | null | undefined,
+  unavailable: string | undefined,
+  previewError: string | undefined,
+  showPreview: boolean
+) => !!downloadError && downloadError !== unavailable && (!showPreview || downloadError !== previewError);
+
 export const ImageDownload = ({
   object,
   extractImage,
@@ -63,13 +145,7 @@ export const ImageDownload = ({
     // oxlint-disable-next-line react/exhaustive-effect-dependencies -- object identity is the trigger that invalidates in-flight requests.
     [object]
   );
-  let plan: ReturnType<typeof imageDownloadPlan> | undefined;
-  let unavailable: string | undefined;
-  try {
-    plan = imageDownloadPlan(object);
-  } catch (reason) {
-    unavailable = message(reason);
-  }
+  const { plan, unavailable } = downloadPlan(object);
   useEffect(() => {
     if (!visible) return;
     let active = true;
@@ -103,66 +179,13 @@ export const ImageDownload = ({
   }, [object, extractImage, showPreview, visible]);
   const previewError = unavailable ?? state.previewError;
   const downloadError = error ?? state.exportError;
-  const showDownloadError = downloadError && downloadError !== unavailable && (!showPreview || downloadError !== previewError);
   return (
     <div ref={ref}>
-      {showPreview &&
-        (state.image ? (
-          <img
-            src={state.image}
-            alt={`Image object ${object.id}`}
-            className="my-3 block size-40 max-w-full rounded-md border bg-background object-contain p-2"
-          />
-        ) : (
-          <div
-            className={cn(
-              'my-3 flex items-center gap-2.5 p-3.5',
-              'bg-sidebar text-detail text-muted-foreground',
-              'rounded-md border border-dashed'
-            )}
-            role="status"
-          >
-            {previewError ? (
-              <>
-                <ImageOff aria-hidden="true" className="size-4.5 shrink-0" />
-                <PreviewStatus>Preview unavailable: {previewError}</PreviewStatus>
-              </>
-            ) : (
-              <>
-                <LoaderCircle aria-hidden="true" className="size-4.5 shrink-0 animate-spin motion-reduce:animate-none" />
-                <PreviewStatus>Loading image preview…</PreviewStatus>
-              </>
-            )}
-          </div>
-        ))}
-      <div
-        className="my-2.5 text-detail leading-[1.6] text-muted-foreground tabular-nums"
-        data-image-file-size
-        title={state.size !== undefined ? `${state.size.toLocaleString()} bytes` : undefined}
-      >
-        {state.size !== undefined
-          ? `Download: ${fileSize(state.size)}`
-          : unavailable || state.exportError
-            ? 'Download size unavailable'
-            : 'Calculating download size…'}
-        {object.stream && <span> · In PDF: {fileSize(object.stream.length)}</span>}
-      </div>
-      <Button variant="outline" size="sm" disabled={pending || !plan} onClick={() => void download()}>
-        {pending ? (
-          <LoaderCircle aria-hidden="true" className="animate-spin motion-reduce:animate-none" />
-        ) : (
-          <Download aria-hidden="true" />
-        )}
-        {pending ? 'Exporting image…' : 'Download image'}
-      </Button>
-      <p className="mt-2 max-w-[54ch] text-xs leading-[1.6] text-muted-foreground">
-        {unavailable
-          ? `Image export unavailable: ${unavailable}`
-          : plan?.format === 'jpeg'
-            ? 'JPEG · embedded file, without page masks, colour adjustments, or transforms.'
-            : 'PNG · full image dimensions, without page transforms. Up to 4 megapixels / 4096 pixels per side.'}
-      </p>
-      {showDownloadError && (
+      {showPreview && <ImagePreview error={previewError} image={state.image} objectId={object.id} />}
+      <DownloadSize failed={Boolean(unavailable || state.exportError)} object={object} size={state.size} />
+      <DownloadButton disabled={pending || !plan} pending={pending} onClick={() => void download()} />
+      <p className="mt-2 max-w-[54ch] text-xs leading-[1.6] text-muted-foreground">{exportNote(plan, unavailable)}</p>
+      {showsDownloadError(downloadError, unavailable, previewError, showPreview) && (
         <Warning role="alert" className="max-w-[54ch] leading-[1.6]">
           {downloadError}
         </Warning>
