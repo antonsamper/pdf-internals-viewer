@@ -14,20 +14,18 @@ import { SEVERITY_TONE } from '@/components/inspector/severity-tone';
 import { Warning } from '@/components/inspector/warning';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { flattenActions, SENSITIVE_ACTIONS } from '@/lib/pdf/document-actions';
+import { ACTION_PAGE_SIZE, flattenActions, scriptText } from '@/lib/pdf/document-actions';
 import { useScrollRestoration } from '@/lib/scroll-restoration';
 import { cn } from '@/lib/utils';
 
 type ReadStream = (id: string, mode: 'raw' | 'decoded') => Promise<StreamResult>;
 type Navigate = (id: string) => void;
 
-const PAGE_SIZE = 100;
-
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
 
 const summary = ({ actions, notes }: PdfActionReport) => {
   const all = flattenActions(actions);
-  const sensitive = all.filter((action) => action.type && SENSITIVE_ACTIONS[action.type]).length;
+  const sensitive = all.filter((action) => action.sensitive).length;
   const noteCount = notes.length + all.reduce((total, action) => total + action.notes.length, 0);
   return [
     all.length ? plural(all.length, 'action') : 'No actions found in the sources below',
@@ -40,7 +38,7 @@ const summary = ({ actions, notes }: PdfActionReport) => {
 
 /** An outline button in an action row, in the pane's text size. */
 const InspectButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
-  <Button variant="outline" size="sm" className={cn('text-small leading-[1.7]', className)} {...props} />
+  <Button variant="outline" size="sm" className={cn('text-small leading-[1.7]', 'narrow:min-h-11', className)} {...props} />
 );
 
 /** Decoded text shown as plain text, never as markup or a link. */
@@ -60,6 +58,20 @@ const DecodedText = ({ className, ...props }: ComponentProps<'pre'>) => (
 const DecodedLabel = ({ className, ...props }: ComponentProps<'p'>) => (
   <p className={cn('mt-2 text-caption text-muted-foreground', className)} {...props} />
 );
+
+/** A script read from a stream, labelled with how its bytes were decoded. */
+const DecodedScript = ({ result, streamId }: { result: StreamResult; streamId: string }) => {
+  const { encoding, text } = scriptText(result);
+  return (
+    <>
+      <DecodedLabel>
+        Decoded stream text from {streamId} obj, read as {encoding}
+        {result.truncated ? ', truncated' : ''}. Not run.
+      </DecodedLabel>
+      <DecodedText aria-label={`Decoded script from ${streamId} obj`}>{text}</DecodedText>
+    </>
+  );
+};
 
 /** Reads a script stream when asked, so opening the panel reads nothing. */
 const ScriptStream = ({ streamId, readStream, onNavigate }: { streamId: string; readStream: ReadStream; onNavigate: Navigate }) => {
@@ -89,14 +101,7 @@ const ScriptStream = ({ streamId, readStream, onNavigate }: { streamId: string; 
         <InspectButton onClick={() => onNavigate(streamId)}>Inspect {streamId} obj</InspectButton>
       </div>
       {error && <Warning role="alert">{error}</Warning>}
-      {result && !result.error && (
-        <>
-          <DecodedLabel>
-            Decoded stream text from {streamId} obj{result.truncated ? ', truncated' : ''}. Not run.
-          </DecodedLabel>
-          <DecodedText aria-label={`Decoded script from ${streamId} obj`}>{result.text}</DecodedText>
-        </>
-      )}
+      {result && !result.error && <DecodedScript result={result} streamId={streamId} />}
     </div>
   );
 };
@@ -114,34 +119,43 @@ const ActionTarget = ({ target, readStream, onNavigate }: { target: PdfActionTar
   if (target.decodedString)
     return (
       <>
-        <DecodedLabel>{target.label}, decoded from a string value. Not run.</DecodedLabel>
+        <DecodedLabel>
+          {target.label}, decoded from a string value{target.truncated ? ', truncated' : ''}. Not run.
+        </DecodedLabel>
         <DecodedText>{target.text}</DecodedText>
       </>
     );
   return (
-    <p className="mt-2 [overflow-wrap:anywhere]">
-      <span className="text-muted-foreground">{target.label}:</span> <code>{target.text}</code>
-    </p>
+    <>
+      <p className="mt-2 [overflow-wrap:anywhere]">
+        <span className="text-muted-foreground">{target.label}:</span> <code>{target.text}</code>
+        {target.truncated && <span className="text-muted-foreground"> (truncated)</span>}
+      </p>
+      {target.detail && <p className="[overflow-wrap:anywhere]">{target.detail}</p>}
+    </>
   );
 };
 
 /** The type badge, and a pill for the types that run code, open files or move form data. */
-const ActionType = ({ action }: { action: PdfAction }) => {
-  const sensitive = action.type ? SENSITIVE_ACTIONS[action.type] : undefined;
-  return (
-    <>
+const ActionType = ({ action }: { action: PdfAction }) => (
+  <>
+    {action.type ? (
       <Badge variant="outline" className="font-mono text-detail">
-        {action.destination ? 'Destination' : action.type ? `/S /${action.type}` : 'No action type'}
+        /S /{action.type}
       </Badge>
-      {sensitive && (
-        <SeverityPill render={<Badge variant="outline" />}>
-          <ShieldAlert size={13} aria-hidden="true" />
-          {sensitive}
-        </SeverityPill>
-      )}
-    </>
-  );
-};
+    ) : (
+      <Badge variant="outline" className="text-detail">
+        {action.destination ? 'Destination' : 'No action type'}
+      </Badge>
+    )}
+    {action.sensitive && (
+      <SeverityPill render={<Badge variant="outline" />}>
+        <ShieldAlert size={13} aria-hidden="true" />
+        {action.sensitive}
+      </SeverityPill>
+    )}
+  </>
+);
 
 const ActionLinks = ({ action, onNavigate }: { action: PdfAction; onNavigate: Navigate }) => (
   <div className="mt-2.5 flex flex-wrap gap-2">
@@ -152,27 +166,38 @@ const ActionLinks = ({ action, onNavigate }: { action: PdfAction; onNavigate: Na
   </div>
 );
 
+/** Parse notes. The walk adds each report note once; the set keeps an action's own notes unique too, so the text is the key. */
 const ActionNotes = ({ notes }: { notes: string[] }) =>
-  notes.map((note) => (
+  [...new Set(notes)].map((note) => (
     <Warning key={note} className="text-small">
       <TriangleAlert size={14} className="mt-1 shrink-0" aria-hidden="true" />
       <span>{note}</span>
     </Warning>
   ));
 
-const ActionItem = ({ action, readStream, onNavigate }: { action: PdfAction; readStream: ReadStream; onNavigate: Navigate }) => {
-  const sensitive = Boolean(action.type && SENSITIVE_ACTIONS[action.type]);
+const ActionItem = ({
+  action,
+  chained = false,
+  readStream,
+  onNavigate,
+}: {
+  action: PdfAction;
+  chained?: boolean;
+  readStream: ReadStream;
+  onNavigate: Navigate;
+}) => {
+  const Heading = chained ? 'h3' : 'h2';
   return (
     <li
       className={cn(
         'border-t py-4 text-small leading-[1.7]',
-        sensitive && [SEVERITY_TONE.warning, 'border-l-3 border-l-(--issue-ink) pl-3.5']
+        action.sensitive && [SEVERITY_TONE.warning, 'border-l-3 border-l-(--issue-ink) pl-3.5']
       )}
       data-action-type={action.type ?? (action.destination ? 'destination' : 'none')}
     >
       <div className="flex flex-wrap items-center gap-2">
         <ActionType action={action} />
-        <h2 className="font-[550]">{action.trigger}</h2>
+        <Heading className="font-[550]">{action.trigger}</Heading>
       </div>
       <p className="[overflow-wrap:anywhere] text-muted-foreground">
         {action.context} · <code>{action.entry}</code>
@@ -183,7 +208,7 @@ const ActionItem = ({ action, readStream, onNavigate }: { action: PdfAction; rea
       {action.next.length > 0 && (
         <ol className="mt-3 ml-1.5 border-l pl-3.5" aria-label={`Actions after ${action.trigger.toLowerCase()}`}>
           {action.next.map((next) => (
-            <ActionItem key={next.key} action={next} readStream={readStream} onNavigate={onNavigate} />
+            <ActionItem key={next.key} action={next} chained readStream={readStream} onNavigate={onNavigate} />
           ))}
         </ol>
       )}
@@ -196,11 +221,12 @@ const Coverage = ({ recovered }: { recovered: boolean }) => (
     <SectionHeading className="leading-[1.7]">Sources and limits</SectionHeading>
     <IssueNote>
       Read from the catalogue’s <code>/OpenAction</code> and <code>/AA</code>, page <code>/AA</code>, annotation <code>/A</code> and{' '}
-      <code>/AA</code>, form field <code>/AA</code> and outline item <code>/A</code> entries, with their <code>/Next</code> chains.
+      <code>/AA</code>, form field <code>/A</code> and <code>/AA</code> and outline item <code>/A</code> entries, with their{' '}
+      <code>/Next</code> chains.
     </IssueNote>
     <IssueNote>
-      Document-level scripts in the <code>/Names /JavaScript</code> tree and actions inside other objects are not listed. Search Keys for{' '}
-      <code>JavaScript</code> to find them.
+      Document-level scripts in the <code>/Names /JavaScript</code> tree, XFA form scripts and actions inside other objects are not listed;
+      a note below says when this document has the first two. Search Keys for <code>JavaScript</code> to find them.
     </IssueNote>
     <IssueNote>
       Nothing is run. Targets and scripts are decoded values; check the holder’s Source or Original bytes for the stored syntax.
@@ -210,22 +236,25 @@ const Coverage = ({ recovered }: { recovered: boolean }) => (
 );
 
 export const ActionsPanel = ({
+  limit,
   locked,
   recovered,
   report,
   scrollPositionRef,
   readStream,
+  onLimitChange,
   onNavigate,
 }: {
+  limit: number;
   locked: boolean;
   recovered: boolean;
   report: PdfActionReport;
   scrollPositionRef: ScrollPosition;
   readStream: ReadStream;
+  onLimitChange: (limit: number) => void;
   onNavigate: Navigate;
 }) => {
   const scroll = useScrollRestoration(scrollPositionRef);
-  const [limit, setLimit] = useState(PAGE_SIZE);
   const { actions, notes } = report;
   return (
     <PaneBody {...scroll} role="region" aria-label="PDF actions">
@@ -242,7 +271,7 @@ export const ActionsPanel = ({
         ))}
       </ol>
       {actions.length > limit && (
-        <Button variant="outline" size="sm" onClick={() => setLimit(limit + PAGE_SIZE)}>
+        <Button variant="outline" size="sm" className="narrow:min-h-11" onClick={() => onLimitChange(limit + ACTION_PAGE_SIZE)}>
           Show more ({actions.length - limit} remaining)
         </Button>
       )}

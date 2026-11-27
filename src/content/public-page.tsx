@@ -570,9 +570,9 @@ const Limitations = function Limitations() {
         can contain additional resources.
       </p>
       <p>
-        The Actions tab lists actions from the catalogue, pages, page annotations, form fields and outline. Document-level scripts in the{' '}
-        <code>/Names /JavaScript</code> tree and actions stored elsewhere need a search. Nothing is run, so the tab cannot show what a
-        reader would do with an action.
+        Actions lists actions from the catalogue, pages, page annotations, form fields and outline, up to 5,000 actions and 64 steps in a{' '}
+        <code>/Next</code> chain. Document-level scripts in the <code>/Names /JavaScript</code> tree, XFA form scripts and actions stored
+        elsewhere need a search. Nothing is run, so the list cannot show what a reader would do with an action.
       </p>
       <h2>Page text search and source mapping</h2>
       <p>

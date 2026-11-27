@@ -239,7 +239,7 @@ test('lists document actions without running them, with notes and an empty state
   await expect(panel).toContainText('event.rc = true;');
   await panel.getByRole('button', { exact: true, name: 'Show decoded script' }).first().click();
   await expect(panel.getByLabel('Decoded script from 14 0 obj')).toContainText('app.alert("Sample script text.');
-  await expect(panel).toContainText('Decoded stream text from 14 0 obj. Not run.');
+  await expect(panel).toContainText('Decoded stream text from 14 0 obj, read as one character per byte. Not run.');
   expect(dialogs).toEqual([]);
   await panel.getByRole('button', { exact: true, name: 'Inspect holder 1 0 obj' }).first().click();
   await expect(page.getByRole('heading', { name: /1 0\s+obj/ })).toBeVisible();

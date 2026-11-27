@@ -70,7 +70,7 @@ const SectionButton = ({
   issueSeverity,
   onChoose,
 }: {
-  actionTotal: number;
+  actionTotal: number | undefined;
   active: boolean;
   document: PdfDocumentInfo | null;
   entry: (typeof SECTIONS)[number];
@@ -91,7 +91,7 @@ const SectionButton = ({
     <span>{label}</span>
     {key === 'issues' && <IssueCount issues={issues} severity={issueSeverity} />}
     {key === 'pages' && <SectionCount>{document?.pages.length ?? '—'}</SectionCount>}
-    {key === 'actions' && document && <SectionCount>{actionTotal}</SectionCount>}
+    {key === 'actions' && <SectionCount>{actionTotal ?? '—'}</SectionCount>}
   </button>
 );
 
@@ -191,7 +191,7 @@ export const ExplorerPane = ({
   onScroll,
   onVisitBookmark,
 }: {
-  actionTotal: number;
+  actionTotal: number | undefined;
   bookmarks: SessionBookmark<Selection>[];
   bookmarksSaved: boolean;
   document: PdfDocumentInfo | null;

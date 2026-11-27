@@ -43,7 +43,7 @@ export interface InspectorPaneProps {
   hasRange: boolean;
   inspectorContent: ReactNode;
   issues: PdfIssue[];
-  limits: { issueLimit: number; resourceLimit: number };
+  limits: { actionLimit: number; issueLimit: number; resourceLimit: number };
   notice: string | null;
   objectMap: Map<string, PdfObjectRecord>;
   overview: ReactNode;
@@ -66,6 +66,7 @@ export interface InspectorPaneProps {
   onCategoryChange: (category: ResourceCategory) => void;
   onDismissNotice: () => void;
   onFilterChange: (filter: string) => void;
+  onActionLimitChange: (limit: number) => void;
   onIssueLimitChange: (limit: number) => void;
   onNavigate: (id: string) => void;
   onPageChange: (page: number) => void;
@@ -209,6 +210,8 @@ const SectionView = (props: InspectorPaneProps & { document: PdfDocumentInfo }) 
         locked={document.locked}
         recovered={document.recovered}
         report={props.actionReport}
+        limit={limits.actionLimit}
+        onLimitChange={props.onActionLimitChange}
         scrollPositionRef={scrollPositionRef}
         readStream={props.readStream}
         onNavigate={props.onNavigate}

@@ -28,11 +28,11 @@ import { WorkspaceContent, OpeningProgress, WorkspaceFooter } from '@/components
 import { WorkspaceHeader } from '@/components/workspace/workspace-header';
 import { WorkspaceLayout } from '@/components/workspace/workspace-layout';
 import { WorkspaceToolbar } from '@/components/workspace/workspace-toolbar';
-import { actionCount, documentActions } from '@/lib/pdf/document-actions';
+import { documentActions } from '@/lib/pdf/document-actions';
 import { sitePage } from '@/lib/site-content';
 import { useSiteRoute } from '@/lib/site-route';
 
-const NO_ACTIONS = { actions: [], notes: [] };
+const NO_ACTIONS = { actions: [], notes: [], total: 0 };
 const useNarrow = () => {
   // Match the build-time render; adapt after hydration on narrow screens.
   const [narrow, setNarrow] = useState(false);
@@ -152,7 +152,7 @@ const PdfWorkspace = ({
   const { downloadIndex, resourceEntries, resourceObjects } = useResourceIndex(document, objectMap);
   const explorer = (
     <ExplorerPane
-      actionTotal={actionCount(actionReport.actions)}
+      actionTotal={document && !document.locked ? actionReport.total : undefined}
       bookmarks={bookmarks.bookmarks}
       bookmarksSaved={bookmarks.saved}
       document={document}
@@ -275,6 +275,7 @@ const PdfWorkspace = ({
       onCategoryChange={setResourceCategory}
       onDismissNotice={() => setNotice(null)}
       onFilterChange={setResourceFilter}
+      onActionLimitChange={(actionLimit) => exploration.updateViewports({ actionLimit })}
       onIssueLimitChange={(issueLimit) => exploration.updateViewports({ issueLimit })}
       onNavigate={(id) => navigate(id)}
       onPageChange={setPreviewPage}

@@ -179,8 +179,10 @@ export const SuspiciousFeaturesGuide = function SuspiciousFeaturesGuide() {
         </li>
         <li>
           Each row shows the trigger, the <code>/S</code> action type, a short target and the object that holds the action. Rows for{' '}
-          <code>/JavaScript</code>, <code>/Launch</code>, <code>/SubmitForm</code> and <code>/ImportData</code> have an orange rule and a
-          label. Actions chained with <code>/Next</code> are indented under the action before them.
+          <code>/JavaScript</code>, <code>/Launch</code>, <code>/SubmitForm</code> and <code>/ImportData</code>, and rendition actions that
+          carry a script, have an orange rule and a label. Actions chained with <code>/Next</code> are indented under the action before
+          them. Control and text-direction characters in targets are shown as code points, such as <code>⟨U+202E⟩</code>, so a file name
+          can't disguise itself.
         </li>
         <li>
           For a script stored in a stream, choose <strong>Show decoded script</strong>. The text is decoded and nothing runs. Choose{' '}
@@ -189,12 +191,13 @@ export const SuspiciousFeaturesGuide = function SuspiciousFeaturesGuide() {
         </li>
         <li>An action that is malformed or points to a missing object stays in the list with a note.</li>
       </ol>
-      <h2>Search for what the Actions tab leaves out</h2>
+      <h2>Search for what Actions leaves out</h2>
       <p>
-        The Actions tab reads the catalogue, pages, annotations, form fields and outline. Document-level scripts in the{' '}
-        <code>/Names /JavaScript</code> tree, and actions stored anywhere else, are not listed. To find them, select <strong>Keys</strong>{' '}
-        in search and look for <code>JavaScript</code> and <code>JS</code>, then <code>OpenAction</code> and <code>AA</code>. Select a
-        result to inspect the dictionary that holds it.
+        Actions reads the catalogue, pages, annotations, form fields and outline. Document-level scripts in the{' '}
+        <code>/Names /JavaScript</code> tree, scripts inside XFA forms and actions stored anywhere else are not listed; a note at the top of
+        the list says when the document has a <code>/Names /JavaScript</code> tree or an XFA form. To find them, select{' '}
+        <strong>Keys</strong> in search and look for <code>JavaScript</code> and <code>JS</code>, then <code>OpenAction</code> and{' '}
+        <code>AA</code>. Select a result to inspect the dictionary that holds it.
       </p>
       <h2>Read what you found</h2>
       <p>
@@ -213,10 +216,10 @@ endobj
 endobj`}</code>
       </pre>
       <p>
-        The Actions tab shows this as one row: <strong>Document opens</strong>, <code>/S /JavaScript</code>, with the script in stream 9. To
-        trace it by hand, start at object 1, follow <code>/OpenAction 8 0 R</code>, then <code>/JS 9 0 R</code> to inspect the script
-        stream. Record the references and bookmark the relevant objects. Finding the word “JavaScript” alone gives less context than tracing
-        this relationship.
+        Actions shows this as one row: <strong>Document opens</strong>, <code>/S /JavaScript</code>, with the script in stream 9. To trace
+        it by hand, start at object 1, follow <code>/OpenAction 8 0 R</code>, then <code>/JS 9 0 R</code> to inspect the script stream.
+        Record the references and bookmark the relevant objects. Finding the word “JavaScript” alone gives less context than tracing this
+        relationship.
       </p>
       <h2>Check embedded files and known strings</h2>
       <p>
