@@ -277,4 +277,23 @@ describe('documentActions', () => {
     expect(scriptText(streamResult([0xff, 0xfe, 0x61, 0x00]))).toEqual({ encoding: 'UTF-16LE', text: 'a' });
     expect(scriptText(streamResult([0x61, 0x0a, 0x00], 'a\n\u0000'))).toEqual({ encoding: 'one character per byte', text: 'a\n⟨U+0000⟩' });
   });
+
+  it('stops reading pages, form fields and the outline once the list holds 5000 actions', async () => {
+    const link = '<< /Subtype /Link /Rect [0 0 1 1] /A << /S /Named /N /NextPage >> >> ';
+    const pages = Array.from({ length: 60 }, (_, i): [number, string] => [10 + i, page(`/Annots [${link.repeat(100)}]`)]);
+    const bytes = classicPdf([
+      [1, '<< /Type /Catalog /Pages 2 0 R /AcroForm << /Fields [998 0 R] >> /Outlines << /First 999 0 R >> >>'],
+      [2, `<< /Type /Pages /Kids [${pages.map(([id]) => `${id} 0 R`).join(' ')}] /Count 60 >>`],
+      ...pages,
+    ]).bytes as Uint8Array;
+    const document = await new PdfInspector().open(bytes, 'many-links.pdf');
+    const objects = new Map(document.objects.map((object) => [object.id, object]));
+    // Pages 51 to 60 hold actions past the cap. Removing one would add a "could not be read" note if the walk reached it,
+    // and the missing field and outline objects would add notes too.
+    objects.delete(document.pages[55]);
+    const report = documentActions(document, objects);
+    expect(report.total).toBe(5000);
+    expect(report.actions.at(-1)?.context).toBe('Link annotation on page 50');
+    expect(report.notes).toEqual(['The list stops at 5000 actions. Later actions are not listed.']);
+  });
 });

@@ -290,9 +290,12 @@ const readValue = (walk: Walk, action: PdfAction, value: PdfValue, origin: Origi
   }
 };
 
+/** True once the report holds `MAX_ACTIONS` actions. Every loop over the sources stops then, so the rest of a large file isn't read. */
+const isFull = (walk: Walk) => walk.total >= MAX_ACTIONS;
+
 /** Reads one action and its `/Next` chain, or nothing once the report holds `MAX_ACTIONS` actions. */
 const readAction = (walk: Walk, value: PdfValue, origin: Origin, key: string, chain: Chain): PdfAction | undefined => {
-  if (walk.total >= MAX_ACTIONS) return undefined;
+  if (isFull(walk)) return undefined;
   walk.total++;
   const resolved = resolve(value, walk.objects);
   // Link the action's own object only when it exists, so a missing reference offers nothing to inspect.
@@ -328,11 +331,20 @@ const readNext = (walk: Walk, action: PdfAction, value: PdfValue, chain: Chain) 
 };
 
 const addAction = (walk: Walk, value: PdfValue | undefined, origin: Origin, place: string) => {
-  if (!value || walk.total >= MAX_ACTIONS) return;
+  if (!value || isFull(walk)) return;
   const key = `${place}|${origin.entry}`;
   if (walk.rows.has(key)) return;
   const action = readAction(walk, value, origin, key, { depth: 0, ids: [] });
   if (action) walk.rows.set(key, action);
+};
+
+/** A row for an `/AA` entry that isn't a dictionary, counted like any other action. */
+const addMalformedAdditional = (walk: Walk, origin: Omit<Origin, 'entry' | 'trigger'>, place: string, note: string) => {
+  if (isFull(walk)) return;
+  walk.total++;
+  const row = blankAction({ ...origin, entry: '/AA', trigger: 'Additional actions' }, `${place}|/AA`);
+  row.notes.push(note);
+  walk.rows.set(row.key, row);
 };
 
 /** Every event in an `/AA` dictionary, labelled from `triggers` or shown by its key. */
@@ -347,15 +359,10 @@ const addAdditional = (
   if (!entry) return;
   const additional = resolve(entry, walk.objects);
   const events = additional.value;
-  if (events?.type !== 'dictionary' && events?.type !== 'stream') {
-    if (walk.total >= MAX_ACTIONS) return;
-    walk.total++;
-    const row = blankAction({ ...origin, entry: '/AA', trigger: 'Additional actions' }, `${place}|/AA`);
-    row.notes.push(additional.note ?? unexpected(events, false));
-    walk.rows.set(row.key, row);
-    return;
-  }
+  if (events?.type !== 'dictionary' && events?.type !== 'stream')
+    return addMalformedAdditional(walk, origin, place, additional.note ?? unexpected(events, false));
   for (const { key, value } of events.entries) {
+    if (isFull(walk)) return;
     const name = shortLabel(key);
     addAction(walk, value, { ...origin, entry: `/AA /${name}`, trigger: lookup(triggers, key) ?? `Event /${name}` }, place);
   }
@@ -406,6 +413,16 @@ const annotationContext = (value: PdfValue, objects: Objects, pageNumber: number
   return `${subtype ? `${subtype} annotation` : 'Annotation'}${name ? ` (${name})` : ''} on page ${pageNumber}`;
 };
 
+const addAnnotation = (walk: Walk, page: PdfObjectRecord, pageNumber: number, item: PdfValue, index: number) => {
+  const annotation = resolve(item, walk.objects);
+  if (!annotation.value || !isDictionary(annotation.value)) {
+    addNote(walk, `Page ${pageNumber} (${page.id} obj): annotation ${index + 1} ${annotation.note ?? 'is not a dictionary'}`);
+    return;
+  }
+  const place = annotation.id ?? `${page.id}/Annots[${index}]`;
+  addWidgetLike(walk, annotation.value, annotation.id ?? page.id, place, annotationContext(annotation.value, walk.objects, pageNumber));
+};
+
 const addAnnotations = (walk: Walk, page: PdfObjectRecord, pageNumber: number) => {
   const entry = property(page.value, 'Annots');
   if (!entry) return;
@@ -414,25 +431,20 @@ const addAnnotations = (walk: Walk, page: PdfObjectRecord, pageNumber: number) =
     addNote(walk, `Page ${pageNumber} (${page.id} obj): /Annots ${annots.note ?? 'is not an array'}`);
     return;
   }
-  annots.value.items.forEach((item, index) => {
-    const annotation = resolve(item, walk.objects);
-    if (!annotation.value || !isDictionary(annotation.value)) {
-      addNote(walk, `Page ${pageNumber} (${page.id} obj): annotation ${index + 1} ${annotation.note ?? 'is not a dictionary'}`);
-      return;
-    }
-    const place = annotation.id ?? `${page.id}/Annots[${index}]`;
-    addWidgetLike(walk, annotation.value, annotation.id ?? page.id, place, annotationContext(annotation.value, walk.objects, pageNumber));
-  });
+  const items = annots.value.items;
+  for (let index = 0; index < items.length && !isFull(walk); index++) addAnnotation(walk, page, pageNumber, items[index], index);
+};
+
+const addPage = (walk: Walk, id: string, pageNumber: number) => {
+  const page = walk.objects.get(id);
+  if (!page) return addNote(walk, `Page ${pageNumber} (${id} obj) could not be read, so its actions are not listed.`);
+  addAdditional(walk, page.value, { context: `Page ${pageNumber}`, holderId: id }, id, PAGE_TRIGGERS);
+  addAnnotations(walk, page, pageNumber);
 };
 
 const addPages = (walk: Walk, pages: string[]) => {
   if (!pages.length) addNote(walk, 'No pages were read from the page tree, so page and annotation actions are not listed. See Issues.');
-  pages.forEach((id, index) => {
-    const page = walk.objects.get(id);
-    if (!page) return addNote(walk, `Page ${index + 1} (${id} obj) could not be read, so its actions are not listed.`);
-    addAdditional(walk, page.value, { context: `Page ${index + 1}`, holderId: id }, id, PAGE_TRIGGERS);
-    addAnnotations(walk, page, index + 1);
-  });
+  for (let index = 0; index < pages.length && !isFull(walk); index++) addPage(walk, pages[index], index + 1);
 };
 
 type Visit = (value: PdfValue, id: string | undefined, place: string) => PdfValue[];
@@ -462,7 +474,7 @@ const visitItem = (walk: Walk, label: string, seen: Set<PdfValue>, { place, valu
 const walkTree = (walk: Walk, roots: PdfValue[], label: string, visit: Visit) => {
   const seen = new Set<PdfValue>();
   const stack = roots.map((value, index) => ({ place: `${label}[${index}]`, value })).toReversed();
-  for (let steps = 0; stack.length; steps++) {
+  for (let steps = 0; stack.length && !isFull(walk); steps++) {
     if (steps + stack.length > MAX_WALK) return addNote(walk, `${label}: more than ${MAX_WALK} items. Later items are not listed.`);
     const children = visitItem(walk, label, seen, stack.pop()!, visit);
     for (let index = children.length - 1; index >= 0; index--) stack.push(children[index]);
@@ -530,7 +542,7 @@ export const documentActions = function documentActions(document: PdfDocumentInf
     // Keep what was read: a failure here must not hide the rest of the inspection.
     addNote(walk, `The action walk stopped early: ${error instanceof Error ? error.message : String(error)}`);
   }
-  if (walk.total >= MAX_ACTIONS) walk.notes.push(`The list stops at ${MAX_ACTIONS} actions. Later actions are not listed.`);
+  if (isFull(walk)) walk.notes.push(`The list stops at ${MAX_ACTIONS} actions. Later actions are not listed.`);
   if (walk.hiddenNotes) walk.notes.push(`${walk.hiddenNotes} more parse notes are not shown.`);
   return { actions: [...walk.rows.values()], notes: walk.notes, total: walk.total };
 };
