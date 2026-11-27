@@ -2802,7 +2802,8 @@ test('page text search waits for a slow engine download before its time limit st
   });
   await page.route('**/*.wasm*', async (route) => {
     await gate;
-    await route.continue().catch(() => undefined);
+    // Fall back to the cached engine asset route rather than the network.
+    await route.fallback().catch(() => undefined);
   });
   await selectSearchScope(page, 'pageText');
   await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('internals');

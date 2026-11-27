@@ -8,7 +8,7 @@ import { ENGINE_LOAD_TIMEOUT_MS, OPERATION_TIMEOUT_MS } from './limits';
 
 const ENGINE_LOAD_FAILED = 'The page text engine could not load. Check your connection and search again.';
 const ENGINE_LOAD_SLOW = `The page text engine did not load within ${ENGINE_LOAD_TIMEOUT_MS / 60_000} minutes. Check your connection and search again.`;
-const SEARCH_TIMED_OUT = 'Page text search exceeded 15 seconds. Try a smaller PDF or another search mode.';
+const SEARCH_TIMED_OUT = `Page text search exceeded ${OPERATION_TIMEOUT_MS / 1000} seconds. Try a smaller PDF or another search mode.`;
 
 /** Settles with `request`, or rejects with `message` after `ms` and calls `onTimeout`. */
 const withTimeout = async <T>(request: PromiseLike<T>, ms: number, message: string, onTimeout: () => void): Promise<T> => {
@@ -52,17 +52,16 @@ const blankPdf = () => {
  * search's own time limit then covers only the user's file.
  */
 const loadEngine = async (engine: ReturnType<typeof localEngine>, signal: AbortSignal, abort: () => void) => {
+  let timedOut = false;
+  const ready = engine.open({ bytes: blankPdf().buffer, kind: 'bytes' }).then((blank) => blank.close());
   try {
-    const blank = await withTimeout(
-      engine.open({ bytes: blankPdf().buffer, kind: 'bytes' }),
-      ENGINE_LOAD_TIMEOUT_MS,
-      ENGINE_LOAD_SLOW,
-      abort
-    );
-    await blank.close();
+    await withTimeout(ready, ENGINE_LOAD_TIMEOUT_MS, ENGINE_LOAD_SLOW, () => {
+      timedOut = true;
+      abort();
+    });
   } catch (error) {
     signal.throwIfAborted();
-    throw error instanceof Error && error.message === ENGINE_LOAD_SLOW ? error : new Error(ENGINE_LOAD_FAILED, { cause: error });
+    throw timedOut ? error : new Error(ENGINE_LOAD_FAILED, { cause: error });
   }
 };
 

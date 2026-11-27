@@ -537,8 +537,8 @@ const Limitations = function Limitations() {
         <dd>{OPERATION_TIMEOUT_MS / 1000} seconds</dd>
         <dt>Page text search timeout</dt>
         <dd>
-          {OPERATION_TIMEOUT_MS / 1000} seconds, counted once the search engine has loaded. Loading may take up to{' '}
-          {ENGINE_LOAD_TIMEOUT_MS / 60_000} minutes.
+          {OPERATION_TIMEOUT_MS / 1000} seconds for each step (opening the file, listing pages, each batch of 25 pages), counted once the
+          page text engine has loaded. Loading may take up to {ENGINE_LOAD_TIMEOUT_MS / 60_000} minutes.
         </dd>
       </dl>
       <p>
