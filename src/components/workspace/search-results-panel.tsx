@@ -38,37 +38,43 @@ const countLabel = (count: number, scope: string) => {
 
 const statusText = ({ displayedScope, interrupted, results, resultsScope, searching, searchingQuery }: Search) => {
   let headline = countLabel(results?.length ?? 0, resultsScope);
-  if (searching) headline = `Searching for “${searchingQuery}”…`;
-  else if (interrupted) headline = `Search ${interrupted} for “${searchingQuery}”`;
+  if (searching) {
+    headline = `Searching for “${searchingQuery}”…`;
+  } else if (interrupted) {
+    headline = `Search ${interrupted} for “${searchingQuery}”`;
+  }
   return `${headline} · ${SCOPE_LABELS[displayedScope] ?? displayedScope}`;
 };
 
 /** A button inside a result card: compact, left aligned, and tall enough to tap on small and touch screens. */
-const CardButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
-  <Button
-    size="xs"
-    className={cn(
-      'h-auto min-h-6 max-w-full justify-start',
-      'rounded-[4px] px-1.5 py-0.5 text-left text-detail whitespace-normal',
-      'pointer-coarse:min-h-11 narrow:not-pointer-coarse:min-h-8',
-      className
-    )}
-    {...props}
-  />
-);
+const CardButton = ({ className, ...props }: ComponentProps<typeof Button>) => {
+  return (
+    <Button
+      size="xs"
+      className={cn(
+        'h-auto min-h-6 max-w-full justify-start',
+        'rounded-[4px] px-1.5 py-0.5 text-left text-detail whitespace-normal',
+        'pointer-coarse:min-h-11 narrow:not-pointer-coarse:min-h-8',
+        className
+      )}
+      {...props}
+    />
+  );
+};
 
 /** A header button in the header's 12px type that grows to a 44px touch target on small screens. */
-const HeaderButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
-  <Button variant="ghost" className={cn('text-small narrow:min-h-11 narrow:min-w-11', className)} {...props} />
-);
+const HeaderButton = ({ className, ...props }: ComponentProps<typeof Button>) => {
+  return <Button variant="ghost" className={cn('text-small narrow:min-h-11 narrow:min-w-11', className)} {...props} />;
+};
 
 /** A note above or below the result cards. */
-const ResultsNote = ({ className, ...props }: ComponentProps<'p'>) => (
-  <p className={cn('px-3.5 py-2.5 text-small [overflow-wrap:anywhere]', className)} {...props} />
-);
+const ResultsNote = ({ className, ...props }: ComponentProps<'p'>) => {
+  return <p className={cn('px-3.5 py-2.5 text-small [overflow-wrap:anywhere]', className)} {...props} />;
+};
 
-const focusSearchToggle = (search: Search) =>
-  search.formRef.current?.querySelector<HTMLButtonElement>('[data-search-show]')?.focus({ preventScroll: true });
+const focusSearchToggle = (search: Search) => {
+  return search.formRef.current?.querySelector<HTMLButtonElement>('[data-search-show]')?.focus({ preventScroll: true });
+};
 
 /** The active result's position and the previous and next buttons. */
 const ResultNavigation = ({ search }: { search: Search }) => {
@@ -86,7 +92,9 @@ const ResultNavigation = ({ search }: { search: Search }) => {
         aria-label="Previous search result"
         title={pageText ? 'Previous matching page' : 'Previous match'}
         disabled={searching || results.length < 2}
-        onClick={() => move(-1)}
+        onClick={() => {
+          return move(-1);
+        }}
       >
         <ChevronUp size={14} />
       </HeaderButton>
@@ -95,7 +103,9 @@ const ResultNavigation = ({ search }: { search: Search }) => {
         aria-label="Next search result"
         title={pageText ? 'Next matching page' : 'Next match'}
         disabled={searching || results.length < 2}
-        onClick={() => move(1)}
+        onClick={() => {
+          return move(1);
+        }}
       >
         <ChevronDown size={14} />
       </HeaderButton>
@@ -149,7 +159,9 @@ const ResultsHeader = ({ search }: { search: Search }) => {
   );
 };
 
-const hexOffset = (value: number) => `0x${value.toString(16).toUpperCase()}`;
+const hexOffset = (value: number) => {
+  return `0x${value.toString(16).toUpperCase()}`;
+};
 
 const SourceButtons = ({
   index,
@@ -164,46 +176,52 @@ const SourceButtons = ({
 }) => {
   const { formRef, searching, selectSource, setOpen, sourceLocationsPage } = search;
   const sources = location.sources.slice(0, sourceLocationsPage === location.pageId ? undefined : 1);
-  const keys = uniqueKeys(sources, (source) => `${source.id}:${source.ranges[0]?.start ?? 'candidate'}`);
-  const mapped = location.sources.some((source) => source.ranges.length);
+  const keys = uniqueKeys(sources, (source) => {
+    return `${source.id}:${source.ranges[0]?.start ?? 'candidate'}`;
+  });
+  const mapped = location.sources.some((source) => {
+    return source.ranges.length;
+  });
   return (
     <div className={cn('flex flex-wrap items-center gap-1', 'max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1')}>
       <span className="mr-0.5 text-detail text-muted-foreground max-w400:col-span-full max-w400:m-0">{mapped ? 'Bytes' : 'Streams'}</span>
-      {sources.map((source, sourceIndex) => (
-        <CardButton
-          key={keys[sourceIndex]}
-          className="max-w400:min-w-0 max-w400:justify-self-start"
-          variant={textSource === source ? 'secondary' : 'ghost'}
-          aria-label={`${source.ranges.length ? 'Show bytes' : 'Inspect content stream'} · ${source.id} obj${source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}`}
-          title={source.ranges.length ? 'Show matching bytes' : 'Inspect candidate content stream'}
-          aria-pressed={textSource === source}
-          disabled={searching}
-          onClick={() => {
-            selectSource(location, source, index);
-            setOpen(false);
-            requestAnimationFrame(() =>
-              formRef.current
-                ?.closest('[data-app-shell]')
-                ?.querySelector<HTMLElement>('[data-text-source-bytes] [data-hex-viewport]')
-                ?.focus({ preventScroll: true })
-            );
-          }}
-        >
-          <FileCode2 size={12} />
-          <code className="text-detail font-normal max-w400:[overflow-wrap:anywhere]">
-            {source.ranges.length ? source.id : `Candidate ${source.id}`}
-            {source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}
-          </code>
-        </CardButton>
-      ))}
+      {sources.map((source, sourceIndex) => {
+        return (
+          <CardButton
+            key={keys[sourceIndex]}
+            className="max-w400:min-w-0 max-w400:justify-self-start"
+            variant={textSource === source ? 'secondary' : 'ghost'}
+            aria-label={`${source.ranges.length ? 'Show bytes' : 'Inspect content stream'} · ${source.id} obj${source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}`}
+            title={source.ranges.length ? 'Show matching bytes' : 'Inspect candidate content stream'}
+            aria-pressed={textSource === source}
+            disabled={searching}
+            onClick={() => {
+              selectSource(location, source, index);
+              setOpen(false);
+              requestAnimationFrame(() => {
+                return formRef.current
+                  ?.closest('[data-app-shell]')
+                  ?.querySelector<HTMLElement>('[data-text-source-bytes] [data-hex-viewport]')
+                  ?.focus({ preventScroll: true });
+              });
+            }}
+          >
+            <FileCode2 size={12} />
+            <code className="text-detail font-normal max-w400:[overflow-wrap:anywhere]">
+              {source.ranges.length ? source.id : `Candidate ${source.id}`}
+              {source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}
+            </code>
+          </CardButton>
+        );
+      })}
     </div>
   );
 };
 
 /** A note about a page's source locations, above its source buttons. */
-const SourcesNote = ({ className, ...props }: ComponentProps<'span'>) => (
-  <span className={cn('mb-0.5 text-detail text-muted-foreground', className)} {...props} />
-);
+const SourcesNote = ({ className, ...props }: ComponentProps<'span'>) => {
+  return <span className={cn('mb-0.5 text-detail text-muted-foreground', className)} {...props} />;
+};
 
 const PageTextLinks = ({
   index,
@@ -220,7 +238,9 @@ const PageTextLinks = ({
 }) => {
   const { openResultPreview, searching, setOpen, sourceLocationsPage, toggleSources } = search;
   const expanded = sourceLocationsPage === location.pageId;
-  const mapped = location.sources.some((source) => source.ranges.length);
+  const mapped = location.sources.some((source) => {
+    return source.ranges.length;
+  });
   return (
     <div className="mx-3 mb-2.5 flex flex-col items-stretch gap-1.5 border-t pt-2" role="group" aria-label="Page text source locations">
       {!mapped && (
@@ -239,7 +259,9 @@ const PageTextLinks = ({
             className="px-0 text-muted-foreground underline-offset-3"
             disabled={searching}
             aria-expanded={expanded}
-            onClick={() => toggleSources(location.pageId)}
+            onClick={() => {
+              return toggleSources(location.pageId);
+            }}
           >
             {expanded ? 'Fewer sources' : `${location.sources.length - 1} more source${location.sources.length > 2 ? 's' : ''}`}
             {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -265,13 +287,14 @@ const PageTextLinks = ({
 
 const ResultSummary = ({ result, resultsScope }: { result: SearchResult; resultsScope: string }) => {
   const { snippet } = result;
-  if (!snippet)
+  if (!snippet) {
     return (
       <>
         <code className="col-start-1 text-small font-semibold text-foreground">{result.label}</code>
         <span className="col-start-1 text-small [overflow-wrap:anywhere] text-muted-foreground">{result.detail}</span>
       </>
     );
+  }
   return (
     <>
       <span
@@ -374,8 +397,8 @@ const EmptyResults = ({ search }: { search: Search }) => {
   );
 };
 
-const CoverageNote = ({ message, resultsScope }: { message: string; resultsScope: string }) =>
-  resultsScope === 'pageText' ? (
+const CoverageNote = ({ message, resultsScope }: { message: string; resultsScope: string }) => {
+  return resultsScope === 'pageText' ? (
     <details className="border-t px-3.5 py-2.5 text-detail text-muted-foreground" open={message.startsWith('Showing')}>
       <summary className="cursor-pointer">Search coverage</summary>
       <p className="mt-2 leading-normal">{message}</p>
@@ -383,24 +406,31 @@ const CoverageNote = ({ message, resultsScope }: { message: string; resultsScope
   ) : (
     <ResultsNote className="text-muted-foreground">{message}</ResultsNote>
   );
+};
 
 /** Arrow keys on a result card step through the results and keep focus on the active card. */
-const stepWithArrows = (search: Search) => (event: KeyboardEvent<HTMLElement>) => {
-  if ((event.key !== 'ArrowDown' && event.key !== 'ArrowUp') || !(event.target as HTMLElement).matches('[data-search-result]')) return;
-  event.preventDefault();
-  search.move(event.key === 'ArrowDown' ? 1 : -1);
-  requestAnimationFrame(() =>
-    search.activeMatchRef.current?.focus({
-      preventScroll: true,
-    })
-  );
+const stepWithArrows = (search: Search) => {
+  return (event: KeyboardEvent<HTMLElement>) => {
+    if ((event.key !== 'ArrowDown' && event.key !== 'ArrowUp') || !(event.target as HTMLElement).matches('[data-search-result]')) {
+      return;
+    }
+    event.preventDefault();
+    search.move(event.key === 'ArrowDown' ? 1 : -1);
+    requestAnimationFrame(() => {
+      return search.activeMatchRef.current?.focus({
+        preventScroll: true,
+      });
+    });
+  };
 };
 
 /** The scrolling list of result cards with its notes. */
 const ResultsBody = ({ search, textSource }: { search: Search; textSource: TextSource | null }) => {
   const { interrupted, message, resultsQuery, resultsScope, searching, showPrevious } = search;
   const results = search.results ?? [];
-  const keys = uniqueKeys(results, (result) => result.label);
+  const keys = uniqueKeys(results, (result) => {
+    return result.label;
+  });
   const settled = !searching && !interrupted;
   return (
     <div className="min-h-0 flex-1 overflow-auto overscroll-contain" data-search-results-body="" aria-busy={searching}>
@@ -411,9 +441,9 @@ const ResultsBody = ({ search, textSource }: { search: Search; textSource: TextS
       )}
       {interrupted === 'failed' && message && <ResultsNote role="status">{message}</ResultsNote>}
       <div className="flex flex-col gap-3 bg-muted p-3 group-data-searching/results:opacity-55" data-search-matches="">
-        {results.map((result, index) => (
-          <ResultItem key={keys[index]} index={index} result={result} search={search} textSource={textSource} />
-        ))}
+        {results.map((result, index) => {
+          return <ResultItem key={keys[index]} index={index} result={result} search={search} textSource={textSource} />;
+        })}
       </div>
       {settled && !results.length && <EmptyResults search={search} />}
       {settled && message && <CoverageNote message={message} resultsScope={resultsScope} />}
@@ -423,7 +453,9 @@ const ResultsBody = ({ search, textSource }: { search: Search; textSource: TextS
 
 export const SearchResultsPanel = ({ search, textSource }: { search: Search; textSource: TextSource | null }) => {
   const { formRef, inputRef, open, results, resultsId, searching, setOpen, showPrevious } = search;
-  if (results === null) return null;
+  if (results === null) {
+    return null;
+  }
   return (
     <SearchResultsPopover
       id={resultsId}

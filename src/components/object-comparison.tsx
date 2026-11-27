@@ -46,7 +46,11 @@ export const ObjectComparison = function ObjectComparison({
       <div className="my-3 grid gap-4 min-w600:grid-cols-2">
         <div>
           <p className="text-xs text-muted-foreground">Pinned</p>
-          <ReferenceButton onClick={() => onNavigate(pinned.id)}>
+          <ReferenceButton
+            onClick={() => {
+              return onNavigate(pinned.id);
+            }}
+          >
             {pinned.id} obj · {pinned.kind}
           </ReferenceButton>
           <Location object={pinned} />
@@ -68,7 +72,13 @@ export const ObjectComparison = function ObjectComparison({
       {current && (
         <>
           <label className="mb-3 flex items-center gap-2 text-xs">
-            <input type="checkbox" checked={differencesOnly} onChange={(event) => setDifferencesOnly(event.target.checked)} />
+            <input
+              type="checkbox"
+              checked={differencesOnly}
+              onChange={(event) => {
+                return setDifferencesOnly(event.target.checked);
+              }}
+            />
             Show differences only
           </label>
           <p className="mb-3 text-xs text-muted-foreground">
@@ -80,34 +90,41 @@ export const ObjectComparison = function ObjectComparison({
           ) : (
             <div className="divide-y">
               {rows
-                .filter((row) => !differencesOnly || row.status !== 'same')
-                .map((row) => (
-                  <div key={row.key} className="py-3">
-                    <div className="mb-2 flex gap-2 text-xs">
-                      <code className="break-all">{row.key}</code>
-                      <span className="text-muted-foreground">{row.status}</span>
-                    </div>
-                    <div className={cn('grid min-w-0 gap-3 min-w600:grid-cols-2', row.status !== 'same' && 'bg-muted/50')}>
-                      <div className="min-w-0 overflow-auto p-2">
-                        <span className="mb-1 block text-xs text-muted-foreground min-w600:hidden">Pinned</span>
-                        {row.left ? (
-                          <ValueView value={row.left} onNavigate={onNavigate} />
-                        ) : (
-                          <span className="text-xs text-muted-foreground">Absent</span>
-                        )}
+                .filter((row) => {
+                  return !differencesOnly || row.status !== 'same';
+                })
+                .map((row) => {
+                  return (
+                    <div key={row.key} className="py-3">
+                      <div className="mb-2 flex gap-2 text-xs">
+                        <code className="break-all">{row.key}</code>
+                        <span className="text-muted-foreground">{row.status}</span>
                       </div>
-                      <div className="min-w-0 overflow-auto p-2">
-                        <span className="mb-1 block text-xs text-muted-foreground min-w600:hidden">Current</span>
-                        {row.right ? (
-                          <ValueView value={row.right} onNavigate={onNavigate} />
-                        ) : (
-                          <span className="text-xs text-muted-foreground">Absent</span>
-                        )}
+                      <div className={cn('grid min-w-0 gap-3 min-w600:grid-cols-2', row.status !== 'same' && 'bg-muted/50')}>
+                        <div className="min-w-0 overflow-auto p-2">
+                          <span className="mb-1 block text-xs text-muted-foreground min-w600:hidden">Pinned</span>
+                          {row.left ? (
+                            <ValueView value={row.left} onNavigate={onNavigate} />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Absent</span>
+                          )}
+                        </div>
+                        <div className="min-w-0 overflow-auto p-2">
+                          <span className="mb-1 block text-xs text-muted-foreground min-w600:hidden">Current</span>
+                          {row.right ? (
+                            <ValueView value={row.right} onNavigate={onNavigate} />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">Absent</span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              {differencesOnly && rows.every((row) => row.status === 'same') && <p className="text-xs">No dictionary/value differences.</p>}
+                  );
+                })}
+              {differencesOnly &&
+                rows.every((row) => {
+                  return row.status === 'same';
+                }) && <p className="text-xs">No dictionary/value differences.</p>}
             </div>
           )}
         </>

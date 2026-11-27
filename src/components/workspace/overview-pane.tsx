@@ -51,19 +51,23 @@ export interface OverviewPaneProps {
 type DocumentProps = OverviewPaneProps & { document: PdfDocumentInfo };
 
 /** A paragraph of muted body text in the overview. */
-const OverviewText = ({ className, ...props }: ComponentProps<'p'>) => (
-  <p className={cn('text-detail leading-[1.8] text-muted-foreground', className)} {...props} />
-);
+const OverviewText = ({ className, ...props }: ComponentProps<'p'>) => {
+  return <p className={cn('text-detail leading-[1.8] text-muted-foreground', className)} {...props} />;
+};
 
-const Fact = ({ children, label }: { children: ReactNode; label: string }) => (
-  <div className="flex justify-between gap-3 border-b py-2.75 text-detail">
-    <dt className="text-muted-foreground">{label}</dt>
-    <dd className="tabular-nums">{children}</dd>
-  </div>
-);
+const Fact = ({ children, label }: { children: ReactNode; label: string }) => {
+  return (
+    <div className="flex justify-between gap-3 border-b py-2.75 text-detail">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="tabular-nums">{children}</dd>
+    </div>
+  );
+};
 
 const DocumentFacts = ({ byteCount, document, objectMap, objects }: DocumentProps) => {
-  const pageRotation = useMemo(() => (document.locked ? 'Locked' : pageRotationSummary(document.pages, objectMap)), [document, objectMap]);
+  const pageRotation = useMemo(() => {
+    return document.locked ? 'Locked' : pageRotationSummary(document.pages, objectMap);
+  }, [document, objectMap]);
   return (
     <dl data-document-facts>
       <Fact label="PDF version">
@@ -80,44 +84,46 @@ const DocumentFacts = ({ byteCount, document, objectMap, objects }: DocumentProp
   );
 };
 
-const UnlockForm = ({ unlockError, unlocking, onUnlock }: Pick<OverviewPaneProps, 'unlockError' | 'unlocking' | 'onUnlock'>) => (
-  <form
-    className="flex flex-wrap items-end gap-2"
-    aria-label="Unlock PDF"
-    onSubmit={(event) => {
-      event.preventDefault();
-      const form = event.currentTarget;
-      const password = new FormData(form).get('password') as string;
-      onUnlock(password);
-    }}
-  >
-    <div className="min-w-0 flex-1 space-y-1">
-      <label htmlFor="pdf-password" className="text-xs font-medium">
-        PDF password
-      </label>
-      <Input
-        id="pdf-password"
-        name="password"
-        type="password"
-        className="text-detail leading-[1.65]"
-        autoComplete="off"
-        disabled={unlocking}
-        aria-invalid={Boolean(unlockError)}
-        aria-describedby={unlockError ? 'pdf-password-help pdf-password-error' : 'pdf-password-help'}
-      />
-    </div>
-    <Button type="submit" className="text-detail leading-[1.65]" disabled={unlocking}>
-      {unlocking ? 'Unlocking…' : 'Unlock PDF'}
-    </Button>
-    <p id="pdf-password-help" className="w-full text-xs text-muted-foreground">
-      The password stays in memory for this document and is cleared when you close it.
-    </p>
-  </form>
-);
+const UnlockForm = ({ unlockError, unlocking, onUnlock }: Pick<OverviewPaneProps, 'unlockError' | 'unlocking' | 'onUnlock'>) => {
+  return (
+    <form
+      className="flex flex-wrap items-end gap-2"
+      aria-label="Unlock PDF"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const password = new FormData(form).get('password') as string;
+        onUnlock(password);
+      }}
+    >
+      <div className="min-w-0 flex-1 space-y-1">
+        <label htmlFor="pdf-password" className="text-xs font-medium">
+          PDF password
+        </label>
+        <Input
+          id="pdf-password"
+          name="password"
+          type="password"
+          className="text-detail leading-[1.65]"
+          autoComplete="off"
+          disabled={unlocking}
+          aria-invalid={Boolean(unlockError)}
+          aria-describedby={unlockError ? 'pdf-password-help pdf-password-error' : 'pdf-password-help'}
+        />
+      </div>
+      <Button type="submit" className="text-detail leading-[1.65]" disabled={unlocking}>
+        {unlocking ? 'Unlocking…' : 'Unlock PDF'}
+      </Button>
+      <p id="pdf-password-help" className="w-full text-xs text-muted-foreground">
+        The password stays in memory for this document and is cleared when you close it.
+      </p>
+    </form>
+  );
+};
 
 const EncryptionNotice = (props: DocumentProps) => {
   const { document, unlockError } = props;
-  if (document.locked)
+  if (document.locked) {
     return (
       <Warning render={<div />}>
         <LockKeyhole size={16} />
@@ -135,91 +141,126 @@ const EncryptionNotice = (props: DocumentProps) => {
         </div>
       </Warning>
     );
-  if (document.encrypted)
+  }
+  if (document.encrypted) {
     return (
       <p role="status" className="text-xs text-muted-foreground">
         Encrypted PDF unlocked locally. Properties and decoded streams are decrypted. Source and raw streams show the original encrypted
         bytes.
       </p>
     );
+  }
   return null;
 };
 
-const StructureSection = ({ byteCount, document, onFollowReference, onSelectRange }: DocumentProps) => (
-  <>
-    <SectionHeading>Cross-reference entry point</SectionHeading>
-    {document.startXref !== undefined ? (
+const StructureSection = ({ byteCount, document, onFollowReference, onSelectRange }: DocumentProps) => {
+  return (
+    <>
+      <SectionHeading>Cross-reference entry point</SectionHeading>
+      {document.startXref !== undefined ? (
+        <Button
+          variant="outline"
+          className="font-mono text-small"
+          onClick={() => {
+            onSelectRange({
+              end: Math.min(byteCount, document.startXref! + 32),
+              start: document.startXref!,
+            });
+          }}
+        >
+          startxref → 0x{document.startXref.toString(16).toUpperCase()}
+          <ArrowUpRight size={14} />
+        </Button>
+      ) : (
+        <OverviewText>No reliable startxref location available.</OverviewText>
+      )}
+      <SectionHeading>Trailer dictionary</SectionHeading>
+      <ValueView value={document.trailer} onNavigate={onFollowReference} />
+    </>
+  );
+};
+
+const ExploreSection = ({ document, objects, resourceObjects, onNavigate, onPreview }: DocumentProps) => {
+  return (
+    <>
+      <SectionHeading>Start exploring</SectionHeading>
+      <ActionRow>
+        <ActionButton
+          disabled={!document.catalogId}
+          onClick={() => {
+            return document.catalogId && onNavigate(document.catalogId);
+          }}
+        >
+          <FolderOpen size={15} />
+          Document catalogue
+          <ArrowUpRight size={13} />
+        </ActionButton>
+        <ActionButton
+          disabled={!document.pages.length}
+          onClick={() => {
+            onNavigate(document.pages[0], 'properties', 'pages');
+          }}
+        >
+          <Files size={15} />
+          First page
+          <ArrowUpRight size={13} />
+        </ActionButton>
+        <ActionButton disabled={document.locked} onClick={onPreview}>
+          <Image size={15} />
+          Page preview
+        </ActionButton>
+      </ActionRow>
+      <OverviewText className="mt-4">
+        Follow a reference such as <code>4 0 R</code> to inspect another object. Its source bytes highlight in the hex view.
+      </OverviewText>
+      <SectionHeading>Resources</SectionHeading>
+      <OverviewText>
+        {
+          resourceObjects.filter((object) => {
+            return object.kind === 'Font';
+          }).length
+        }{' '}
+        font objects ·{' '}
+        {
+          resourceObjects.filter((object) => {
+            return hasSubtype(object, 'Image');
+          }).length
+        }{' '}
+        image objects ·{' '}
+        {
+          objects.filter((object) => {
+            return object.stream;
+          }).length
+        }{' '}
+        streams
+      </OverviewText>
+      <Note>Counts describe the indexed object set, including unreferenced objects. They are not a content inventory.</Note>
+    </>
+  );
+};
+
+const IssuesOverview = ({ document, issues, onChooseSection }: DocumentProps) => {
+  return (
+    <section className="mt-5 border-t py-3.5 text-small leading-[1.7]">
+      <SectionHeading className="leading-[1.7]">Issues</SectionHeading>
+      {document.locked ? (
+        <IssueNote>Structure checks unavailable while locked.</IssueNote>
+      ) : (
+        <IssueSummary issues={issues} empty={IssueNote} />
+      )}
       <Button
         variant="outline"
-        className="font-mono text-small"
+        size="sm"
+        className="text-small leading-[1.7]"
         onClick={() => {
-          onSelectRange({
-            end: Math.min(byteCount, document.startXref! + 32),
-            start: document.startXref!,
-          });
+          return onChooseSection('issues');
         }}
       >
-        startxref → 0x{document.startXref.toString(16).toUpperCase()}
-        <ArrowUpRight size={14} />
+        View issues and coverage
       </Button>
-    ) : (
-      <OverviewText>No reliable startxref location available.</OverviewText>
-    )}
-    <SectionHeading>Trailer dictionary</SectionHeading>
-    <ValueView value={document.trailer} onNavigate={onFollowReference} />
-  </>
-);
-
-const ExploreSection = ({ document, objects, resourceObjects, onNavigate, onPreview }: DocumentProps) => (
-  <>
-    <SectionHeading>Start exploring</SectionHeading>
-    <ActionRow>
-      <ActionButton disabled={!document.catalogId} onClick={() => document.catalogId && onNavigate(document.catalogId)}>
-        <FolderOpen size={15} />
-        Document catalogue
-        <ArrowUpRight size={13} />
-      </ActionButton>
-      <ActionButton
-        disabled={!document.pages.length}
-        onClick={() => {
-          onNavigate(document.pages[0], 'properties', 'pages');
-        }}
-      >
-        <Files size={15} />
-        First page
-        <ArrowUpRight size={13} />
-      </ActionButton>
-      <ActionButton disabled={document.locked} onClick={onPreview}>
-        <Image size={15} />
-        Page preview
-      </ActionButton>
-    </ActionRow>
-    <OverviewText className="mt-4">
-      Follow a reference such as <code>4 0 R</code> to inspect another object. Its source bytes highlight in the hex view.
-    </OverviewText>
-    <SectionHeading>Resources</SectionHeading>
-    <OverviewText>
-      {resourceObjects.filter((object) => object.kind === 'Font').length} font objects ·{' '}
-      {resourceObjects.filter((object) => hasSubtype(object, 'Image')).length} image objects ·{' '}
-      {objects.filter((object) => object.stream).length} streams
-    </OverviewText>
-    <Note>Counts describe the indexed object set, including unreferenced objects. They are not a content inventory.</Note>
-  </>
-);
-
-const IssuesOverview = ({ document, issues, onChooseSection }: DocumentProps) => (
-  <section className="mt-5 border-t py-3.5 text-small leading-[1.7]">
-    <SectionHeading className="leading-[1.7]">Issues</SectionHeading>
-    {document.locked ? (
-      <IssueNote>Structure checks unavailable while locked.</IssueNote>
-    ) : (
-      <IssueSummary issues={issues} empty={IssueNote} />
-    )}
-    <Button variant="outline" size="sm" className="text-small leading-[1.7]" onClick={() => onChooseSection('issues')}>
-      View issues and coverage
-    </Button>
-  </section>
-);
+    </section>
+  );
+};
 
 export const OverviewPane = (props: OverviewPaneProps) => {
   const { document, filename, inspectionError, scrollPositionRef, section, onOpenFile, onShowBytes } = props;

@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import { byteSearchSnippet } from '../src/lib/pdf/search-snippet';
 
-const bytes = (value: string) => Uint8Array.from(value, (char) => char.charCodeAt(0));
+const bytes = (value: string) => {
+  return Uint8Array.from(value, (char) => {
+    return char.charCodeAt(0);
+  });
+};
 describe('search result context', () => {
   it('preserves the matched bytes while revealing nearby syntax and invisible bytes', () => {
     expect(byteSearchSnippet(bytes('BT\n(Hello) Tj'), 4, 9)).toEqual({

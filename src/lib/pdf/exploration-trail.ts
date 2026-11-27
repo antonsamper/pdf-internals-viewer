@@ -9,10 +9,12 @@ export const extendExplorationTrail = function extendExplorationTrail(
   const prefix = trail.length ? trail : [source];
   return [
     ...prefix,
-    ...path.map((label, index) => ({
-      id: owners?.[index] ?? source.id,
-      label,
-    })),
+    ...path.map((label, index) => {
+      return {
+        id: owners?.[index] ?? source.id,
+        label,
+      };
+    }),
     target,
   ];
 };
@@ -30,9 +32,14 @@ const dereference = (value: PdfValue | undefined, owner: string | null, objects:
 };
 /** The value one path segment below a dictionary, stream or array. */
 const segmentValue = (value: PdfValue | undefined, segment: string): PdfValue | undefined => {
-  if (value?.type === 'dictionary' || value?.type === 'stream')
-    return value.entries.find((entry) => entry.key.replace(/^\//, '') === segment.replace(/^\//, ''))?.value;
-  if (value?.type === 'array') return value.items[Number(segment.replace(/^\[|\]$/g, ''))];
+  if (value?.type === 'dictionary' || value?.type === 'stream') {
+    return value.entries.find((entry) => {
+      return entry.key.replace(/^\//, '') === segment.replace(/^\//, '');
+    })?.value;
+  }
+  if (value?.type === 'array') {
+    return value.items[Number(segment.replace(/^\[|\]$/g, ''))];
+  }
   return undefined;
 };
 /** Associate each path segment with the object that actually contains its key. */

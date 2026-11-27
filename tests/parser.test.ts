@@ -16,8 +16,12 @@ import {
 import { PdfInspector } from '../src/lib/pdf/inspector';
 
 const object = (document: Awaited<ReturnType<PdfInspector['open']>>, id: string) => {
-  const value = document.objects.find((item) => item.id === id);
-  if (!value) throw new Error(`Missing object ${id}`);
+  const value = document.objects.find((item) => {
+    return item.id === id;
+  });
+  if (!value) {
+    throw new Error(`Missing object ${id}`);
+  }
   return value;
 };
 describe('read-only PDF inspection', () => {
@@ -28,11 +32,12 @@ describe('read-only PDF inspection', () => {
     expect(document.catalogId).toBe('1 0');
     expect(document.xrefFormat).toBe('table');
     expect(document.objects).toHaveLength(5);
-    for (const entry of document.objects)
+    for (const entry of document.objects) {
       expect(entry.provenance).toEqual({
         range: fixture.ranges.get(entry.objectNumber),
         type: 'file',
       });
+    }
     expect(object(document, '4 0').referencedBy).toContain('3 0');
     expect(object(document, '3 0').references).toContain('4 0');
   });
@@ -68,10 +73,16 @@ describe('read-only PDF inspection', () => {
   it('selects current incremental objects and respects free xref entries', async () => {
     const fixture = incrementalPdf();
     const document = await new PdfInspector().open(fixture.bytes);
-    expect(document.objects.some((item) => item.id === '6 0')).toBe(false);
+    expect(
+      document.objects.some((item) => {
+        return item.id === '6 0';
+      })
+    ).toBe(false);
     const page = object(document, '3 0');
     expect(page.provenance.type).toBe('file');
-    if (page.provenance.type === 'file') expect(page.provenance.range.start).toBe(fixture.updatedOffset);
+    if (page.provenance.type === 'file') {
+      expect(page.provenance.range.start).toBe(fixture.updatedOffset);
+    }
     expect(page.source).toContain('/Rotate 90');
   });
   it('decodes Flate streams while preserving source bytes and inherited resources', async () => {
@@ -129,7 +140,11 @@ describe('read-only PDF inspection', () => {
     expect(entry).toBeGreaterThan(fixture.xref);
     fixture.bytes.set(Buffer.from(String(offset).padStart(10, '0')), entry);
     const document = await new PdfInspector().open(fixture.bytes);
-    expect(document.objects.some((item) => item.id === '5 0')).toBe(false);
+    expect(
+      document.objects.some((item) => {
+        return item.id === '5 0';
+      })
+    ).toBe(false);
     expect(document.warnings.join(' ')).toContain('invalid cross-reference offset');
     expect(object(document, '2 0').warnings.join(' ')).toContain('5 0 R');
   });

@@ -26,115 +26,132 @@ import { useScrollRestoration } from '@/lib/scroll-restoration';
 import { cn } from '@/lib/utils';
 
 /** Tabs sit on one flat line: violet when active, with a red underline. */
-const ObjectTab = ({ className, ...props }: ComponentProps<typeof TabsTrigger>) => (
-  <TabsTrigger
-    className={cn(
-      'h-8 flex-initial px-0.75 py-0 text-detail',
-      'data-active:text-brand-purple data-active:after:bg-brand-red data-active:hover:text-brand-purple',
-      'dark:data-active:text-brand-purple dark:data-active:hover:text-brand-purple',
-      className
-    )}
-    {...props}
-  />
-);
+const ObjectTab = ({ className, ...props }: ComponentProps<typeof TabsTrigger>) => {
+  return (
+    <TabsTrigger
+      className={cn(
+        'h-8 flex-initial px-0.75 py-0 text-detail',
+        'data-active:text-brand-purple data-active:after:bg-brand-red data-active:hover:text-brand-purple',
+        'dark:data-active:text-brand-purple dark:data-active:hover:text-brand-purple',
+        className
+      )}
+      {...props}
+    />
+  );
+};
 
 /** One side of a relationship link: the referring object, the target or the path between them. */
-const RelationshipPart = ({ className, ...props }: ComponentProps<'span'>) => (
-  <span className={cn('inline-flex min-w-0 flex-wrap items-center gap-1', className)} {...props} />
-);
+const RelationshipPart = ({ className, ...props }: ComponentProps<'span'>) => {
+  return <span className={cn('inline-flex min-w-0 flex-wrap items-center gap-1', className)} {...props} />;
+};
 
-const RelationshipPath = ({ children }: { children: ReactNode }) => (
-  <RelationshipPart className="font-mono text-muted-foreground">{children}</RelationshipPart>
-);
+const RelationshipPath = ({ children }: { children: ReactNode }) => {
+  return <RelationshipPart className="font-mono text-muted-foreground">{children}</RelationshipPart>;
+};
 
-const RelationshipLink = ({ children, onClick }: { children: ReactNode; onClick: () => void }) => (
-  <button
-    className={cn(
-      'flex flex-wrap justify-between gap-x-3 gap-y-1 p-2',
-      'rounded-[5px] text-left text-detail leading-[inherit] [overflow-wrap:anywhere]',
-      'hover:bg-accent'
-    )}
-    onClick={onClick}
-  >
-    {children}
-  </button>
-);
+const RelationshipLink = ({ children, onClick }: { children: ReactNode; onClick: () => void }) => {
+  return (
+    <button
+      className={cn(
+        'flex flex-wrap justify-between gap-x-3 gap-y-1 p-2',
+        'rounded-[5px] text-left text-detail leading-[inherit] [overflow-wrap:anywhere]',
+        'hover:bg-accent'
+      )}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+};
 
 /** A titled list of relationship links, with a sentence in place of the list when it is empty. */
-const Relationships = ({ children, count, empty, title }: { children: ReactNode; count: number; empty?: string; title: string }) => (
-  <>
-    <SectionHeading className="leading-[inherit]">
-      {title}{' '}
-      <span className="ml-1.25 text-caption leading-[inherit] text-muted-foreground">
-        {count} {count === 1 ? 'object' : 'objects'}
-      </span>
-    </SectionHeading>
-    <div className="grid gap-1" data-relationship-links>
-      {children}
-      {empty && <p className="text-muted-foreground">{empty}</p>}
-    </div>
-  </>
-);
-const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: string }) => (
-  <header className="px-5.5 pt-5.75 pb-3.75 max-w480:px-4.5 max-w480:pt-5 max-w480:pb-3">
-    <div className="flex items-center gap-2.75">
-      <Braces size={19} />
-      <h1 className="font-mono text-heading font-medium">
-        {object.id} <span className="text-muted-foreground">obj</span>
-      </h1>
-      <Badge variant="secondary" className="rounded-[4px] text-caption leading-[calc(4/3)]">
-        {object.kind}
-      </Badge>
-    </div>
-    <p className="mt-2 text-detail text-muted-foreground">{object.label}</p>
-    <p className="mt-2.5 max-w-[65ch] text-small leading-[1.65] text-foreground" data-object-explanation>
-      {summary}
-    </p>
-  </header>
-);
+const Relationships = ({ children, count, empty, title }: { children: ReactNode; count: number; empty?: string; title: string }) => {
+  return (
+    <>
+      <SectionHeading className="leading-[inherit]">
+        {title}{' '}
+        <span className="ml-1.25 text-caption leading-[inherit] text-muted-foreground">
+          {count} {count === 1 ? 'object' : 'objects'}
+        </span>
+      </SectionHeading>
+      <div className="grid gap-1" data-relationship-links>
+        {children}
+        {empty && <p className="text-muted-foreground">{empty}</p>}
+      </div>
+    </>
+  );
+};
+const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: string }) => {
+  return (
+    <header className="px-5.5 pt-5.75 pb-3.75 max-w480:px-4.5 max-w480:pt-5 max-w480:pb-3">
+      <div className="flex items-center gap-2.75">
+        <Braces size={19} />
+        <h1 className="font-mono text-heading font-medium">
+          {object.id} <span className="text-muted-foreground">obj</span>
+        </h1>
+        <Badge variant="secondary" className="rounded-[4px] text-caption leading-[calc(4/3)]">
+          {object.kind}
+        </Badge>
+      </div>
+      <p className="mt-2 text-detail text-muted-foreground">{object.label}</p>
+      <p className="mt-2.5 max-w-[65ch] text-small leading-[1.65] text-foreground" data-object-explanation>
+        {summary}
+      </p>
+    </header>
+  );
+};
 
-const ProvenanceNote = ({ object, onNavigate }: { object: PdfObjectRecord; onNavigate: (id: string) => void }) => (
-  <div
-    className={cn(
-      'flex items-start gap-1.75 px-5.5 pb-4.5',
-      'text-caption leading-[1.7] text-muted-foreground',
-      'max-w480:px-4.5 max-w480:pb-4'
-    )}
-    data-provenance
-  >
-    <FileCode2 size={14} className="mt-0.5 shrink-0 text-brand-orange-ink" />
-    {object.provenance.type === 'file' ? (
-      <span>
-        Original file · <code className="text-caption leading-[inherit]">0x{object.provenance.range.start.toString(16).toUpperCase()}</code>{' '}
-        · {object.provenance.range.end - object.provenance.range.start} bytes
-      </span>
-    ) : object.provenance.type === 'decoded' ? (
-      <span>
-        Decoded object stream{' '}
-        <ReferenceButton
-          onClick={() => {
-            if (object.provenance.type === 'decoded') onNavigate(object.provenance.containerId);
-          }}
-        >
-          {object.provenance.containerId}
-          <ArrowUpRight size={12} />
-        </ReferenceButton>{' '}
-        · offset {object.provenance.range.start}
-      </span>
-    ) : (
-      <span>Source location unknown · {object.provenance.reason}</span>
-    )}
-  </div>
-);
+const ProvenanceNote = ({ object, onNavigate }: { object: PdfObjectRecord; onNavigate: (id: string) => void }) => {
+  return (
+    <div
+      className={cn(
+        'flex items-start gap-1.75 px-5.5 pb-4.5',
+        'text-caption leading-[1.7] text-muted-foreground',
+        'max-w480:px-4.5 max-w480:pb-4'
+      )}
+      data-provenance
+    >
+      <FileCode2 size={14} className="mt-0.5 shrink-0 text-brand-orange-ink" />
+      {object.provenance.type === 'file' ? (
+        <span>
+          Original file ·{' '}
+          <code className="text-caption leading-[inherit]">0x{object.provenance.range.start.toString(16).toUpperCase()}</code> ·{' '}
+          {object.provenance.range.end - object.provenance.range.start} bytes
+        </span>
+      ) : object.provenance.type === 'decoded' ? (
+        <span>
+          Decoded object stream{' '}
+          <ReferenceButton
+            onClick={() => {
+              if (object.provenance.type === 'decoded') {
+                onNavigate(object.provenance.containerId);
+              }
+            }}
+          >
+            {object.provenance.containerId}
+            <ArrowUpRight size={12} />
+          </ReferenceButton>{' '}
+          · offset {object.provenance.range.start}
+        </span>
+      ) : (
+        <span>Source location unknown · {object.provenance.reason}</span>
+      )}
+    </div>
+  );
+};
 
 // Read-only stand-in when no object set is given, so memoised values keep their identity.
 const EMPTY_OBJECTS = new Map<string, PdfObjectRecord>();
 
-const isStreamTab = (tab: InspectorTab): tab is 'raw' | 'decoded' => tab === 'raw' || tab === 'decoded';
+const isStreamTab = (tab: InspectorTab): tab is 'raw' | 'decoded' => {
+  return tab === 'raw' || tab === 'decoded';
+};
 
 /** The sentence shown in place of a relationship list: paths unavailable, or no relationships at all. */
 const emptyRelationships = (links: number, count: number, unavailable: string, none: string) => {
-  if (links) return undefined;
+  if (links) {
+    return undefined;
+  }
   return count ? unavailable : none;
 };
 
@@ -153,19 +170,24 @@ const useStreamRead = (object: PdfObjectRecord, tab: InspectorTab, readStream: O
     error?: string;
   } | null>(null);
   useEffect(() => {
-    if (!object.stream || !isStreamTab(tab)) return;
+    if (!object.stream || !isStreamTab(tab)) {
+      return;
+    }
     let active = true;
     readStream(object.id, tab)
       .then((result) => {
-        if (active) setState({ object, result, tab });
+        if (active) {
+          setState({ object, result, tab });
+        }
       })
       .catch((reason) => {
-        if (active)
+        if (active) {
           setState({
             error: reason instanceof Error ? reason.message : 'Could not read stream.',
             object,
             tab,
           });
+        }
       });
     return () => {
       active = false;
@@ -193,8 +215,15 @@ const PageResources = ({
       <SectionHeading className="leading-[inherit]">Effective page resources</SectionHeading>
       {inheritedFrom ? (
         <Note>
-          Inherited from <ReferenceButton onClick={() => onNavigate(inheritedFrom)}>{inheritedFrom} R</ReferenceButton>. The inspector found
-          these resources on an ancestor in the page tree.
+          Inherited from{' '}
+          <ReferenceButton
+            onClick={() => {
+              return onNavigate(inheritedFrom);
+            }}
+          >
+            {inheritedFrom} R
+          </ReferenceButton>
+          . The inspector found these resources on an ancestor in the page tree.
         </Note>
       ) : (
         <Note>Defined on this page.</Note>
@@ -202,7 +231,13 @@ const PageResources = ({
       <ValueView
         key={`${objectId}-resources`}
         value={resources.value}
-        onNavigate={inheritedFrom ? (id) => onNavigate(id) : onNavigate}
+        onNavigate={
+          inheritedFrom
+            ? (id) => {
+                return onNavigate(id);
+              }
+            : onNavigate
+        }
         objects={objects}
         ancestors={[objectId]}
         path={['/Resources']}
@@ -224,28 +259,37 @@ const OutgoingReferences = ({
   objects,
   pages,
   onNavigate,
-}: RelationshipListProps & Pick<ObjectInspectorProps, 'onNavigate'>) => (
-  <Relationships
-    title="References"
-    count={object.references.length}
-    empty={emptyRelationships(
-      links.outgoing.length,
-      object.references.length,
-      'Reference paths unavailable in the inspected value.',
-      'No outgoing references.'
-    )}
-  >
-    {links.outgoing.map((link, index) => (
-      <RelationshipLink key={index} onClick={() => onNavigate(link.targetId, link.path)}>
-        <RelationshipPath>{link.path.join(' → ') || 'Direct reference'}</RelationshipPath>
-        <RelationshipPart>
-          {objectName(link.targetId, objects, pages)} · <code className="text-reference">{link.targetId} R</code>
-          <ArrowUpRight size={12} />
-        </RelationshipPart>
-      </RelationshipLink>
-    ))}
-  </Relationships>
-);
+}: RelationshipListProps & Pick<ObjectInspectorProps, 'onNavigate'>) => {
+  return (
+    <Relationships
+      title="References"
+      count={object.references.length}
+      empty={emptyRelationships(
+        links.outgoing.length,
+        object.references.length,
+        'Reference paths unavailable in the inspected value.',
+        'No outgoing references.'
+      )}
+    >
+      {links.outgoing.map((link, index) => {
+        return (
+          <RelationshipLink
+            key={index}
+            onClick={() => {
+              return onNavigate(link.targetId, link.path);
+            }}
+          >
+            <RelationshipPath>{link.path.join(' → ') || 'Direct reference'}</RelationshipPath>
+            <RelationshipPart>
+              {objectName(link.targetId, objects, pages)} · <code className="text-reference">{link.targetId} R</code>
+              <ArrowUpRight size={12} />
+            </RelationshipPart>
+          </RelationshipLink>
+        );
+      })}
+    </Relationships>
+  );
+};
 
 const IncomingReferences = ({
   links,
@@ -253,39 +297,51 @@ const IncomingReferences = ({
   objects,
   pages,
   onInspect,
-}: RelationshipListProps & Pick<ObjectInspectorProps, 'onInspect'>) => (
-  <Relationships
-    title="Referenced by"
-    count={object.referencedBy.length}
-    empty={emptyRelationships(
-      links.incoming.length,
-      object.referencedBy.length,
-      'Incoming reference paths unavailable in the inspected values.',
-      'No incoming references in the indexed object set.'
-    )}
-  >
-    {links.incoming.map((link, index) => (
-      <RelationshipLink key={index} onClick={() => onInspect(link.sourceId)}>
-        <RelationshipPart>
-          {objectName(link.sourceId, objects, pages)} · <code className="text-reference">{link.sourceId} obj</code>
-          <ArrowUpRight size={12} />
-        </RelationshipPart>
-        <RelationshipPath>via {link.path.join(' → ') || 'a direct reference'}</RelationshipPath>
-      </RelationshipLink>
-    ))}
-  </Relationships>
-);
+}: RelationshipListProps & Pick<ObjectInspectorProps, 'onInspect'>) => {
+  return (
+    <Relationships
+      title="Referenced by"
+      count={object.referencedBy.length}
+      empty={emptyRelationships(
+        links.incoming.length,
+        object.referencedBy.length,
+        'Incoming reference paths unavailable in the inspected values.',
+        'No incoming references in the indexed object set.'
+      )}
+    >
+      {links.incoming.map((link, index) => {
+        return (
+          <RelationshipLink
+            key={index}
+            onClick={() => {
+              return onInspect(link.sourceId);
+            }}
+          >
+            <RelationshipPart>
+              {objectName(link.sourceId, objects, pages)} · <code className="text-reference">{link.sourceId} obj</code>
+              <ArrowUpRight size={12} />
+            </RelationshipPart>
+            <RelationshipPath>via {link.path.join(' → ') || 'a direct reference'}</RelationshipPath>
+          </RelationshipLink>
+        );
+      })}
+    </Relationships>
+  );
+};
 
 /** What a stream tab shows: the read error, the bytes (as instructions when decoded), or a loading line. */
 const StreamContent = ({ error, mode, stream, ...props }: StreamTabProps & { mode: 'raw' | 'decoded' }) => {
-  if (error) return <Warning role="alert">{error}</Warning>;
-  if (!stream)
+  if (error) {
+    return <Warning role="alert">{error}</Warning>;
+  }
+  if (!stream) {
     return (
       <LoadingMessage>
         <LoaderCircle size={15} className="animate-spin" />
         Reading stream…
       </LoadingMessage>
     );
+  }
   return (
     <>
       {stream.error && <Warning role="alert">{stream.error}</Warning>}
@@ -326,23 +382,27 @@ const StreamTab = ({
   mode,
   scroll,
   ...props
-}: StreamTabProps & { filters: string[]; mode: 'raw' | 'decoded'; scroll: Partial<ReturnType<typeof useScrollRestoration>> }) => (
-  <TabsContent value={mode} render={<PaneBody />} {...scroll}>
-    <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-detail leading-[inherit]">
-      <span>{mode === 'raw' ? 'Stored stream bytes' : 'Decoded stream bytes'}</span>
-      <Badge variant="outline" className="text-micro leading-[calc(4/3)]">
-        {filters.join(' → ') || 'No filters'}
-      </Badge>
-    </div>
-    <Note>
-      Each byte is shown as a Latin-1 character. This does not extract text from the rendered page.{' '}
-      {mode === 'decoded' && 'Decoded offsets differ from original file offsets.'}
-    </Note>
-    <StreamContent mode={mode} {...props} />
-  </TabsContent>
-);
+}: StreamTabProps & { filters: string[]; mode: 'raw' | 'decoded'; scroll: Partial<ReturnType<typeof useScrollRestoration>> }) => {
+  return (
+    <TabsContent value={mode} render={<PaneBody />} {...scroll}>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-detail leading-[inherit]">
+        <span>{mode === 'raw' ? 'Stored stream bytes' : 'Decoded stream bytes'}</span>
+        <Badge variant="outline" className="text-micro leading-[calc(4/3)]">
+          {filters.join(' → ') || 'No filters'}
+        </Badge>
+      </div>
+      <Note>
+        Each byte is shown as a Latin-1 character. This does not extract text from the rendered page.{' '}
+        {mode === 'decoded' && 'Decoded offsets differ from original file offsets.'}
+      </Note>
+      <StreamContent mode={mode} {...props} />
+    </TabsContent>
+  );
+};
 
-const nonStreamTab = (tab: InspectorTab) => (isStreamTab(tab) ? 'properties' : tab);
+const nonStreamTab = (tab: InspectorTab) => {
+  return isStreamTab(tab) ? 'properties' : tab;
+};
 
 /** The image export and the embedded files an object leads to. */
 const ObjectDownloads = ({
@@ -354,7 +414,9 @@ const ObjectDownloads = ({
 }: Pick<ObjectInspectorProps, 'downloadIndex' | 'object' | 'extractImage' | 'extractStream'> & {
   objects: Map<string, PdfObjectRecord>;
 }) => {
-  const downloads = useMemo(() => downloadIndex ?? embeddedDownloads(objects), [objects, downloadIndex]);
+  const downloads = useMemo(() => {
+    return downloadIndex ?? embeddedDownloads(objects);
+  }, [objects, downloadIndex]);
   const assets = downloads.get(object.id) ?? [];
   return (
     <>
@@ -438,13 +500,17 @@ export const ObjectInspector = function ObjectInspector({
   onFollowLink,
 }: ObjectInspectorProps) {
   const known = objects ?? EMPTY_OBJECTS;
-  const relationships = useMemo(() => objectRelationships(object, known), [object, known]);
+  const relationships = useMemo(() => {
+    return objectRelationships(object, known);
+  }, [object, known]);
   const summary = objectSummary(object, pages, relationships.incoming, known);
   const { error, stream } = useStreamRead(object, tab, readStream);
   // An object without a stream has no stream tabs, so a stream tab carried over from another object falls back to its properties.
   const safeTab = object.stream ? tab : nonStreamTab(tab);
   const scroll = useScrollRestoration(scrollPositionRef, !isStreamTab(safeTab) || Boolean(stream || error));
-  const scrollFor = (value: InspectorTab) => (safeTab === value ? scroll : {});
+  const scrollFor = (value: InspectorTab) => {
+    return safeTab === value ? scroll : {};
+  };
   return (
     <section className="flex h-full min-h-0 flex-col overflow-hidden" aria-label="Object inspector">
       <ObjectHeader object={object} summary={summary} />
@@ -456,10 +522,16 @@ export const ObjectInspector = function ObjectInspector({
         extractStream={extractStream}
       />
       <ProvenanceNote object={object} onNavigate={onNavigate} />
-      {object.warnings.map((warning, i) => (
-        <Warning key={i}>{warning}</Warning>
-      ))}
-      <Tabs value={safeTab} onValueChange={(value) => onTabChange(value as InspectorTab)} className="min-h-0 flex-1 gap-0">
+      {object.warnings.map((warning, i) => {
+        return <Warning key={i}>{warning}</Warning>;
+      })}
+      <Tabs
+        value={safeTab}
+        onValueChange={(value) => {
+          return onTabChange(value as InspectorTab);
+        }}
+        className="min-h-0 flex-1 gap-0"
+      >
         <TabsList variant="line" className="w-full shrink-0 justify-start gap-3.25 border-b px-4.5 py-0 group-data-horizontal/tabs:h-9.25">
           <ObjectTab value="properties">Properties</ObjectTab>
           <ObjectTab value="source">Source</ObjectTab>
@@ -486,23 +558,25 @@ export const ObjectInspector = function ObjectInspector({
           <SourceCode>{object.source}</SourceCode>
         </TabsContent>
         {object.stream &&
-          (['raw', 'decoded'] as const).map((mode) => (
-            <StreamTab
-              key={mode}
-              mode={mode}
-              filters={object.stream!.filters}
-              scroll={scrollFor(mode)}
-              contextPageId={contextPageId}
-              error={error}
-              object={object}
-              objects={objects}
-              pages={pages}
-              stream={stream}
-              textMatchRanges={textMatchRanges}
-              onFollowLink={onFollowLink}
-              onNavigate={onNavigate}
-            />
-          ))}
+          (['raw', 'decoded'] as const).map((mode) => {
+            return (
+              <StreamTab
+                key={mode}
+                mode={mode}
+                filters={object.stream!.filters}
+                scroll={scrollFor(mode)}
+                contextPageId={contextPageId}
+                error={error}
+                object={object}
+                objects={objects}
+                pages={pages}
+                stream={stream}
+                textMatchRanges={textMatchRanges}
+                onFollowLink={onFollowLink}
+                onNavigate={onNavigate}
+              />
+            );
+          })}
       </Tabs>
     </section>
   );

@@ -4,10 +4,17 @@ import type { ExplorationStep } from './exploration-trail';
 import type { ByteRange } from './types';
 export const documentBookmarkKey = async function documentBookmarkKey(bytes: Uint8Array<ArrayBuffer>) {
   const digest = await crypto.subtle.digest('SHA-256', bytes);
-  return PREFIX + Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
+  return (
+    PREFIX +
+    Array.from(new Uint8Array(digest), (b) => {
+      return b.toString(16).padStart(2, '0');
+    }).join('')
+  );
 };
 const validBookmark = function validBookmark(value: unknown): value is SessionBookmark<BookmarkSelection> {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
   const b = value as SessionBookmark<BookmarkSelection>;
   return (
     Number.isSafeInteger(b.key) && b.key > 0 && typeof b.label === 'string' && typeof b.note === 'string' && validSelection(b.selection)
@@ -33,7 +40,10 @@ const validRange = function validRange(range: ByteRange | undefined): boolean {
 const validTrail = function validTrail(trail: ExplorationStep[] | undefined): boolean {
   return (
     trail === undefined ||
-    (Array.isArray(trail) && trail.every((step) => !!step && nullableString(step.id) && typeof step.label === 'string'))
+    (Array.isArray(trail) &&
+      trail.every((step) => {
+        return !!step && nullableString(step.id) && typeof step.label === 'string';
+      }))
   );
 };
 const nullableString = function nullableString(value: unknown): boolean {
@@ -47,18 +57,25 @@ export const readBookmarks = function readBookmarks(key: string): SessionBookmar
   } catch {
     return [];
   }
-  if (!Array.isArray(stored)) return [];
+  if (!Array.isArray(stored)) {
+    return [];
+  }
   const keys = new Set<number>();
   return stored.filter(validBookmark).filter((bookmark) => {
-    if (keys.has(bookmark.key)) return false;
+    if (keys.has(bookmark.key)) {
+      return false;
+    }
     keys.add(bookmark.key);
     return true;
   });
 };
 export const writeBookmarks = function writeBookmarks(key: string, bookmarks: SessionBookmark<BookmarkSelection>[]) {
   try {
-    if (bookmarks.length) localStorage.setItem(key, JSON.stringify(bookmarks));
-    else localStorage.removeItem(key);
+    if (bookmarks.length) {
+      localStorage.setItem(key, JSON.stringify(bookmarks));
+    } else {
+      localStorage.removeItem(key);
+    }
     return true;
   } catch {
     return false;

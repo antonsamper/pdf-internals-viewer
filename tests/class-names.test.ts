@@ -5,7 +5,9 @@ import { cn } from '../src/lib/utils';
 
 // Read the scale from the theme, so a size added there but not to `cn`'s font-size group fails here.
 const theme = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8');
-const sizes = [...theme.matchAll(/--text-([a-z]+):/g)].map((match) => match[1]);
+const sizes = [...theme.matchAll(/--text-([a-z]+):/g)].map((match) => {
+  return match[1];
+});
 
 describe('cn with the type scale', () => {
   it('reads the scale from the theme', () => {
@@ -36,7 +38,9 @@ describe('cn with the type scale', () => {
 });
 
 // The app's own shadows, read from the theme so a token missing from `cn`'s shadow scale fails here.
-const shadows = [...theme.matchAll(/--shadow-([a-z-]+):/g)].map((match) => match[1]);
+const shadows = [...theme.matchAll(/--shadow-([a-z-]+):/g)].map((match) => {
+  return match[1];
+});
 
 describe('cn with the theme shadows', () => {
   it('reads the shadows from the theme', () => {

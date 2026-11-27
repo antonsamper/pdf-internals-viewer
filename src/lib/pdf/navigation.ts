@@ -1,7 +1,9 @@
 import type { PdfObjectRecord, PdfValue } from './types';
 export const property = function property(value: PdfValue, key: string): PdfValue | undefined {
   return value.type === 'dictionary' || value.type === 'stream'
-    ? value.entries.find((entry) => entry.key.replace(/^\//, '') === key)?.value
+    ? value.entries.find((entry) => {
+        return entry.key.replace(/^\//, '') === key;
+      })?.value
     : undefined;
 };
 export const effectiveResources = function effectiveResources(
@@ -18,11 +20,12 @@ export const effectiveResources = function effectiveResources(
   while (current && !seen.has(current.id)) {
     seen.add(current.id);
     const resources = property(current.value, 'Resources');
-    if (resources)
+    if (resources) {
       return {
         value: resources,
         ...(current.id !== page.id ? { inheritedFrom: current.id } : {}),
       };
+    }
     const parent = property(current.value, 'Parent');
     current = parent?.type === 'reference' ? objects.get(parent.ref) : undefined;
   }

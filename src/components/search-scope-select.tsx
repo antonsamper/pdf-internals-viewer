@@ -15,7 +15,9 @@ export const SearchScopeSelect = function SearchScopeSelect({
       items={scopes}
       modal={false}
       onValueChange={(next) => {
-        if (next !== null) onValueChange(next);
+        if (next !== null) {
+          onValueChange(next);
+        }
       }}
     >
       <Select.Trigger
@@ -53,28 +55,30 @@ export const SearchScopeSelect = function SearchScopeSelect({
             )}
           >
             <Select.List>
-              {scopes.map((scope) => (
-                <Select.Item
-                  className={cn(
-                    'flex min-h-8 items-center justify-between',
-                    'gap-5 px-2.5 py-1.5 text-small',
-                    'cursor-pointer rounded-[4px] outline-none',
-                    'data-[highlighted]:bg-muted data-[selected]:text-reference',
-                    'narrow:min-h-11'
-                  )}
-                  key={scope.value}
-                  value={scope.value}
-                  aria-label={scope.label}
-                >
-                  <span className="flex min-w-0 flex-col gap-px">
-                    <Select.ItemText>{scope.label}</Select.ItemText>
-                    <span className="text-detail leading-[1.3] text-muted-foreground">{scope.hint}</span>
-                  </span>
-                  <Select.ItemIndicator className="flex">
-                    <Check size={14} />
-                  </Select.ItemIndicator>
-                </Select.Item>
-              ))}
+              {scopes.map((scope) => {
+                return (
+                  <Select.Item
+                    className={cn(
+                      'flex min-h-8 items-center justify-between',
+                      'gap-5 px-2.5 py-1.5 text-small',
+                      'cursor-pointer rounded-[4px] outline-none',
+                      'data-[highlighted]:bg-muted data-[selected]:text-reference',
+                      'narrow:min-h-11'
+                    )}
+                    key={scope.value}
+                    value={scope.value}
+                    aria-label={scope.label}
+                  >
+                    <span className="flex min-w-0 flex-col gap-px">
+                      <Select.ItemText>{scope.label}</Select.ItemText>
+                      <span className="text-detail leading-[1.3] text-muted-foreground">{scope.hint}</span>
+                    </span>
+                    <Select.ItemIndicator className="flex">
+                      <Check size={14} />
+                    </Select.ItemIndicator>
+                  </Select.Item>
+                );
+              })}
             </Select.List>
           </Select.Popup>
         </Select.Positioner>

@@ -28,7 +28,9 @@ export const ExplorationTrail = ({
   onSelectStep: (index: number) => void;
 }) => {
   const steps = trail ?? [];
-  const keys = uniqueKeys(steps, (step) => step.id ?? 'root');
+  const keys = uniqueKeys(steps, (step) => {
+    return step.id ?? 'root';
+  });
   const fallback = SECTION_LABELS[section] ?? 'Document overview';
   return (
     <nav
@@ -41,18 +43,26 @@ export const ExplorationTrail = ({
     >
       {busy ? 'Inspecting…' : steps.length ? undefined : fallback}
       {!busy &&
-        steps.map((step, index) => (
-          <span className="flex shrink-0 items-center gap-1" key={keys[index]}>
-            {index > 0 && <ChevronRight size={12} aria-hidden="true" />}
-            {index === steps.length - 1 ? (
-              <span aria-current="location" className="font-mono text-small leading-[inherit]">
-                {step.label}
-              </span>
-            ) : (
-              <ReferenceButton onClick={() => onSelectStep(index)}>{step.label}</ReferenceButton>
-            )}
-          </span>
-        ))}
+        steps.map((step, index) => {
+          return (
+            <span className="flex shrink-0 items-center gap-1" key={keys[index]}>
+              {index > 0 && <ChevronRight size={12} aria-hidden="true" />}
+              {index === steps.length - 1 ? (
+                <span aria-current="location" className="font-mono text-small leading-[inherit]">
+                  {step.label}
+                </span>
+              ) : (
+                <ReferenceButton
+                  onClick={() => {
+                    return onSelectStep(index);
+                  }}
+                >
+                  {step.label}
+                </ReferenceButton>
+              )}
+            </span>
+          );
+        })}
     </nav>
   );
 };

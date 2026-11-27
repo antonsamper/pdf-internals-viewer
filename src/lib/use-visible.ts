@@ -4,15 +4,23 @@ export const useVisible = function useVisible() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current) {
+      return;
+    }
     const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
+      if (
+        entries.some((entry) => {
+          return entry.isIntersecting;
+        })
+      ) {
         setVisible(true);
         observer.disconnect();
       }
     });
     observer.observe(ref.current);
-    return () => observer.disconnect();
+    return () => {
+      return observer.disconnect();
+    };
   }, []);
   return { ref, visible };
 };

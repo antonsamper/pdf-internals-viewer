@@ -13,7 +13,9 @@ export const useWorkspaceShortcuts = (
   const open = useEffectEvent(openFile);
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if (!(event.metaKey || event.ctrlKey)) return;
+      if (!(event.metaKey || event.ctrlKey)) {
+        return;
+      }
       if (event.key === 'o') {
         event.preventDefault();
         open();
@@ -25,7 +27,9 @@ export const useWorkspaceShortcuts = (
       }
     };
     window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    return () => {
+      return window.removeEventListener('keydown', handler);
+    };
   }, [searchInput, setSearchOpen]);
 };
 
@@ -33,11 +37,21 @@ export const useWorkspaceShortcuts = (
 export const useInitialSample = (enabled: boolean, openSample: (file: string) => void) => {
   const open = useEffectEvent(openSample);
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      return;
+    }
     const id = new URLSearchParams(window.location.search).get('sample');
-    const selectedSample = ALL_SAMPLES.find((item) => item.id === id);
-    if (!selectedSample) return;
-    const timer = window.setTimeout(() => open(selectedSample.file), 0);
-    return () => window.clearTimeout(timer);
+    const selectedSample = ALL_SAMPLES.find((item) => {
+      return item.id === id;
+    });
+    if (!selectedSample) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      return open(selectedSample.file);
+    }, 0);
+    return () => {
+      return window.clearTimeout(timer);
+    };
   }, [enabled]);
 };

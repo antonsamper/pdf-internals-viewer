@@ -42,7 +42,11 @@ const blankPdf = () => {
     return offset;
   });
   const xref = text.length;
-  text += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${offsets.map((offset) => `${String(offset).padStart(10, '0')} 00000 n \n`).join('')}`;
+  text += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${offsets
+    .map((offset) => {
+      return `${String(offset).padStart(10, '0')} 00000 n \n`;
+    })
+    .join('')}`;
   text += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
   return new TextEncoder().encode(text);
 };
@@ -53,7 +57,9 @@ const blankPdf = () => {
  */
 const loadEngine = async (engine: ReturnType<typeof localEngine>, signal: AbortSignal, abort: () => void) => {
   let timedOut = false;
-  const ready = engine.open({ bytes: blankPdf().buffer, kind: 'bytes' }).then((blank) => blank.close());
+  const ready = engine.open({ bytes: blankPdf().buffer, kind: 'bytes' }).then((blank) => {
+    return blank.close();
+  });
   try {
     await withTimeout(ready, ENGINE_LOAD_TIMEOUT_MS, ENGINE_LOAD_SLOW, () => {
       timedOut = true;
@@ -73,10 +79,14 @@ export const searchPageText = async function searchPageText(
   signal: AbortSignal
 ) {
   // A malformed file must not leave the search UI waiting on a stuck worker.
-  const bounded = <T>(request: PromiseLike<T>) => withTimeout(request, OPERATION_TIMEOUT_MS, SEARCH_TIMED_OUT, abort);
+  const bounded = <T>(request: PromiseLike<T>) => {
+    return withTimeout(request, OPERATION_TIMEOUT_MS, SEARCH_TIMED_OUT, abort);
+  };
   const engine = localEngine();
   const abort = () => {
-    void engine.destroy().catch(() => undefined);
+    void engine.destroy().catch(() => {
+      return undefined;
+    });
   };
   signal.addEventListener('abort', abort, { once: true });
   try {
@@ -84,7 +94,11 @@ export const searchPageText = async function searchPageText(
     await loadEngine(engine, signal, abort);
     const document = await bounded(engine.open({ bytes: bytes.slice().buffer, kind: 'bytes' }, { password }));
     const listed = await bounded(document.pages.list());
-    const pages = new Map(listed.pages.map((page, index) => [page.ref.objectNumber, index + 1]));
+    const pages = new Map(
+      listed.pages.map((page, index) => {
+        return [page.ref.objectNumber, index + 1];
+      })
+    );
     const hits = new Map<number, PageTextHit>();
     let cursor: string | undefined;
     let count = 0;
@@ -105,7 +119,7 @@ export const searchPageText = async function searchPageText(
         if (prior) {
           prior.count++;
           prior.matches.push(match);
-        } else
+        } else {
           hits.set(objectNumber, {
             context: match.snippet,
             count: 1,
@@ -113,6 +127,7 @@ export const searchPageText = async function searchPageText(
             objectNumber,
             snippet: match.snippet ? `${match.snippet.before}${match.snippet.match}${match.snippet.after}` : text,
           });
+        }
         count++;
       }
       cursor = batch.nextCursor ?? undefined;
@@ -121,7 +136,9 @@ export const searchPageText = async function searchPageText(
     return { hits: [...hits.values()], limited: count >= 500, pages };
   } finally {
     signal.removeEventListener('abort', abort);
-    await engine.destroy().catch(() => undefined);
+    await engine.destroy().catch(() => {
+      return undefined;
+    });
   }
 };
 export interface PageTextHit {

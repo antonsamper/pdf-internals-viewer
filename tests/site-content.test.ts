@@ -2,12 +2,21 @@ import { describe, expect, it } from 'vitest';
 
 import { SITE_URL, sitePage, structuredData } from '../src/lib/site-content';
 
-const graph = (path: string) => structuredData(sitePage(path)!)['@graph'] as Array<Record<string, unknown>>;
-const node = (path: string, type: string) => graph(path).find((item) => item['@type'] === type);
-const trail = (path: string) =>
-  (node(path, 'BreadcrumbList')!.itemListElement as Array<{ item: string; name: string; position: number }>).map(
-    ({ item, name, position }) => [position, name, item]
+const graph = (path: string) => {
+  return structuredData(sitePage(path)!)['@graph'] as Array<Record<string, unknown>>;
+};
+const node = (path: string, type: string) => {
+  return graph(path).find((item) => {
+    return item['@type'] === type;
+  });
+};
+const trail = (path: string) => {
+  return (node(path, 'BreadcrumbList')!.itemListElement as Array<{ item: string; name: string; position: number }>).map(
+    ({ item, name, position }) => {
+      return [position, name, item];
+    }
   );
+};
 
 describe('public page structured data', () => {
   it('describes the home page as a web page without breadcrumbs', () => {

@@ -32,7 +32,9 @@ interface ProbeResult {
   warnings: string[];
 }
 
-const hash = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex');
+const hash = (bytes: Uint8Array) => {
+  return createHash('sha256').update(bytes).digest('hex');
+};
 const reports: unknown[] = [];
 
 const readFixture = (fixture: Fixture) => {
@@ -54,7 +56,11 @@ const probe = (filename: string, offsets: SampleOffset[]): ProbeResult => {
       '--experimental-strip-types',
       'scripts/corpus/probe-document.ts',
       filename,
-      JSON.stringify(offsets.map((item) => item.id)),
+      JSON.stringify(
+        offsets.map((item) => {
+          return item.id;
+        })
+      ),
     ],
     { encoding: 'utf8', maxBuffer: 1024 * 1024, timeout: 15_000 }
   );
@@ -94,8 +100,11 @@ const expectOracleObjects = (fixture: Fixture, result: ProbeResult) => {
 
 const expectSampledOffsets = (fixture: Fixture, offsets: SampleOffset[], result: ProbeResult) => {
   for (const offset of offsets) {
-    if (fixture.expectedUnknownObjectIds?.includes(offset.id)) expect(result.unknownObjectIds).toContain(offset.id);
-    else expect(result.sampledOffsets).toContainEqual(offset);
+    if (fixture.expectedUnknownObjectIds?.includes(offset.id)) {
+      expect(result.unknownObjectIds).toContain(offset.id);
+    } else {
+      expect(result.sampledOffsets).toContainEqual(offset);
+    }
   }
 };
 
@@ -104,12 +113,16 @@ const expectKnownRecovery = (fixture: Fixture, result: ProbeResult) => {
     expect(result.recovered).toBe(true);
     expect(result.warnings.length).toBeGreaterThan(0);
   }
-  if (fixture.id === 'pdf-lib-missing_endobj_keyword') expect(result.unknownObjects).toBeGreaterThan(0);
+  if (fixture.id === 'pdf-lib-missing_endobj_keyword') {
+    expect(result.unknownObjects).toBeGreaterThan(0);
+  }
 };
 
 const expectOracleMatch = (fixture: Fixture, offsets: SampleOffset[], result: ProbeResult) => {
   expect(result.pages).toBe(fixture.oracle.pages);
-  if (fixture.oracle.popplerPages !== undefined) expect(result.pages).toBe(fixture.oracle.popplerPages);
+  if (fixture.oracle.popplerPages !== undefined) {
+    expect(result.pages).toBe(fixture.oracle.popplerPages);
+  }
   expectOracleObjects(fixture, result);
   expectSampledOffsets(fixture, offsets, result);
   expectKnownRecovery(fixture, result);
@@ -133,7 +146,7 @@ const expectStructure = (fixture: Fixture, offsets: SampleOffset[], result: Prob
 };
 
 describe('opt-in, pinned upstream PDF corpus', () => {
-  for (const fixture of manifest.files)
+  for (const fixture of manifest.files) {
     it(fixture.id, () => {
       const { bytes, filename } = readFixture(fixture);
       expect(bytes.length).toBe(fixture.size);
@@ -146,4 +159,5 @@ describe('opt-in, pinned upstream PDF corpus', () => {
       expect(result.invalidRanges).toEqual([]);
       expectStructure(fixture, offsets, result);
     });
+  }
 });

@@ -13,12 +13,17 @@ interface SourceView {
 }
 /** What the highlighted bytes in the chosen representation are, and how far they can be trusted. */
 const sourceNote = (decoded: boolean, { exact, originalRange, source }: SourceView) => {
-  if (decoded)
+  if (decoded) {
     return exact
       ? 'Highlighted bytes encode matching source text. Offsets are within this decoded stream.'
       : 'Candidate page content stream. Exact text bytes could not be mapped.';
-  if (source.originalRanges) return 'Highlighted original bytes encode matching source text; intervening operators are excluded.';
-  if (exact) return 'Containing stream only. Compressed or encrypted text has no direct word-sized range in the original file.';
+  }
+  if (source.originalRanges) {
+    return 'Highlighted original bytes encode matching source text; intervening operators are excluded.';
+  }
+  if (exact) {
+    return 'Containing stream only. Compressed or encrypted text has no direct word-sized range in the original file.';
+  }
   return originalRange
     ? 'The highlighted bytes are a candidate page content stream, not an exact word match. Exact text bytes could not be mapped.'
     : 'Original source bytes are unavailable. Exact text bytes could not be mapped.';
@@ -32,16 +37,33 @@ const RepresentationToggle = ({
   decoded: boolean;
   canDecode: boolean;
   onChange: (decoded: boolean) => void;
-}) => (
-  <div className="flex flex-wrap gap-1.5 border-b px-3 py-2" role="group" aria-label="Text match byte representation">
-    <Button size="xs" variant={decoded ? 'ghost' : 'secondary'} aria-pressed={!decoded} onClick={() => onChange(false)}>
-      Original bytes
-    </Button>
-    <Button size="xs" variant={decoded ? 'secondary' : 'ghost'} aria-pressed={decoded} disabled={!canDecode} onClick={() => onChange(true)}>
-      Decoded bytes
-    </Button>
-  </div>
-);
+}) => {
+  return (
+    <div className="flex flex-wrap gap-1.5 border-b px-3 py-2" role="group" aria-label="Text match byte representation">
+      <Button
+        size="xs"
+        variant={decoded ? 'ghost' : 'secondary'}
+        aria-pressed={!decoded}
+        onClick={() => {
+          return onChange(false);
+        }}
+      >
+        Original bytes
+      </Button>
+      <Button
+        size="xs"
+        variant={decoded ? 'secondary' : 'ghost'}
+        aria-pressed={decoded}
+        disabled={!canDecode}
+        onClick={() => {
+          return onChange(true);
+        }}
+      >
+        Decoded bytes
+      </Button>
+    </div>
+  );
+};
 export const TextSourceBytes = function TextSourceBytes({
   source,
   revealKey,

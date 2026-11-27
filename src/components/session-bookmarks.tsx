@@ -31,43 +31,51 @@ export const SessionBookmarks = function SessionBookmarks<T>({
         </p>
       )}
       <ul className="space-y-3">
-        {bookmarks.map((bookmark) => (
-          <li key={bookmark.key} className="min-w-0">
-            <div className="flex items-start gap-1">
-              <ReferenceButton
-                className="min-w-0 flex-1 text-left break-words whitespace-normal"
-                onClick={() => onVisit(bookmark.selection)}
-              >
-                {bookmark.label}
-              </ReferenceButton>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={`Remove bookmark ${bookmark.label}`}
-                onClick={() => onRemove(bookmark.key)}
-              >
-                <Trash2 size={13} />
-              </Button>
-            </div>
-            <label className="mt-1 block text-xs text-muted-foreground" htmlFor={`bookmark-note-${bookmark.key}`}>
-              Note for {bookmark.label}
-            </label>
-            <textarea
-              id={`bookmark-note-${bookmark.key}`}
-              value={bookmark.note}
-              maxLength={2000}
-              rows={2}
-              placeholder="Add a note…"
-              className={cn(
-                'mt-1 block w-full px-2 py-1',
-                'bg-background text-xs text-foreground',
-                'resize-y rounded-md border',
-                'focus-visible:outline-2 focus-visible:outline-ring'
-              )}
-              onChange={(event) => onNote(bookmark.key, event.target.value)}
-            />
-          </li>
-        ))}
+        {bookmarks.map((bookmark) => {
+          return (
+            <li key={bookmark.key} className="min-w-0">
+              <div className="flex items-start gap-1">
+                <ReferenceButton
+                  className="min-w-0 flex-1 text-left break-words whitespace-normal"
+                  onClick={() => {
+                    return onVisit(bookmark.selection);
+                  }}
+                >
+                  {bookmark.label}
+                </ReferenceButton>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Remove bookmark ${bookmark.label}`}
+                  onClick={() => {
+                    return onRemove(bookmark.key);
+                  }}
+                >
+                  <Trash2 size={13} />
+                </Button>
+              </div>
+              <label className="mt-1 block text-xs text-muted-foreground" htmlFor={`bookmark-note-${bookmark.key}`}>
+                Note for {bookmark.label}
+              </label>
+              <textarea
+                id={`bookmark-note-${bookmark.key}`}
+                value={bookmark.note}
+                maxLength={2000}
+                rows={2}
+                placeholder="Add a note…"
+                className={cn(
+                  'mt-1 block w-full px-2 py-1',
+                  'bg-background text-xs text-foreground',
+                  'resize-y rounded-md border',
+                  'focus-visible:outline-2 focus-visible:outline-ring'
+                )}
+                onChange={(event) => {
+                  return onNote(bookmark.key, event.target.value);
+                }}
+              />
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

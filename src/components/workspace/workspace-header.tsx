@@ -14,7 +14,9 @@ import { size } from './types';
 
 type FollowLink = (event: MouseEvent<HTMLElement>) => boolean;
 
-const closeLabel = (busy: boolean) => (busy ? 'Cancel opening PDF' : 'Close PDF');
+const closeLabel = (busy: boolean) => {
+  return busy ? 'Cancel opening PDF' : 'Close PDF';
+};
 
 /**
  * Header actions shrink to 36px squares of icon only once the header becomes a grid.
@@ -23,11 +25,13 @@ const closeLabel = (busy: boolean) => (busy ? 'Cancel opening PDF' : 'Close PDF'
 const ACTION_COMPACT = 'max-w600:size-9 max-w600:p-0';
 
 /** A header action's text label, hidden when the action shrinks to its icon. */
-const ActionLabel = ({ children }: { children: ReactNode }) => (
-  <span data-action-label="" className="max-w600:hidden">
-    {children}
-  </span>
-);
+const ActionLabel = ({ children }: { children: ReactNode }) => {
+  return (
+    <span data-action-label="" className="max-w600:hidden">
+      {children}
+    </span>
+  );
+};
 
 const PublicPageActions = ({
   busy,
@@ -41,47 +45,51 @@ const PublicPageActions = ({
   path: SitePath;
   onClose: () => void;
   onFollowLink: FollowLink;
-}) => (
-  <>
-    <ContentHeaderLinks path={sitePage(path)!.path} onFollowLink={onFollowLink} />
-    {filename && (
-      <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label={closeLabel(busy)} title={closeLabel(busy)}>
-        <X size={15} aria-hidden="true" />
-      </Button>
-    )}
-  </>
-);
+}) => {
+  return (
+    <>
+      <ContentHeaderLinks path={sitePage(path)!.path} onFollowLink={onFollowLink} />
+      {filename && (
+        <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label={closeLabel(busy)} title={closeLabel(busy)}>
+          <X size={15} aria-hidden="true" />
+        </Button>
+      )}
+    </>
+  );
+};
 
-const FileName = ({ byteCount, filename }: { byteCount: number; filename: string }) => (
-  <div
-    data-filename=""
-    className={cn(
-      'flex min-w-0 flex-1 items-center gap-2.25',
-      'text-small text-muted-foreground',
-      'max-w600:col-start-2 max-w600:row-start-1 max-w600:text-detail',
-      !filename && 'max-w600:hidden'
-    )}
-  >
-    {filename ? (
-      <>
-        <FileIcon className="max-w600:hidden" size={14} />
-        <span
-          className={cn(
-            'max-w-[50vw] overflow-hidden text-ellipsis whitespace-nowrap text-foreground',
-            'min-w600:narrow:max-w-[25vw]',
-            'max-w600:max-w-none'
-          )}
-          title={filename}
-        >
-          {filename}
-        </span>
-        <span className="text-detail narrow:hidden">{size(byteCount)}</span>
-      </>
-    ) : (
-      <span>Local workspace</span>
-    )}
-  </div>
-);
+const FileName = ({ byteCount, filename }: { byteCount: number; filename: string }) => {
+  return (
+    <div
+      data-filename=""
+      className={cn(
+        'flex min-w-0 flex-1 items-center gap-2.25',
+        'text-small text-muted-foreground',
+        'max-w600:col-start-2 max-w600:row-start-1 max-w600:text-detail',
+        !filename && 'max-w600:hidden'
+      )}
+    >
+      {filename ? (
+        <>
+          <FileIcon className="max-w600:hidden" size={14} />
+          <span
+            className={cn(
+              'max-w-[50vw] overflow-hidden text-ellipsis whitespace-nowrap text-foreground',
+              'min-w600:narrow:max-w-[25vw]',
+              'max-w600:max-w-none'
+            )}
+            title={filename}
+          >
+            {filename}
+          </span>
+          <span className="text-detail narrow:hidden">{size(byteCount)}</span>
+        </>
+      ) : (
+        <span>Local workspace</span>
+      )}
+    </div>
+  );
+};
 
 const FileAction = ({
   busy,
@@ -93,8 +101,8 @@ const FileAction = ({
   hasFile: boolean;
   onClose: () => void;
   onOpenFile: () => void;
-}) =>
-  hasFile ? (
+}) => {
+  return hasFile ? (
     <Button className={ACTION_COMPACT} variant="ghost" size="sm" onClick={onClose} aria-label={closeLabel(busy)} title={closeLabel(busy)}>
       <X size={15} aria-hidden="true" />
       <ActionLabel>{closeLabel(busy)}</ActionLabel>
@@ -105,6 +113,7 @@ const FileAction = ({
       <ActionLabel>Open PDF</ActionLabel>
     </Button>
   );
+};
 
 const WorkspaceActions = ({
   busy,
@@ -120,18 +129,23 @@ const WorkspaceActions = ({
   onClose: () => void;
   onFollowLink: FollowLink;
   onOpenFile: () => void;
-}) => (
-  <>
-    <span className="h-4.75 w-px bg-border max-w600:hidden" />
-    <FileName byteCount={byteCount} filename={filename} />
-    <div className={cn('flex items-center gap-2', 'max-w600:col-start-3 max-w600:row-start-1', 'max-w480:gap-0.5')} data-header-actions="">
-      <HeaderLink className={ACTION_COMPACT} href="/guide" aria-label="User guide" title="User guide" onClick={onFollowLink}>
-        <BookOpen size={15} aria-hidden="true" /> <ActionLabel>User guide</ActionLabel>
-      </HeaderLink>
-      <FileAction busy={busy} hasFile={Boolean(filename)} onClose={onClose} onOpenFile={onOpenFile} />
-    </div>
-  </>
-);
+}) => {
+  return (
+    <>
+      <span className="h-4.75 w-px bg-border max-w600:hidden" />
+      <FileName byteCount={byteCount} filename={filename} />
+      <div
+        className={cn('flex items-center gap-2', 'max-w600:col-start-3 max-w600:row-start-1', 'max-w480:gap-0.5')}
+        data-header-actions=""
+      >
+        <HeaderLink className={ACTION_COMPACT} href="/guide" aria-label="User guide" title="User guide" onClick={onFollowLink}>
+          <BookOpen size={15} aria-hidden="true" /> <ActionLabel>User guide</ActionLabel>
+        </HeaderLink>
+        <FileAction busy={busy} hasFile={Boolean(filename)} onClose={onClose} onOpenFile={onOpenFile} />
+      </div>
+    </>
+  );
+};
 
 export const WorkspaceHeader = ({
   busy,
@@ -151,25 +165,29 @@ export const WorkspaceHeader = ({
   onFollowLink: FollowLink;
   onHome: () => void;
   onOpenFile: () => void;
-}) => (
-  <SiteHeader
-    content={path !== '/'}
-    href={import.meta.env.BASE_URL}
-    onIdentityClick={(event) => {
-      if (onFollowLink(event)) onHome();
-    }}
-  >
-    {path !== '/' ? (
-      <PublicPageActions busy={busy} filename={filename} path={path} onClose={onClose} onFollowLink={onFollowLink} />
-    ) : (
-      <WorkspaceActions
-        busy={busy}
-        byteCount={byteCount}
-        filename={filename}
-        onClose={onClose}
-        onFollowLink={onFollowLink}
-        onOpenFile={onOpenFile}
-      />
-    )}
-  </SiteHeader>
-);
+}) => {
+  return (
+    <SiteHeader
+      content={path !== '/'}
+      href={import.meta.env.BASE_URL}
+      onIdentityClick={(event) => {
+        if (onFollowLink(event)) {
+          onHome();
+        }
+      }}
+    >
+      {path !== '/' ? (
+        <PublicPageActions busy={busy} filename={filename} path={path} onClose={onClose} onFollowLink={onFollowLink} />
+      ) : (
+        <WorkspaceActions
+          busy={busy}
+          byteCount={byteCount}
+          filename={filename}
+          onClose={onClose}
+          onFollowLink={onFollowLink}
+          onOpenFile={onOpenFile}
+        />
+      )}
+    </SiteHeader>
+  );
+};

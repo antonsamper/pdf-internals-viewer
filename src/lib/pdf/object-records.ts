@@ -30,33 +30,46 @@ interface SourceLocation {
   source: string;
 }
 
-const isIndexedEntry = (item: [number, XRefEntry]): item is IndexedEntry => item[0] > 0 && item[1].type !== 'free';
+const isIndexedEntry = (item: [number, XRefEntry]): item is IndexedEntry => {
+  return item[0] > 0 && item[1].type !== 'free';
+};
 
 /** Returns the in-use cross-reference entries in object-number order. */
-export const inUseEntries = (parsed: ParsedDocument): IndexedEntry[] =>
-  Array.from(parsed.xref)
+export const inUseEntries = (parsed: ParsedDocument): IndexedEntry[] => {
+  return Array.from(parsed.xref)
     .filter(isIndexedEntry)
-    .toSorted(([a], [b]) => a - b);
+    .toSorted(([a], [b]) => {
+      return a - b;
+    });
+};
 
-const entryGeneration = (entry: XRefEntry | undefined) => (entry?.type === 'uncompressed' ? entry.generation : 0);
+const entryGeneration = (entry: XRefEntry | undefined) => {
+  return entry?.type === 'uncompressed' ? entry.generation : 0;
+};
 
-const entryId = (number: number, entry: XRefEntry | undefined) => `${number} ${entryGeneration(entry)}`;
+const entryId = (number: number, entry: XRefEntry | undefined) => {
+  return `${number} ${entryGeneration(entry)}`;
+};
 
-const isValidOffset = (offset: number, length: number) => Number.isSafeInteger(offset) && offset > 0 && offset < length;
+const isValidOffset = (offset: number, length: number) => {
+  return Number.isSafeInteger(offset) && offset > 0 && offset < length;
+};
 
 // A malformed in-use xref at offset zero may resolve to the engine's
 // synthetic null placeholder. It is not an indexed source object.
-const invalidOffsetWarning = (entry: InUseEntry, id: string, length: number) =>
-  entry.type === 'uncompressed' && !isValidOffset(entry.offset, length)
+const invalidOffsetWarning = (entry: InUseEntry, id: string, length: number) => {
+  return entry.type === 'uncompressed' && !isValidOffset(entry.offset, length)
     ? `Object ${id} is unavailable: invalid cross-reference offset ${entry.offset}.`
     : undefined;
+};
 
 const resolveObject = (index: ObjectIndex, number: number, entry: InUseEntry) => {
   const generation = entryGeneration(entry);
   const { encryptRef } = index;
   // The encryption dictionary itself is never encrypted.
-  if (entry.type === 'uncompressed' && encryptRef?.objectNumber === number && encryptRef.generation === generation)
+  if (entry.type === 'uncompressed' && encryptRef?.objectNumber === number && encryptRef.generation === generation) {
     return inspectionReadIndirect(index.bytes, entry.offset).value;
+  }
   return index.parsed.getObject(PdfRef.of(number, generation));
 };
 
@@ -65,11 +78,15 @@ const loadObject = (index: ObjectIndex, [number, entry]: IndexedEntry) => {
   try {
     const offsetWarning = invalidOffsetWarning(entry, id, index.bytes.length);
     const object = offsetWarning ? undefined : resolveObject(index, number, entry);
-    if (offsetWarning) index.warnings.push(offsetWarning);
-    else if (!object) index.warnings.push(`Object ${id} could not be resolved.`);
-    else {
+    if (offsetWarning) {
+      index.warnings.push(offsetWarning);
+    } else if (!object) {
+      index.warnings.push(`Object ${id} could not be resolved.`);
+    } else {
       index.objects.set(id, object);
-      if (isStream(object)) index.streams.set(id, object);
+      if (isStream(object)) {
+        index.streams.set(id, object);
+      }
     }
   } catch (error) {
     index.warnings.push(`Object ${id}: ${errorMessage(error)}`);
@@ -78,26 +95,39 @@ const loadObject = (index: ObjectIndex, [number, entry]: IndexedEntry) => {
 
 /** Resolves every in-use object. Streams are kept for later byte requests. */
 const loadObjects = (index: ObjectIndex, entries: IndexedEntry[]) => {
-  for (const entry of entries) loadObject(index, entry);
+  for (const entry of entries) {
+    loadObject(index, entry);
+  }
 };
 
 const sourcePreview = (bytes: Uint8Array, start: number, end: number) => {
   const preview = byteText(bytes.subarray(start, Math.min(end, start + MAX_DISPLAY_BYTES)));
-  if (end - start <= MAX_DISPLAY_BYTES) return preview;
+  if (end - start <= MAX_DISPLAY_BYTES) {
+    return preview;
+  }
   return `${preview}\n… Source preview limited to 256 KiB. Inspect original bytes for the full object.`;
 };
 
-const numberObjectValue = (object: PdfObject | null) => (object?.type === 'number' ? object.value : null);
+const numberObjectValue = (object: PdfObject | null) => {
+  return object?.type === 'number' ? object.value : null;
+};
 
 // Also records the stream's original bytes, which raw reads and stream ranges use.
 const fileSource = (index: ObjectIndex, number: number, entry: UncompressedEntry, id: string): SourceLocation | undefined => {
   const { bytes, parsed } = index;
-  const result = inspectionReadIndirect(bytes, entry.offset, (ref) => numberObjectValue(parsed.getObject(ref)));
-  if (result.objNum !== number || result.genNum !== entry.generation)
+  const result = inspectionReadIndirect(bytes, entry.offset, (ref) => {
+    return numberObjectValue(parsed.getObject(ref));
+  });
+  if (result.objNum !== number || result.genNum !== entry.generation) {
     throw new Error('Cross-reference target has a different object identity.');
-  if (isStream(result.value)) index.rawStreams.set(id, result.value.data);
+  }
+  if (isStream(result.value)) {
+    index.rawStreams.set(id, result.value.data);
+  }
   const { end } = result;
-  if (end === undefined || end <= entry.offset || end > bytes.length) return undefined;
+  if (end === undefined || end <= entry.offset || end > bytes.length) {
+    return undefined;
+  }
   return {
     provenance: { range: { end, start: entry.offset }, type: 'file' },
     source: sourcePreview(bytes, entry.offset, end),
@@ -107,7 +137,9 @@ const fileSource = (index: ObjectIndex, number: number, entry: UncompressedEntry
 const compressedSource = (index: ObjectIndex, number: number, entry: CompressedEntry): SourceLocation => {
   const containerId = entryId(entry.streamObjNum, index.parsed.xref.get(entry.streamObjNum));
   const stream = index.objects.get(containerId);
-  if (!isStream(stream)) throw new Error('Compressed object container is unavailable.');
+  if (!isStream(stream)) {
+    throw new Error('Compressed object container is unavailable.');
+  }
   const location = inspectionCompressedLocation(stream, entry.indexInStream, number);
   return {
     provenance: { containerId, range: { end: location.end, start: location.start }, type: 'decoded' },
@@ -124,12 +156,16 @@ const locateSource = (index: ObjectIndex, [number, entry]: IndexedEntry, id: str
   }
 };
 
-const unverifiedSource = (text: string): SourceLocation => ({
-  provenance: { reason: 'The parser could not verify an exact source range.', type: 'unknown' },
-  source: text,
-});
+const unverifiedSource = (text: string): SourceLocation => {
+  return {
+    provenance: { reason: 'The parser could not verify an exact source range.', type: 'unknown' },
+    source: text,
+  };
+};
 
-const dictionaryOf = (object: PdfObject) => (object.type === 'dict' || object.type === 'stream' ? object : undefined);
+const dictionaryOf = (object: PdfObject) => {
+  return object.type === 'dict' || object.type === 'stream' ? object : undefined;
+};
 
 const objectLabel = (object: PdfObject) => {
   const dictionary = dictionaryOf(object);
@@ -140,13 +176,15 @@ const objectLabel = (object: PdfObject) => {
 
 // Raw stream bytes have a file range only when they are a view of the input.
 const streamRange = (original: Uint8Array | undefined, bytes: Uint8Array): ByteRange | undefined => {
-  if (!original || original.buffer !== bytes.buffer) return undefined;
+  if (!original || original.buffer !== bytes.buffer) {
+    return undefined;
+  }
   const start = original.byteOffset - bytes.byteOffset;
   return { end: start + original.byteLength, start };
 };
 
-const streamDetails = (object: PdfObject, original: Uint8Array | undefined, bytes: Uint8Array) =>
-  isStream(object)
+const streamDetails = (object: PdfObject, original: Uint8Array | undefined, bytes: Uint8Array) => {
+  return isStream(object)
     ? {
         stream: {
           filters: streamFilters(object),
@@ -155,12 +193,15 @@ const streamDetails = (object: PdfObject, original: Uint8Array | undefined, byte
         },
       }
     : {};
+};
 
 const buildRecord = (index: ObjectIndex, item: IndexedEntry): PdfObjectRecord | undefined => {
   const [number, entry] = item;
   const id = entryId(number, entry);
   const object = index.objects.get(id);
-  if (!object) return undefined;
+  if (!object) {
+    return undefined;
+  }
   const warnings: string[] = [];
   const references = new Set<string>();
   const value = valueTree(object, references);
@@ -185,7 +226,9 @@ const buildRecords = (index: ObjectIndex, entries: IndexedEntry[]) => {
   const records = new Map<string, PdfObjectRecord>();
   for (const entry of entries) {
     const record = buildRecord(index, entry);
-    if (record) records.set(record.id, record);
+    if (record) {
+      records.set(record.id, record);
+    }
   }
   return records;
 };
@@ -200,16 +243,23 @@ export const indexObjects = (index: ObjectIndex, entries: IndexedEntry[]) => {
 };
 
 const linkContainerRange = (record: PdfObjectRecord, records: Map<string, PdfObjectRecord>) => {
-  if (record.provenance.type !== 'decoded') return;
+  if (record.provenance.type !== 'decoded') {
+    return;
+  }
   const container = records.get(record.provenance.containerId);
-  if (container?.provenance.type === 'file') record.provenance.containerRange = container.provenance.range;
+  if (container?.provenance.type === 'file') {
+    record.provenance.containerRange = container.provenance.range;
+  }
 };
 
 const linkReferences = (record: PdfObjectRecord, records: Map<string, PdfObjectRecord>) => {
   for (const id of record.references) {
     const target = records.get(id);
-    if (target) target.referencedBy.push(record.id);
-    else record.warnings.push(`Dangling or unresolved reference: ${id} R`);
+    if (target) {
+      target.referencedBy.push(record.id);
+    } else {
+      record.warnings.push(`Dangling or unresolved reference: ${id} R`);
+    }
   }
 };
 

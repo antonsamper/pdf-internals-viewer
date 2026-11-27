@@ -19,6 +19,8 @@
     "unicorn/filename-case": ["error", { "case": "kebabCase", "ignore": ["^__root\\.tsx$", "^_app(\\..+)?\\.tsx$"] }],
     "func-style": ["error", "expression"],
     "complexity": ["error", { "max": 10 }],
+    "curly": ["error", "all"],
+    "arrow-body-style": ["error", "always"],
     "no-restricted-imports": [
       "error",
       {
