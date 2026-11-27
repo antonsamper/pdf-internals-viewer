@@ -10,7 +10,7 @@ export const Warning = function Warning({ className, render, ...props }: useRend
     props: mergeProps<'p'>(
       {
         className: cn(
-          'my-3 flex items-start gap-[9px] px-[15px] py-2.5',
+          'my-3 flex items-start gap-2.25 px-3.75 py-2.5',
           'bg-muted text-detail leading-[1.65] [overflow-wrap:anywhere]',
           'rounded-[5px] border',
           className

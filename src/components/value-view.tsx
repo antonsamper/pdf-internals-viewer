@@ -67,15 +67,15 @@ export const ValueView = function ValueView({
             <div
               className={cn(
                 'grid grid-cols-[minmax(90px,32%)_minmax(0,1fr)] items-start',
-                'gap-3 border-b py-[11px]',
+                'gap-3 border-b py-2.75',
                 // Inside another entry's value, the two-column row stacks.
-                'first:pt-[3px] in-data-[slot=pdf-value]:flex in-data-[slot=pdf-value]:flex-col in-data-[slot=pdf-value]:gap-1.5 in-data-[slot=pdf-value]:last:border-0'
+                'first:pt-0.75 in-data-[slot=pdf-value]:flex in-data-[slot=pdf-value]:flex-col in-data-[slot=pdf-value]:gap-1.5 in-data-[slot=pdf-value]:last:border-0'
               )}
               key={`${key}-${index}`}
             >
               <div
                 className={cn(
-                  'flex flex-wrap items-center gap-[5px]',
+                  'flex flex-wrap items-center gap-1.25',
                   'font-mono text-detail leading-[inherit] [overflow-wrap:anywhere] text-muted-foreground'
                 )}
               >
@@ -110,7 +110,7 @@ export const ValueView = function ValueView({
     );
   if (value.type === 'array')
     return (
-      <div className="flex flex-wrap items-baseline gap-[7px] text-detail leading-[inherit]">
+      <div className="flex flex-wrap items-baseline gap-1.75 text-detail leading-[inherit]">
         <span className="text-muted-foreground">[</span>
         {value.items.map((child, index) => (
           <ValueView
@@ -151,7 +151,7 @@ const InlineReference = function InlineReference({
     <details className="mt-1.5 text-detail leading-[inherit]" onToggle={(event) => setExpanded(event.currentTarget.open)}>
       <summary
         className={cn(
-          'cursor-pointer py-[3px] text-muted-foreground',
+          'cursor-pointer py-0.75 text-muted-foreground',
           'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
         )}
       >

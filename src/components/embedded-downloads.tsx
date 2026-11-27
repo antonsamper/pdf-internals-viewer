@@ -54,13 +54,13 @@ export const EmbeddedDownloads = ({
   );
   const hasFont = assets.some((asset) => asset.kind === 'font');
   return (
-    <section className={cn('mx-[22px] mb-4 rounded-[8px] border bg-sidebar p-3', className)} aria-label="Embedded file downloads">
+    <section className={cn('mx-5.5 mb-4 rounded-md border bg-sidebar p-3', className)} aria-label="Embedded file downloads">
       {assets.map((asset) => (
         <div
           className="flex flex-wrap items-center justify-between gap-2.5 not-first:mt-3"
           key={`${asset.kind}-${asset.streamId}-${asset.filename}`}
         >
-          <div className="flex min-w-0 flex-col gap-[3px]">
+          <div className="flex min-w-0 flex-col gap-0.75">
             <strong className="text-small font-medium [overflow-wrap:anywhere]">{asset.filename}</strong>
             <span className="text-caption text-muted-foreground">
               {asset.kind === 'font' ? (asset.subset ? 'Embedded font · subset indicated' : 'Embedded font') : 'Embedded attachment'}

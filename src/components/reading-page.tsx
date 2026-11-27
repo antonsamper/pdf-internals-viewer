@@ -64,13 +64,10 @@ export const ReadingPage = function ReadingPage({
       <div
         onClick={onClick}
         role="presentation"
-        className={cn(
-          'mx-auto grid max-w-[988px] grid-cols-[220px_minmax(0,720px)] items-start gap-12',
-          'narrow:block narrow:max-w-[720px]'
-        )}
+        className={cn('mx-auto grid max-w-247 grid-cols-[220px_minmax(0,720px)] items-start gap-12', 'narrow:block narrow:max-w-180')}
       >
         <ContentNavigation path={path} onFollowLink={onFollowLink} />
-        <article className="mx-auto w-full max-w-[720px] min-w-0">
+        <article className="mx-auto w-full max-w-180 min-w-0">
           <Prose className={cn(about && '[&_a:not([class])]:text-foreground [&_a:not([class])]:hover:underline-offset-4')}>
             {children}
           </Prose>

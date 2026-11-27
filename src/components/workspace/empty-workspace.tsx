@@ -44,7 +44,7 @@ const SampleButton = ({
 }) => (
   <button
     className={cn(
-      'group/sample flex w-full items-center gap-[13px] px-0.5 py-3.5 text-left',
+      'group/sample flex w-full items-center gap-3.25 px-0.5 py-3.5 text-left',
       'border-t border-border bg-transparent',
       'transition-[background-color,border-color] duration-150 ease-[ease]',
       'hover:border-t-(--sample-ink) hover:bg-[color-mix(in_srgb,var(--sample-wash),var(--background)_60%)]',
@@ -54,8 +54,8 @@ const SampleButton = ({
   >
     <span
       className={cn(
-        'grid size-[34px] place-items-center',
-        'rounded-[6px] border border-[color-mix(in_srgb,var(--sample-ink)_18%,transparent)] bg-(--sample-wash)',
+        'grid size-8.5 place-items-center',
+        'rounded-sm border border-[color-mix(in_srgb,var(--sample-ink)_18%,transparent)] bg-(--sample-wash)',
         'text-(--sample-ink)'
       )}
     >
@@ -105,9 +105,9 @@ export const EmptyWorkspace = ({
         <div className="flex flex-col items-start">
           <span
             className={cn(
-              'mb-4.5 flex items-center gap-[9px]',
-              'font-mono text-caption leading-[normal] font-medium tracking-[0.09em] text-(--brand-purple) uppercase',
-              "before:h-[3px] before:w-[17px] before:bg-(--brand-orange) before:content-['']"
+              'mb-4.5 flex items-center gap-2.25',
+              'font-mono text-caption leading-[normal] font-medium tracking-[0.09em] text-brand-purple uppercase',
+              "before:h-0.75 before:w-4.25 before:bg-(--brand-orange) before:content-['']"
             )}
           >
             Structure & byte explorer
@@ -127,7 +127,7 @@ export const EmptyWorkspace = ({
             <span className="flex-[1_1_150px] text-detail text-muted-foreground">or drop a file anywhere · up to 64 MiB</span>
           </div>
           <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3 text-xs leading-normal">
-            <TrustBadge className="font-semibold text-(--brand-purple)">
+            <TrustBadge className="font-semibold text-brand-purple">
               <Shield size={16} aria-hidden="true" />
               Processed locally
             </TrustBadge>
@@ -139,7 +139,7 @@ export const EmptyWorkspace = ({
         </div>
         <section className="min-w-0">
           <h2 className="mb-2 text-reading font-[550]">Start with a sample</h2>
-          <p className="mb-[22px] text-small leading-[1.6] text-muted-foreground">No file handy? Explore a PDF made for learning.</p>
+          <p className="mb-5.5 text-small leading-[1.6] text-muted-foreground">No file handy? Explore a PDF made for learning.</p>
           {SAMPLES.map((sample) => (
             <SampleButton key={sample.file} sample={sample} onClick={() => onSample(sample.file)} />
           ))}
@@ -157,7 +157,7 @@ export const EmptyWorkspace = ({
       From a page to its content stream to the bytes behind it.
       <br />
       Read-only exploration, with the source always in view.
-      <span className="mt-4 block text-xs leading-[1.8] [&_a]:text-(--reference) [&_a]:underline-offset-3">
+      <span className="mt-4 block text-xs leading-[1.8] [&_a]:text-reference [&_a]:underline-offset-3">
         <a href="/guide" onClick={onFollowLink}>
           Learn how to inspect a PDF
         </a>{' '}

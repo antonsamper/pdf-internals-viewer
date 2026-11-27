@@ -29,7 +29,7 @@ export const StatusBar = ({
     )}
   >
     <span className="flex items-center gap-1.5 whitespace-nowrap max-w480:gap-1.25 max-w480:text-micro">
-      <ShieldCheck className="text-(--brand-purple)" size={13} />
+      <ShieldCheck className="text-brand-purple" size={13} />
       Files stay on your device
       <span className="mx-1.25 block h-2.5 w-px bg-border max-w480:mx-0.75 min-w480:narrow:hidden" aria-hidden="true" />
       <a

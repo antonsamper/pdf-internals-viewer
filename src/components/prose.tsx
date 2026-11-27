@@ -30,7 +30,7 @@ export const Prose = function Prose({ children, className }: { children: ReactNo
         '[&_li]:my-2',
         // Code blocks and bold text
         '[&_pre]:my-6 [&_pre]:p-5 [&_pre]:leading-[1.7] [&_pre]:[overflow-wrap:anywhere] [&_pre]:whitespace-pre-wrap',
-        '[&_pre]:rounded-[8px] [&_pre]:border [&_pre]:border-border [&_pre]:bg-muted',
+        '[&_pre]:rounded-md [&_pre]:border [&_pre]:border-border [&_pre]:bg-muted',
         '[&_strong]:font-semibold [&_strong]:text-foreground',
         // Links are violet and underline on hover; inside a paragraph they are always underlined
         '[&_a:not([class])]:text-reference [&_a:not([class])]:underline-offset-3 [&_a:not([class])]:hover:underline',
@@ -88,7 +88,7 @@ export const ExamplePreview = function ExamplePreview({
       className={cn(
         'my-6',
         '[&_img]:block [&_img]:h-auto [&_img]:w-full [&_img]:max-w-[28rem]',
-        '[&_img]:rounded-[0.5rem] [&_img]:border [&_img]:border-border',
+        '[&_img]:rounded-md [&_img]:border [&_img]:border-border',
         '[&_figcaption]:mt-3 [&_figcaption]:text-sm [&_figcaption]:leading-[inherit] [&_figcaption]:text-muted-foreground'
       )}
     >

@@ -7,6 +7,8 @@ import { ReferenceButton } from '@/components/inspector/reference-button';
 import { Button } from '@/components/ui/button';
 import { ValueView } from '@/components/value-view';
 import { compareObjects } from '@/lib/pdf/resource-tools';
+import { cn } from '@/lib/utils';
+
 const Location = function Location({ object }: { object: PdfObjectRecord }) {
   const source = object.provenance;
   return (
@@ -41,7 +43,7 @@ export const ObjectComparison = function ObjectComparison({
           Unpin object
         </Button>
       </div>
-      <div className="my-3 grid gap-4 sm:grid-cols-2">
+      <div className="my-3 grid gap-4 min-w600:grid-cols-2">
         <div>
           <p className="text-xs text-muted-foreground">Pinned</p>
           <ReferenceButton onClick={() => onNavigate(pinned.id)}>
@@ -85,9 +87,9 @@ export const ObjectComparison = function ObjectComparison({
                       <code className="break-all">{row.key}</code>
                       <span className="text-muted-foreground">{row.status}</span>
                     </div>
-                    <div className={`grid min-w-0 gap-3 sm:grid-cols-2 ${row.status !== 'same' ? 'bg-muted/50' : ''}`}>
+                    <div className={cn('grid min-w-0 gap-3 min-w600:grid-cols-2', row.status !== 'same' && 'bg-muted/50')}>
                       <div className="min-w-0 overflow-auto p-2">
-                        <span className="mb-1 block text-xs text-muted-foreground sm:hidden">Pinned</span>
+                        <span className="mb-1 block text-xs text-muted-foreground min-w600:hidden">Pinned</span>
                         {row.left ? (
                           <ValueView value={row.left} onNavigate={onNavigate} />
                         ) : (
@@ -95,7 +97,7 @@ export const ObjectComparison = function ObjectComparison({
                         )}
                       </div>
                       <div className="min-w-0 overflow-auto p-2">
-                        <span className="mb-1 block text-xs text-muted-foreground sm:hidden">Current</span>
+                        <span className="mb-1 block text-xs text-muted-foreground min-w600:hidden">Current</span>
                         {row.right ? (
                           <ValueView value={row.right} onNavigate={onNavigate} />
                         ) : (

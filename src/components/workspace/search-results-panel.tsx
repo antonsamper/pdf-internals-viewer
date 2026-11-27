@@ -170,7 +170,7 @@ const SourceButtons = ({
   const keys = uniqueKeys(sources, (source) => `${source.id}:${source.ranges[0]?.start ?? 'candidate'}`);
   const mapped = location.sources.some((source) => source.ranges.length);
   return (
-    <div className="flex flex-wrap items-center gap-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1">
+    <div className={cn('flex flex-wrap items-center gap-1', 'max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1')}>
       <span className="mr-0.5 text-detail text-muted-foreground max-w400:col-span-full max-w400:m-0">{mapped ? 'Bytes' : 'Streams'}</span>
       {sources.map((source, sourceIndex) => (
         <CardButton
@@ -231,7 +231,7 @@ const PageTextLinks = ({
         {location.sources.length > 1 && (
           <CardButton
             variant="link"
-            className="px-0 text-muted-foreground underline-offset-[3px]"
+            className="px-0 text-muted-foreground underline-offset-3"
             disabled={searching}
             aria-expanded={expanded}
             onClick={() => toggleSources(location.pageId)}
@@ -242,7 +242,7 @@ const PageTextLinks = ({
         )}
         <CardButton
           variant="link"
-          className="px-0 text-(--reference) underline-offset-[3px]"
+          className="px-0 text-reference underline-offset-3"
           disabled={searching}
           onClick={() => {
             openResultPreview(result, index);
@@ -274,7 +274,7 @@ const ResultSummary = ({ result, resultsScope }: { result: SearchResult; results
         data-search-result-context=""
       >
         {snippet.before}
-        <mark className="rounded-[2px] bg-(--byte-selection) px-px text-(--byte-selection-foreground)">{snippet.match}</mark>
+        <mark className="rounded-xs bg-byte-selection px-px text-byte-selection-foreground">{snippet.match}</mark>
         {snippet.after}
       </span>
       {!result.pageText && (
@@ -303,8 +303,8 @@ const ResultItem = ({
     <div
       className={cn(
         'scroll-my-2 overflow-hidden bg-background',
-        'rounded-[8px] border',
-        'has-[[aria-current=true]]:border-(--reference) has-[[aria-current=true]]:shadow-[0_0_0_1px_var(--reference)]'
+        'rounded-md border',
+        'has-[[aria-current=true]]:border-reference has-[[aria-current=true]]:shadow-[0_0_0_1px_var(--reference)]'
       )}
       data-search-result-item=""
     >
@@ -356,7 +356,7 @@ const ResultItem = ({
 const EmptyResults = ({ search }: { search: Search }) => {
   const { resultsQuery, resultsScope, searchAsPageText } = search;
   return (
-    <div className="flex min-h-[100px] flex-col items-center justify-center gap-2.5 p-5 text-center text-muted-foreground">
+    <div className={cn('flex min-h-25 flex-col items-center justify-center', 'gap-2.5 p-5 text-center text-muted-foreground')}>
       <Search size={22} aria-hidden="true" />
       <p className="text-body [overflow-wrap:anywhere] text-foreground">No results for “{resultsQuery}”</p>
       <span className="text-small">{EMPTY_HINTS[resultsScope] ?? 'Try a shorter sequence of complete hexadecimal bytes.'}</span>
@@ -410,7 +410,7 @@ export const SearchResultsPanel = ({ search, textSource }: { search: Search; tex
       <section
         className={cn(
           'group/results flex flex-col overflow-hidden',
-          'max-h-[min(480px,60dvh,var(--available-height,480px))] min-h-[100px]',
+          'max-h-[min(480px,60dvh,var(--available-height,480px))] min-h-25',
           'bg-background',
           'data-hold-height:h-[var(--search-loading-height,180px)]'
         )}

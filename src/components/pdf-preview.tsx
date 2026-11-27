@@ -225,10 +225,9 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
                   <polygon
                     key={index}
                     ref={index === 0 ? firstHighlight : undefined}
+                    className="fill-preview-highlight mix-blend-multiply"
                     points={points}
-                    fill="#ffc247"
                     fillOpacity={0.4}
-                    style={{ mixBlendMode: 'multiply' }}
                   />
                 ))}
               </svg>

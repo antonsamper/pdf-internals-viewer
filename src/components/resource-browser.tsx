@@ -63,7 +63,7 @@ export const ResourceBrowser = function ResourceBrowser({
         links show where a resource is available, including inherited and nested resources; they do not prove it is drawn on the page. Image
         previews load automatically as you scroll.
       </p>
-      <div className="mt-[18px] mb-3.5 flex flex-wrap gap-1.5" role="group" aria-label="Resource categories">
+      <div className="mt-4.5 mb-3.5 flex flex-wrap gap-1.5" role="group" aria-label="Resource categories">
         {(
           [
             ['All', 'All', Layers],
@@ -85,7 +85,7 @@ export const ResourceBrowser = function ResourceBrowser({
           >
             <Icon aria-hidden="true" size={14} />
             {label}{' '}
-            <span className="rounded-[4px] bg-muted px-[5px] text-caption text-muted-foreground tabular-nums">
+            <span className="rounded-[4px] bg-muted px-1.25 text-caption text-muted-foreground tabular-nums">
               {value === 'All' ? resources.length : resources.filter((entry) => entry.kind === value).length}
             </span>
           </Button>

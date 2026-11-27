@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 const ObjectTab = ({ className, ...props }: ComponentProps<typeof TabsTrigger>) => (
   <TabsTrigger
     className={cn(
-      'h-8 flex-initial px-[3px] py-0 text-detail',
+      'h-8 flex-initial px-0.75 py-0 text-detail',
       'data-active:text-brand-purple data-active:after:bg-brand-red data-active:hover:text-brand-purple',
       'dark:data-active:text-brand-purple dark:data-active:hover:text-brand-purple',
       className
@@ -65,7 +65,7 @@ const Relationships = ({ children, count, empty, title }: { children: ReactNode;
   <>
     <SectionHeading className="leading-[inherit]">
       {title}{' '}
-      <span className="ml-[5px] text-caption leading-[inherit] text-muted-foreground">
+      <span className="ml-1.25 text-caption leading-[inherit] text-muted-foreground">
         {count} {count === 1 ? 'object' : 'objects'}
       </span>
     </SectionHeading>
@@ -76,8 +76,8 @@ const Relationships = ({ children, count, empty, title }: { children: ReactNode;
   </>
 );
 const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: string }) => (
-  <header className="px-[22px] pt-[23px] pb-[15px] max-w480:px-[18px] max-w480:pt-5 max-w480:pb-3">
-    <div className="flex items-center gap-[11px]">
+  <header className="px-5.5 pt-5.75 pb-3.75 max-w480:px-4.5 max-w480:pt-5 max-w480:pb-3">
+    <div className="flex items-center gap-2.75">
       <Braces size={19} />
       <h1 className="font-mono text-heading font-medium">
         {object.id} <span className="text-muted-foreground">obj</span>
@@ -96,9 +96,9 @@ const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: s
 const ProvenanceNote = ({ object, onNavigate }: { object: PdfObjectRecord; onNavigate: (id: string) => void }) => (
   <div
     className={cn(
-      'flex items-start gap-[7px] px-[22px] pb-[18px]',
+      'flex items-start gap-1.75 px-5.5 pb-4.5',
       'text-caption leading-[1.7] text-muted-foreground',
-      'max-w480:px-[18px] max-w480:pb-4'
+      'max-w480:px-4.5 max-w480:pb-4'
     )}
     data-provenance
   >
@@ -202,7 +202,7 @@ export const ObjectInspector = function ObjectInspector({
     <section className="flex h-full min-h-0 flex-col overflow-hidden" aria-label="Object inspector">
       <ObjectHeader object={object} summary={summary} />
       {object.stream && hasSubtype(object, 'Image') && (
-        <div className="mx-[22px] mb-4">
+        <div className="mx-5.5 mb-4">
           <ImageDownload key={object.id} object={object} extractImage={extractImage} />
         </div>
       )}
@@ -212,10 +212,7 @@ export const ObjectInspector = function ObjectInspector({
         <Warning key={i}>{warning}</Warning>
       ))}
       <Tabs value={safeTab} onValueChange={(value) => onTabChange(value as InspectorTab)} className="min-h-0 flex-1 gap-0">
-        <TabsList
-          variant="line"
-          className="w-full shrink-0 justify-start gap-[13px] border-b px-[18px] py-0 group-data-horizontal/tabs:h-[37px]"
-        >
+        <TabsList variant="line" className="w-full shrink-0 justify-start gap-3.25 border-b px-4.5 py-0 group-data-horizontal/tabs:h-9.25">
           <ObjectTab value="properties">Properties</ObjectTab>
           <ObjectTab value="source">Source</ObjectTab>
           {object.stream && (
@@ -227,7 +224,7 @@ export const ObjectInspector = function ObjectInspector({
         </TabsList>
         <TabsContent value="properties" render={<PaneBody />} {...(safeTab === 'properties' ? scroll : {})}>
           <ValueView key={object.id} value={object.value} onNavigate={onNavigate} objects={objects} ancestors={[object.id]} />
-          <section className="mt-[30px]">
+          <section className="mt-7.5">
             {resources && (
               <>
                 <SectionHeading className="leading-[inherit]">Effective page resources</SectionHeading>

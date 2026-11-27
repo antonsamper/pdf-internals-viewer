@@ -29,7 +29,7 @@ export const InspectionUnavailable = function InspectionUnavailable({
       <Explanation>Original file bytes are still available. A parsing failure does not confirm password protection.</Explanation>
       {reason && (
         <details className="my-5 text-small">
-          <summary className="cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-ring">
+          <summary className="cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring">
             Technical details
           </summary>
           <pre className="mt-2.5 rounded-[5px] bg-muted p-3 [overflow-wrap:anywhere] whitespace-pre-wrap">{reason}</pre>

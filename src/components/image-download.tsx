@@ -111,25 +111,25 @@ export const ImageDownload = ({
           <img
             src={state.image}
             alt={`Image object ${object.id}`}
-            className="my-3 block size-40 max-w-full rounded-[8px] border bg-background object-contain p-2"
+            className="my-3 block size-40 max-w-full rounded-md border bg-background object-contain p-2"
           />
         ) : (
           <div
             className={cn(
               'my-3 flex items-center gap-2.5 p-3.5',
               'bg-sidebar text-detail text-muted-foreground',
-              'rounded-[8px] border border-dashed'
+              'rounded-md border border-dashed'
             )}
             role="status"
           >
             {previewError ? (
               <>
-                <ImageOff aria-hidden="true" className="size-[18px] shrink-0" />
+                <ImageOff aria-hidden="true" className="size-4.5 shrink-0" />
                 <PreviewStatus>Preview unavailable: {previewError}</PreviewStatus>
               </>
             ) : (
               <>
-                <LoaderCircle aria-hidden="true" className="size-[18px] shrink-0 animate-spin motion-reduce:animate-none" />
+                <LoaderCircle aria-hidden="true" className="size-4.5 shrink-0 animate-spin motion-reduce:animate-none" />
                 <PreviewStatus>Loading image preview…</PreviewStatus>
               </>
             )}

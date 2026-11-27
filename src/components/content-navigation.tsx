@@ -77,8 +77,8 @@ export const ContentHeaderLinks = function ContentHeaderLinks({ path, onFollowLi
         </summary>
         <div
           className={cn(
-            'absolute top-[calc(100%+8px)] right-0 z-10 grid w-[210px] p-1.5',
-            'rounded-[8px] border border-border bg-background shadow-[0_8px_24px_#0003]'
+            'absolute top-[calc(100%+8px)] right-0 z-10 grid w-52.5 p-1.5',
+            'rounded-md border border-border bg-background shadow-nav-menu'
           )}
         >
           <SectionLinks menu path={path} onFollowLink={onFollowLink} />
@@ -132,7 +132,7 @@ export const ContentNavigation = function ContentNavigation({ path, onFollowLink
       <aside className="sticky top-0 max-h-[calc(100dvh-160px)] overflow-y-auto pr-3 pb-4 narrow:hidden">
         <NavigationGroups path={path} onFollowLink={onFollowLink} />
       </aside>
-      <details className="mb-7 hidden rounded-[6px] border border-border narrow:block">
+      <details className="mb-7 hidden rounded-sm border border-border narrow:block">
         <summary className="cursor-pointer px-4 py-3 text-body font-[550]">On this site</summary>
         <NavigationGroups className="px-4 pt-1 pb-5" path={path} onFollowLink={onFollowLink} />
       </details>
