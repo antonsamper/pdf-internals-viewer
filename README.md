@@ -27,13 +27,13 @@ pnpm install --frozen-lockfile
 pnpm run dev
 ```
 
-Open the URL printed by Vite. Installation prepares the pinned parser and preview dependencies; see [dependency setup](docs/DEPENDENCIES.md).
+Open the URL printed by Vite. Installation prepares the pinned parser dependency; see [dependency setup](docs/DEPENDENCIES.md).
 
 ## Project documentation
 
 - [Contributor workflow](AGENTS.md) and [design system](DESIGN.md)
 - [Parser capabilities](docs/PARSER.md) and [preview engine](docs/PREVIEW.md)
-- [Dependencies](docs/DEPENDENCIES.md), [preview backport and known advisory](docs/PREVIEW-VALIDATION.md) and [third-party notices](docs/NOTICES.md)
+- [Dependencies](docs/DEPENDENCIES.md) and [third-party notices](docs/NOTICES.md)
 - [Public content and sample maintenance](docs/PUBLIC-CONTENT.md)
 - [Browser verification](docs/BROWSERS.md) and [performance](docs/PERFORMANCE.md)
 - [Cloudflare hosting and deployment](docs/HOSTING.md)

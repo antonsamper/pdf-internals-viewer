@@ -7,9 +7,10 @@ import os from 'node:os';
 import { dirname, resolve } from 'node:path';
 const workerHeap = async (forceGC = false) => {
     const { targetInfos } = await rootCDP.send('Target.getTargets');
-    const worker = targetInfos.find(target => target.type === 'worker' && /pdf\.worker-/.test(target.url));
-    if (!worker)
+    const worker = targetInfos.find(target => { return target.type === 'worker' && /pdf\.worker-/.test(target.url); });
+    if (!worker) {
         return { unavailable: 'No parser worker target found.' };
+    }
     let sessionId;
     try {
         ;
@@ -19,17 +20,21 @@ const workerHeap = async (forceGC = false) => {
             const id = ++commandId;
             const response = new Promise((resolveResult, reject) => {
                 const receive = (event) => {
-                    if (event.sessionId !== sessionId)
+                    if (event.sessionId !== sessionId) {
                         return;
+                    }
                     const message = JSON.parse(event.message);
-                    if (message.id !== id)
+                    if (message.id !== id) {
                         return;
+                    }
                     clearTimeout(timer);
                     rootCDP.off('Target.receivedMessageFromTarget', receive);
-                    if (message.error)
+                    if (message.error) {
                         reject(new Error(message.error.message));
-                    else
+                    }
+                    else {
                         resolveResult(message.result);
+                    }
                 };
                 const timer = setTimeout(() => { rootCDP.off('Target.receivedMessageFromTarget', receive); reject(new Error('Worker heap query timed out.')); }, 5000);
                 rootCDP.on('Target.receivedMessageFromTarget', receive);
@@ -43,8 +48,9 @@ const workerHeap = async (forceGC = false) => {
         return { unavailable: error.message };
     }
     finally {
-        if (sessionId)
-            await rootCDP.send('Target.detachFromTarget', { sessionId }).catch(() => undefined);
+        if (sessionId) {
+            await rootCDP.send('Target.detachFromTarget', { sessionId }).catch(() => { return undefined; });
+        }
     }
 };
 const save = async () => { await writeFile(output, JSON.stringify(report, null, 2) + '\n'); };
@@ -53,33 +59,39 @@ const output = resolve(process.env.PERFORMANCE_OUTPUT ?? '.context/browser-perfo
 const profileDirectory = process.env.PERFORMANCE_PROFILE_DIR ? resolve(process.env.PERFORMANCE_PROFILE_DIR) : null;
 const assertCloseRelease = process.env.PERFORMANCE_ASSERT_CLOSE_RELEASE === '1';
 const maxMainRetainedMiB = process.env.PERFORMANCE_MAX_MAIN_RETAINED_MIB === undefined ? null : Number(process.env.PERFORMANCE_MAX_MAIN_RETAINED_MIB);
-if (maxMainRetainedMiB !== null && (!Number.isFinite(maxMainRetainedMiB) || maxMainRetainedMiB <= 0))
+if (maxMainRetainedMiB !== null && (!Number.isFinite(maxMainRetainedMiB) || maxMainRetainedMiB <= 0)) {
     throw new Error('PERFORMANCE_MAX_MAIN_RETAINED_MIB must be a positive number.');
+}
 const retainedMemory = process.env.PERFORMANCE_RETAINED_MEMORY === '1' || assertCloseRelease || maxMainRetainedMiB !== null;
 const probeMessages = process.env.PERFORMANCE_PROBE_MESSAGES === '1';
 const repetitions = Number(process.env.PERFORMANCE_RUNS ?? 3);
-if (!Number.isInteger(repetitions) || repetitions < 1 || repetitions > 10)
+if (!Number.isInteger(repetitions) || repetitions < 1 || repetitions > 10) {
     throw new Error('PERFORMANCE_RUNS must be 1 through 10.');
+}
 const manifest = JSON.parse(await readFile(new URL('../corpus/manifest.json', import.meta.url), 'utf8'));
 const requested = (process.env.PERFORMANCE_FILES ?? 'pdfjs-helloworld,pdfjs-bug1937438_from_word,pdfjs-tracemonkey,pdf-lib-linearized_with_object_streams').split(',');
 const fixtures = requested.map(id => {
-    const entry = manifest.files.find(file => file.id === id);
-    if (!entry)
+    const entry = manifest.files.find(file => { return file.id === id; });
+    if (!entry) {
         throw new Error(`Unknown corpus id: ${id}`);
+    }
     return entry;
 });
 for (const entry of fixtures) {
     const bytes = await readFile(resolve('.context/corpus', entry.filename));
-    if (createHash('sha256').update(bytes).digest('hex') !== entry.sha256)
+    if (createHash('sha256').update(bytes).digest('hex') !== entry.sha256) {
         throw new Error(`Invalid corpus cache: ${entry.filename}. Run pnpm run corpus:fetch.`);
+    }
 }
 const distDirectory = resolve(process.env.PERFORMANCE_DIST_DIR ?? 'dist');
 const buildHTML = await readFile(resolve(distDirectory, 'index.html'));
-if (!buildHTML.length)
+if (!buildHTML.length) {
     throw new Error('Build production assets before measuring.');
+}
 const servedHTML = Buffer.from(await (await fetch(baseURL)).arrayBuffer());
-if (createHash('sha256').update(servedHTML).digest('hex') !== createHash('sha256').update(buildHTML).digest('hex'))
+if (createHash('sha256').update(servedHTML).digest('hex') !== createHash('sha256').update(buildHTML).digest('hex')) {
     throw new Error('Served index does not match PERFORMANCE_DIST_DIR. Refusing to measure an unidentified build.');
+}
 const browser = await chromium.launch();
 const rootCDP = await browser.newBrowserCDPSession();
 let commandId = 0;
@@ -111,7 +123,7 @@ const report = {
 };
 await mkdir(dirname(output), { recursive: true });
 try {
-    for (const fixture of fixtures)
+    for (const fixture of fixtures) {
         for (let run = 1; run <= repetitions; run++) {
             const context = await browser.newContext({ viewport: report.viewport });
             const page = await context.newPage();
@@ -119,14 +131,15 @@ try {
             const mainCDP = await context.newCDPSession(page);
             const pageErrors = [];
             let tracingActive = false;
-            page.on('pageerror', error => pageErrors.push(error.message));
+            page.on('pageerror', error => { return pageErrors.push(error.message); });
             await page.addInitScript(({ enableMessageProbe }) => {
                 const frame = (time) => {
                     if (state.lastFrame && state.phase === 'opening') {
                         const gap = time - state.lastFrame;
                         state.maxFrameGap = Math.max(state.maxFrameGap, gap);
-                        if (gap > 50)
+                        if (gap > 50) {
                             state.frameGaps.push({ duration: gap, startTime: state.lastFrame });
+                        }
                     }
                     state.lastFrame = time;
                     requestAnimationFrame(frame);
@@ -150,14 +163,16 @@ try {
                     };
                 }
                 try {
-                    new PerformanceObserver(list => { for (const entry of list.getEntries())
-                        state.longTasks.push({ duration: entry.duration, phase: state.phase, startTime: entry.startTime }); }).observe({ buffered: true, type: 'longtask' });
+                    new PerformanceObserver(list => { for (const entry of list.getEntries()) {
+                        state.longTasks.push({ duration: entry.duration, phase: state.phase, startTime: entry.startTime });
+                    } }).observe({ buffered: true, type: 'longtask' });
                 }
                 catch { /* Chromium supports longtask; absence recorded in output. */ }
                 requestAnimationFrame(frame);
                 try {
-                    new PerformanceObserver(list => { for (const entry of list.getEntries())
-                        state.lcp.push({ size: entry.size, startTime: entry.startTime }); }).observe({ buffered: true, type: 'largest-contentful-paint' });
+                    new PerformanceObserver(list => { for (const entry of list.getEntries()) {
+                        state.lcp.push({ size: entry.size, startTime: entry.startTime });
+                    } }).observe({ buffered: true, type: 'largest-contentful-paint' });
                 }
                 catch { /* no LCP observations will be reported */ }
                 document.addEventListener('change', event => {
@@ -167,27 +182,30 @@ try {
                     }
                 }, true);
                 document.addEventListener('click', event => {
-                    if (event.target instanceof Element && event.target.closest('button')?.textContent?.trim() === 'Document catalogue' && state.phase === 'navigation')
+                    if (event.target instanceof Element && event.target.closest('button')?.textContent?.trim() === 'Document catalogue' && state.phase === 'navigation') {
                         state.navigationStart = performance.now();
+                    }
                 }, true);
                 new MutationObserver(() => {
                     if (state.phase === 'opening' && /\d+ objects indexed/.test(document.querySelector('footer')?.textContent ?? '')) {
-                        requestAnimationFrame(() => requestAnimationFrame(() => { if (state.phase === 'opening') {
+                        requestAnimationFrame(() => { return requestAnimationFrame(() => { if (state.phase === 'opening') {
                             state.indexedAt = performance.now();
                             state.phase = 'opened';
-                        } }));
+                        } }); });
                     }
-                    if (state.phase === 'navigation' && document.querySelector('section[aria-label="Object inspector"] h1') && state.navigationStart !== null && state.navigationReadyAt === null)
-                        requestAnimationFrame(() => requestAnimationFrame(() => { state.navigationReadyAt ??= performance.now(); }));
+                    if (state.phase === 'navigation' && document.querySelector('section[aria-label="Object inspector"] h1') && state.navigationStart !== null && state.navigationReadyAt === null) {
+                        requestAnimationFrame(() => { return requestAnimationFrame(() => { state.navigationReadyAt ??= performance.now(); }); });
+                    }
                 }).observe(document, { characterData: true, childList: true, subtree: true });
             }, { enableMessageProbe: probeMessages });
             const result = { bytes: fixture.size, expectedObjects: fixture.oracle.objects, filename: fixture.filename, id: fixture.id, run };
             try {
                 await page.goto(baseURL, { waitUntil: 'networkidle' });
                 await page.getByRole('heading', { name: 'Look inside a PDF.' }).waitFor();
-                result.startup = await page.evaluate(() => ({ lcp: globalThis.pdfPerformance.lcp, longTaskSupported: globalThis.pdfPerformance.longTaskSupported, navigation: performance.getEntriesByType('navigation')[0]?.toJSON(), paint: performance.getEntriesByType('paint').map(entry => entry.toJSON()), resources: performance.getEntriesByType('resource').map(entry => ({ duration: entry.duration, encodedBodySize: entry.encodedBodySize, name: new URL(entry.name).pathname, transferSize: entry.transferSize, type: entry.initiatorType })) }));
-                if (retainedMemory)
+                result.startup = await page.evaluate(() => { return { lcp: globalThis.pdfPerformance.lcp, longTaskSupported: globalThis.pdfPerformance.longTaskSupported, navigation: performance.getEntriesByType('navigation')[0]?.toJSON(), paint: performance.getEntriesByType('paint').map(entry => { return entry.toJSON(); }), resources: performance.getEntriesByType('resource').map(entry => { return { duration: entry.duration, encodedBodySize: entry.encodedBodySize, name: new URL(entry.name).pathname, transferSize: entry.transferSize, type: entry.initiatorType }; }) }; });
+                if (retainedMemory) {
                     await mainCDP.send('HeapProfiler.collectGarbage');
+                }
                 result.mainHeapBefore = await mainCDP.send('Runtime.getHeapUsage');
                 if (profileDirectory) {
                     await mkdir(profileDirectory, { recursive: true });
@@ -200,10 +218,10 @@ try {
                     tracingActive = true;
                 }
                 await page.getByLabel('Open local PDF').setInputFiles(resolve('.context/corpus', fixture.filename));
-                await page.waitForFunction(() => globalThis.pdfPerformance.indexedAt !== null, null, { timeout: 25000 });
+                await page.waitForFunction(() => { return globalThis.pdfPerformance.indexedAt !== null; }, null, { timeout: 25000 });
                 if (profileDirectory) {
                     const { profile } = await mainCDP.send('Profiler.stop');
-                    const completed = new Promise(resolveTrace => mainCDP.once('Tracing.tracingComplete', resolveTrace));
+                    const completed = new Promise(resolveTrace => { return mainCDP.once('Tracing.tracingComplete', resolveTrace); });
                     await mainCDP.send('Tracing.end');
                     const { stream } = await completed;
                     tracingActive = false;
@@ -214,8 +232,9 @@ try {
                         while (true) {
                             const chunk = await mainCDP.send('IO.read', { handle: stream });
                             chunks.push(Buffer.from(chunk.data, chunk.base64Encoded ? 'base64' : 'utf8'));
-                            if (chunk.eof)
+                            if (chunk.eof) {
                                 break;
+                            }
                         }
                     }
                     finally {
@@ -230,16 +249,17 @@ try {
                 result.workerHeapAfterOpen = await workerHeap();
                 result.opening = await page.evaluate(() => {
                     const state = globalThis.pdfPerformance;
-                    return { frameGaps: state.frameGaps, longTasks: state.longTasks.filter(task => task.startTime >= state.openingStart && task.startTime <= state.indexedAt), maxFrameGapMs: state.maxFrameGap, messageReads: state.messageReads, milliseconds: state.indexedAt - state.openingStart };
+                    return { frameGaps: state.frameGaps, longTasks: state.longTasks.filter(task => { return task.startTime >= state.openingStart && task.startTime <= state.indexedAt; }), maxFrameGapMs: state.maxFrameGap, messageReads: state.messageReads, milliseconds: state.indexedAt - state.openingStart };
                 });
                 const navigation = [];
                 for (let index = 0; index < 5; index++) {
-                    if (index)
+                    if (index) {
                         await page.getByRole('button', { exact: true, name: 'Overview' }).click();
+                    }
                     await page.evaluate(() => { const state = globalThis.pdfPerformance; state.phase = 'navigation'; state.navigationStart = null; state.navigationReadyAt = null; });
                     await page.getByRole('button', { exact: true, name: 'Document catalogue' }).first().click();
-                    await page.waitForFunction(() => globalThis.pdfPerformance.navigationReadyAt !== null);
-                    navigation.push(await page.evaluate(() => globalThis.pdfPerformance.navigationReadyAt - globalThis.pdfPerformance.navigationStart));
+                    await page.waitForFunction(() => { return globalThis.pdfPerformance.navigationReadyAt !== null; });
+                    navigation.push(await page.evaluate(() => { return globalThis.pdfPerformance.navigationReadyAt - globalThis.pdfPerformance.navigationStart; }));
                     await page.evaluate(() => { globalThis.pdfPerformance.phase = 'opened'; });
                 }
                 result.cachedNavigationMs = navigation;
@@ -250,8 +270,9 @@ try {
                     await mainCDP.send('HeapProfiler.collectGarbage');
                     result.mainHeapRetained = await mainCDP.send('Runtime.getHeapUsage');
                     result.workerHeapRetained = await workerHeap(true);
-                    if (maxMainRetainedMiB !== null && result.mainHeapRetained.usedSize > maxMainRetainedMiB * 1024 * 1024)
+                    if (maxMainRetainedMiB !== null && result.mainHeapRetained.usedSize > maxMainRetainedMiB * 1024 * 1024) {
                         throw new Error(`Main-page retained heap exceeds ${maxMainRetainedMiB} MiB: ${(result.mainHeapRetained.usedSize / 1024 / 1024).toFixed(2)} MiB.`);
+                    }
                     await page.getByRole('button', { exact: true, name: 'Close PDF' }).click();
                     await page.getByRole('heading', { name: 'Look inside a PDF.' }).waitFor();
                     await mainCDP.send('HeapProfiler.collectGarbage');
@@ -267,8 +288,9 @@ try {
                         // Compare two empty-app states, allowing 10 MiB for rendering variance.
                         // A closed large document must not wait for navigation to be released.
                         const retainedUntilNavigation = result.mainHeapAfterClose.usedSize - result.mainHeapAfterCloseAndNavigation.usedSize;
-                        if (retainedUntilNavigation > 10 * 1024 * 1024)
+                        if (retainedUntilNavigation > 10 * 1024 * 1024) {
                             throw new Error(`Closing the PDF retains ${(retainedUntilNavigation / 1024 / 1024).toFixed(2)} MiB until another navigation (maximum 10 MiB).`);
+                        }
                     }
                 }
                 result.pageErrors = pageErrors;
@@ -277,17 +299,17 @@ try {
             catch (error) {
                 result.status = 'failed';
                 result.error = error.message;
-                result.statusText = await page.getByRole('contentinfo').innerText().catch(() => '');
-                result.alert = await page.getByRole('alert').allTextContents().catch(() => []);
+                result.statusText = await page.getByRole('contentinfo').innerText().catch(() => { return ''; });
+                result.alert = await page.getByRole('alert').allTextContents().catch(() => { return []; });
                 result.pageErrors = pageErrors;
             }
             finally {
                 if (tracingActive) {
-                    const completed = new Promise(resolveTrace => mainCDP.once('Tracing.tracingComplete', resolveTrace));
+                    const completed = new Promise(resolveTrace => { return mainCDP.once('Tracing.tracingComplete', resolveTrace); });
                     await mainCDP.send('Tracing.end');
                     const { stream } = await completed;
                     await mainCDP.send('IO.close', { handle: stream });
-                    await mainCDP.send('Profiler.stop').catch(() => undefined);
+                    await mainCDP.send('Profiler.stop').catch(() => { return undefined; });
                 }
                 report.results.push(result);
                 await save();
@@ -295,6 +317,7 @@ try {
             }
             console.log(JSON.stringify({ error: result.error, id: fixture.id, navigationMs: result.cachedNavigationMs, openingMs: result.opening?.milliseconds, run, status: result.status }));
         }
+    }
 }
 finally {
     await rootCDP.detach();
@@ -302,5 +325,6 @@ finally {
     await save();
 }
 console.log(`Saved ${report.results.length} observations to ${output}`);
-if (report.results.some(result => result.status !== 'measured'))
+if (report.results.some(result => { return result.status !== 'measured'; })) {
     process.exitCode = 1;
+}

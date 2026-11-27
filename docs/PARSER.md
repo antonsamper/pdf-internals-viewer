@@ -16,7 +16,7 @@ The viewer never claims original bytes it cannot prove. Compressed objects link 
 
 ## Worker delivery
 
-A dedicated worker parses the document and indexes every object, reference, resource and download up front. It sends the result to the page in acknowledged batches (`src/lib/pdf/document-transfer.ts`) so no single message has to carry the whole graph. The page only shows the document once every batch has arrived. Closing or replacing a document terminates its worker.
+A dedicated worker parses the document and indexes every object, reference, resource, download and action up front. It sends the result to the page in acknowledged batches (`src/lib/pdf/document-transfer.ts`) so no single message has to carry the whole graph. The page only shows the document once every batch has arrived. Closing or replacing a document terminates its worker. A locked document has an empty action list. Unlocking opens it again in a new worker, which builds the list.
 
 ## Instrumentation and reproducibility
 
@@ -44,7 +44,7 @@ Import the adapter as `pdf-internals-viewer/inspection`, which resolves in the b
 
 ## Page text source mapping
 
-Page text search uses the EmbedPDF engine to find words on each page (`src/lib/pdf/page-text-search.ts`). A separate mapper (`src/lib/pdf/page-text.ts`) then tries to trace each match back to the content-stream bytes that draw it. The renderer understands more encodings than the mapper, so a page can match without a mapped source; the UI labels that stream as a candidate and highlights no word bytes.
+Page text search uses the EmbedPDF engine to find words on each page (`src/lib/pdf/page-text-search.ts`). Each search starts its own engine and waits up to 2 minutes for it to download and load. After that, each engine step (opening the file, listing pages, each batch of 25 pages) has 15 seconds. A separate mapper (`src/lib/pdf/page-text.ts`) then tries to trace each match back to the content-stream bytes that draw it. The renderer understands more encodings than the mapper, so a page can match without a mapped source; the UI labels that stream as a candidate and highlights no word bytes.
 
 The mapper supports:
 
@@ -53,4 +53,4 @@ The mapper supports:
 - fixed-width `/ToUnicode` CMaps with `bfchar` and `bfrange` mappings, including multibyte codes and ligatures;
 - literal and hexadecimal strings, escapes, and strings split across `TJ` arrays, with large negative `TJ` adjustments treated as possible word spaces.
 
-Unfiltered, unencrypted streams highlight the exact bytes in the original file. Compressed or encrypted streams highlight decoded bytes and only the containing stream in the original file; no original offsets are invented. Search stops at 500 matches, and mapping at 100 source locations per page. There is no OCR.
+Unfiltered, unencrypted streams highlight the exact bytes in the original file. Compressed or encrypted streams highlight decoded bytes and only the containing stream in the original file; no original offsets are invented. Search stops at 500 matches, and mapping at 100 source locations per page. A page that reaches that limit says its source list is incomplete; matches and streams after the limit are not listed. There is no OCR.

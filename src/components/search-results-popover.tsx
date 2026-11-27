@@ -1,11 +1,35 @@
 import type { CSSProperties, ReactNode, RefObject } from 'react';
 
 import { Popover } from '@base-ui/react/popover';
-import { cn } from 'cn';
 import { useLayoutEffect, useState } from 'react';
-const isSearchControl = (target: EventTarget | null, anchor: RefObject<HTMLFormElement | null>) =>
-  (target instanceof Node && anchor.current?.contains(target)) ||
-  (target instanceof Element && target.closest('[data-search-scope-popup]'));
+
+import { cn } from '@/lib/utils';
+const isSearchControl = (target: EventTarget | null, anchor: RefObject<HTMLFormElement | null>) => {
+  return (
+    (target instanceof Node && anchor.current?.contains(target)) ||
+    (target instanceof Element && target.closest('[data-search-scope-popup]'))
+  );
+};
+type OpenChangeDetails = Parameters<NonNullable<Popover.Root.Props['onOpenChange']>>[1];
+/**
+ * True when an outside press or focus-out lands on the search form or scope menu. During focusout, activeElement
+ * can still be body. Check the destination too, so moving from results into the external form/menu keeps results open.
+ */
+const movesWithinSearch = (details: OpenChangeDetails, anchor: RefObject<HTMLFormElement | null>) => {
+  if (details.reason !== 'outside-press' && details.reason !== 'focus-out') {
+    return false;
+  }
+  if (isSearchControl(details.event.target, anchor)) {
+    return true;
+  }
+  return (
+    details.reason === 'focus-out' &&
+    Boolean(
+      isSearchControl(document.activeElement, anchor) ||
+      (details.event instanceof FocusEvent && isSearchControl(details.event.relatedTarget, anchor))
+    )
+  );
+};
 /** Non-modal search: inspecting the document remains possible behind the results. */
 export const SearchResultsPopover = ({
   open,
@@ -27,33 +51,34 @@ export const SearchResultsPopover = ({
   const [popup, setPopup] = useState<HTMLDivElement | null>(null);
   const [height, setHeight] = useState(180);
   useLayoutEffect(() => {
-    if (!open || busy) return;
+    if (!open || busy) {
+      return;
+    }
     const section = popup?.querySelector<HTMLElement>('[data-search-results]');
-    if (!section) return;
-    const observer = new ResizeObserver(() => setHeight(section.getBoundingClientRect().height));
+    if (!section) {
+      return;
+    }
+    const observer = new ResizeObserver(() => {
+      return setHeight(section.getBoundingClientRect().height);
+    });
     observer.observe(section);
-    return () => observer.disconnect();
+    return () => {
+      return observer.disconnect();
+    };
   }, [open, busy, popup]);
   return (
     <Popover.Root
       open={open}
       modal={false}
       onOpenChange={(next, details) => {
-        // During focusout, activeElement can still be body. Check the destination
-        // too, so moving from results into the external form/menu keeps results open.
-        if (
-          !next &&
-          (details.reason === 'outside-press' || details.reason === 'focus-out') &&
-          (isSearchControl(details.event.target, anchor) ||
-            (details.reason === 'focus-out' &&
-              (isSearchControl(document.activeElement, anchor) ||
-                (details.event instanceof FocusEvent && isSearchControl(details.event.relatedTarget, anchor)))))
-        ) {
+        if (!next && movesWithinSearch(details, anchor)) {
           details.cancel();
           return;
         }
         onOpenChange(next);
-        if (!next && details.reason === 'escape-key') input.current?.focus();
+        if (!next && details.reason === 'escape-key') {
+          input.current?.focus();
+        }
       }}
     >
       <Popover.Portal>
@@ -75,7 +100,7 @@ export const SearchResultsPopover = ({
             className={cn(
               'w-[min(560px,calc(100vw-24px))] overflow-hidden',
               'bg-background',
-              'rounded-lg border shadow-[0_12px_40px_rgb(25_12_40_/_18%),0_2px_8px_rgb(25_12_40_/_8%)] outline-none'
+              'rounded-lg border shadow-popover outline-none'
             )}
             aria-label="Document search"
           >

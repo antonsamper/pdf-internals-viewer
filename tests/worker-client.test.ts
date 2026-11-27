@@ -48,11 +48,13 @@ it('pulls the next batch only after receiving the previous one and publishes a c
   vi.stubGlobal('Worker', ControlledWorker);
   const document = await new PdfInspector().open(minimalPdf().bytes);
   // Enough records to require acknowledgements, independent of string size.
-  document.objects = Array.from({ length: 300 }, (_, i) => ({
-    ...document.objects[0],
-    id: `${i + 1} 0`,
-    objectNumber: i + 1,
-  }));
+  document.objects = Array.from({ length: 300 }, (_, i) => {
+    return {
+      ...document.objects[0],
+      id: `${i + 1} 0`,
+      objectNumber: i + 1,
+    };
+  });
   const sender = new DocumentTransfer(document);
   const client = new PdfWorkerClient();
   const opening = client.open(minimalPdf().bytes, 'test.pdf');

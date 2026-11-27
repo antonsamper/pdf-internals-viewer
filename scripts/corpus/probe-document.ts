@@ -12,38 +12,63 @@ const start = performance.now();
 const inspector = new PdfInspector();
 try {
   const document = await inspector.open(bytes, filename);
-  const ids = document.objects.map((object) => object.id).toSorted();
+  const ids = document.objects
+    .map((object) => {
+      return object.id;
+    })
+    .toSorted();
   const invalidRanges = document.objects
-    .filter(
-      (object) =>
+    .filter((object) => {
+      return (
         object.provenance.type === 'file' &&
         (object.provenance.range.start < 0 ||
           object.provenance.range.end > bytes.length ||
           object.provenance.range.start >= object.provenance.range.end)
-    )
-    .map((object) => object.id);
+      );
+    })
+    .map((object) => {
+      return object.id;
+    });
   const result = {
-    compressedObjects: document.objects.filter((object) => object.provenance.type === 'decoded').length,
-    fileObjects: document.objects.filter((object) => object.provenance.type === 'file').length,
+    compressedObjects: document.objects.filter((object) => {
+      return object.provenance.type === 'decoded';
+    }).length,
+    fileObjects: document.objects.filter((object) => {
+      return object.provenance.type === 'file';
+    }).length,
     heapUsedMiB: Math.round((process.memoryUsage().heapUsed / 1024 / 1024) * 100) / 100,
     immutable: before === createHash('sha256').update(bytes).digest('hex'),
     invalidRanges,
     locked: document.locked,
     milliseconds: Math.round((performance.now() - start) * 100) / 100,
     objectIdsSha256: createHash('sha256').update(ids.join('\n')).digest('hex'),
-    objectWarningCount: document.objects.reduce((total, object) => total + object.warnings.length, 0),
+    objectWarningCount: document.objects.reduce((total, object) => {
+      return total + object.warnings.length;
+    }, 0),
     objects: ids.length,
     pages: document.pages.length,
     recovered: document.recovered,
     sampledOffsets: document.objects
-      .filter((object) => requestedIds.includes(object.id) && object.provenance.type === 'file')
-      .map((object) => ({
-        id: object.id,
-        offset: object.provenance.type === 'file' ? object.provenance.range.start : -1,
-      })),
+      .filter((object) => {
+        return requestedIds.includes(object.id) && object.provenance.type === 'file';
+      })
+      .map((object) => {
+        return {
+          id: object.id,
+          offset: object.provenance.type === 'file' ? object.provenance.range.start : -1,
+        };
+      }),
     status: 'opened',
-    unknownObjectIds: document.objects.filter((object) => object.provenance.type === 'unknown').map((object) => object.id),
-    unknownObjects: document.objects.filter((object) => object.provenance.type === 'unknown').length,
+    unknownObjectIds: document.objects
+      .filter((object) => {
+        return object.provenance.type === 'unknown';
+      })
+      .map((object) => {
+        return object.id;
+      }),
+    unknownObjects: document.objects.filter((object) => {
+      return object.provenance.type === 'unknown';
+    }).length,
     warnings: document.warnings,
     xrefFormat: document.xrefFormat,
   };

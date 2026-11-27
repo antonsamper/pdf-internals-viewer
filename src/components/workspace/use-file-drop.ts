@@ -9,7 +9,9 @@ export const useFileDrop = (onFile: (file: File) => void) => {
     dragging,
     handlers: {
       onDragLeave: (event: DragEvent<HTMLElement>) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node)) setDragging(false);
+        if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+          setDragging(false);
+        }
       },
       onDragOver: (event: DragEvent<HTMLElement>) => {
         if (event.dataTransfer.types.includes('Files')) {
@@ -21,7 +23,9 @@ export const useFileDrop = (onFile: (file: File) => void) => {
         event.preventDefault();
         setDragging(false);
         const file = event.dataTransfer.files[0];
-        if (file) onFile(file);
+        if (file) {
+          onFile(file);
+        }
       },
     },
   };

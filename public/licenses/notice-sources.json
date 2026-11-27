@@ -58,39 +58,39 @@
       "declaredLicense": "MIT"
     },
     {
-      "key": "@embedpdf/engine@3.1.0",
+      "key": "@embedpdf/engine@3.4.0",
       "name": "@embedpdf/engine",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0"
     },
     {
-      "key": "@embedpdf/core-fonts@3.1.0",
+      "key": "@embedpdf/core-fonts@3.4.0",
       "name": "@embedpdf/core-fonts",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0"
     },
     {
-      "key": "@embedpdf/engine-core@3.1.0",
+      "key": "@embedpdf/engine-core@3.4.0",
       "name": "@embedpdf/engine-core",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0"
     },
     {
-      "key": "zod@3.25.76",
+      "key": "zod@4.6.7",
       "name": "zod",
-      "version": "3.25.76",
+      "version": "4.6.7",
       "declaredLicense": "MIT"
     },
     {
-      "key": "@embedpdf/default-fallback-fonts@1.0.0",
+      "key": "@embedpdf/default-fallback-fonts@1.0.1",
       "name": "@embedpdf/default-fallback-fonts",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "declaredLicense": "Apache-2.0"
     },
     {
-      "key": "@embedpdf/engine-runtime@3.1.0",
+      "key": "@embedpdf/engine-runtime@3.4.0",
       "name": "@embedpdf/engine-runtime",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0"
     },
     {
@@ -100,15 +100,15 @@
       "declaredLicense": "Apache-2.0"
     },
     {
-      "key": "@embedpdf/engine-runtime-wasm32@3.1.0",
+      "key": "@embedpdf/engine-runtime-wasm32@3.4.0",
       "name": "@embedpdf/engine-runtime-wasm32",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0"
     },
     {
-      "key": "@embedpdf/engine-services@3.1.0",
+      "key": "@embedpdf/engine-services@3.4.0",
       "name": "@embedpdf/engine-services",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0"
     },
     {
@@ -280,56 +280,77 @@
     },
     {
       "package": "@embedpdf/core-fonts",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0",
       "source": "@embedpdf/core-fonts/LICENSE",
       "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
     },
     {
       "package": "@embedpdf/core-fonts",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0",
       "source": "@embedpdf/core-fonts/THIRD_PARTY_NOTICES",
       "sha256": "bf3009e0652bf67f05e4082167f0a5ec27e506c717d982722eac877a9a925def"
     },
     {
       "package": "@embedpdf/default-fallback-fonts",
-      "version": "1.0.0",
+      "version": "1.0.1",
+      "declaredLicense": "Apache-2.0",
+      "source": "@embedpdf/default-fallback-fonts/NOTICE.md",
+      "sha256": "71d728c3897d1f609d55500f290776b2cc5aac9764aad4c4af01f7283dde7665"
+    },
+    {
+      "package": "@embedpdf/default-fallback-fonts",
+      "version": "1.0.1",
       "declaredLicense": "Apache-2.0",
       "source": "@embedpdf/default-fallback-fonts/licenses/Noto-Apache-2.0.txt",
       "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
     },
     {
       "package": "@embedpdf/engine-core",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0",
       "source": "@embedpdf/engine-core/LICENSE",
       "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
     },
     {
       "package": "@embedpdf/engine-runtime-wasm32",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0",
       "source": "@embedpdf/engine-runtime-wasm32/LICENSE",
       "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
     },
     {
+      "package": "@embedpdf/engine-runtime-wasm32",
+      "version": "3.4.0",
+      "declaredLicense": "Apache-2.0",
+      "source": "@embedpdf/engine-runtime-wasm32/NOTICE.md",
+      "sha256": "26c72b14c7fcc052666e7a36e7f89ae3e001d0676aee9f8c8f2cf0224ccd9a00"
+    },
+    {
       "package": "@embedpdf/engine-runtime",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0",
       "source": "@embedpdf/engine-runtime/LICENSE",
       "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
     },
     {
+      "package": "@embedpdf/engine-runtime",
+      "version": "3.4.0",
+      "declaredLicense": "Apache-2.0",
+      "source": "@embedpdf/engine-runtime/NOTICE.md",
+      "sha256": "362ccd6e5f57831d107843a208286e0096e6498561282e3114ce2b8e798e1acc"
+    },
+    {
       "package": "@embedpdf/engine-services",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0",
       "source": "@embedpdf/engine-services/LICENSE",
       "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
     },
     {
       "package": "@embedpdf/engine",
-      "version": "3.1.0",
+      "version": "3.4.0",
       "declaredLicense": "Apache-2.0",
       "source": "@embedpdf/engine/LICENSE",
       "sha256": "1267d31e07547ce02f96b823350c0427c09af4224a920a5f428f7a478b6608c4"
@@ -553,7 +574,7 @@
     },
     {
       "package": "zod",
-      "version": "3.25.76",
+      "version": "4.6.7",
       "declaredLicense": "MIT",
       "source": "zod/LICENSE",
       "sha256": "3f1189b28e3866e0d979968d466b78f813f76827cfdca1fbb124cc0a5c8841f8"
@@ -570,17 +591,17 @@
     "notices": [
       {
         "file": "public/licenses/embedpdf-runtime-pdfium-license.txt",
-        "source": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/LICENSE",
+        "source": "https://github.com/embedpdf/runtime/blob/7f399f838df31a96393fdac0f8faa0ef30468f68/LICENSE",
         "sha256": "1fe9dea718fbd75cf149adaf4d8a22a4335604d964ddb76d1b45383dec8668c9"
       },
       {
         "file": "public/licenses/embedpdf-runtime-NOTICE.txt",
-        "source": "https://github.com/embedpdf/runtime/blob/aa59ce554aab55879b728dbb86714e13e5cb327f/NOTICE",
+        "source": "https://github.com/embedpdf/runtime/blob/7f399f838df31a96393fdac0f8faa0ef30468f68/NOTICE",
         "sha256": "1d03c44d3af36ccffe2586e0bb0f8471223b71ce2e38069725d1da7859fc5b5d"
       },
       {
         "file": "public/licenses/embedpdf-NOTICE.txt",
-        "source": "https://github.com/embedpdf/embed-pdf-viewer/blob/37273d7d149f893255344f0f8e9ff7b2dfbc8057/NOTICE",
+        "source": "https://github.com/embedpdf/embed-pdf-viewer/blob/9af4d9ee755d6e5c20a8055654e895a81b95fb83/NOTICE",
         "sha256": "6c08af23e1951b7058957cafd600a21d9d50a020c600c3276df69ba0b89631cf"
       }
     ],

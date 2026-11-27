@@ -20,20 +20,24 @@ export const WorkspaceLayout = ({
   mobilePane: string;
   narrow: boolean;
   onMobilePane: (pane: string) => void;
-}) =>
-  narrow ? (
+}) => {
+  return narrow ? (
     <>
-      <nav className="flex gap-[5px] border-b px-3 py-[5px]" aria-label="Workspace pane">
-        {PANES.map((pane) => (
-          <Button
-            key={pane}
-            variant={pane === mobilePane ? 'secondary' : 'ghost'}
-            className="text-[11px]"
-            onClick={() => onMobilePane(pane)}
-          >
-            {pane === 'bytes' ? 'Original bytes' : pane[0].toUpperCase() + pane.slice(1)}
-          </Button>
-        ))}
+      <nav className="flex gap-1.25 border-b px-3 py-1.25" aria-label="Workspace pane">
+        {PANES.map((pane) => {
+          return (
+            <Button
+              key={pane}
+              variant={pane === mobilePane ? 'secondary' : 'ghost'}
+              className="text-detail"
+              onClick={() => {
+                return onMobilePane(pane);
+              }}
+            >
+              {pane === 'bytes' ? 'Original bytes' : pane[0].toUpperCase() + pane.slice(1)}
+            </Button>
+          );
+        })}
       </nav>
       <div className="min-h-0 flex-1 [&>*]:h-full" data-workspace="mobile">
         {mobilePane === 'explorer' ? explorer : mobilePane === 'bytes' ? bytes : inspector}
@@ -56,3 +60,4 @@ export const WorkspaceLayout = ({
       </ResizablePanelGroup>
     </div>
   );
+};

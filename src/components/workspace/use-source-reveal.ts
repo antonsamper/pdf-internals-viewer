@@ -13,7 +13,9 @@ export const useSourceReveal = () => {
       setByteReveal(undefined);
       setTextSource(null);
     },
-    reveal: () => setByteReveal(++sequence.current),
+    reveal: () => {
+      return setByteReveal(++sequence.current);
+    },
     setByteReveal,
     setTextSource,
     textSource,

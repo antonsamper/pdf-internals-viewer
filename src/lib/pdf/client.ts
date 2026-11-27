@@ -20,23 +20,29 @@ export class PdfWorkerClient {
     this.worker.addEventListener('message', (event: MessageEvent<ParserResponse>) => {
       const response = event.data;
       const pending = this.pending.get(response.requestId);
-      if (!pending) return;
+      if (!pending) {
+        return;
+      }
       clearTimeout(pending.timeout);
       this.pending.delete(response.requestId);
-      if (response.type === 'error') pending.reject(new Error(response.error));
-      else pending.resolve(response);
+      if (response.type === 'error') {
+        pending.reject(new Error(response.error));
+      } else {
+        pending.resolve(response);
+      }
     });
     this.worker.addEventListener('error', (event) => {
       this.dispose(new Error(event.message || 'PDF parser worker failed.'));
     });
   }
   private request(request: ParserRequest): Promise<ParserResponse> {
-    if (this.disposed) return Promise.reject(new Error('PDF inspection was cancelled.'));
+    if (this.disposed) {
+      return Promise.reject(new Error('PDF inspection was cancelled.'));
+    }
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(
-        () => this.dispose(new Error('PDF operation exceeded 15 seconds. Original bytes are still available; try a smaller file.')),
-        OPERATION_TIMEOUT_MS
-      );
+      const timeout = setTimeout(() => {
+        return this.dispose(new Error('PDF operation exceeded 15 seconds. Original bytes are still available; try a smaller file.'));
+      }, OPERATION_TIMEOUT_MS);
       this.pending.set(request.requestId, { reject, resolve, timeout });
       // Dedicated worker postMessage has no targetOrigin parameter.
       // oxlint-disable-next-line unicorn/require-post-message-target-origin
@@ -54,7 +60,9 @@ export class PdfWorkerClient {
     });
     while (response.type === 'opened-batch') {
       receiver.accept(response.items);
-      if (response.done) return receiver.finish();
+      if (response.done) {
+        return receiver.finish();
+      }
       response = await this.request({
         requestId: ++this.requestId,
         type: 'open-next',
@@ -74,11 +82,15 @@ export class PdfWorkerClient {
       requestId: ++this.requestId,
       type: 'stream',
     });
-    if (response.type !== 'stream') throw new Error('Unexpected parser response.');
+    if (response.type !== 'stream') {
+      throw new Error('Unexpected parser response.');
+    }
     return response.result;
   }
   dispose(reason = new Error('PDF inspection was cancelled.')) {
-    if (this.disposed) return;
+    if (this.disposed) {
+      return;
+    }
     this.disposed = true;
     this.worker.terminate();
     for (const pending of this.pending.values()) {
