@@ -1,12 +1,12 @@
 import type { ComponentProps } from 'react';
 
-import { cn } from 'cn';
 import { ChevronDown, ChevronRight, ChevronUp, Eye, FileCode2, Search } from 'lucide-react';
 
 import type { PageTextLocation, TextSource } from '@/lib/pdf/page-text';
 
 import { SearchResultsPopover } from '@/components/search-results-popover';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 import type { SearchResult } from './types';
 import type { useDocumentSearch } from './use-document-search';
@@ -48,7 +48,7 @@ const CardButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
     size="xs"
     className={cn(
       'h-auto min-h-6 max-w-full justify-start',
-      'rounded-[4px] px-1.5 py-0.5 text-left text-[11px] whitespace-normal',
+      'rounded-[4px] px-1.5 py-0.5 text-left text-detail whitespace-normal',
       'pointer-coarse:min-h-11 narrow:not-pointer-coarse:min-h-8',
       className
     )}
@@ -58,12 +58,12 @@ const CardButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
 
 /** A header button in the header's 12px type that grows to a 44px touch target on small screens. */
 const HeaderButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
-  <Button variant="ghost" className={cn('text-[12px] narrow:min-h-11 narrow:min-w-11', className)} {...props} />
+  <Button variant="ghost" className={cn('text-small narrow:min-h-11 narrow:min-w-11', className)} {...props} />
 );
 
 /** A note above or below the result cards. */
 const ResultsNote = ({ className, ...props }: ComponentProps<'p'>) => (
-  <p className={cn('px-3.5 py-2.5 text-[12px] [overflow-wrap:anywhere]', className)} {...props} />
+  <p className={cn('px-3.5 py-2.5 text-small [overflow-wrap:anywhere]', className)} {...props} />
 );
 
 const focusSearchToggle = (search: Search) =>
@@ -89,7 +89,7 @@ const ResultsHeader = ({ search }: { search: Search }) => {
     <div
       className={cn(
         'flex shrink-0 items-center gap-2 px-3 py-2',
-        'border-b bg-sidebar text-[12px] text-muted-foreground',
+        'border-b bg-sidebar text-small text-muted-foreground',
         'narrow:px-2 narrow:py-1.5'
       )}
     >
@@ -101,7 +101,7 @@ const ResultsHeader = ({ search }: { search: Search }) => {
         {statusText(search)}
       </span>
       <div className="ml-auto flex items-center gap-0.5 whitespace-nowrap" aria-label="Search result navigation" role="group">
-        <span className="mr-1.5 text-[11px]" aria-live="polite" aria-atomic="true">
+        <span className="mr-1.5 text-detail" aria-live="polite" aria-atomic="true">
           {pageText ? 'Page ' : 'Match '}
           {results.length ? `${(activeResult ?? 0) + 1} of ${results.length}` : '0 of 0'}
         </span>
@@ -171,7 +171,7 @@ const SourceButtons = ({
   const mapped = location.sources.some((source) => source.ranges.length);
   return (
     <div className="flex flex-wrap items-center gap-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1">
-      <span className="mr-0.5 text-[11px] text-muted-foreground max-w400:col-span-full max-w400:m-0">{mapped ? 'Bytes' : 'Streams'}</span>
+      <span className="mr-0.5 text-detail text-muted-foreground max-w400:col-span-full max-w400:m-0">{mapped ? 'Bytes' : 'Streams'}</span>
       {sources.map((source, sourceIndex) => (
         <CardButton
           key={keys[sourceIndex]}
@@ -193,7 +193,7 @@ const SourceButtons = ({
           }}
         >
           <FileCode2 size={12} />
-          <code className="text-[11px] font-normal max-w400:[overflow-wrap:anywhere]">
+          <code className="text-detail font-normal max-w400:[overflow-wrap:anywhere]">
             {source.ranges.length ? source.id : `Candidate ${source.id}`}
             {source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}
           </code>
@@ -222,7 +222,7 @@ const PageTextLinks = ({
   return (
     <div className="mx-3 mb-2.5 flex flex-col items-stretch gap-1.5 border-t pt-2" role="group" aria-label="Page text source locations">
       {!mapped && (
-        <span className="mb-0.5 text-[11px] leading-normal text-muted-foreground">
+        <span className="mb-0.5 text-detail text-muted-foreground">
           Exact word bytes could not be mapped. Stream inspection highlights a candidate container, not the word.
         </span>
       )}
@@ -263,17 +263,14 @@ const ResultSummary = ({ result, resultsScope }: { result: SearchResult; results
   if (!snippet)
     return (
       <>
-        <code className="col-start-1 text-[12px] font-semibold text-foreground">{result.label}</code>
-        <span className="col-start-1 text-[12px] leading-normal [overflow-wrap:anywhere] text-muted-foreground">{result.detail}</span>
+        <code className="col-start-1 text-small font-semibold text-foreground">{result.label}</code>
+        <span className="col-start-1 text-small [overflow-wrap:anywhere] text-muted-foreground">{result.detail}</span>
       </>
     );
   return (
     <>
       <span
-        className={cn(
-          'col-start-1 text-[13px] leading-normal [overflow-wrap:anywhere] text-foreground',
-          resultsScope !== 'pageText' && 'font-mono'
-        )}
+        className={cn('col-start-1 text-body [overflow-wrap:anywhere] text-foreground', resultsScope !== 'pageText' && 'font-mono')}
         data-search-result-context=""
       >
         {snippet.before}
@@ -281,7 +278,7 @@ const ResultSummary = ({ result, resultsScope }: { result: SearchResult; results
         {snippet.after}
       </span>
       {!result.pageText && (
-        <code className="col-start-1 text-[11px] font-normal text-muted-foreground" data-search-result-meta="">
+        <code className="col-start-1 text-detail font-normal text-muted-foreground" data-search-result-meta="">
           {result.label}
           <span className="font-sans"> · {result.detail}</span>
         </code>
@@ -337,13 +334,10 @@ const ResultItem = ({
       >
         {result.pageText && (
           <span
-            className={cn(
-              'col-start-1 flex items-baseline justify-between gap-3',
-              'text-[12px] leading-normal [overflow-wrap:anywhere] text-foreground'
-            )}
+            className={cn('col-start-1 flex items-baseline justify-between gap-3', 'text-small [overflow-wrap:anywhere] text-foreground')}
           >
-            <strong className="text-[12px] font-semibold">{result.label}</strong>
-            <span className="text-[11px] whitespace-nowrap text-muted-foreground">{result.detail}</span>
+            <strong className="text-small font-semibold">{result.label}</strong>
+            <span className="text-detail whitespace-nowrap text-muted-foreground">{result.detail}</span>
           </span>
         )}
         <ResultSummary result={result} resultsScope={resultsScope} />
@@ -364,8 +358,8 @@ const EmptyResults = ({ search }: { search: Search }) => {
   return (
     <div className="flex min-h-[100px] flex-col items-center justify-center gap-2.5 p-5 text-center text-muted-foreground">
       <Search size={22} aria-hidden="true" />
-      <p className="text-[13px] [overflow-wrap:anywhere] text-foreground">No results for “{resultsQuery}”</p>
-      <span className="text-[12px]">{EMPTY_HINTS[resultsScope] ?? 'Try a shorter sequence of complete hexadecimal bytes.'}</span>
+      <p className="text-body [overflow-wrap:anywhere] text-foreground">No results for “{resultsQuery}”</p>
+      <span className="text-small">{EMPTY_HINTS[resultsScope] ?? 'Try a shorter sequence of complete hexadecimal bytes.'}</span>
       {['objects', 'keys', 'text', 'decoded'].includes(resultsScope) && (
         <Button className="narrow:min-h-11" size="sm" variant="secondary" onClick={searchAsPageText}>
           Search page text instead
@@ -377,7 +371,7 @@ const EmptyResults = ({ search }: { search: Search }) => {
 
 const CoverageNote = ({ message, resultsScope }: { message: string; resultsScope: string }) =>
   resultsScope === 'pageText' ? (
-    <details className="border-t px-3.5 py-2.5 text-[11px] text-muted-foreground" open={message.startsWith('Showing')}>
+    <details className="border-t px-3.5 py-2.5 text-detail text-muted-foreground" open={message.startsWith('Showing')}>
       <summary className="cursor-pointer">Search coverage</summary>
       <p className="mt-2 leading-normal">{message}</p>
     </details>

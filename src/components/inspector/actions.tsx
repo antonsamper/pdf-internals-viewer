@@ -1,8 +1,7 @@
 import type { ComponentProps } from 'react';
 
-import { cn } from 'cn';
-
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 /** A row of buttons under a pane heading. */
 export const ActionRow = ({ className, ...props }: ComponentProps<'div'>) => (
@@ -11,5 +10,5 @@ export const ActionRow = ({ className, ...props }: ComponentProps<'div'>) => (
 
 /** An outline button in an action row, in the panes' compact type. */
 export const ActionButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
-  <Button variant="outline" className={cn('text-[11px]', className)} {...props} />
+  <Button variant="outline" className={cn('text-detail', className)} {...props} />
 );

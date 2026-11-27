@@ -1,11 +1,11 @@
 import type { ComponentProps, MouseEvent } from 'react';
 
-import { cn } from 'cn';
 import { ArrowUpRight, Braces, FilePlus2, FileCode2, Layers, LockKeyhole, Shield } from 'lucide-react';
 
 import { BrandArtwork } from '@/components/brand-artwork';
 import { Button } from '@/components/ui/button';
 import { SAMPLES as SITE_SAMPLES } from '@/lib/site-content';
+import { cn } from '@/lib/utils';
 
 const sampleIcons = {
   compressed: Braces,
@@ -62,8 +62,8 @@ const SampleButton = ({
       <Icon size={19} strokeWidth={1.5} />
     </span>
     <span className="min-w-0 flex-1">
-      <strong className="mb-1 block text-[12px] font-medium">{name}</strong>
-      <span className="text-[11px] text-muted-foreground">{detail}</span>
+      <strong className="mb-1 block text-small font-medium">{name}</strong>
+      <span className="text-detail text-muted-foreground">{detail}</span>
     </span>
     <ArrowUpRight
       className={cn(
@@ -106,7 +106,7 @@ export const EmptyWorkspace = ({
           <span
             className={cn(
               'mb-4.5 flex items-center gap-[9px]',
-              'font-mono text-[10px] leading-[normal] font-medium tracking-[0.09em] text-(--brand-purple) uppercase',
+              'font-mono text-caption leading-[normal] font-medium tracking-[0.09em] text-(--brand-purple) uppercase',
               "before:h-[3px] before:w-[17px] before:bg-(--brand-orange) before:content-['']"
             )}
           >
@@ -115,16 +115,16 @@ export const EmptyWorkspace = ({
           <h1 className="mb-5 text-[clamp(32px,3.8vw,48px)] leading-[1.15] font-[550] tracking-[-0.035em] text-balance">
             Look <span className="text-(--brand-red-ink)">inside</span> a PDF.
           </h1>
-          <p className="mb-7 max-w-[42ch] text-[15px] leading-[1.8] text-muted-foreground">
+          <p className="mb-7 max-w-[42ch] text-intro leading-[1.8] text-muted-foreground">
             An open-source, read-only PDF inspector for developers. Explore PDF objects, follow references, and inspect raw or decoded
             streams alongside the original bytes.
           </p>
           <div className="flex w-full flex-wrap items-center gap-x-4 gap-y-3">
             <Button className="h-10 shrink-0 px-4" size="lg" onClick={onOpenFile}>
               <FilePlus2 size={16} />
-              Open a PDF<span className="ml-5 text-[11px] opacity-90">⌘ O</span>
+              Open a PDF<span className="ml-5 text-detail opacity-90">⌘ O</span>
             </Button>
-            <span className="flex-[1_1_150px] text-[11px] text-muted-foreground">or drop a file anywhere · up to 64 MiB</span>
+            <span className="flex-[1_1_150px] text-detail text-muted-foreground">or drop a file anywhere · up to 64 MiB</span>
           </div>
           <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3 text-xs leading-normal">
             <TrustBadge className="font-semibold text-(--brand-purple)">
@@ -138,8 +138,8 @@ export const EmptyWorkspace = ({
           </div>
         </div>
         <section className="min-w-0">
-          <h2 className="mb-2 text-[14px] font-[550]">Start with a sample</h2>
-          <p className="mb-[22px] text-[12px] leading-[1.6] text-muted-foreground">No file handy? Explore a PDF made for learning.</p>
+          <h2 className="mb-2 text-reading font-[550]">Start with a sample</h2>
+          <p className="mb-[22px] text-small leading-[1.6] text-muted-foreground">No file handy? Explore a PDF made for learning.</p>
           {SAMPLES.map((sample) => (
             <SampleButton key={sample.file} sample={sample} onClick={() => onSample(sample.file)} />
           ))}

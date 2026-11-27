@@ -1,6 +1,5 @@
 import type { ComponentProps, MouseEvent } from 'react';
 
-import { cn } from 'cn';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 
 import type { ByteRange, PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
@@ -11,6 +10,7 @@ import { SourceCode } from '@/components/inspector/source-code';
 import { Warning } from '@/components/inspector/warning';
 import { Button } from '@/components/ui/button';
 import { contentInstructions, explainInstruction, namedResource, resourceCategory, resourceContexts } from '@/lib/pdf/content-stream';
+import { cn } from '@/lib/utils';
 /** A link in the explanations above the instructions. */
 const ExplanationLink = ({ className, ...props }: ComponentProps<'a'>) => (
   <a className={cn('underline underline-offset-[3px]', className)} {...props} />
@@ -88,7 +88,7 @@ export const ContentStreamView = ({
             (PDF Association, opens PDF in a new tab).
           </Note>
           {parsed.instructions.some((instruction) => instruction.operator === 'TJ') && (
-            <details className="mb-3 rounded-[5px] border px-3 py-2.5 text-[12px] leading-[1.7]" data-text-help>
+            <details className="mb-3 rounded-[5px] border px-3 py-2.5 text-small leading-[1.7]" data-text-help>
               <summary className="cursor-pointer">Why are there numbers between strings? (TJ)</summary>
               <p className="mt-2 text-muted-foreground">
                 A PDF records how to draw text. In a <code>TJ</code> array, parentheses hold text strings and numbers adjust where the next
@@ -105,7 +105,7 @@ export const ContentStreamView = ({
             </details>
           )}
           {contexts.length > 1 ? (
-            <label className="mb-3 flex flex-wrap items-center gap-2 text-[11px]">
+            <label className="mb-3 flex flex-wrap items-center gap-2 text-detail leading-[inherit]">
               Resource context
               <select
                 className="max-w-full rounded-[5px] border bg-background p-1.5"
@@ -152,10 +152,10 @@ export const ContentStreamView = ({
                   }
                   key={instruction.start}
                 >
-                  <span className="pt-0.5 font-mono text-[10px] leading-[normal] text-muted-foreground" title="Decoded byte offset">
+                  <span className="pt-0.5 font-mono text-caption leading-[normal] text-muted-foreground" title="Decoded byte offset">
                     0x{instruction.start.toString(16).toUpperCase()}
                   </span>
-                  <code className="text-[11px] leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap">
+                  <code className="text-detail leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap">
                     {instruction.tokens.map((token, index) => {
                       const category =
                         token.kind === 'name' ? resourceCategory(instruction.operator, index, instruction.tokens.length - 1) : undefined;
@@ -191,7 +191,7 @@ export const ContentStreamView = ({
                       );
                     })}
                   </code>
-                  <p className="col-start-2 mt-[5px] text-[11px] leading-[1.7] text-muted-foreground">{explainInstruction(instruction)}</p>
+                  <p className="col-start-2 mt-[5px] text-detail leading-[1.7] text-muted-foreground">{explainInstruction(instruction)}</p>
                 </li>
               );
             })}

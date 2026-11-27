@@ -1,4 +1,3 @@
-import { cn } from 'cn';
 import { ChevronRight, Info } from 'lucide-react';
 import { useState } from 'react';
 
@@ -7,6 +6,7 @@ import type { PdfObjectRecord, PdfValue } from '@/lib/pdf/types';
 import { Note } from '@/components/inspector/notes';
 import { ReferenceButton } from '@/components/inspector/reference-button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 const SCALAR_TONE: Record<string, string> = { name: 'text-foreground', string: 'text-pdf-string' };
 
 export const ValueView = function ValueView({
@@ -76,7 +76,7 @@ export const ValueView = function ValueView({
               <div
                 className={cn(
                   'flex flex-wrap items-center gap-[5px]',
-                  'font-mono text-[11px] [overflow-wrap:anywhere] text-muted-foreground'
+                  'font-mono text-detail leading-[inherit] [overflow-wrap:anywhere] text-muted-foreground'
                 )}
               >
                 <span>/{bareKey}</span>
@@ -92,7 +92,7 @@ export const ValueView = function ValueView({
                   </Tooltip>
                 )}
               </div>
-              <div className="min-w-0 text-[11px] [overflow-wrap:anywhere]" data-slot="pdf-value">
+              <div className="min-w-0 text-detail leading-[inherit] [overflow-wrap:anywhere]" data-slot="pdf-value">
                 <ValueView
                   value={child}
                   onNavigate={onNavigate}
@@ -110,7 +110,7 @@ export const ValueView = function ValueView({
     );
   if (value.type === 'array')
     return (
-      <div className="flex flex-wrap items-baseline gap-[7px] text-[11px]">
+      <div className="flex flex-wrap items-baseline gap-[7px] text-detail leading-[inherit]">
         <span className="text-muted-foreground">[</span>
         {value.items.map((child, index) => (
           <ValueView
@@ -127,7 +127,7 @@ export const ValueView = function ValueView({
         <span className="text-muted-foreground">]</span>
       </div>
     );
-  return <span className={cn('font-mono text-[11px] whitespace-pre-wrap', SCALAR_TONE[value.type])}>{value.text}</span>;
+  return <span className={cn('font-mono text-detail leading-[inherit] whitespace-pre-wrap', SCALAR_TONE[value.type])}>{value.text}</span>;
 };
 const InlineReference = function InlineReference({
   target,
@@ -148,7 +148,7 @@ const InlineReference = function InlineReference({
 }) {
   const [expanded, setExpanded] = useState(false);
   return (
-    <details className="mt-1.5 text-[11px]" onToggle={(event) => setExpanded(event.currentTarget.open)}>
+    <details className="mt-1.5 text-detail leading-[inherit]" onToggle={(event) => setExpanded(event.currentTarget.open)}>
       <summary
         className={cn(
           'cursor-pointer py-[3px] text-muted-foreground',

@@ -1,9 +1,8 @@
 import type { MouseEventHandler, ReactNode } from 'react';
 
-import { cn } from 'cn';
-
 import { BrandIcon } from '@/components/brand-artwork';
 import { ThemeControl } from '@/components/theme-control';
+import { cn } from '@/lib/utils';
 
 /** The plum header shared by the workspace and the public pages. `content` selects the article-page layout. */
 export const SiteHeader = function SiteHeader({
@@ -28,7 +27,7 @@ export const SiteHeader = function SiteHeader({
     >
       <a
         className={cn(
-          'flex items-center gap-2.5 text-[14px] font-semibold tracking-tight whitespace-nowrap max-w480:gap-1.75 narrow:text-[13px]',
+          'flex items-center gap-2.5 text-reading font-semibold tracking-tight whitespace-nowrap max-w480:gap-1.75 narrow:text-body',
           content && 'max-w760:min-w-0'
         )}
         data-app-identity=""

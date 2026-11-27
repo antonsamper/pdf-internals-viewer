@@ -1,12 +1,12 @@
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentProps, ReactNode } from 'react';
 
-import { cn } from 'cn';
+import { cn } from '@/lib/utils';
 
 /** A pane's title row: fixed height, bottom border, small type. */
 export const PaneHeading = ({ className, ...props }: ComponentProps<'div'>) => (
   <div
-    className={cn('flex h-[42px] min-h-[42px] shrink-0 items-center gap-2 border-b px-3.5 text-[11px] font-medium', className)}
+    className={cn('flex h-[42px] min-h-[42px] shrink-0 items-center gap-2 border-b px-3.5 text-detail font-medium', className)}
     {...props}
   />
 );
@@ -20,16 +20,16 @@ export const PaneBody = ({ className, ...props }: ComponentProps<'div'>) => (
 export const PaneIntro = ({ children, icon: Icon, title }: { children: ReactNode; icon: LucideIcon; title: ReactNode }) => (
   <div>
     <Icon size={25} className="mb-4 text-brand-purple" aria-hidden="true" />
-    <h1 className="mb-2 text-[21px] font-[550] tracking-[-0.025em]">{title}</h1>
+    <h1 className="mb-2 text-title font-[550] tracking-[-0.025em]">{title}</h1>
     {children}
   </div>
 );
 
 export const PaneSubtitle = ({ className, ...props }: ComponentProps<'p'>) => (
-  <p className={cn('mb-[26px] text-[12px] [overflow-wrap:anywhere] text-muted-foreground', className)} {...props} />
+  <p className={cn('mb-[26px] text-small [overflow-wrap:anywhere] text-muted-foreground', className)} {...props} />
 );
 
 /** A heading for a section inside a pane body. */
 export const SectionHeading = ({ className, ...props }: ComponentProps<'h2'>) => (
-  <h2 className={cn('mt-7 mb-3 text-[12px] font-[550]', className)} {...props} />
+  <h2 className={cn('mt-7 mb-3 text-small font-[550]', className)} {...props} />
 );

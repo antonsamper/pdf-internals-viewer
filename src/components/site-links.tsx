@@ -1,8 +1,7 @@
 import type { MouseEvent, ReactNode } from 'react';
 
-import { cn } from 'cn';
-
 import { PROJECT_URL } from '@/lib/site-content';
+import { cn } from '@/lib/utils';
 
 /** A group of footer links that wraps as one unit. */
 const LinkGroup = ({ children }: { children: ReactNode }) => (
@@ -14,7 +13,7 @@ export const SiteLinks = function SiteLinks({ onFollowLink }: { onFollowLink?: (
     <nav
       className={cn(
         'relative flex shrink-0 items-center justify-between gap-5 px-8 py-5',
-        'bg-background text-[12px] text-muted-foreground',
+        'bg-background text-small text-muted-foreground',
         'border-t border-border shadow-[0_-6px_16px_rgb(40_26_60/5%)]',
         '[&_a]:inline-flex [&_a]:items-center',
         '[&_a]:hover:text-foreground [&_a]:hover:underline [&_a]:hover:underline-offset-4',

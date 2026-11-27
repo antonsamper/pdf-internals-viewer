@@ -1,4 +1,3 @@
-import { cn } from 'cn';
 import { Download, LoaderCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -10,6 +9,7 @@ import { Note } from '@/components/inspector/notes';
 import { Warning } from '@/components/inspector/warning';
 import { Button } from '@/components/ui/button';
 import { saveFile } from '@/lib/save-file';
+import { cn } from '@/lib/utils';
 export const EmbeddedDownloads = ({
   className,
   object,
@@ -61,8 +61,8 @@ export const EmbeddedDownloads = ({
           key={`${asset.kind}-${asset.streamId}-${asset.filename}`}
         >
           <div className="flex min-w-0 flex-col gap-[3px]">
-            <strong className="text-[12px] font-medium [overflow-wrap:anywhere]">{asset.filename}</strong>
-            <span className="text-[10px] text-muted-foreground">
+            <strong className="text-small font-medium [overflow-wrap:anywhere]">{asset.filename}</strong>
+            <span className="text-caption text-muted-foreground">
               {asset.kind === 'font' ? (asset.subset ? 'Embedded font · subset indicated' : 'Embedded font') : 'Embedded attachment'}
             </span>
             <DownloadSize id={asset.streamId} extractStream={extractStream} />
@@ -78,7 +78,7 @@ export const EmbeddedDownloads = ({
         </div>
       ))}
       {hasFont && (
-        <Note className="mt-2.5 mb-0 text-[11px] leading-[1.7]">
+        <Note className="mt-2.5 mb-0 text-detail leading-[1.7]">
           Fonts may be partial: an embedded font can contain only the characters used in this PDF. Downloading it does not restore the
           complete original font. Some extracted font programs are not directly installable.
         </Note>

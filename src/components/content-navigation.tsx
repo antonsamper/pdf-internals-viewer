@@ -1,19 +1,19 @@
 import type { ComponentProps, MouseEvent } from 'react';
 
-import { cn } from 'cn';
 import { Menu, X } from 'lucide-react';
 
 import type { SitePath } from '@/lib/site-content';
 
 import { buttonVariants } from '@/components/ui/button-variants';
 import { CONTENT_GROUPS, contentType, relatedPages } from '@/lib/site-navigation';
+import { cn } from '@/lib/utils';
 /** A header link shaped like a small ghost button, in medium-weight type a little under 13px. */
 export const HeaderLink = function HeaderLink({ className, ...props }: ComponentProps<'a'>) {
   return (
     <a
       className={cn(
         buttonVariants({ size: 'sm', variant: 'ghost' }),
-        'text-[0.8rem] leading-(--text-sm--line-height) font-medium',
+        'text-nav font-medium',
         // The base button's radius and icon size, which the `sm` size would otherwise replace.
         "rounded-lg [&_svg:not([class*='size-'])]:size-4",
         className
@@ -53,7 +53,7 @@ const SectionLinks = function SectionLinks({ menu, path, onFollowLink }: { menu:
 /** The header's section links. Below 760px they collapse into a menu and the inspector link shortens. */
 export const ContentHeaderLinks = function ContentHeaderLinks({ path, onFollowLink }: { path: SitePath; onFollowLink?: FollowLink }) {
   return (
-    <nav className="ml-auto flex flex-nowrap items-center gap-2 text-[13px] whitespace-nowrap" aria-label="Main navigation">
+    <nav className="ml-auto flex flex-nowrap items-center gap-2 text-body whitespace-nowrap" aria-label="Main navigation">
       <div className="flex items-center gap-1 max-w760:hidden">
         <SectionLinks menu={false} path={path} onFollowLink={onFollowLink} />
       </div>
@@ -100,8 +100,8 @@ const NavigationGroups = function NavigationGroups({
     <nav className={className} aria-label="Content navigation">
       {CONTENT_GROUPS.map((group) => (
         <div className="not-first:mt-5.5" key={group.label}>
-          <h2 className="mb-1.5 text-[12px] font-[650] text-foreground">{group.label}</h2>
-          <ul className="grid gap-0.5 text-[12px] leading-[1.5]">
+          <h2 className="mb-1.5 text-small font-[650] text-foreground">{group.label}</h2>
+          <ul className="grid gap-0.5 text-small">
             {group.items.map(([href, label]) => (
               <li key={href}>
                 <a
@@ -133,7 +133,7 @@ export const ContentNavigation = function ContentNavigation({ path, onFollowLink
         <NavigationGroups path={path} onFollowLink={onFollowLink} />
       </aside>
       <details className="mb-7 hidden rounded-[6px] border border-border narrow:block">
-        <summary className="cursor-pointer px-4 py-3 text-[13px] font-[550]">On this site</summary>
+        <summary className="cursor-pointer px-4 py-3 text-body font-[550]">On this site</summary>
         <NavigationGroups className="px-4 pt-1 pb-5" path={path} onFollowLink={onFollowLink} />
       </details>
     </>
@@ -151,12 +151,16 @@ export const RelatedContent = function RelatedContent({
 }) {
   return (
     <aside className="mt-10 border-t border-border" aria-label="Related reading">
-      <h2 className="mt-8 mb-3 text-[16px] font-[550]">Keep exploring</h2>
-      <ul className={cn(!about && 'mt-4 mb-6 text-[14px] leading-[1.85] text-muted-foreground')}>
+      <h2 className="mt-8 mb-3 text-subheading font-[550]">Keep exploring</h2>
+      <ul className={cn(!about && 'mt-4 mb-6 text-reading leading-[1.85] text-muted-foreground')}>
         {relatedPages(path).map((page) => (
           <li className="my-4" key={page.path}>
-            <span className="block text-[11px] text-muted-foreground">{contentType(page.path)}</span>
-            <a className="text-[14px] text-reference underline-offset-3 hover:underline" href={page.path} onClick={onFollowLink}>
+            <span className="block text-detail leading-[inherit] text-muted-foreground">{contentType(page.path)}</span>
+            <a
+              className="text-reading leading-[inherit] text-reference underline-offset-3 hover:underline"
+              href={page.path}
+              onClick={onFollowLink}
+            >
               {page.heading}
             </a>
           </li>

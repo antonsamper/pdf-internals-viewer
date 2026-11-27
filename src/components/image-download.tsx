@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 
-import { cn } from 'cn';
 import { Download, LoaderCircle, ImageOff } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -13,6 +12,7 @@ import { buildImageFile, imageThumbnail, queueImageWork } from '@/lib/image-expo
 import { imageDownloadPlan } from '@/lib/pdf/image-download';
 import { saveFile } from '@/lib/save-file';
 import { useVisible } from '@/lib/use-visible';
+import { cn } from '@/lib/utils';
 
 /** The text in the preview placeholder, at a readable measure. */
 const PreviewStatus = ({ children }: { children: ReactNode }) => <p className="max-w-[54ch] leading-[1.6]">{children}</p>;
@@ -117,7 +117,7 @@ export const ImageDownload = ({
           <div
             className={cn(
               'my-3 flex items-center gap-2.5 p-3.5',
-              'bg-sidebar text-[11px] text-muted-foreground',
+              'bg-sidebar text-detail text-muted-foreground',
               'rounded-[8px] border border-dashed'
             )}
             role="status"
@@ -136,7 +136,7 @@ export const ImageDownload = ({
           </div>
         ))}
       <div
-        className="my-2.5 text-[11px] leading-[1.6] text-muted-foreground tabular-nums"
+        className="my-2.5 text-detail leading-[1.6] text-muted-foreground tabular-nums"
         data-image-file-size
         title={state.size !== undefined ? `${state.size.toLocaleString()} bytes` : undefined}
       >

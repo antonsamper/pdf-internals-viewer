@@ -242,7 +242,7 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
         )}
       </div>
 
-      <div className="border-t px-3 py-2 text-[11px] text-muted-foreground">
+      <div className="border-t px-3 py-2 text-detail text-muted-foreground">
         {search && pages.length > 0 && (
           <p role="status" className="break-words">
             {searchMatches.length} text {searchMatches.length === 1 ? 'match' : 'matches'} on this page for “{search.query}”

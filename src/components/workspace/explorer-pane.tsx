@@ -1,6 +1,5 @@
 import type { ComponentProps } from 'react';
 
-import { cn } from 'cn';
 import { Braces, ChevronRight, FileCode2, FileWarning, Files, FolderOpen, Layers, LayoutDashboard, ListTree } from 'lucide-react';
 
 import type { PageTreeState } from '@/components/page-tree';
@@ -14,12 +13,13 @@ import { SEVERITY_TONE } from '@/components/inspector/severity-tone';
 import { PageTree } from '@/components/page-tree';
 import { SessionBookmarks } from '@/components/session-bookmarks';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 import type { Section, Selection } from './types';
 
 /** The count at the end of a section button. */
 const SectionCount = ({ className, ...props }: ComponentProps<'span'>) => (
-  <span className={cn('ml-auto text-[10px] tabular-nums', className)} {...props} />
+  <span className={cn('ml-auto text-caption tabular-nums', className)} {...props} />
 );
 
 export const ExplorerPane = ({
@@ -78,7 +78,7 @@ export const ExplorerPane = ({
       <PaneHeading>
         <ListTree size={15} />
         <span>Explorer</span>
-        <Badge variant="outline" className="ml-auto rounded-[4px] px-[5px] py-0 text-[10px] leading-[calc(4/3)] text-muted-foreground">
+        <Badge variant="outline" className="ml-auto rounded-[4px] px-[5px] py-0 text-caption leading-[calc(4/3)] text-muted-foreground">
           {objects.length}
         </Badge>
       </PaneHeading>
@@ -98,7 +98,7 @@ export const ExplorerPane = ({
             key={key}
             className={cn(
               'flex items-center gap-[9px] px-2.5 py-2',
-              'rounded-[5px] bg-transparent text-left text-[11px] text-muted-foreground',
+              'rounded-[5px] bg-transparent text-left text-detail text-muted-foreground',
               'hover:bg-accent hover:text-foreground',
               section === key && 'bg-accent font-medium text-accent-foreground shadow-[inset_3px_0_var(--brand-purple)]'
             )}
@@ -126,7 +126,7 @@ export const ExplorerPane = ({
         className={cn(
           'flex justify-between',
           'mx-[15px] pt-[13px] pb-[9px]',
-          'text-[9px] font-medium tracking-[0.06em] text-muted-foreground',
+          'text-micro font-medium tracking-[0.06em] text-muted-foreground',
           'border-t'
         )}
       >
@@ -170,7 +170,7 @@ export const ExplorerPane = ({
                 <Braces size={14} />
                 <span className="flex min-w-0 flex-1 items-baseline gap-2.5">
                   <code className="min-w-8 text-foreground">{object.id}</code>
-                  <span className="overflow-hidden text-[10px] text-ellipsis whitespace-nowrap">{object.kind}</span>
+                  <span className="overflow-hidden text-caption text-ellipsis whitespace-nowrap">{object.kind}</span>
                 </span>
                 {object.provenance.type === 'decoded' ? <Layers size={12} aria-label="Inside object stream" /> : <ChevronRight size={12} />}
               </button>

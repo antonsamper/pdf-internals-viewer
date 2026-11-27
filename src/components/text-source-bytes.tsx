@@ -40,7 +40,7 @@ export const TextSourceBytes = function TextSourceBytes({
           Decoded bytes
         </Button>
       </div>
-      <p className="m-0 border-b px-3 py-2 text-[11px] text-muted-foreground" data-text-source-note role="status">
+      <p className="m-0 border-b px-3 py-2 text-detail text-muted-foreground" data-text-source-note role="status">
         {decoded
           ? exact
             ? 'Highlighted bytes encode matching source text. Offsets are within this decoded stream.'

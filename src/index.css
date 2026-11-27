@@ -7,6 +7,33 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* The type scale, named by role. Each size uses the page's 1.5 line height unless a `leading-*`
+   sets another; `nav` keeps the `text-sm` line height for the header links. See DESIGN.md. */
+@theme {
+  --text-micro: 9px;
+  --text-micro--line-height: 1.5;
+  --text-caption: 10px;
+  --text-caption--line-height: 1.5;
+  --text-detail: 11px;
+  --text-detail--line-height: 1.5;
+  --text-small: 12px;
+  --text-small--line-height: 1.5;
+  --text-nav: 0.8rem;
+  --text-nav--line-height: calc(1.25 / 0.875);
+  --text-body: 13px;
+  --text-body--line-height: 1.5;
+  --text-reading: 14px;
+  --text-reading--line-height: 1.5;
+  --text-intro: 15px;
+  --text-intro--line-height: 1.5;
+  --text-subheading: 16px;
+  --text-subheading--line-height: 1.5;
+  --text-heading: 18px;
+  --text-heading--line-height: 1.5;
+  --text-title: 21px;
+  --text-title--line-height: 1.5;
+}
+
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: 'Geist Variable', sans-serif;
@@ -161,7 +188,7 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-size: 13px;
+    font-size: var(--text-body);
     -webkit-font-smoothing: antialiased;
   }
   ::selection {
@@ -182,7 +209,7 @@
   code,
   pre {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: var(--text-small);
   }
   button:focus-visible,
   a:focus-visible,

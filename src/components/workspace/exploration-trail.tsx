@@ -1,9 +1,9 @@
-import { cn } from 'cn';
 import { ChevronRight } from 'lucide-react';
 
 import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 
 import { ReferenceButton } from '@/components/inspector/reference-button';
+import { cn } from '@/lib/utils';
 
 import type { Section } from './types';
 
@@ -44,7 +44,7 @@ export const ExplorationTrail = ({
           <span className="flex shrink-0 items-center gap-1" key={keys[index]}>
             {index > 0 && <ChevronRight size={12} aria-hidden="true" />}
             {index === steps.length - 1 ? (
-              <span aria-current="location" className="font-mono text-[12px]">
+              <span aria-current="location" className="font-mono text-small leading-[inherit]">
                 {step.label}
               </span>
             ) : (

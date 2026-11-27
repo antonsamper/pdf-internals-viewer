@@ -1,12 +1,12 @@
 import type { ComponentProps, CSSProperties, FormEvent, KeyboardEvent, ReactNode } from 'react';
 
-import { cn } from 'cn';
 import { ArrowDownToLine, Check, Copy, FileCode2 } from 'lucide-react';
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 
 import type { ScrollPosition } from '@/lib/scroll-restoration';
 
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 /** The offset, bytes and ASCII columns, shared by the column heading and every row. Below 401px the columns tighten. */
 const HexGrid = ({ className, ...props }: ComponentProps<'div'>) => (
@@ -84,7 +84,7 @@ const HexToolbar = ({
   title: string;
 }) => (
   <div className="flex h-[42px] min-h-[42px] shrink-0 items-center justify-between gap-2 border-b px-3.5">
-    <div className="flex items-center gap-2 text-[12px] font-semibold">
+    <div className="flex items-center gap-2 text-small font-semibold">
       <FileCode2 aria-hidden="true" size={15} />
       <span>{title}</span>
     </div>
@@ -124,13 +124,13 @@ const HexJumpForm = ({
   onSubmit: (event: FormEvent) => void;
   value: string;
 }) => (
-  <form className="flex items-center gap-2 border-b px-3.5 py-[9px] text-[11px]" onSubmit={onSubmit}>
+  <form className="flex items-center gap-2 border-b px-3.5 py-[9px] text-detail" onSubmit={onSubmit}>
     <label className="whitespace-nowrap text-muted-foreground" htmlFor={id}>
       Go to offset
     </label>
     <input
       className={cn(
-        'w-full min-w-10 px-[7px] py-1 font-mono text-[11px]',
+        'w-full min-w-10 px-[7px] py-1 font-mono text-detail',
         'bg-background text-foreground placeholder:text-muted-foreground',
         'rounded-[5px] border border-border',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring'
@@ -172,10 +172,10 @@ const HexRow = ({
   const offset = row * columns;
   return (
     <HexGrid
-      className="absolute left-0 font-mono text-[11px] leading-[normal] tabular-nums hover:bg-muted"
+      className="absolute left-0 font-mono text-detail leading-[normal] tabular-nums hover:bg-muted"
       style={{ height: ROW_HEIGHT, top: row * ROW_HEIGHT }}
     >
-      <span className="text-[10px] text-muted-foreground select-text">{offsetText(offset)}</span>
+      <span className="text-caption leading-[normal] text-muted-foreground select-text">{offsetText(offset)}</span>
       <ByteColumns>
         {Array.from({ length: columns }, (_, column) => {
           const position = offset + column;
@@ -214,7 +214,7 @@ const HexRow = ({
 const HexColumnHead = ({ columns }: { columns: number }) => (
   <HexGrid
     className={cn(
-      'shrink-0 overflow-hidden bg-muted py-[9px] font-mono text-[9px] tracking-[0.025em] text-muted-foreground',
+      'shrink-0 overflow-hidden bg-muted py-[9px] font-mono text-micro tracking-[0.025em] text-muted-foreground',
       'leading-[normal]'
     )}
     style={{ '--hex-columns': columns } as CSSProperties}
@@ -251,7 +251,7 @@ const HexStatus = ({
   <div
     className={cn(
       'min-h-[34px] px-3.5 py-[9px]',
-      'text-[10px] [overflow-wrap:anywhere] text-muted-foreground',
+      'text-caption [overflow-wrap:anywhere] text-muted-foreground',
       'border-t',
       'leading-[1.5]'
     )}
@@ -521,7 +521,7 @@ export const HexView = ({
           <div
             className={cn(
               'flex h-full min-h-[180px] flex-col items-center justify-center gap-2.5 p-[25px]',
-              'text-center text-[12px] text-muted-foreground'
+              'text-center text-small text-muted-foreground'
             )}
           >
             <FileCode2 size={24} aria-hidden="true" />

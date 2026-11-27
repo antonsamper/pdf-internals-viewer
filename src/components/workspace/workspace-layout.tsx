@@ -28,7 +28,7 @@ export const WorkspaceLayout = ({
           <Button
             key={pane}
             variant={pane === mobilePane ? 'secondary' : 'ghost'}
-            className="text-[11px]"
+            className="text-detail"
             onClick={() => onMobilePane(pane)}
           >
             {pane === 'bytes' ? 'Original bytes' : pane[0].toUpperCase() + pane.slice(1)}

@@ -35,7 +35,7 @@ export const ObjectComparison = function ObjectComparison({
   return (
     <section aria-label="Object comparison" className="h-full min-w-0 overflow-auto border-t p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-[12px] leading-[calc(1.25/0.875)] font-[550]">Compare objects</h2>
+        <h2 className="text-small leading-[calc(1.25/0.875)] font-[550]">Compare objects</h2>
         <Button size="sm" variant="ghost" onClick={onUnpin}>
           <PinOff size={14} />
           Unpin object

@@ -1,9 +1,10 @@
 import type { MouseEvent } from 'react';
 
-import { cn } from 'cn';
 import { Check, ShieldCheck } from 'lucide-react';
 
 import type { PdfDocumentInfo } from '@/lib/pdf/types';
+
+import { cn } from '@/lib/utils';
 
 export const StatusBar = ({
   busy,
@@ -22,12 +23,12 @@ export const StatusBar = ({
     className={cn(
       'flex items-center justify-between',
       'h-7.25 min-h-7.25 gap-3 px-4.5',
-      'bg-sidebar text-[10px] text-muted-foreground',
+      'bg-sidebar text-caption text-muted-foreground',
       'border-t border-border',
       'max-w480:h-8.5 max-w480:min-h-8.5 narrow:px-3'
     )}
   >
-    <span className="flex items-center gap-1.5 whitespace-nowrap max-w480:gap-1.25 max-w480:text-[9px]">
+    <span className="flex items-center gap-1.5 whitespace-nowrap max-w480:gap-1.25 max-w480:text-micro">
       <ShieldCheck className="text-(--brand-purple)" size={13} />
       Files stay on your device
       <span className="mx-1.25 block h-2.5 w-px bg-border max-w480:mx-0.75 min-w480:narrow:hidden" aria-hidden="true" />
@@ -42,7 +43,7 @@ export const StatusBar = ({
         Limitations
       </a>
     </span>
-    <span className="flex items-center gap-1.5 whitespace-nowrap max-w480:hidden narrow:text-[9px]">
+    <span className="flex items-center gap-1.5 whitespace-nowrap max-w480:hidden narrow:text-micro">
       {busy ? (
         'Inspecting'
       ) : document ? (
