@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import type { Locator, Page, Route } from '@playwright/test';
 
 import { test, expect } from '@playwright/test';
 import { mkdir, readFile } from 'node:fs/promises';
@@ -51,7 +51,36 @@ const focusRing = (element: Locator) =>
 const samplePath = (name: string) => resolve('public/samples', name);
 // Keep artifacts separate when --browser=all runs engines concurrently.
 const screenshotPath = (name: string) => resolve('.context', test.info().project.use.browserName ?? 'chromium', name);
+type CachedAsset = { body: Buffer; headers: Record<string, string>; status: number };
+const engineAssets = new Map<string, Promise<CachedAsset>>();
+/**
+ * Browser contexts don't share an HTTP cache, so every PDFium engine boot downloads the 7.8 MB wasm again, and
+ * `wrangler pages dev` compresses each response on one thread. Concurrent page-text searches then queue behind it
+ * past the expect timeout. Fetch each hashed engine asset once per test worker and serve repeats from memory.
+ */
+const serveEngineAsset = async (route: Route) => {
+  const url = route.request().url();
+  if (!engineAssets.has(url)) {
+    const cached = route.fetch().then(async (response) => {
+      const { 'content-encoding': _encoding, 'content-length': _length, ...headers } = response.headers();
+      return { body: await response.body(), headers, status: response.status() };
+    });
+    engineAssets.set(url, cached);
+    // A failed or partial fetch is not cached, so a later boot retries the server.
+    cached.then(
+      (asset) => asset.status === 200 || engineAssets.delete(url),
+      () => engineAssets.delete(url)
+    );
+  }
+  try {
+    await route.fulfill(await engineAssets.get(url)!);
+  } catch {
+    // The page closed or the fetch failed; let the request fail as it would without the cache.
+    await route.abort().catch(() => undefined);
+  }
+};
 test.beforeEach(async ({ page }) => {
+  await page.context().route('**/assets/embedpdf*', serveEngineAsset);
   await page.goto('/');
 });
 test('opens with an accessible empty workspace and sample choices', async ({ page }) => {
