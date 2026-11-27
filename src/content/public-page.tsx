@@ -571,8 +571,10 @@ const Limitations = function Limitations() {
       </p>
       <p>
         Actions lists actions from the catalogue, pages, page annotations, form fields and outline, up to 5,000 actions and 64 steps in a{' '}
-        <code>/Next</code> chain. Document-level scripts in the <code>/Names /JavaScript</code> tree, XFA form scripts and actions stored
-        elsewhere need a search. Nothing is run, so the list cannot show what a reader would do with an action.
+        <code>/Next</code> chain. It also stops, with a note, after 500,000 steps through pages, annotations and actions, which a file can
+        reach when every page shares one large annotation array. Document-level scripts in the <code>/Names /JavaScript</code> tree, XFA
+        form scripts and actions stored elsewhere need a search. Nothing is run, so the list cannot show what a reader would do with an
+        action.
       </p>
       <h2>Page text search and source mapping</h2>
       <p>

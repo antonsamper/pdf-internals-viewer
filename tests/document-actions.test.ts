@@ -6,6 +6,7 @@ import { actionsPdf } from '../scripts/fixtures/action-fixtures.mjs';
 // @ts-expect-error Node ESM fixture generators have no declaration file.
 import { classicPdf } from '../scripts/fixtures/pdf-fixtures.mjs';
 import { documentActions, flattenActions, scriptText } from '../src/lib/pdf/document-actions';
+import { DocumentReceiver, DocumentTransfer } from '../src/lib/pdf/document-transfer';
 import { PdfInspector } from '../src/lib/pdf/inspector';
 
 const inspect = async (bytes: Uint8Array) => {
@@ -295,5 +296,39 @@ describe('documentActions', () => {
     expect(report.total).toBe(5000);
     expect(report.actions.at(-1)?.context).toBe('Link annotation on page 50');
     expect(report.notes).toEqual(['The list stops at 5000 actions. Later actions are not listed.']);
+  });
+
+  it('stops a walk that would visit one shared /Annots array on every page, and the document still opens', async () => {
+    // 2,000 pages share one array of 2,000 references to the same link, so a full walk makes 4,000,000 visits.
+    const pages = Array.from({ length: 2000 }, (_, index) => 100 + index);
+    const kids = pages.map((id) => `${id} 0 R`).join(' ');
+    const bytes = classicPdf([
+      [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+      [2, `<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`],
+      [9, `[${Array.from({ length: 2000 }, () => '10 0 R').join(' ')}]`],
+      [10, '<< /Type /Annot /Subtype /Link /Rect [0 0 10 10] >>'],
+      ...pages.map((id, index): [number, string] => [
+        id,
+        page(`/Annots 9 0 R${index ? '' : ' /AA << /O << /S /GoTo /D [100 0 R /Fit] >> >>'}`),
+      ]),
+    ]).bytes as Uint8Array;
+    const document = await new PdfInspector().open(bytes, 'shared-annots.pdf');
+    const sender = new DocumentTransfer(document);
+    const receiver = new DocumentReceiver();
+    const start = performance.now();
+    let done = false;
+    while (!done) {
+      const batch = structuredClone(sender.next());
+      receiver.accept(batch.items);
+      done = batch.done;
+    }
+    const elapsed = performance.now() - start;
+    const opened = receiver.finish();
+    expect(opened.pages).toHaveLength(2000);
+    const report = opened.indexes?.actions;
+    expect(report?.actions.map((action) => [action.trigger, action.context, action.type])).toEqual([['Page opens', 'Page 1', 'GoTo']]);
+    expect(report?.notes).toEqual(['The list stops after 500000 steps. Later actions are not listed.']);
+    // The full walk takes several seconds; the budget keeps the whole transfer well under the 15-second request limit.
+    expect(elapsed).toBeLessThan(5000);
   });
 });
