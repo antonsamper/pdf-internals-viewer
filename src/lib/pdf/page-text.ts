@@ -4,6 +4,7 @@ import type { ContentToken } from './content-stream';
 import type { ByteRange, PdfObjectRecord, PdfValue, StreamResult } from './types';
 
 import { contentInstructions, resolveValue } from './content-stream';
+import { MAX_TEXT_SOURCES } from './limits';
 import { effectiveResources, property } from './navigation';
 const hexStringBytes = (text: string, start: number): EncodedByte[] => {
   const digits = [...text.matchAll(/[\da-f]/gi)].map((match) => ({
@@ -328,7 +329,6 @@ const pageFonts = async (
   }
   return fonts;
 };
-const MAX_TEXT_SOURCES = 100;
 interface StreamSearch {
   encrypted: boolean;
   fonts: Map<string, Decoder | undefined>;
@@ -362,29 +362,34 @@ const streamSources = async (id: string, search: StreamSearch, limit: number): P
     return [{ bytes: new Uint8Array(), id, incomplete: true, ranges: [] }];
   }
 };
-export const pageTextSources = async (
+/** A page's text sources, at most MAX_TEXT_SOURCES of them. */
+export interface PageTextSourceList {
+  sources: TextSource[];
+  /** True when the page reached the limit, so later matches or content streams were not read. */
+  limited: boolean;
+}
+export const pageTextSourceList = async (
   page: PdfObjectRecord,
   objects: Map<string, PdfObjectRecord>,
   term: string,
   readStream: ReadDecoded,
   encrypted: boolean,
   cancelled: () => boolean
-): Promise<TextSource[]> => {
+): Promise<PageTextSourceList> => {
   const fonts = await pageFonts(page, objects, readStream, cancelled);
-  if (!fonts) return [];
+  if (!fonts) return { limited: false, sources: [] };
   const search: StreamSearch = { encrypted, fonts, objects, readStream, term };
   const sources: TextSource[] = [];
   const contentIds = pageContentIds(page, objects);
-  for (const id of contentIds.slice(0, MAX_TEXT_SOURCES)) {
-    if (cancelled()) return [];
-    sources.push(...(await streamSources(id, search, MAX_TEXT_SOURCES - sources.length)));
-    if (sources.length >= MAX_TEXT_SOURCES) {
-      sources[sources.length - 1].incomplete = true;
-      break;
-    }
+  let read = 0;
+  for (const id of contentIds) {
+    if (cancelled()) return { limited: false, sources: [] };
+    if (sources.length >= MAX_TEXT_SOURCES) break;
+    // One more than fits shows whether this stream had matches past the limit.
+    sources.push(...(await streamSources(id, search, MAX_TEXT_SOURCES + 1 - sources.length)));
+    read++;
   }
-  if (contentIds.length > MAX_TEXT_SOURCES && sources.length) sources[sources.length - 1].incomplete = true;
-  return sources;
+  return { limited: sources.length > MAX_TEXT_SOURCES || read < contentIds.length, sources: sources.slice(0, MAX_TEXT_SOURCES) };
 };
 export interface TextSource {
   id: string;
@@ -400,6 +405,8 @@ export interface PageTextLocation {
   count: number;
   snippet: string;
   sources: TextSource[];
+  /** True when the source list stopped at MAX_TEXT_SOURCES. */
+  sourcesLimited: boolean;
   matches: SearchMatch[];
 }
 type EncodedByte = {

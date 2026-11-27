@@ -53,4 +53,4 @@ The mapper supports:
 - fixed-width `/ToUnicode` CMaps with `bfchar` and `bfrange` mappings, including multibyte codes and ligatures;
 - literal and hexadecimal strings, escapes, and strings split across `TJ` arrays, with large negative `TJ` adjustments treated as possible word spaces.
 
-Unfiltered, unencrypted streams highlight the exact bytes in the original file. Compressed or encrypted streams highlight decoded bytes and only the containing stream in the original file; no original offsets are invented. Search stops at 500 matches, and mapping at 100 source locations per page. There is no OCR.
+Unfiltered, unencrypted streams highlight the exact bytes in the original file. Compressed or encrypted streams highlight decoded bytes and only the containing stream in the original file; no original offsets are invented. Search stops at 500 matches, and mapping at 100 source locations per page. A page that reaches that limit says its source list is incomplete; matches and streams after the limit are not listed. There is no OCR.
