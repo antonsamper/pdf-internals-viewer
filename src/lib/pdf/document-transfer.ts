@@ -13,12 +13,13 @@ const documentItems = function* documentItems(document: PdfDocumentInfo): Genera
   const objectMap = new Map(objects.map((object) => [object.id, object]));
   const downloads = embeddedDownloads(objectMap);
   const resources = resourceCatalog(objectMap, downloads);
-  // A locked document lists no actions. Unlocking opens it again, which builds them.
-  const { actions, notes, total } = document.locked ? NO_ACTIONS : documentActions(document, objectMap);
   yield { document: header, type: 'document' };
   for (const object of objects) yield { object, type: 'object' };
   for (const entry of downloads) yield { entry, type: 'download' };
   for (const { object, ...entry } of resources) yield { entry: { ...entry, objectId: object.id }, type: 'resource' };
+  // Built last, so on a large document the walk runs under a later batch request's timeout, not the parse's.
+  // A locked document lists no actions. Unlocking opens it again, which builds them.
+  const { actions, notes, total } = document.locked ? NO_ACTIONS : documentActions(document, objectMap);
   for (const action of actions) yield { action, type: 'action' };
   yield { notes, total, type: 'action-summary' };
 };
