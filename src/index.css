@@ -198,7 +198,7 @@
   html {
     @apply font-sans;
     /* Static public pages scroll the document under a sticky header; keep anchors and focus below it. */
-    scroll-padding-top: var(--header-height);
+    scroll-padding-top: calc(var(--header-height) + 16px);
   }
   body {
     @apply bg-background text-foreground;

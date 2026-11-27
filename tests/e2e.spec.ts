@@ -2519,8 +2519,8 @@ test('keeps the site header in view while scrolling public pages, direct or foll
   };
   for (const width of [1440, 390]) {
     await page.setViewportSize({ height: 844, width });
-    // Static articles have no app JavaScript, so the header has to stay in place without the app shell.
-    for (const route of ['/who-its-for', '/guide', '/examples/large-pdf', '/about']) {
+    // Static articles scroll the document under a sticky header; About scrolls inside the app shell.
+    for (const route of ['/who-its-for', '/examples/large-pdf', '/about']) {
       await page.goto(route);
       await checkScrolled(width);
     }
@@ -2529,6 +2529,14 @@ test('keeps the site header in view while scrolling public pages, direct or foll
     await expect(page).toHaveURL(/\/guide$/);
     await checkScrolled(width);
   }
+});
+test('lands anchors on static pages below the sticky header', async ({ page }) => {
+  await page.goto('/guide#keyboard-shortcuts');
+  const heading = page.getByRole('heading', { name: 'Keyboard shortcuts' });
+  await expect(heading).toBeInViewport();
+  const banner = (await page.getByRole('banner').boundingBox())!;
+  expect(banner.y).toBe(0);
+  expect((await heading.boundingBox())!.y).toBeGreaterThanOrEqual(banner.height);
 });
 for (const compressed of [false, true]) {
   test(`page text search maps split words to ${compressed ? 'decoded' : 'original'} bytes`, async ({ page }) => {
