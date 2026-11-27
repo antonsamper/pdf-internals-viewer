@@ -11,22 +11,20 @@ jobs:
     name: Title and ticket link
     if: github.event.pull_request.user.type != 'Bot'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Check title and description
         env:
           TITLE: ${{ github.event.pull_request.title }}
           BODY: ${{ github.event.pull_request.body }}
         run: |
-          pattern='^\[PIV-([0-9]+)\] (feat|fix|chore|docs|ci|test|perf|refactor)\((inspector|site|search|infra|brand|repo)\): [a-z0-9]([^A-Z]*[^A-Z.])?$'
-          if [[ ! "$TITLE" =~ $pattern ]]; then
-            echo "::error::Title must match '[PIV-<issue>] type(scope): summary', with an area scope and an all-lowercase summary. See AGENTS.md."
-            exit 1
-          fi
+          node scripts/check-title.mjs "$TITLE"
+          [[ "$TITLE" =~ ^\[PIV-([0-9]+)\] ]]
           issue="${BASH_REMATCH[1]}"
-          if (( ${#TITLE} > 72 )); then
-            echo "::error::Title is ${#TITLE} characters. The limit is 72."
-            exit 1
-          fi
           if ! grep -qiE "(close[sd]?|fix(e[sd])?|resolve[sd]?) #${issue}([^0-9]|$)" <<< "$BODY"; then
             echo "::error::The description must contain 'Closes #${issue}' to match the title."
             exit 1
