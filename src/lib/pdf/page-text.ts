@@ -135,14 +135,14 @@ const mapDecoder = (map: CodeMap): Decoder => {
   return (bytes) => {
     let text = '';
     const ranges: ByteRange[] = [];
-    if (bytes.length % width) return { ranges: [bytes[0]], text: '�' };
+    if (bytes.length % width) return { ranges: [bytes[0]], text: '\ufffd' };
     for (let i = 0; i < bytes.length; i += width) {
       const key = bytes
         .slice(i, i + width)
         .map((byte) => byte.value.toString(16).padStart(2, '0'))
         .join('')
         .toUpperCase();
-      const value = map.get(key) ?? '�';
+      const value = map.get(key) ?? '\ufffd';
       const range = { end: bytes[i + width - 1].end, start: bytes[i].start };
       text += value;
       for (let j = 0; j < value.length; j++) ranges.push(range);
@@ -170,7 +170,7 @@ const latinCharacter = (value: number, standardEncoding: boolean) => {
   // StandardEncoding's quote glyphs differ even within the ASCII code range.
   if (standardEncoding && value === 39) return '’';
   if (standardEncoding && value === 96) return '‘';
-  return value >= 32 && value <= 126 ? String.fromCharCode(value) : '�';
+  return value >= 32 && value <= 126 ? String.fromCharCode(value) : '\ufffd';
 };
 /** Simple Type1 and TrueType fonts with a standard encoding, or a base font with none. */
 const simpleFontDecoder = (font: PdfValue): Decoder | undefined => {

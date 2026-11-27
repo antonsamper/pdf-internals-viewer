@@ -32,7 +32,7 @@ export interface SearchRequest {
 /** Results plus an explanatory note; null when the search stopped being current. */
 export type SearchOutcome = { found: SearchResult[]; message: string } | null;
 
-const MAX_RESULTS = 500;
+export const MAX_RESULTS = 500;
 
 const pageTextResult = (hit: PageTextHit, pageId: string, pageNumber: number, sources: TextSource[]): SearchResult => ({
   detail: `${hit.count} text match${hit.count === 1 ? '' : 'es'}`,
@@ -138,8 +138,9 @@ const byteNeedle = (scope: string, term: string) => {
     ? Uint8Array.from(compact.match(/../g) ?? [], (pair) => parseInt(pair, 16))
     : Uint8Array.from(term, (character) => character.charCodeAt(0));
 };
+/** Compares the rest of the needle once its first byte has matched. */
 const matchesAt = (bytes: Uint8Array, needle: Uint8Array, offset: number) => {
-  for (let index = 0; index < needle.length; index++) if (bytes[offset + index] !== needle[index]) return false;
+  for (let index = 1; index < needle.length; index++) if (bytes[offset + index] !== needle[index]) return false;
   return true;
 };
 const byteResult = (bytes: Uint8Array, offset: number, length: number, hex: boolean): SearchResult => ({
