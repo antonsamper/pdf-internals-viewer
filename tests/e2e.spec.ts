@@ -2498,6 +2498,38 @@ test('public headers match the workspace height and align the mobile identity ro
     }
   }
 });
+test('keeps the site header in view while scrolling public pages, direct or followed', async ({ page }) => {
+  const checkScrolled = async (width: number) => {
+    const header = page.getByRole('banner');
+    const title = page.getByRole('heading', { level: 1 });
+    await expect(title).toBeInViewport();
+    await page.mouse.move(width / 2, 600);
+    // Scroll past the title but not to the end, where the sidebar leaves with its column.
+    await page.mouse.wheel(0, 800);
+    await expect(title).not.toBeInViewport();
+    await expect(header.getByRole('navigation', { name: 'Main navigation' })).toBeInViewport();
+    const banner = (await header.boundingBox())!;
+    expect(banner.y).toBe(0);
+    // The section sidebar sticks below the header instead of sliding under it.
+    if (width > 900) {
+      const sidebar = page.getByRole('navigation', { name: 'Content navigation' });
+      await expect(sidebar).toBeInViewport();
+      expect((await sidebar.boundingBox())!.y).toBeGreaterThanOrEqual(banner.height);
+    }
+  };
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ height: 844, width });
+    // Static articles have no app JavaScript, so the header has to stay in place without the app shell.
+    for (const route of ['/who-its-for', '/guide', '/examples/large-pdf', '/about']) {
+      await page.goto(route);
+      await checkScrolled(width);
+    }
+    // Pages reached from About render inside the app shell.
+    await page.getByRole('navigation', { name: 'Project' }).getByRole('link', { exact: true, name: 'Guide' }).click();
+    await expect(page).toHaveURL(/\/guide$/);
+    await checkScrolled(width);
+  }
+});
 for (const compressed of [false, true]) {
   test(`page text search maps split words to ${compressed ? 'decoded' : 'original'} bytes`, async ({ page }) => {
     const fixture = pageTextSearchPdf(compressed);

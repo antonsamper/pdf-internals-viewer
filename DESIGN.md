@@ -4,7 +4,7 @@ Components are styled with Tailwind utilities, shadcn variants on Base UI and th
 
 ## Where styles live
 
-- `src/index.css` holds the tokens (colours, radii, the type scale, the popover and menu shadows, the `font-mono` family, the `reference`, `pdf-string`, `byte-selection`, `preview-highlight` and `brand-*` colour utilities, dark-mode mappings) and a `base` layer with the page reset: full-height `html`, `body` and `#root`, the `text-body` size on `body`, selection colours, thin scrollbars, pointer cursors on buttons, `text-small` monospace on `code` and `pre`, the focus outline on `button`, `a` and `select`, and the reduced-motion rule.
+- `src/index.css` holds the tokens (colours, radii, the type scale, the popover and menu shadows, the `font-mono` family, the `reference`, `pdf-string`, `byte-selection`, `preview-highlight` and `brand-*` colour utilities, dark-mode mappings, the `--header-height` shared by the header and what has to clear it) and a `base` layer with the page reset: full-height `html`, `body` and `#root`, a `scroll-padding-top` of the header height on `html`, the `text-body` size on `body`, selection colours, thin scrollbars, pointer cursors on buttons, `text-small` monospace on `code` and `pre`, the focus outline on `button`, `a` and `select`, and the reduced-motion rule.
 - `src/styles/breakpoints.css` defines the breakpoint tokens. See Layout.
 - `src/styles/surfaces.css` defines the `surface-dark` utility, which gives an element the plum header colours in both themes by redefining the colour tokens, so everything inside follows it.
 - `src/styles/shadcn.css` is the vendored shadcn stylesheet. Don't edit it.
@@ -77,6 +77,7 @@ The welcome screen and About page show `public/brand/pdf-internals-logo.png` in 
 - Named variants come after every built-in variant in the CSS, so a `narrow:` class beats a class on the same property whose variants add no selector specificity: smaller breakpoints, `md:`, `pointer-coarse:` and shadcn's `data-open:`-style variants. `narrow:gap-3` beats `max-w600:gap-2`, for example. `hover:`, `dark:`, `aria-*:` and `data-[…]:` still win through specificity. When a smaller breakpoint has to win, bound the range (`min-w600:narrow:max-w-[25vw]`) or stack it under the named variant that sets the property (`narrow:max-w480:block`, or `w360-w900:max-w480:` against a `w360-w900:` class).
 - Search fits on one row on mobile, dropping to two rows at 360px and below. Touch targets are at least 44px.
 - Public pages use a white reading layout with a section sidebar that becomes an expandable menu on narrow screens. Their footer shows only when no document is open.
+- The header stays at the top on every public page. About and the pages reached from it scroll inside the app shell. Static pages opened directly have no app JavaScript and scroll the document instead, so their header is sticky, the sidebar sticks below it, and the `html` scroll padding keeps anchors and focused links from landing under it.
 
 ## Components
 
