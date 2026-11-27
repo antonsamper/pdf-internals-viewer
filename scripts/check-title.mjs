@@ -8,7 +8,7 @@ export const MAX_LENGTH = 72;
 
 const pattern = new RegExp(`^\\[PIV-[0-9]+\\] (${TYPES.join('|')})\\((${AREAS.join('|')})\\): [a-z0-9]([^A-Z]*[^A-Z.])?$`);
 // Git writes these subjects itself. Squash merges replace them with the PR title, so they never reach main.
-const gitSubject = /^(Merge (branch|remote-tracking branch|commit|tag|pull request) |Revert "|Reapply "|(fixup|squash|amend)! )/;
+const gitSubject = /^(Merge (branch(es)?|remote-tracking branch(es)?|commit|tag|pull request) |Revert "|Reapply "|(fixup|squash|amend)! )/;
 
 export const titleProblem = function titleProblem(title) {
   if (!pattern.test(title)) {
@@ -23,9 +23,13 @@ export const titleProblem = function titleProblem(title) {
 
 /** Git's subject is the whole first paragraph, joined into one line. */
 export const commitSubjectProblem = function commitSubjectProblem(message) {
-  const lines = message.split('\n').filter((line) => {
-    return !line.startsWith('#');
-  });
+  // `git commit -v` appends the diff below a scissors line.
+  const lines = message
+    .split(/^# -+ >8 -+$/m)[0]
+    .split('\n')
+    .filter((line) => {
+      return !line.startsWith('#');
+    });
   const start = lines.findIndex((line) => {
     return line.trim() !== '';
   });

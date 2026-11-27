@@ -53,11 +53,15 @@ describe('commitSubjectProblem', () => {
 
   it('rejects an empty message', () => {
     expect(commitSubjectProblem('# Only comments\n')).toMatch(/must match/);
+    expect(commitSubjectProblem('\n# ------------------------ >8 ------------------------\ndiff --git a/x b/x\n')).toMatch(
+      /^"" must match/
+    );
   });
 
   it.each([
     "Merge branch 'main' into PIV-1",
     "Merge remote-tracking branch 'origin/main' into PIV-1",
+    "Merge branches 'PIV-1' and 'PIV-2'",
     'Revert "[PIV-1] fix(search): keep the note"',
     'Reapply "[PIV-1] fix(search): keep the note"',
     'fixup! [PIV-1] fix(search): keep the note',
