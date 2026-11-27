@@ -44,6 +44,14 @@ export type DocumentTransferItem =
 export const TRANSFER_BATCH_CHARACTERS = 128 * 1024;
 const TRANSFER_BATCH_ITEMS = 128;
 const MAX_SHARED_SCALARS = 100000;
+const sameScalar = function sameScalar(existing: PdfValue, value: PdfValue): boolean {
+  return (
+    existing.type === value.type &&
+    (value.type === 'null' ||
+      ('ref' in value && 'ref' in existing && value.ref === existing.ref) ||
+      ('value' in value && 'value' in existing && Object.is(value.value, existing.value)))
+  );
+};
 /** Pull protocol: only one bounded batch is in flight. Each acknowledgement
  * creates a new browser task, giving rendering and cancellation a chance to run.
  * Keep structured cloning so numbers and optional fields retain their exact values.
@@ -90,20 +98,18 @@ export class DocumentReceiver {
     } else if (value.type === 'dictionary' || value.type === 'stream') {
       for (const entry of value.entries) entry.value = this.share(entry.value);
     } else {
-      // Preserve any future/extended fields rather than silently merging them.
-      if (Object.keys(value).length !== (value.type === 'null' ? 2 : 3)) return value;
-      const existing = this.values.get(value.text);
-      if (
-        existing?.type === value.type &&
-        (value.type === 'null' ||
-          ('ref' in value && 'ref' in existing && value.ref === existing.ref) ||
-          ('value' in value && 'value' in existing && Object.is(value.value, existing.value)))
-      )
-        return existing;
-      // The displayed text is the lookup key, but never the equality test: long
-      // strings may have the same truncated display and different full values.
-      if (!existing && this.values.size < MAX_SHARED_SCALARS) this.values.set(value.text, Object.freeze(value));
+      return this.shareScalar(value);
     }
+    return value;
+  }
+  private shareScalar(value: PdfValue): PdfValue {
+    // Preserve any future/extended fields rather than silently merging them.
+    if (Object.keys(value).length !== (value.type === 'null' ? 2 : 3)) return value;
+    const existing = this.values.get(value.text);
+    if (existing && sameScalar(existing, value)) return existing;
+    // The displayed text is the lookup key, but never the equality test: long
+    // strings may have the same truncated display and different full values.
+    if (!existing && this.values.size < MAX_SHARED_SCALARS) this.values.set(value.text, Object.freeze(value));
     return value;
   }
   private header: Omit<PdfDocumentInfo, 'objects' | 'indexes'> | undefined;

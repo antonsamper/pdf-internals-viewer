@@ -125,11 +125,27 @@ const NavigationGroups = function NavigationGroups({
     </nav>
   );
 };
-/** Section navigation: a sticky sidebar from 900px up, a disclosure above the article below that. */
-export const ContentNavigation = function ContentNavigation({ path, onFollowLink }: { path: SitePath; onFollowLink?: FollowLink }) {
+/**
+ * Section navigation: a sticky sidebar from 900px up, a disclosure above the article below that.
+ * `standalone` keeps the sidebar below the sticky header of a page that scrolls with the document.
+ */
+export const ContentNavigation = function ContentNavigation({
+  path,
+  onFollowLink,
+  standalone = false,
+}: {
+  path: SitePath;
+  onFollowLink?: FollowLink;
+  standalone?: boolean;
+}) {
   return (
     <>
-      <aside className="sticky top-0 max-h-[calc(100dvh-160px)] overflow-y-auto pr-3 pb-4 narrow:hidden">
+      <aside
+        className={cn(
+          'sticky max-h-[calc(100dvh-160px)] overflow-y-auto pr-3 pb-4 narrow:hidden',
+          standalone ? 'top-(--header-height)' : 'top-0'
+        )}
+      >
         <NavigationGroups path={path} onFollowLink={onFollowLink} />
       </aside>
       <details className="mb-7 hidden rounded-sm border border-border narrow:block">

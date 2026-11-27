@@ -1,17 +1,9 @@
 import type { PdfObjectRecord, PdfValue } from './types';
 
+import { resolveValue } from './content-stream';
 import { property } from './navigation';
 /** Summarize effective clockwise page rotations, including inherited /Rotate. */
 export const pageRotationSummary = (pages: string[], objects: Map<string, PdfObjectRecord>): string => {
-  const resolve = (value: PdfValue | undefined): PdfValue | undefined => {
-    const seen = new Set<string>();
-    while (value?.type === 'reference') {
-      if (seen.has(value.ref)) return undefined;
-      seen.add(value.ref);
-      value = objects.get(value.ref)?.value;
-    }
-    return value;
-  };
   const rotation = (id: string): number | null => {
     const chain = new Set<string>();
     let result: number | null = null;
@@ -21,22 +13,12 @@ export const pageRotationSummary = (pages: string[], objects: Map<string, PdfObj
         break;
       }
       chain.add(id);
-      const object = objects.get(id);
-      if (!object || object.value.type !== 'dictionary') break;
-      const stored = property(object.value, 'Rotate');
-      const value = resolve(stored);
-      if (stored && value?.type !== 'null') {
-        if (value?.type === 'number' && Number.isSafeInteger(value.value) && value.value % 90 === 0)
-          result = ((value.value % 360) + 360) % 360;
+      const step = rotationStep(objects.get(id), objects);
+      if ('angle' in step) {
+        result = step.angle;
         break;
       }
-      const parent = property(object.value, 'Parent');
-      if (!parent || parent.type === 'null') {
-        result = 0;
-        break;
-      }
-      if (parent.type !== 'reference') break;
-      id = parent.ref;
+      id = step.parent;
     }
     for (const ancestor of chain) cache.set(ancestor, result);
     return result;
@@ -51,3 +33,18 @@ export const pageRotationSummary = (pages: string[], objects: Map<string, PdfObj
   if (rotations.has(null)) angles.push('Unknown');
   return angles.length === 1 ? angles[0] : `Mixed (${angles.join(', ')})`;
 };
+/** One node's answer: its angle (null when unknown), or the parent it inherits from. */
+const rotationStep = (
+  object: PdfObjectRecord | undefined,
+  objects: Map<string, PdfObjectRecord>
+): { angle: number | null } | { parent: string } => {
+  if (!object || object.value.type !== 'dictionary') return { angle: null };
+  const stored = property(object.value, 'Rotate');
+  const value = resolveValue(stored, objects);
+  if (stored && value?.type !== 'null') return { angle: rotationAngle(value) };
+  const parent = property(object.value, 'Parent');
+  if (!parent || parent.type === 'null') return { angle: 0 };
+  return parent.type === 'reference' ? { parent: parent.ref } : { angle: null };
+};
+const rotationAngle = (value: PdfValue | undefined): number | null =>
+  value?.type === 'number' && Number.isSafeInteger(value.value) && value.value % 90 === 0 ? ((value.value % 360) + 360) % 360 : null;

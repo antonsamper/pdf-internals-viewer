@@ -29,7 +29,7 @@ export const BackToWorkspace = function BackToWorkspace({ onClick }: { onClick?:
 /**
  * The scrolling page for About and the public articles: section navigation beside one reading column.
  * `about` keeps the About page's links in the foreground colour and its roomier bottom padding.
- * `standalone` lets a static page scroll with the document instead of inside the shell.
+ * `standalone` lets a static page scroll with the document, under a sticky header, instead of inside the shell.
  */
 export const ReadingPage = function ReadingPage({
   about = false,
@@ -66,7 +66,7 @@ export const ReadingPage = function ReadingPage({
         role="presentation"
         className={cn('mx-auto grid max-w-247 grid-cols-[220px_minmax(0,720px)] items-start gap-12', 'narrow:block narrow:max-w-180')}
       >
-        <ContentNavigation path={path} onFollowLink={onFollowLink} />
+        <ContentNavigation path={path} onFollowLink={onFollowLink} standalone={standalone} />
         <article className="mx-auto w-full max-w-180 min-w-0">
           <Prose className={cn(about && '[&_a:not([class])]:text-foreground [&_a:not([class])]:hover:underline-offset-4')}>
             {children}
