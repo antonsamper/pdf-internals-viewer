@@ -671,7 +671,7 @@ export const PublicPage = function PublicPage({
 export const StaticPublicPage = function StaticPublicPage({ page }: { page: SitePage }) {
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
-      <SiteHeader content href="/">
+      <SiteHeader content href="/" sticky>
         <ContentHeaderLinks path={page.path} />
       </SiteHeader>
       <PublicPage page={page} standalone />
