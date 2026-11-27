@@ -1,6 +1,6 @@
-import type { MouseEvent } from 'react';
+import type { ComponentType, MouseEvent } from 'react';
 
-import type { SitePage } from '@/lib/site-content';
+import type { SitePage, SitePath } from '@/lib/site-content';
 
 import { ContentHeaderLinks } from '@/components/content-navigation';
 import { ArticleActions, ArticleSource, ComparisonTable, Lead } from '@/components/prose';
@@ -8,7 +8,7 @@ import { BackToWorkspace, ReadingPage } from '@/components/reading-page';
 import { SiteHeader } from '@/components/site-header';
 import { SiteLinks } from '@/components/site-links';
 import { MAX_INPUT_BYTES, MAX_DISPLAY_BYTES, MAX_OBJECTS, MAX_DECODED_BYTES, OPERATION_TIMEOUT_MS } from '@/lib/pdf/limits';
-import { PRIVACY_SUMMARY, PROJECT_URL } from '@/lib/site-content';
+import { PRIVACY_SUMMARY, PROJECT_URL, articleSection, isArticlePath } from '@/lib/site-content';
 import { navigationLabel } from '@/lib/site-navigation';
 import { cn } from '@/lib/utils';
 
@@ -598,6 +598,55 @@ const Limitations = function Limitations() {
     </>
   );
 };
+/** Home and About have their own components; every other public path needs an entry here. */
+type ArticlePath = Exclude<SitePath, '/' | '/about'>;
+const PAGE_CONTENT: Record<ArticlePath, ComponentType> = {
+  '/examples': Examples,
+  '/examples/broken-xref': BrokenXrefExample,
+  '/examples/embedded-font': FontExample,
+  '/examples/find-text-source': FindTextSourceExample,
+  '/examples/hidden-attachment': AttachmentExample,
+  '/examples/incorrect-text': IncorrectTextExample,
+  '/examples/inherited-resources': InheritanceExample,
+  '/examples/large-pdf': LargePdfExample,
+  '/examples/opening-action': ActionExample,
+  '/examples/page-rotation': RotationExample,
+  '/examples/repeated-logo': LogoExample,
+  '/guide': Guide,
+  '/guides/decode-pdf-streams': StreamsGuide,
+  '/guides/find-pdf-attachments': AttachmentsGuide,
+  '/guides/find-pdf-fonts-images': ResourcesGuide,
+  '/guides/inspect-pdf-objects': ObjectsGuide,
+  '/guides/investigate-suspicious-features': SuspiciousFeaturesGuide,
+  '/guides/search-bookmark-compare': SearchGuide,
+  '/limitations': Limitations,
+  '/pdf-inspector-vs-viewer': InspectorVsViewerPage,
+  '/privacy': Privacy,
+  '/who-its-for': AudiencePage,
+};
+const Breadcrumb = function Breadcrumb({ path }: { path: SitePath }) {
+  const parent = articleSection(path);
+  return (
+    <nav className="mb-6 text-small leading-[1.8] [overflow-wrap:anywhere] text-muted-foreground" aria-label="Breadcrumb">
+      <a href="/">PDF Internals</a>
+      <span aria-hidden="true"> / </span>
+      {parent && (
+        <>
+          <a href={parent.href}>{parent.label}</a>
+          <span aria-hidden="true"> / </span>
+        </>
+      )}
+      <span aria-current="page">{navigationLabel(path)}</span>
+    </nav>
+  );
+};
+const Byline = function Byline() {
+  return (
+    <p className="mb-8 text-small leading-[1.85] text-muted-foreground">
+      By <a href="https://github.com/antonsamper">Anton Samper</a> · Reviewed <time dateTime="2026-11-15">15 November 2026</time>
+    </p>
+  );
+};
 export const PublicPage = function PublicPage({
   page,
   onFollowLink,
@@ -607,77 +656,14 @@ export const PublicPage = function PublicPage({
   onFollowLink?: (event: MouseEvent<HTMLElement>) => boolean;
   standalone?: boolean;
 }) {
+  const Content = PAGE_CONTENT[page.path as ArticlePath] ?? ResourcesGuide;
   return (
     <ReadingPage labelledBy="public-title" onClick={onFollowLink} path={page.path} standalone={standalone}>
       <BackToWorkspace />
-      <nav className="mb-6 text-small leading-[1.8] [overflow-wrap:anywhere] text-muted-foreground" aria-label="Breadcrumb">
-        <a href="/">PDF Internals</a>
-        <span aria-hidden="true"> / </span>
-        {page.path.startsWith('/guides/') && (
-          <>
-            <a href="/guide">Guide</a>
-            <span aria-hidden="true"> / </span>
-          </>
-        )}
-        {page.path.startsWith('/examples/') && (
-          <>
-            <a href="/examples">Examples</a>
-            <span aria-hidden="true"> / </span>
-          </>
-        )}
-        <span aria-current="page">{navigationLabel(page.path)}</span>
-      </nav>
+      <Breadcrumb path={page.path} />
       <h1 id="public-title">{page.heading}</h1>
-      {(page.path.startsWith('/guides/') || page.path.startsWith('/examples/')) && (
-        <p className="mb-8 text-small leading-[1.85] text-muted-foreground">
-          By <a href="https://github.com/antonsamper">Anton Samper</a> · Reviewed <time dateTime="2026-11-15">15 November 2026</time>
-        </p>
-      )}
-      {page.path === '/who-its-for' ? (
-        <AudiencePage />
-      ) : page.path === '/pdf-inspector-vs-viewer' ? (
-        <InspectorVsViewerPage />
-      ) : page.path === '/examples' ? (
-        <Examples />
-      ) : page.path === '/examples/large-pdf' ? (
-        <LargePdfExample />
-      ) : page.path === '/examples/incorrect-text' ? (
-        <IncorrectTextExample />
-      ) : page.path === '/examples/find-text-source' ? (
-        <FindTextSourceExample />
-      ) : page.path === '/examples/broken-xref' ? (
-        <BrokenXrefExample />
-      ) : page.path === '/examples/embedded-font' ? (
-        <FontExample />
-      ) : page.path === '/examples/hidden-attachment' ? (
-        <AttachmentExample />
-      ) : page.path === '/examples/repeated-logo' ? (
-        <LogoExample />
-      ) : page.path === '/examples/page-rotation' ? (
-        <RotationExample />
-      ) : page.path === '/examples/inherited-resources' ? (
-        <InheritanceExample />
-      ) : page.path === '/examples/opening-action' ? (
-        <ActionExample />
-      ) : page.path === '/guide' ? (
-        <Guide />
-      ) : page.path === '/privacy' ? (
-        <Privacy />
-      ) : page.path === '/limitations' ? (
-        <Limitations />
-      ) : page.path === '/guides/inspect-pdf-objects' ? (
-        <ObjectsGuide />
-      ) : page.path === '/guides/decode-pdf-streams' ? (
-        <StreamsGuide />
-      ) : page.path === '/guides/find-pdf-attachments' ? (
-        <AttachmentsGuide />
-      ) : page.path === '/guides/search-bookmark-compare' ? (
-        <SearchGuide />
-      ) : page.path === '/guides/investigate-suspicious-features' ? (
-        <SuspiciousFeaturesGuide />
-      ) : (
-        <ResourcesGuide />
-      )}
+      {isArticlePath(page.path) && <Byline />}
+      <Content />
     </ReadingPage>
   );
 };
@@ -685,7 +671,7 @@ export const PublicPage = function PublicPage({
 export const StaticPublicPage = function StaticPublicPage({ page }: { page: SitePage }) {
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
-      <SiteHeader content href="/">
+      <SiteHeader content href="/" sticky>
         <ContentHeaderLinks path={page.path} />
       </SiteHeader>
       <PublicPage page={page} standalone />

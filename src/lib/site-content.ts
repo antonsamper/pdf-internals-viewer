@@ -2,6 +2,49 @@ export const sitePage = function sitePage(pathname: string): SitePage | undefine
   const path = pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
   return SITE_PAGES.find((page) => page.path === path);
 };
+/** The index an article sits under: guides under the guide, examples under the examples. Other pages have none. */
+export const articleSection = function articleSection(path: string) {
+  if (path.startsWith('/guides/')) return { href: '/guide', label: 'Guide' };
+  if (path.startsWith('/examples/')) return { href: '/examples', label: 'Examples' };
+  return null;
+};
+/** Guides and examples are dated, authored articles; the other pages are plain web pages. */
+export const isArticlePath = function isArticlePath(path: string) {
+  return articleSection(path) !== null;
+};
+const articleDetails = function articleDetails(page: SitePage) {
+  if (!isArticlePath(page.path)) return {};
+  return {
+    author: { '@id': `${SITE_URL}/#author` },
+    dateModified: page.path.startsWith('/examples/') ? '2026-11-15' : '2026-11-14',
+  };
+};
+/** The breadcrumb trail for every page except the home page, with the guide or examples index between home and an article. */
+const breadcrumbs = function breadcrumbs(page: SitePage, url: string) {
+  if (page.path === '/') return [];
+  const section = articleSection(page.path);
+  return [
+    {
+      '@id': `${url}#breadcrumbs`,
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          item: `${SITE_URL}/`,
+          name: 'PDF Internals',
+          position: 1,
+        },
+        ...(section ? [{ '@type': 'ListItem', item: `${SITE_URL}${section.href}`, name: section.label, position: 2 }] : []),
+        {
+          '@type': 'ListItem',
+          item: url,
+          name: page.heading,
+          position: section ? 3 : 2,
+        },
+      ],
+    },
+  ];
+};
 export const structuredData = function structuredData(page: SitePage) {
   const url = SITE_URL + page.path;
   const author = {
@@ -41,51 +84,15 @@ export const structuredData = function structuredData(page: SitePage) {
       },
       {
         '@id': `${url}#page`,
-        '@type': page.path.startsWith('/guides/') || page.path.startsWith('/examples/') ? 'TechArticle' : 'WebPage',
+        '@type': isArticlePath(page.path) ? 'TechArticle' : 'WebPage',
         about: { '@id': `${SITE_URL}/#application` },
         description: page.description,
         isPartOf: { '@id': `${SITE_URL}/#website` },
         name: page.title,
         url,
-        ...(page.path.startsWith('/guides/') || page.path.startsWith('/examples/')
-          ? {
-              author: { '@id': author['@id'] },
-              dateModified: page.path.startsWith('/examples/') ? '2026-11-15' : '2026-11-14',
-            }
-          : {}),
+        ...articleDetails(page),
       },
-      ...(page.path === '/'
-        ? []
-        : [
-            {
-              '@id': `${url}#breadcrumbs`,
-              '@type': 'BreadcrumbList',
-              itemListElement: [
-                {
-                  '@type': 'ListItem',
-                  item: `${SITE_URL}/`,
-                  name: 'PDF Internals',
-                  position: 1,
-                },
-                ...(page.path.startsWith('/guides/') || page.path.startsWith('/examples/')
-                  ? [
-                      {
-                        '@type': 'ListItem',
-                        item: `${SITE_URL}${page.path.startsWith('/examples/') ? '/examples' : '/guide'}`,
-                        name: page.path.startsWith('/examples/') ? 'Examples' : 'Guide',
-                        position: 2,
-                      },
-                    ]
-                  : []),
-                {
-                  '@type': 'ListItem',
-                  item: url,
-                  name: page.heading,
-                  position: page.path.startsWith('/guides/') || page.path.startsWith('/examples/') ? 3 : 2,
-                },
-              ],
-            },
-          ]),
+      ...breadcrumbs(page, url),
     ],
   };
 };
@@ -96,7 +103,7 @@ export const pageHead = function pageHead(page: SitePage) {
 <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png?v=8e7cb0ea" />
 <meta name="description" content="${escapeHtml(page.description)}" />
 <link rel="canonical" href="${url}" />
-<meta property="og:type" content="${page.path.startsWith('/guides/') || page.path.startsWith('/examples/') ? 'article' : 'website'}" />
+<meta property="og:type" content="${isArticlePath(page.path) ? 'article' : 'website'}" />
 <meta property="og:site_name" content="PDF Internals" />
 <meta property="og:title" content="${escapeHtml(page.title)}" />
 <meta property="og:description" content="${escapeHtml(page.description)}" />

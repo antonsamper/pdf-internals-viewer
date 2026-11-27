@@ -9,109 +9,149 @@ export const contentInstructions = function contentInstructions(
   instructions: ContentInstruction[];
   incomplete: boolean;
 } {
-  const skip = function skip() {
-    while (cursor < text.length) {
-      if (whitespace(text[cursor])) cursor++;
-      else if (text[cursor] === '%') {
-        while (cursor < text.length && !/[\r\n]/.test(text[cursor])) cursor++;
-      } else break;
-    }
-  };
-  const value = function value(): ContentToken {
-    const start = cursor;
-    const char = text[cursor++];
-    let kind: ContentToken['kind'] = 'value';
-    if (char === '(') {
-      let depth = 1;
-      while (cursor < text.length && depth) {
-        const next = text[cursor++];
-        if (next === '\\') {
-          if (text[cursor] === '\r' && text[cursor + 1] === '\n') cursor += 2;
-          else if (cursor < text.length) cursor++;
-        } else if (next === '(') depth++;
-        else if (next === ')') depth--;
-      }
-      if (depth) malformed = true;
-    } else if (char === '[' || (char === '<' && text[cursor] === '<')) {
-      const dict = char === '<';
-      if (dict) cursor++;
-      let closed = false;
-      // Iteration uses an explicit stack; hostile deeply nested values cannot overflow the call stack.
-      const closes = [dict ? '>>' : ']'];
-      while (cursor < text.length && closes.length) {
-        skip();
-        const close = closes[closes.length - 1];
-        if (text.startsWith(close, cursor)) {
-          cursor += close.length;
-          closes.pop();
-          closed = closes.length === 0;
-        } else if (text[cursor] === '[') {
-          closes.push(']');
-          cursor++;
-        } else if (text.startsWith('<<', cursor)) {
-          closes.push('>>');
-          cursor += 2;
-        } else if (cursor < text.length) value();
-      }
-      if (!closed) malformed = true;
-    } else if (char === '<') {
-      while (cursor < text.length && text[cursor] !== '>') cursor++;
-      if (cursor === text.length) malformed = true;
-      else cursor++;
-    } else if (char === '/') {
-      kind = 'name';
-      while (cursor < text.length && !delimiter(text[cursor])) cursor++;
-    } else {
-      while (cursor < text.length && !delimiter(text[cursor])) cursor++;
-      const raw = text.slice(start, cursor);
-      kind = /^[+-]?(?:\d+\.?\d*|\.\d+)$/.test(raw) ? 'number' : /^(true|false|null)$/.test(raw) ? 'value' : 'operator';
-    }
-    return { end: cursor, kind, start, text: text.slice(start, cursor) };
-  };
-  let cursor = 0;
-  let malformed = false;
+  const lexer = new ContentLexer(text);
   const instructions: ContentInstruction[] = [];
   let operands: ContentToken[] = [];
-  let tokenCount = 0;
-  while (cursor < text.length && instructions.length < limit && tokenCount < 5000) {
-    skip();
-    if (cursor >= text.length) break;
-    const token = value();
-    tokenCount++;
+  for (let tokenCount = 0; tokenCount < 5000 && instructions.length < limit; tokenCount++) {
+    const token = lexer.next();
+    if (!token) break;
     if (token.kind !== 'operator') {
       operands.push(token);
       continue;
     }
     if (token.text === 'BI') {
-      instructions.push({
-        end: text.length,
-        operator: 'BI',
-        start: operands[0]?.start ?? token.start,
-        tokens: [...operands, token],
-        warning:
-          'The instruction view stops at inline image data because it cannot interpret those bytes. Use Decoded byte text to inspect the remaining bytes.',
-      });
+      instructions.push(inlineImageInstruction(operands, token, text.length));
       return { incomplete: true, instructions };
     }
-    instructions.push({
-      end: token.end,
-      operator: token.text,
-      start: operands[0]?.start ?? token.start,
-      tokens: [...operands, token],
-    });
+    instructions.push(operatorInstruction(operands, token));
     operands = [];
   }
-  if (operands.length && instructions.length < limit)
-    instructions.push({
-      end: operands[operands.length - 1].end,
-      start: operands[0].start,
-      tokens: operands,
-      warning: 'Trailing operands have no complete operator.',
-    });
+  if (operands.length && instructions.length < limit) instructions.push(trailingOperandsInstruction(operands));
   return {
-    incomplete: malformed || cursor < text.length || operands.length > 0,
+    incomplete: lexer.incomplete() || operands.length > 0,
     instructions,
   };
+};
+const operatorInstruction = function operatorInstruction(operands: ContentToken[], token: ContentToken): ContentInstruction {
+  return {
+    end: token.end,
+    operator: token.text,
+    start: operands[0]?.start ?? token.start,
+    tokens: [...operands, token],
+  };
+};
+const inlineImageInstruction = function inlineImageInstruction(
+  operands: ContentToken[],
+  token: ContentToken,
+  end: number
+): ContentInstruction {
+  return {
+    ...operatorInstruction(operands, token),
+    end,
+    warning:
+      'The instruction view stops at inline image data because it cannot interpret those bytes. Use Decoded byte text to inspect the remaining bytes.',
+  };
+};
+const trailingOperandsInstruction = function trailingOperandsInstruction(operands: ContentToken[]): ContentInstruction {
+  return {
+    end: operands[operands.length - 1].end,
+    start: operands[0].start,
+    tokens: operands,
+    warning: 'Trailing operands have no complete operator.',
+  };
+};
+/** Reads one complete operand or operator at a time and records whether any value was left unterminated. */
+class ContentLexer {
+  private cursor = 0;
+  private malformed = false;
+  private readonly text: string;
+  constructor(text: string) {
+    this.text = text;
+  }
+  /** Skip whitespace and comments, then read the next token, if any. */
+  next(): ContentToken | undefined {
+    this.skip();
+    return this.cursor < this.text.length ? this.value() : undefined;
+  }
+  incomplete(): boolean {
+    return this.malformed || this.cursor < this.text.length;
+  }
+  private skip() {
+    while (this.cursor < this.text.length) {
+      if (whitespace(this.text[this.cursor])) this.cursor++;
+      else if (this.text[this.cursor] === '%') this.skipComment();
+      else break;
+    }
+  }
+  private skipComment() {
+    while (this.cursor < this.text.length && !/[\r\n]/.test(this.text[this.cursor])) this.cursor++;
+  }
+  private value(): ContentToken {
+    const start = this.cursor;
+    const kind = this.readValue(this.text[this.cursor++], start);
+    return { end: this.cursor, kind, start, text: this.text.slice(start, this.cursor) };
+  }
+  private readValue(char: string, start: number): ContentToken['kind'] {
+    if (char === '(') this.readString();
+    else if (char === '[') this.readContainer(']');
+    else if (char === '<' && this.text[this.cursor] === '<') {
+      this.cursor++;
+      this.readContainer('>>');
+    } else if (char === '<') this.readHexString();
+    else {
+      this.skipRegular();
+      return char === '/' ? 'name' : bareTokenKind(this.text.slice(start, this.cursor));
+    }
+    return 'value';
+  }
+  private readString() {
+    let depth = 1;
+    while (this.cursor < this.text.length && depth) {
+      const next = this.text[this.cursor++];
+      if (next === '\\') this.skipEscape();
+      else if (next === '(') depth++;
+      else if (next === ')') depth--;
+    }
+    if (depth) this.malformed = true;
+  }
+  private skipEscape() {
+    if (this.text[this.cursor] === '\r' && this.text[this.cursor + 1] === '\n') this.cursor += 2;
+    else if (this.cursor < this.text.length) this.cursor++;
+  }
+  private readContainer(close: string) {
+    // Iteration uses an explicit stack; hostile deeply nested values cannot overflow the call stack.
+    const closes = [close];
+    while (this.cursor < this.text.length && closes.length) {
+      this.skip();
+      this.readContainerPart(closes);
+    }
+    if (closes.length) this.malformed = true;
+  }
+  private readContainerPart(closes: string[]) {
+    const close = closes[closes.length - 1];
+    if (this.text.startsWith(close, this.cursor)) {
+      this.cursor += close.length;
+      closes.pop();
+    } else if (this.text[this.cursor] === '[') {
+      closes.push(']');
+      this.cursor++;
+    } else if (this.text.startsWith('<<', this.cursor)) {
+      closes.push('>>');
+      this.cursor += 2;
+    } else if (this.cursor < this.text.length) this.value();
+  }
+  private readHexString() {
+    while (this.cursor < this.text.length && this.text[this.cursor] !== '>') this.cursor++;
+    if (this.cursor === this.text.length) this.malformed = true;
+    else this.cursor++;
+  }
+  private skipRegular() {
+    while (this.cursor < this.text.length && !delimiter(this.text[this.cursor])) this.cursor++;
+  }
+}
+const bareTokenKind = function bareTokenKind(raw: string): ContentToken['kind'] {
+  if (/^[+-]?(?:\d+\.?\d*|\.\d+)$/.test(raw)) return 'number';
+  return /^(true|false|null)$/.test(raw) ? 'value' : 'operator';
 };
 export const resolveValue = function resolveValue(
   value: PdfValue | undefined,
@@ -134,13 +174,20 @@ const containsContent = function containsContent(
 ): boolean {
   // A Contents entry may itself be an indirect array. Bound recursion on malformed files.
   if (!value || seen.size > 64 || depth > 64) return false;
-  if (value.type === 'reference') {
-    if (value.ref === id) return true;
-    if (seen.has(value.ref)) return false;
-    seen.add(value.ref);
-    return containsContent(objects.get(value.ref)?.value, id, objects, seen, depth + 1);
-  }
+  if (value.type === 'reference') return referenceContainsContent(value.ref, id, objects, seen, depth);
   return value.type === 'array' && value.items.some((item) => containsContent(item, id, objects, new Set(seen), depth + 1));
+};
+const referenceContainsContent = function referenceContainsContent(
+  ref: string,
+  id: string,
+  objects: Map<string, PdfObjectRecord>,
+  seen: Set<string>,
+  depth: number
+): boolean {
+  if (ref === id) return true;
+  if (seen.has(ref)) return false;
+  seen.add(ref);
+  return containsContent(objects.get(ref)?.value, id, objects, seen, depth + 1);
 };
 export const resourceContexts = function resourceContexts(
   object: PdfObjectRecord,
@@ -200,14 +247,24 @@ export const resourceCategory = function resourceCategory(
   operandIndex: number,
   operandCount: number
 ): string | undefined {
-  if (operator === 'Tf' && operandIndex === 0) return 'Font';
-  if (operator === 'Do' && operandIndex === 0) return 'XObject';
-  if (operator === 'gs' && operandIndex === 0) return 'ExtGState';
-  if (operator === 'sh' && operandIndex === 0) return 'Shading';
-  if ((operator === 'cs' || operator === 'CS') && operandIndex === 0) return 'ColorSpace';
-  if ((operator === 'scn' || operator === 'SCN') && operandIndex === operandCount - 1) return 'Pattern';
-  if ((operator === 'BDC' || operator === 'DP') && operandIndex === 1) return 'Properties';
+  const resource = resourceOperands.get(operator ?? '');
+  if (!resource) return undefined;
+  const index = resource.operand === 'last' ? operandCount - 1 : resource.operand;
+  return operandIndex === index ? resource.category : undefined;
 };
+/** The operand that names a resource for each operator that uses one. Operators come from the document, so look them up in a Map. */
+const resourceOperands = new Map<string, { category: string; operand: number | 'last' }>([
+  ['Tf', { category: 'Font', operand: 0 }],
+  ['Do', { category: 'XObject', operand: 0 }],
+  ['gs', { category: 'ExtGState', operand: 0 }],
+  ['sh', { category: 'Shading', operand: 0 }],
+  ['cs', { category: 'ColorSpace', operand: 0 }],
+  ['CS', { category: 'ColorSpace', operand: 0 }],
+  ['scn', { category: 'Pattern', operand: 'last' }],
+  ['SCN', { category: 'Pattern', operand: 'last' }],
+  ['BDC', { category: 'Properties', operand: 1 }],
+  ['DP', { category: 'Properties', operand: 1 }],
+]);
 export const namedResource = function namedResource(
   context: ResourceContext | undefined,
   category: string,
