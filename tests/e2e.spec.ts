@@ -3327,6 +3327,37 @@ test('page result actions are visible before choosing an unselected page', async
     page.getByRole('region', { exact: true, name: 'Original file bytes' }).locator('button[data-hex-byte][data-selected]')
   ).toHaveCount(5);
 });
+test('page text search says when a page stops at the source limit', async ({ page }) => {
+  await cacheEngineAssets(page);
+  const contents = [
+    ...Array.from({ length: 99 }, () => '0 0 m 1 1 l S'),
+    'BT /F1 12 Tf 72 700 Td (Hello) Tj ET',
+    'BT /F1 12 Tf 72 600 Td (Hello) Tj ET',
+  ];
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 /Resources << /Font << /F1 105 0 R >> >> >>'],
+    [3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents [${contents.map((_, index) => `${index + 4} 0 R`).join(' ')}] >>`],
+    ...contents.map((content, index) => [index + 4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`]),
+    [105, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'],
+  ]);
+  await page.getByLabel('Open local PDF').setInputFiles({
+    buffer: Buffer.from(fixture.bytes),
+    mimeType: 'application/pdf',
+    name: 'many-streams.pdf',
+  });
+  await expect(page.getByRole('contentinfo')).toContainText('105 objects indexed');
+  await selectSearchScope(page, 'pageText');
+  await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Hello');
+  await page.getByRole('button', { exact: true, name: 'Run search' }).click();
+  const results = page.getByRole('region', { exact: true, name: 'Search results' });
+  await expect(results).toContainText('1 page');
+  await expect(results).toContainText('Only the first 100 source locations are listed.');
+  await expect(results.getByRole('button', { name: /Show bytes · 103 0 obj/ })).toBeVisible();
+  await expect(page.locator('[data-text-source-note]')).toContainText('Highlighted original bytes');
+  await expect(page.locator('[data-text-source-note]')).not.toContainText('incomplete');
+  await page.screenshot({ path: screenshotPath('page-text-source-limit.png') });
+});
 test('page text search highlights bytes encoded through a Unicode range font map', async ({ page }) => {
   await cacheEngineAssets(page);
   const content = 'BT /F1 12 Tf 72 700 Td (Hello) Tj ET';

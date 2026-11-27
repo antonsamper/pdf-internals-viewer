@@ -6,6 +6,7 @@ import type { PageTextLocation, TextSource } from '@/lib/pdf/page-text';
 
 import { SearchResultsPopover } from '@/components/search-results-popover';
 import { Button } from '@/components/ui/button';
+import { MAX_TEXT_SOURCES } from '@/lib/pdf/page-text';
 import { cn } from '@/lib/utils';
 
 import type { SearchResult } from './types';
@@ -199,6 +200,9 @@ const SourceButtons = ({
   );
 };
 
+/** A note about a page's source locations, above its source buttons. */
+const SourcesNote = (props: ComponentProps<'span'>) => <span className="mb-0.5 text-detail text-muted-foreground" {...props} />;
+
 const PageTextLinks = ({
   index,
   location,
@@ -218,9 +222,12 @@ const PageTextLinks = ({
   return (
     <div className="mx-3 mb-2.5 flex flex-col items-stretch gap-1.5 border-t pt-2" role="group" aria-label="Page text source locations">
       {!mapped && (
-        <span className="mb-0.5 text-detail text-muted-foreground">
-          Exact word bytes could not be mapped. Stream inspection highlights a candidate container, not the word.
-        </span>
+        <SourcesNote>Exact word bytes could not be mapped. Stream inspection highlights a candidate container, not the word.</SourcesNote>
+      )}
+      {location.sourcesLimited && (
+        <SourcesNote>
+          Only the first {MAX_TEXT_SOURCES} source locations are listed. Later matches and content streams on this page weren’t read.
+        </SourcesNote>
       )}
       {location.sources.length > 0 && <SourceButtons index={index} location={location} search={search} textSource={textSource} />}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-2">
