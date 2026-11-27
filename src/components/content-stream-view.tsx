@@ -64,7 +64,7 @@ const ResourceContextChoice = ({
   contexts: ResourceContext[];
   onChoose: (id: string) => void;
 }) => {
-  if (contexts.length === 1)
+  if (contexts.length <= 1)
     return (
       <Note>
         {context?.label}. {!context?.resources && 'The resource dictionary is unavailable, so resource names cannot be linked to objects.'}

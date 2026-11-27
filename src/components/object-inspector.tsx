@@ -482,7 +482,7 @@ export const ObjectInspector = function ObjectInspector({
           />
         </TabsContent>
         <TabsContent value="source" render={<PaneBody />} {...scrollFor('source')}>
-          <Note>{SOURCE_NOTES[object.provenance.type]}</Note>
+          <Note>{SOURCE_NOTES[object.provenance.type] ?? SOURCE_NOTES.unknown}</Note>
           <SourceCode>{object.source}</SourceCode>
         </TabsContent>
         {object.stream &&

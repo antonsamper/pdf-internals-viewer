@@ -150,7 +150,7 @@ const InlineReference = function InlineReference({
       {expanded && (
         <div className="mt-2 rounded-[5px] border p-2.5 [overflow-wrap:anywhere]">
           <Note className="mb-2.5">
-            {target.label} · {PROVENANCE_LABELS[target.provenance.type]}
+            {target.label} · {PROVENANCE_LABELS[target.provenance.type] ?? PROVENANCE_LABELS.unknown}
           </Note>
           <ValueView
             value={target.value}
