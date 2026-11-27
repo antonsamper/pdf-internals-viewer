@@ -14,7 +14,9 @@ const bookmark = {
   },
 } as const;
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  return vi.unstubAllGlobals();
+});
 
 describe('bookmark storage', () => {
   it('keys by exact bytes independently of the filename', async () => {
@@ -25,8 +27,8 @@ describe('bookmark storage', () => {
 
   it('ignores invalid selections and duplicate keys in stored data', () => {
     vi.stubGlobal('localStorage', {
-      getItem: () =>
-        JSON.stringify([
+      getItem: () => {
+        return JSON.stringify([
           bookmark,
           bookmark,
           {
@@ -39,13 +41,18 @@ describe('bookmark storage', () => {
             key: 3,
             selection: { ...bookmark.selection, range: { end: 2, start: -1 } },
           },
-        ]),
+        ]);
+      },
     });
     expect(readBookmarks('document')).toEqual([bookmark]);
   });
 
   it('ignores malformed stored JSON', () => {
-    vi.stubGlobal('localStorage', { getItem: () => '{broken' });
+    vi.stubGlobal('localStorage', {
+      getItem: () => {
+        return '{broken';
+      },
+    });
     expect(readBookmarks('document')).toEqual([]);
   });
 

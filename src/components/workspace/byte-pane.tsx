@@ -22,8 +22,8 @@ export const BytePane = ({
   scrollPositionRef: ScrollPosition;
   textSource: TextSource | null;
   onByteSelect: (offset: number) => void;
-}) =>
-  textSource ? (
+}) => {
+  return textSource ? (
     <TextSourceBytes
       key={`${revealKey}-${activeResult}-${textSource.id}-${textSource.ranges[0]?.start ?? 'candidate'}`}
       source={textSource}
@@ -36,3 +36,4 @@ export const BytePane = ({
   ) : (
     <HexView bytes={bytes} revealKey={revealKey} scrollPositionRef={scrollPositionRef} range={range} onByteSelect={onByteSelect} />
   );
+};

@@ -8,7 +8,11 @@ import { PdfInspector } from '../src/lib/pdf/inspector';
 import { objectRelationships, objectSummary, referencePaths } from '../src/lib/pdf/object-context';
 const inspect = async function inspect(bytes: Uint8Array) {
   const document = await new PdfInspector().open(bytes);
-  const objects = new Map(document.objects.map((object) => [object.id, object]));
+  const objects = new Map(
+    document.objects.map((object) => {
+      return [object.id, object];
+    })
+  );
   return { document, objects };
 };
 describe('object explanations and labelled relationships', () => {
@@ -23,11 +27,23 @@ describe('object explanations and labelled relationships', () => {
       ]).bytes
     );
     const links = referencePaths(objects.get('3 0')!).links;
-    expect(links.filter((link) => link.targetId === '4 0').map((link) => link.path)).toEqual([
+    expect(
+      links
+        .filter((link) => {
+          return link.targetId === '4 0';
+        })
+        .map((link) => {
+          return link.path;
+        })
+    ).toEqual([
       ['/Contents', '[0]'],
       ['/Contents', '[1]'],
     ]);
-    expect(links.find((link) => link.targetId === '5 0')?.path).toEqual(['/Resources', '/Font', '/F1']);
+    expect(
+      links.find((link) => {
+        return link.targetId === '5 0';
+      })?.path
+    ).toEqual(['/Resources', '/Font', '/F1']);
     expect(objectRelationships(objects.get('4 0')!, objects).incoming).toHaveLength(2);
   });
   it('explains a known content stream and links back through /Contents', async () => {
@@ -58,7 +74,9 @@ describe('object explanations and labelled relationships', () => {
     const object = {
       id: '1 0',
       value: {
-        items: Array.from({ length: 1000 }, () => ref),
+        items: Array.from({ length: 1000 }, () => {
+          return ref;
+        }),
         text: '',
         type: 'array',
       },
@@ -67,7 +85,9 @@ describe('object explanations and labelled relationships', () => {
     expect(wide.links).toHaveLength(200);
     expect(wide.incomplete).toBe(true);
     let value = ref;
-    for (let i = 0; i < 40; i++) value = { items: [value], text: '', type: 'array' };
+    for (let i = 0; i < 40; i++) {
+      value = { items: [value], text: '', type: 'array' };
+    }
     expect(referencePaths({ ...object, value }).incomplete).toBe(true);
   });
 });

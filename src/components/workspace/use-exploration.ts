@@ -10,7 +10,20 @@ import type { Section, Selection } from './types';
 
 import { newViewports } from './types';
 
-const initialHistory = (): Selection[] => [{ id: null, section: 'overview', tab: 'properties' }];
+const initialHistory = (): Selection[] => {
+  return [{ id: null, section: 'overview', tab: 'properties' }];
+};
+
+const sameSelection = (a: Selection, b: Selection) => {
+  return (
+    a.id === b.id &&
+    a.tab === b.tab &&
+    a.section === b.section &&
+    a.range?.start === b.range?.start &&
+    a.range?.end === b.range?.end &&
+    JSON.stringify(a.trail) === JSON.stringify(b.trail)
+  );
+};
 
 interface ExplorationDeps {
   document: PdfDocumentInfo | null;
@@ -26,21 +39,23 @@ interface ExplorationDeps {
 export const useExploration = ({ document, objectMap, objects, onArrive, setMobilePane, setNotice }: ExplorationDeps) => {
   const [history, setHistory] = useState<Selection[]>(initialHistory);
   const [historyIndex, setHistoryIndex] = useState(0);
-  const [viewportHistory, setViewportHistory] = useState(() => [newViewports()]);
+  const [viewportHistory, setViewportHistory] = useState(() => {
+    return [newViewports()];
+  });
   const viewports = viewportHistory[historyIndex];
   const selection = history[historyIndex];
   const section = selection.section;
   const selected = selection.id ? objectMap.get(selection.id) : undefined;
-  const selectedRange = useMemo(
-    () =>
+  const selectedRange = useMemo(() => {
+    return (
       selection.range ??
       (selected?.provenance.type === 'file'
         ? selected.provenance.range
         : selected?.provenance.type === 'decoded'
           ? selected.provenance.containerRange
-          : undefined),
-    [selection.range, selected]
-  );
+          : undefined)
+    );
+  }, [selection.range, selected]);
 
   const objectStep = (id: string): ExplorationStep => {
     const pageIndex = document?.pages.indexOf(id) ?? -1;
@@ -49,15 +64,9 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
 
   const visit = (next: Selection) => {
     onArrive(next, section);
-    if (
-      selection.id === next.id &&
-      selection.tab === next.tab &&
-      selection.section === next.section &&
-      selection.range?.start === next.range?.start &&
-      selection.range?.end === next.range?.end &&
-      JSON.stringify(selection.trail) === JSON.stringify(next.trail)
-    )
+    if (sameSelection(selection, next)) {
       return;
+    }
     setViewportHistory(viewportHistory.slice(0, historyIndex + 1).concat(newViewports()));
     setHistory(history.slice(0, historyIndex + 1).concat(next));
     setHistoryIndex(historyIndex + 1);
@@ -108,20 +117,24 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
   };
 
   const selectByte = (offset: number) => {
-    const object = objects.find(
-      (candidate) =>
-        candidate.provenance.type === 'file' && offset >= candidate.provenance.range.start && offset < candidate.provenance.range.end
-    );
-    if (object) navigate(object.id);
-    else {
+    const object = objects.find((candidate) => {
+      return candidate.provenance.type === 'file' && offset >= candidate.provenance.range.start && offset < candidate.provenance.range.end;
+    });
+    if (object) {
+      navigate(object.id);
+    } else {
       selectRange({ end: offset + 1, start: offset }, `Byte 0x${offset.toString(16).toUpperCase()} has no known containing object.`);
     }
   };
 
   const chooseSection = (next: Section) => {
-    if (next === 'overview' || next === 'structure' || next === 'resources' || next === 'issues') navigate(null, 'properties', next);
-    else if (next === 'catalog' && document?.catalogId) navigate(document.catalogId, 'properties', next);
-    else visit({ ...selection, section: next });
+    if (next === 'overview' || next === 'structure' || next === 'resources' || next === 'issues' || next === 'actions') {
+      navigate(null, 'properties', next);
+    } else if (next === 'catalog' && document?.catalogId) {
+      navigate(document.catalogId, 'properties', next);
+    } else {
+      visit({ ...selection, section: next });
+    }
   };
 
   const selectTrailStep = (index: number) => {
@@ -155,8 +168,13 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
     selectedRange,
     selection,
     travel,
-    updateViewports: (patch: Partial<ReturnType<typeof newViewports>>) =>
-      setViewportHistory((entries) => entries.map((entry, index) => (index === historyIndex ? { ...entry, ...patch } : entry))),
+    updateViewports: (patch: Partial<ReturnType<typeof newViewports>>) => {
+      return setViewportHistory((entries) => {
+        return entries.map((entry, index) => {
+          return index === historyIndex ? { ...entry, ...patch } : entry;
+        });
+      });
+    },
     viewports,
     visit,
   };

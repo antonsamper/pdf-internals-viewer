@@ -44,7 +44,11 @@ export const diagnosticIssue = function diagnosticIssue(evidence: string, object
   };
 };
 export const documentIssues = function documentIssues(document: PdfDocumentInfo): PdfIssue[] {
-  const available = new Set(document.objects.map((object) => object.id));
+  const available = new Set(
+    document.objects.map((object) => {
+      return object.id;
+    })
+  );
   const issues = new Map<string, PdfIssue>();
   for (const evidence of document.warnings) {
     const id = /^Object (\d+ \d+)(?::| )/.exec(evidence)?.[1];
@@ -63,7 +67,9 @@ export const issueSummary = function issueSummary(issues: PdfIssue[]): string {
   return (
     issueOrder
       .flatMap((severity) => {
-        const count = issues.filter((issue) => issue.severity === severity).length;
+        const count = issues.filter((issue) => {
+          return issue.severity === severity;
+        }).length;
         const label = severity === 'info' ? 'information note' : severity === 'limitation' ? 'inspection limitation' : severity;
         return count ? [`${count} ${label}${count === 1 ? '' : 's'}`] : [];
       })

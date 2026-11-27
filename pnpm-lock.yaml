@@ -12,8 +12,8 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@embedpdf/engine':
-        specifier: 3.1.0
-        version: 3.1.0
+        specifier: 3.4.0
+        version: 3.4.0
       '@fontsource-variable/geist':
         specifier: ^5.3.0
         version: 5.3.0
@@ -63,9 +63,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^6
         version: 6.3.0(vite@8.3.7(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
-      acorn:
-        specifier: ^8.19.0
-        version: 8.19.0
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -249,70 +246,70 @@ packages:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
 
-  '@embedpdf/core-fonts@3.1.0':
-    resolution: {integrity: sha512-6gY6NUnXuj7BaAIjRgRE1hidb4sTzx7cnXFYA3guZcAC5tnyiPtQepDHN5kf5IiIk+WIA10kSrAdOrl7CFoEew==}
+  '@embedpdf/core-fonts@3.4.0':
+    resolution: {integrity: sha512-vgyJpFlQBQEXCE40I3IoHfxp7St63dV0xXpAJPDaqYyLhQSanvfEdXYYcp+hy+IGoJUz/jbffojMqA7XERfNzg==}
 
-  '@embedpdf/default-fallback-fonts@1.0.0':
-    resolution: {integrity: sha512-R3REkhJMDzKADmWmFCWxQT5hSyU04YObpKFqyGXQqRvLJ7wxCT68xSKh0361kOTfuOqAIYI7lM2wwC2bRomc7Q==}
+  '@embedpdf/default-fallback-fonts@1.0.1':
+    resolution: {integrity: sha512-Z9qeQ2mfjyhjmhLG4+LtTa/78LepJf8uVsE3d2vs741HKOi4/Ki8jyTEcRM/gPdPeCz98d9dXV6428C81A718Q==}
 
-  '@embedpdf/engine-core@3.1.0':
-    resolution: {integrity: sha512-yGYQvLwgNdjNoAF1ZwCBjloeQj4ze4quYVGgFK4fbAzt7PfdZV6t7eV+e1oxJazPwt982IUWGCZRPVpYec2aQA==}
+  '@embedpdf/engine-core@3.4.0':
+    resolution: {integrity: sha512-mdhRNkiOku5KLYM5EuGuV2YOYpcry0wpWmHHUxWmX2UHF36j9VP/OvIQso2d8ntemtNC3oFO3ja/q9iHVEuzOQ==}
 
-  '@embedpdf/engine-runtime-darwin-arm64@3.1.0':
-    resolution: {integrity: sha512-a/kbfPPpYGkG84AKmSIS6tP6oxFBfcgHHsQHR2owdCZxaO+poKSiEO2kxsi1jvqUrfS+UKKGamvfUZ7v4zGA8w==}
+  '@embedpdf/engine-runtime-darwin-arm64@3.4.0':
+    resolution: {integrity: sha512-2xUjmYN9ro5b61sMrOCA354sKVfDDJdeOtew4ZLIM/znbLaPT45DeMbZ0G/FOmCB0Lhgi1eFFQxwGiGkvPvEYw==}
     cpu: [arm64]
     os: [darwin]
 
-  '@embedpdf/engine-runtime-darwin-x64@3.1.0':
-    resolution: {integrity: sha512-cVI2Pn1ndwXUWXeKmbKyLELUDHjQzGzGYkdUzdGqV+XLqWvDq8H7DP19gCZAGkrQv9KT0O7mTGIlcPejXOA/lg==}
+  '@embedpdf/engine-runtime-darwin-x64@3.4.0':
+    resolution: {integrity: sha512-NWTlR6kqhIywKm4LRDbuaVeFhTNvTwvw8U8nTMEK7SwYQtlAHpP2WHGXkCJPEBnFy8G3SgAz+VKL5dOK07r0Yw==}
     cpu: [x64]
     os: [darwin]
 
-  '@embedpdf/engine-runtime-linux-arm64@3.1.0':
-    resolution: {integrity: sha512-7vdxQUe0GhodjH6jvq0Gy0N0QEVGGnKekS1frluMCTsenXUAZIy4s5y6cOjE2AdxwYYgdqxLW4Q40w4FNoM6Bw==}
+  '@embedpdf/engine-runtime-linux-arm64@3.4.0':
+    resolution: {integrity: sha512-bXi6wgg+mnR53PuKmzxZMLY9yREdj2JJI50Mou1bi8ziU8ElbHUDmVlP/C+qjU3Fb4zlEQHGlISNXOwMK/boww==}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@embedpdf/engine-runtime-linux-x64@3.1.0':
-    resolution: {integrity: sha512-jC3ZWW/SFGkkO/8554voYx4LoPvqxKlU4MRQA9NlVExrRuRhHb+2yRG3TKEoEa2iJjxd6jhNRV4pEcyDxMschA==}
+  '@embedpdf/engine-runtime-linux-x64@3.4.0':
+    resolution: {integrity: sha512-Ja5ESLP6+kST8sSWKbfAVxQd3z2Gwhru8evLXv89/8e8kJO0tAOpR1AxH+iDlbsr4h9MJE5yoUSUxT4g5qqa7A==}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@embedpdf/engine-runtime-linuxmusl-arm64@3.1.0':
-    resolution: {integrity: sha512-jjkUuH34AP7e1oDVrYm1jc8EMTxwiOElaYyHNKCc24pDyE3QP2A+r4HXoXdCJYv/nmpYpKuRMilqTV0QI2chSA==}
+  '@embedpdf/engine-runtime-linuxmusl-arm64@3.4.0':
+    resolution: {integrity: sha512-GzaP9ldd8bC/2pAuR39hhRM1ujW4QvkyTue/+TjpsVJ99z8IBI3CSB2hDRMPY4rvhBEDK0aWWdUaybm1klanpg==}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@embedpdf/engine-runtime-linuxmusl-x64@3.1.0':
-    resolution: {integrity: sha512-TNrBS0WTbHC4k6F1pyCrG3zm+6P5HN03AgTdSgcZLNderkQlLVpaO2qoLKcTciVJMXCt6VmgF5Gh/lwFSF7arw==}
+  '@embedpdf/engine-runtime-linuxmusl-x64@3.4.0':
+    resolution: {integrity: sha512-P8OYm95z8fv5mirVfU2MOYXuPxoFnZ2cwCzG1JR/gGECNOHQlp44hF8UrpsD9JZ9KZS4Qfi26qZngV1wuiXdzQ==}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@embedpdf/engine-runtime-wasm32@3.1.0':
-    resolution: {integrity: sha512-sx0o0S052S0WeUI3bs7fVzkXleRfY0I4Gqw1LsXJ8aznt9mqPxrrLbo8Z/lcKr2AiykgWFWGiN2G48No5D0MNw==}
+  '@embedpdf/engine-runtime-wasm32@3.4.0':
+    resolution: {integrity: sha512-vTg6WZvyWDS81vtZmsVyiiUQ529y/i3iBlCZIBOkWt9ik/WB1OcfpBEbDQnS7P7uBYoIBNv4f1+x4EM6pG8iTA==}
 
-  '@embedpdf/engine-runtime-win32-arm64@3.1.0':
-    resolution: {integrity: sha512-HqPF6eERjQxnTxKKtsATQdHb1BD20v2IMVetRMwqeY+c9w4KJUlQtoEBNCp7VG9LJ27PHwTjE4IZI1qc3DscIQ==}
+  '@embedpdf/engine-runtime-win32-arm64@3.4.0':
+    resolution: {integrity: sha512-PJLUkwYIlhhRx3dIwbKSQJV99/7Vt1MlADeDoafIDQXIqB06EHD+4vC4Qf/78hF8twQc4+303aBmm98+6YTrIA==}
     cpu: [arm64]
     os: [win32]
 
-  '@embedpdf/engine-runtime-win32-x64@3.1.0':
-    resolution: {integrity: sha512-fmcGBDaeT9KGf5Bd6jeqF5eq+c6LeghWDRibpRTZOOGXWSaNK72ZY8PDY+Q0P9EdveVOdwmzDsC35NNviE2EjA==}
+  '@embedpdf/engine-runtime-win32-x64@3.4.0':
+    resolution: {integrity: sha512-kKnxGo5kZIWrXYTJCpG5t/sZX5JFZ4S4T3GnpifBnzqDstJltTJMTWpvVF3SCwKMbkB2veNleZIIbJ6tlzu2XA==}
     cpu: [x64]
     os: [win32]
 
-  '@embedpdf/engine-runtime@3.1.0':
-    resolution: {integrity: sha512-C0njIPEpm3olWgqV8VmHkrfIdTyfuarGSx2hyQBYsVZEj9pVuBoSNHLuhx1GNtGkFqBF2o+Yn45eIyQmXy/jMA==}
+  '@embedpdf/engine-runtime@3.4.0':
+    resolution: {integrity: sha512-4XCHhGt3JDQ1mklaC8K8CSYqms02PdQJ711NAWFzhlk1oN/hLxhXLAS/t/ryuycpUT+Zp1wMQfJlZMwAdbPhyA==}
 
-  '@embedpdf/engine-services@3.1.0':
-    resolution: {integrity: sha512-bVHAlZQ2YKKO3x++l+y7qh1oBdbWd0IeWygEgO4gCz+XsBvLS6WixvJGEVsZ1oj1z1SY8SfszBzxQYUKaVyjyQ==}
+  '@embedpdf/engine-services@3.4.0':
+    resolution: {integrity: sha512-3lTSLdGFmexxqQSqG6eb4a7z8A0YZWMkCwF3eO0rE6kM0rba7I5xszG0iJT3JCh3toemaydllW1zYKlpPn6d8g==}
 
-  '@embedpdf/engine@3.1.0':
-    resolution: {integrity: sha512-+y8C449iLPYWziFy89NQv8dP5XevFFJSg/BT1yOX/kYgMe6hL/jvr5XpY5KHQg51DAYTP7XQfT5yptimNZ0nCg==}
+  '@embedpdf/engine@3.4.0':
+    resolution: {integrity: sha512-sIL9P92whJMaTLzPUArN258fgbTM0AlY3OSFurlajjqM2M+Qsa+tXK7Au8qS64ag+ib1peL5/T3iyKLiQDHQXw==}
 
   '@emnapi/core@1.11.2':
     resolution: {integrity: sha512-TC8MkTuZUtcTSiFeuC0ksCh9QIJ5+F21MvZ4Wn4ORfYaFJ/0dsiudv5tVkejgwZlwQ39jL9WWDe2lz8x0WglOA==}
@@ -2482,11 +2479,6 @@ packages:
     resolution: {integrity: sha512-V9kOzaItwDgqlryhXysQsAXUEKi5O7kqWUaP3dXI7MLvkPqWWMb4wVb1QAtmEDCKI+XIAINsZoNKMFF7sZb1eg==}
     engines: {node: '>=16.0.0'}
 
-  playwright-core@1.65.0:
-    resolution: {integrity: sha512-vNSKgH6YqtN7cdT/L334zo0a+YwkrpicyrHJlWWPIm/Q+Nn2SWInil01oT0mbu96U4GgoRtCYQD9CzJQgju+lA==}
-    engines: {node: '>=20'}
-    hasBin: true
-
   playwright-core@1.65.1:
     resolution: {integrity: sha512-hqPpz7blSMPxWVdoeE1yiBSzXsKiVOd2k+kjCvmUywD2GPO2Dd9HfcWnq9NN0GHbNZDFgZ9JfBFr+X5/BLo0qw==}
     engines: {node: '>=20'}
@@ -2851,8 +2843,8 @@ packages:
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
 
 snapshots:
 
@@ -3022,70 +3014,70 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@embedpdf/core-fonts@3.1.0':
+  '@embedpdf/core-fonts@3.4.0':
     dependencies:
-      '@embedpdf/engine-core': 3.1.0
+      '@embedpdf/engine-core': 3.4.0
 
-  '@embedpdf/default-fallback-fonts@1.0.0': {}
+  '@embedpdf/default-fallback-fonts@1.0.1': {}
 
-  '@embedpdf/engine-core@3.1.0':
+  '@embedpdf/engine-core@3.4.0':
     dependencies:
-      zod: 3.25.76
+      zod: 4.6.7
 
-  '@embedpdf/engine-runtime-darwin-arm64@3.1.0':
+  '@embedpdf/engine-runtime-darwin-arm64@3.4.0':
     optional: true
 
-  '@embedpdf/engine-runtime-darwin-x64@3.1.0':
+  '@embedpdf/engine-runtime-darwin-x64@3.4.0':
     optional: true
 
-  '@embedpdf/engine-runtime-linux-arm64@3.1.0':
+  '@embedpdf/engine-runtime-linux-arm64@3.4.0':
     optional: true
 
-  '@embedpdf/engine-runtime-linux-x64@3.1.0':
+  '@embedpdf/engine-runtime-linux-x64@3.4.0':
     optional: true
 
-  '@embedpdf/engine-runtime-linuxmusl-arm64@3.1.0':
+  '@embedpdf/engine-runtime-linuxmusl-arm64@3.4.0':
     optional: true
 
-  '@embedpdf/engine-runtime-linuxmusl-x64@3.1.0':
+  '@embedpdf/engine-runtime-linuxmusl-x64@3.4.0':
     optional: true
 
-  '@embedpdf/engine-runtime-wasm32@3.1.0': {}
+  '@embedpdf/engine-runtime-wasm32@3.4.0': {}
 
-  '@embedpdf/engine-runtime-win32-arm64@3.1.0':
+  '@embedpdf/engine-runtime-win32-arm64@3.4.0':
     optional: true
 
-  '@embedpdf/engine-runtime-win32-x64@3.1.0':
+  '@embedpdf/engine-runtime-win32-x64@3.4.0':
     optional: true
 
-  '@embedpdf/engine-runtime@3.1.0':
+  '@embedpdf/engine-runtime@3.4.0':
     dependencies:
       detect-libc: 2.1.2
     optionalDependencies:
-      '@embedpdf/engine-runtime-darwin-arm64': 3.1.0
-      '@embedpdf/engine-runtime-darwin-x64': 3.1.0
-      '@embedpdf/engine-runtime-linux-arm64': 3.1.0
-      '@embedpdf/engine-runtime-linux-x64': 3.1.0
-      '@embedpdf/engine-runtime-linuxmusl-arm64': 3.1.0
-      '@embedpdf/engine-runtime-linuxmusl-x64': 3.1.0
-      '@embedpdf/engine-runtime-wasm32': 3.1.0
-      '@embedpdf/engine-runtime-win32-arm64': 3.1.0
-      '@embedpdf/engine-runtime-win32-x64': 3.1.0
+      '@embedpdf/engine-runtime-darwin-arm64': 3.4.0
+      '@embedpdf/engine-runtime-darwin-x64': 3.4.0
+      '@embedpdf/engine-runtime-linux-arm64': 3.4.0
+      '@embedpdf/engine-runtime-linux-x64': 3.4.0
+      '@embedpdf/engine-runtime-linuxmusl-arm64': 3.4.0
+      '@embedpdf/engine-runtime-linuxmusl-x64': 3.4.0
+      '@embedpdf/engine-runtime-wasm32': 3.4.0
+      '@embedpdf/engine-runtime-win32-arm64': 3.4.0
+      '@embedpdf/engine-runtime-win32-x64': 3.4.0
 
-  '@embedpdf/engine-services@3.1.0':
+  '@embedpdf/engine-services@3.4.0':
     dependencies:
-      '@embedpdf/core-fonts': 3.1.0
-      '@embedpdf/engine-core': 3.1.0
-      '@embedpdf/engine-runtime': 3.1.0
+      '@embedpdf/core-fonts': 3.4.0
+      '@embedpdf/engine-core': 3.4.0
+      '@embedpdf/engine-runtime': 3.4.0
 
-  '@embedpdf/engine@3.1.0':
+  '@embedpdf/engine@3.4.0':
     dependencies:
-      '@embedpdf/core-fonts': 3.1.0
-      '@embedpdf/default-fallback-fonts': 1.0.0
-      '@embedpdf/engine-core': 3.1.0
-      '@embedpdf/engine-runtime': 3.1.0
-      '@embedpdf/engine-runtime-wasm32': 3.1.0
-      '@embedpdf/engine-services': 3.1.0
+      '@embedpdf/core-fonts': 3.4.0
+      '@embedpdf/default-fallback-fonts': 1.0.1
+      '@embedpdf/engine-core': 3.4.0
+      '@embedpdf/engine-runtime': 3.4.0
+      '@embedpdf/engine-runtime-wasm32': 3.4.0
+      '@embedpdf/engine-services': 3.4.0
 
   '@emnapi/core@1.11.2':
     dependencies:
@@ -4238,8 +4230,8 @@ snapshots:
       '@babel/parser': 7.29.14
       eslint: 10.15.0(jiti@2.7.0)
       hermes-parser: 0.25.1
-      zod: 3.25.76
-      zod-validation-error: 4.0.2(zod@3.25.76)
+      zod: 4.6.7
+      zod-validation-error: 4.0.2(zod@4.6.7)
     transitivePeerDependencies:
       - supports-color
 
@@ -4700,8 +4692,6 @@ snapshots:
       pvutils: 1.2.0
       tslib: 2.9.1
 
-  playwright-core@1.65.0: {}
-
   playwright-core@1.65.1: {}
 
   playwright@1.65.1:
@@ -4749,7 +4739,7 @@ snapshots:
       oxc-resolver: 11.24.2
       oxlint: 1.81.0
       oxlint-plugin-react-doctor: 0.9.23
-      playwright-core: 1.65.0
+      playwright-core: 1.65.1
       prompts: 2.4.2
       typescript: 5.9.3
       yaml: 2.9.1
@@ -5044,8 +5034,8 @@ snapshots:
       cookie: 1.1.1
       youch-core: 0.3.3
 
-  zod-validation-error@4.0.2(zod@3.25.76):
+  zod-validation-error@4.0.2(zod@4.6.7):
     dependencies:
-      zod: 3.25.76
+      zod: 4.6.7
 
-  zod@3.25.76: {}
+  zod@4.6.7: {}

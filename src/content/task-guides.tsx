@@ -172,28 +172,32 @@ export const SuspiciousFeaturesGuide = function SuspiciousFeaturesGuide() {
         Look for scripts, automatic actions, launch actions, and embedded files, then follow their references to understand what the PDF
         contains.
       </Lead>
-      <h2>Find an action</h2>
+      <h2>List the actions</h2>
       <ol>
         <li>
-          Open the PDF and select <strong>Keys</strong> in search.
+          Open the PDF and choose <strong>Actions</strong> in the explorer.
         </li>
         <li>
-          Search for <code>JavaScript</code> and <code>JS</code>, then <code>OpenAction</code> and <code>AA</code> in turn. Select a result
-          to inspect the containing dictionary.
+          Each row shows the trigger, the <code>/S</code> action type, a short target and the object that holds the action. Rows for{' '}
+          <code>/JavaScript</code>, <code>/Launch</code>, <code>/SubmitForm</code> and <code>/ImportData</code>, and rendition actions that
+          carry a script, have an orange rule and a label. Actions chained with <code>/Next</code> are indented under the action before
+          them. Control and text-direction characters in targets are shown as code points, such as <code>⟨U+202E⟩</code>, so a file name
+          can't disguise itself.
         </li>
         <li>
-          Follow references to the action dictionary and any script stream. Check <strong>Properties</strong> for relationships and{' '}
-          <strong>Source</strong> for its representation.
+          For a script stored in a stream, choose <strong>Show decoded script</strong>. The text is decoded and nothing runs. Choose{' '}
+          <strong>Inspect</strong> to open the stream, and check <strong>Original bytes</strong> when you need the exact syntax stored in
+          the file.
         </li>
-        <li>
-          If the script is stored in a stream, use <strong>Decoded</strong> where supported. Check <strong>Original bytes</strong> when you
-          need the exact syntax stored in the file.
-        </li>
+        <li>An action that is malformed or points to a missing object stays in the list with a note.</li>
       </ol>
+      <h2>Search for what Actions leaves out</h2>
       <p>
-        For launch actions, search <strong>File text</strong> for <code>/Launch</code>. Also try <strong>Decoded streams</strong> for
-        content stored in compressed streams. Keys search matches dictionary key names, so it will not find <code>/S /Launch</code> by
-        searching for <code>Launch</code> alone.
+        Actions reads the catalogue, pages, annotations, form fields and outline. Document-level scripts in the{' '}
+        <code>/Names /JavaScript</code> tree, scripts inside XFA forms and actions stored anywhere else are not listed; a note at the top of
+        the list says when the document has a <code>/Names /JavaScript</code> tree or an XFA form. To find them, select{' '}
+        <strong>Keys</strong> in search and look for <code>JavaScript</code> and <code>JS</code>, then <code>OpenAction</code> and{' '}
+        <code>AA</code>. Select a result to inspect the dictionary that holds it.
       </p>
       <h2>Read what you found</h2>
       <p>
@@ -212,8 +216,10 @@ endobj
 endobj`}</code>
       </pre>
       <p>
-        Start at object 1, follow <code>/OpenAction 8 0 R</code>, then <code>/JS 9 0 R</code> to inspect the script stream. Record the
-        references and bookmark the relevant objects. Finding the word “JavaScript” alone gives less context than tracing this relationship.
+        Actions shows this as one row: <strong>Document opens</strong>, <code>/S /JavaScript</code>, with the script in stream 9. To trace
+        it by hand, start at object 1, follow <code>/OpenAction 8 0 R</code>, then <code>/JS 9 0 R</code> to inspect the script stream.
+        Record the references and bookmark the relevant objects. Finding the word “JavaScript” alone gives less context than tracing this
+        relationship.
       </p>
       <h2>Check embedded files and known strings</h2>
       <p>

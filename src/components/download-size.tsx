@@ -15,16 +15,25 @@ export const DownloadSize = function DownloadSize({
   const [size, setSize] = useState<number>();
   const [error, setError] = useState<string>();
   useEffect(() => {
-    if (!visible) return;
+    if (!visible) {
+      return;
+    }
     let active = true;
     extractStream(id, 'size')
       .then((result) => {
-        if (!active) return;
-        if (result.error || result.byteLength === undefined) setError(result.error ?? 'The complete size could not be determined.');
-        else setSize(result.byteLength);
+        if (!active) {
+          return;
+        }
+        if (result.error || result.byteLength === undefined) {
+          setError(result.error ?? 'The complete size could not be determined.');
+        } else {
+          setSize(result.byteLength);
+        }
       })
       .catch((reason) => {
-        if (active) setError(reason instanceof Error ? reason.message : 'Could not determine the size.');
+        if (active) {
+          setError(reason instanceof Error ? reason.message : 'Could not determine the size.');
+        }
       });
     return () => {
       active = false;
@@ -33,7 +42,7 @@ export const DownloadSize = function DownloadSize({
   return (
     <div
       ref={ref}
-      className="text-[11px] leading-[1.6] text-muted-foreground tabular-nums"
+      className="text-detail leading-[1.6] text-muted-foreground tabular-nums"
       title={error ?? (size !== undefined ? `${size.toLocaleString()} bytes` : undefined)}
     >
       {error ? `Download size unavailable: ${error}` : size !== undefined ? `Download: ${fileSize(size)}` : 'Calculating download size…'}

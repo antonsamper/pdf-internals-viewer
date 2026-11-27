@@ -31,18 +31,23 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
   const [unlocking, setUnlocking] = useState(false);
   const [unlockError, setUnlockError] = useState<string | null>(null);
   const [previewPassword, setPreviewPassword] = useState<string | undefined>();
-  const issues = useMemo(() => [...(document ? documentIssues(document) : []), ...observedIssues], [document, observedIssues]);
-  const issueSeverity: 'error' | 'warning' | undefined = issues.some((issue) => issue.severity === 'error')
+  const issues = useMemo(() => {
+    return [...(document ? documentIssues(document) : []), ...observedIssues];
+  }, [document, observedIssues]);
+  const issueSeverity: 'error' | 'warning' | undefined = issues.some((issue) => {
+    return issue.severity === 'error';
+  })
     ? 'error'
-    : issues.some((issue) => issue.severity === 'warning')
+    : issues.some((issue) => {
+          return issue.severity === 'warning';
+        })
       ? 'warning'
       : undefined;
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    return () => {
       client.current?.dispose();
-    },
-    []
-  );
+    };
+  }, []);
 
   const closeDocument = useCallback(() => {
     requestId.current++;
@@ -61,7 +66,9 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
   }, []);
 
   const readStream = useCallback(async (id: string, mode: 'raw' | 'decoded') => {
-    if (!client.current) return Promise.reject(new Error('Open a PDF before reading a stream.'));
+    if (!client.current) {
+      return Promise.reject(new Error('Open a PDF before reading a stream.'));
+    }
     const activeClient = client.current;
     const result = await activeClient.readStream(id, mode);
     if (result.error && activeClient === client.current) {
@@ -71,16 +78,26 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
         issue.explanation =
           'The viewer could not read this stream. Inspect its dictionary and original bytes; a decoding failure alone does not establish a PDF defect.';
       }
-      setObservedIssues((current) => (current.some((item) => item.id === issue.id) ? current : [...current, issue]));
+      setObservedIssues((current) => {
+        return current.some((item) => {
+          return item.id === issue.id;
+        })
+          ? current
+          : [...current, issue];
+      });
     }
     return result;
   }, []);
   const extractStream = useCallback((id: string, purpose: 'download' | 'size' = 'download') => {
-    if (!client.current) return Promise.reject(new Error('Open a PDF before downloading a file.'));
+    if (!client.current) {
+      return Promise.reject(new Error('Open a PDF before downloading a file.'));
+    }
     return client.current.readStream(id, 'decoded', purpose);
   }, []);
   const extractImage = useCallback((id: string) => {
-    if (!client.current) return Promise.reject(new Error('Open a PDF before downloading an image.'));
+    if (!client.current) {
+      return Promise.reject(new Error('Open a PDF before downloading an image.'));
+    }
     return client.current.readStream(id, 'decoded', 'image');
   }, []);
 
@@ -100,17 +117,29 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
     setFilename(file.name);
     try {
       const original = new Uint8Array(await file.arrayBuffer());
-      if (token !== requestId.current) return;
+      if (token !== requestId.current) {
+        return;
+      }
       setBytes(original);
-      if (!(await loadBookmarks(original, () => token === requestId.current))) return;
+      if (
+        !(await loadBookmarks(original, () => {
+          return token === requestId.current;
+        }))
+      ) {
+        return;
+      }
       const worker = new PdfWorkerClient();
       client.current = worker;
       const parsed = await worker.open(original, file.name);
-      if (token !== requestId.current) return;
+      if (token !== requestId.current) {
+        return;
+      }
       setDocument(parsed);
       setBusy(false);
     } catch (reason) {
-      if (token !== requestId.current) return;
+      if (token !== requestId.current) {
+        return;
+      }
       const message = reason instanceof Error ? reason.message : 'Could not inspect this file. Choose another PDF.';
       setError(message);
       setInspectionError(message);
@@ -119,7 +148,9 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
   };
 
   const unlock = async (password: string) => {
-    if (unlocking) return;
+    if (unlocking) {
+      return;
+    }
     const token = ++requestId.current;
     setUnlocking(true);
     setUnlockError(null);
@@ -128,18 +159,25 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
     client.current = worker;
     try {
       const parsed = await worker.open(bytes, filename, password);
-      if (token !== requestId.current) return;
+      if (token !== requestId.current) {
+        return;
+      }
       setDocument(parsed);
-      if (parsed.locked) setUnlockError(parsed.encryptionError ?? 'That password did not unlock this PDF. Try again.');
-      else {
+      if (parsed.locked) {
+        setUnlockError(parsed.encryptionError ?? 'That password did not unlock this PDF. Try again.');
+      } else {
         setPreviewPassword(password);
         setNotice('PDF unlocked. Structure inspection is available.');
       }
     } catch (reason) {
-      if (token !== requestId.current) return;
+      if (token !== requestId.current) {
+        return;
+      }
       setUnlockError(reason instanceof Error ? reason.message : 'Could not unlock this PDF.');
     } finally {
-      if (token === requestId.current) setUnlocking(false);
+      if (token === requestId.current) {
+        setUnlocking(false);
+      }
     }
   };
 
@@ -149,15 +187,23 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
     setBusy(true);
     try {
       const response = await fetch(`${import.meta.env.BASE_URL}samples/${file}`);
-      if (!response.ok) throw new Error('The sample could not be loaded. Try opening a local PDF.');
+      if (!response.ok) {
+        throw new Error('The sample could not be loaded. Try opening a local PDF.');
+      }
       const data = await response.arrayBuffer();
-      if (token !== requestId.current) return;
+      if (token !== requestId.current) {
+        return;
+      }
       await open(new File([data], file, { type: 'application/pdf' }));
     } catch (reason) {
-      if (token === requestId.current) setError(reason instanceof Error ? reason.message : 'Could not open sample.');
+      if (token === requestId.current) {
+        setError(reason instanceof Error ? reason.message : 'Could not open sample.');
+      }
     } finally {
-      // oxlint-disable-next-line react-doctor/no-loading-flag-reset-outside-finally -- only the request that is still current may clear the flag; a newer open owns it otherwise.
-      if (token === requestId.current) setBusy(false);
+      if (token === requestId.current) {
+        // oxlint-disable-next-line react-doctor/no-loading-flag-reset-outside-finally -- only the request that is still current may clear the flag; a newer open owns it otherwise.
+        setBusy(false);
+      }
     }
   };
 

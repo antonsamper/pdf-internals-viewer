@@ -1,6 +1,5 @@
 import type { ComponentProps, ComponentType } from 'react';
 
-import { cn } from 'cn';
 import { FileWarning, CircleAlert, TriangleAlert, Info, ScanLine } from 'lucide-react';
 
 import type { PdfIssue, IssueSeverity } from '@/lib/pdf/issues';
@@ -14,19 +13,29 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { issueOrder, issueSummary } from '@/lib/pdf/issues';
 import { useScrollRestoration } from '@/lib/scroll-restoration';
+import { cn } from '@/lib/utils';
 
 /** Severity counts, or `empty` with a sentence when there are no issues. */
 export const IssueSummary = ({ empty: Empty, issues }: { empty: ComponentType<ComponentProps<'p'>>; issues: PdfIssue[] }) => {
-  if (!issues.length) return <Empty role="status">{issueSummary(issues)}</Empty>;
+  if (!issues.length) {
+    return <Empty role="status">{issueSummary(issues)}</Empty>;
+  }
   return (
     <div role="status" className="my-3 flex flex-wrap gap-2">
       {issueOrder.map((severity) => {
-        const count = issues.filter((issue) => issue.severity === severity).length;
-        if (!count) return null;
+        const count = issues.filter((issue) => {
+          return issue.severity === severity;
+        }).length;
+        if (!count) {
+          return null;
+        }
         const Icon = severityIcons[severity];
         const label = severity === 'info' ? 'information note' : severity === 'limitation' ? 'inspection limitation' : severity;
         return (
-          <SeverityPill key={severity} className={cn(SEVERITY_TONE[severity], 'rounded-[5px] px-[9px] py-[5px] text-[12px] font-semibold')}>
+          <SeverityPill
+            key={severity}
+            className={cn(SEVERITY_TONE[severity], 'rounded-[5px] px-2.25 py-1.25 text-small leading-[inherit] font-semibold')}
+          >
             <Icon size={14} aria-hidden="true" />
             {count} {label}
             {count === 1 ? '' : 's'}
@@ -56,7 +65,9 @@ export const IssuesPanel = ({
   onStructure: () => void;
 }) => {
   const scroll = useScrollRestoration(scrollPositionRef);
-  const sorted = issues.toSorted((a, b) => issueOrder.indexOf(a.severity) - issueOrder.indexOf(b.severity));
+  const sorted = issues.toSorted((a, b) => {
+    return issueOrder.indexOf(a.severity) - issueOrder.indexOf(b.severity);
+  });
   return (
     <PaneBody {...scroll} role="region" aria-label="PDF issues">
       <PaneIntro icon={FileWarning} title="Issues">
@@ -66,8 +77,8 @@ export const IssuesPanel = ({
           <IssueSummary issues={issues} empty={PaneSubtitle} />
         )}
       </PaneIntro>
-      <div className="mt-5 border-t py-3.5 text-[12px] leading-[1.7]">
-        <SectionHeading>Checks and coverage</SectionHeading>
+      <div className="mt-5 border-t py-3.5 text-small leading-[1.7]">
+        <SectionHeading className="leading-[1.7]">Checks and coverage</SectionHeading>
         <IssueNote>
           {locked
             ? 'Unlock the PDF from Overview to check its structure.'
@@ -88,8 +99,8 @@ export const IssuesPanel = ({
               key={issue.id}
               className={cn(
                 SEVERITY_TONE[issue.severity],
-                'border-t py-4 text-[12px] leading-[1.7]',
-                MARKED[issue.severity] && 'my-3 border-l-[3px] border-l-(--issue-ink) pl-3.5'
+                'border-t py-4 text-small leading-[1.7]',
+                MARKED[issue.severity] && 'my-3 border-l-3 border-l-(--issue-ink) pl-3.5'
               )}
             >
               <div className="flex flex-wrap items-center gap-2">
@@ -97,17 +108,25 @@ export const IssuesPanel = ({
                   <Icon size={13} aria-hidden="true" />
                   {severityNames[issue.severity]}
                 </SeverityPill>
-                <h2 className="text-[12px] font-[550]">{issue.title}</h2>
+                <h2 className="font-[550]">{issue.title}</h2>
               </div>
               <IssueNote>{issue.explanation}</IssueNote>
-              <pre className="my-2.5 rounded-[5px] bg-muted p-2.5 text-[11px] [overflow-wrap:anywhere] whitespace-pre-wrap">
+              <pre
+                className={cn(
+                  'my-2.5 p-2.5',
+                  'text-detail leading-[1.7] [overflow-wrap:anywhere] whitespace-pre-wrap',
+                  'rounded-[5px] bg-muted'
+                )}
+              >
                 {issue.evidence}
               </pre>
               <Button
                 variant="outline"
                 size="sm"
-                className="text-[12px] leading-[1.7]"
-                onClick={() => (issue.objectId ? onNavigate(issue.objectId) : onStructure())}
+                className="text-small leading-[1.7]"
+                onClick={() => {
+                  return issue.objectId ? onNavigate(issue.objectId) : onStructure();
+                }}
               >
                 {issue.objectId ? `Inspect ${issue.objectId} obj` : 'Inspect file structure'}
               </Button>
@@ -116,7 +135,13 @@ export const IssuesPanel = ({
         })}
       </ol>
       {sorted.length > limit && (
-        <Button variant="outline" size="sm" onClick={() => onLimitChange(limit + 50)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            return onLimitChange(limit + 50);
+          }}
+        >
           Show more ({sorted.length - limit} remaining)
         </Button>
       )}
