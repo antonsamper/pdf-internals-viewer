@@ -16,6 +16,25 @@ export const extendExplorationTrail = function extendExplorationTrail(
     target,
   ];
 };
+/** Follow a chain of references to the value it ends at, and the object that holds it. */
+const dereference = (value: PdfValue | undefined, owner: string | null, objects: Map<string, PdfObjectRecord>) => {
+  let current = value;
+  let currentOwner = owner;
+  const seen = new Set<string>();
+  while (current?.type === 'reference' && !seen.has(current.ref)) {
+    seen.add(current.ref);
+    currentOwner = current.ref;
+    current = objects.get(current.ref)?.value;
+  }
+  return { owner: currentOwner, value: current };
+};
+/** The value one path segment below a dictionary, stream or array. */
+const segmentValue = (value: PdfValue | undefined, segment: string): PdfValue | undefined => {
+  if (value?.type === 'dictionary' || value?.type === 'stream')
+    return value.entries.find((entry) => entry.key.replace(/^\//, '') === segment.replace(/^\//, ''))?.value;
+  if (value?.type === 'array') return value.items[Number(segment.replace(/^\[|\]$/g, ''))];
+  return undefined;
+};
 /** Associate each path segment with the object that actually contains its key. */
 export const referencePathOwners = function referencePathOwners(
   value: PdfValue,
@@ -26,21 +45,10 @@ export const referencePathOwners = function referencePathOwners(
   let current: PdfValue | undefined = value;
   let owner = sourceId;
   return path.map((segment) => {
-    const seen = new Set<string>();
-    while (current?.type === 'reference' && !seen.has(current.ref)) {
-      seen.add(current.ref);
-      owner = current.ref;
-      current = objects.get(current.ref)?.value;
-    }
-    const segmentOwner = owner;
-    if (current?.type === 'dictionary' || current?.type === 'stream') {
-      current = current.entries.find((entry) => entry.key.replace(/^\//, '') === segment.replace(/^\//, ''))?.value;
-    } else if (current?.type === 'array') {
-      current = current.items[Number(segment.replace(/^\[|\]$/g, ''))];
-    } else {
-      current = undefined;
-    }
-    return segmentOwner;
+    const resolved = dereference(current, owner, objects);
+    owner = resolved.owner;
+    current = segmentValue(resolved.value, segment);
+    return owner;
   });
 };
 /** A visited route through the PDF graph, never a claim of unique ownership. */

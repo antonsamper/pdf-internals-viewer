@@ -116,4 +116,22 @@ describe('content resource provenance', () => {
     expect(resourceCategory('BDC', 0, 2)).toBeUndefined();
     expect(resourceCategory('BDC', 1, 2)).toBe('Properties');
   });
+  it('names the resource operand of each operator that uses one', () => {
+    const cases: [string, number, number, string][] = [
+      ['Do', 0, 2, 'XObject'],
+      ['gs', 0, 2, 'ExtGState'],
+      ['sh', 0, 2, 'Shading'],
+      ['cs', 0, 2, 'ColorSpace'],
+      ['CS', 0, 2, 'ColorSpace'],
+      ['scn', 2, 3, 'Pattern'],
+      ['SCN', 0, 1, 'Pattern'],
+      ['DP', 1, 2, 'Properties'],
+    ];
+    for (const [operator, index, count, category] of cases) expect(resourceCategory(operator, index, count)).toBe(category);
+    expect(resourceCategory('scn', 0, 3)).toBeUndefined();
+    expect(resourceCategory('Do', 1, 2)).toBeUndefined();
+    expect(resourceCategory(undefined, 0, 1)).toBeUndefined();
+    expect(resourceCategory('constructor', 0, 1)).toBeUndefined();
+    expect(resourceCategory('toString', 0, 1)).toBeUndefined();
+  });
 });
