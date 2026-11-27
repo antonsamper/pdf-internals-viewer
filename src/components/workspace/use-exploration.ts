@@ -12,6 +12,15 @@ import { newViewports } from './types';
 
 const initialHistory = (): Selection[] => [{ id: null, section: 'overview', tab: 'properties' }];
 
+/** Whether two selections show the same object, tab, section, byte range and trail. */
+const sameSelection = (a: Selection, b: Selection) =>
+  a.id === b.id &&
+  a.tab === b.tab &&
+  a.section === b.section &&
+  a.range?.start === b.range?.start &&
+  a.range?.end === b.range?.end &&
+  JSON.stringify(a.trail) === JSON.stringify(b.trail);
+
 interface ExplorationDeps {
   document: PdfDocumentInfo | null;
   objectMap: Map<string, PdfObjectRecord>;
@@ -49,15 +58,7 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
 
   const visit = (next: Selection) => {
     onArrive(next, section);
-    if (
-      selection.id === next.id &&
-      selection.tab === next.tab &&
-      selection.section === next.section &&
-      selection.range?.start === next.range?.start &&
-      selection.range?.end === next.range?.end &&
-      JSON.stringify(selection.trail) === JSON.stringify(next.trail)
-    )
-      return;
+    if (sameSelection(selection, next)) return;
     setViewportHistory(viewportHistory.slice(0, historyIndex + 1).concat(newViewports()));
     setHistory(history.slice(0, historyIndex + 1).concat(next));
     setHistoryIndex(historyIndex + 1);

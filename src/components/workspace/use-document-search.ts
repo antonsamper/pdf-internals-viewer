@@ -6,7 +6,7 @@ import type { ExplorationStep } from '@/lib/pdf/exploration-trail';
 import type { PageTextLocation, TextSource } from '@/lib/pdf/page-text';
 import type { PdfDocumentInfo, PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 
-import { runDocumentSearch } from '@/lib/pdf/document-search';
+import { MAX_RESULTS, runDocumentSearch } from '@/lib/pdf/document-search';
 
 import type { Section, Selection } from './types';
 import type { useSourceReveal } from './use-source-reveal';
@@ -171,13 +171,8 @@ export const useDocumentSearch = (deps: SearchDeps) => {
     setMessage('');
   };
 
-  const run = async (nextScope?: string) => {
-    const searchScope = nextScope ?? scope;
-    const term = query.trim();
-    if (!term) {
-      clear();
-      return;
-    }
+  /** Marks a new search as running while the completed results stay visible. */
+  const begin = (searchScope: string, term: string) => {
     const token = ++requestId.current;
     setCancelRequest(token);
     abort.current?.abort();
@@ -191,6 +186,35 @@ export const useDocumentSearch = (deps: SearchDeps) => {
     // Keep the completed results and their scope/selection together until the
     // replacement is ready. Only the status changes while a search is running.
     setResults((current) => current ?? []);
+    return { signal: controller.signal, token };
+  };
+
+  const finish = (found: SearchResult[], note: string, searchScope: string, term: string) => {
+    setResults(found);
+    setSourceLocationsPage(null);
+    setResultsScope(searchScope);
+    setResultsQuery(term);
+    reveal.setTextSource(null);
+    setActiveResult(null);
+    if (found.length) selectLatest.current(found[0], 0, searchScope);
+    setMessage(found.length === MAX_RESULTS ? `Showing the first ${MAX_RESULTS} matches. Narrow your search.` : note);
+    setSearching(false);
+  };
+
+  const fail = (reason: unknown) => {
+    setInterrupted('failed');
+    setMessage(reason instanceof Error ? reason.message : 'Search failed.');
+    setSearching(false);
+  };
+
+  const run = async (nextScope?: string) => {
+    const searchScope = nextScope ?? scope;
+    const term = query.trim();
+    if (!term) {
+      clear();
+      return;
+    }
+    const { signal, token } = begin(searchScope, term);
     try {
       const outcome = await runDocumentSearch({
         bytes: deps.bytes,
@@ -201,26 +225,12 @@ export const useDocumentSearch = (deps: SearchDeps) => {
         password: deps.previewPassword,
         readStream: deps.readStream,
         scope: searchScope,
-        signal: controller.signal,
+        signal,
         term,
       });
-      if (!outcome || token !== requestId.current) return;
-      const { found } = outcome;
-      setResults(found);
-      setSourceLocationsPage(null);
-      setResultsScope(searchScope);
-      setResultsQuery(term);
-      reveal.setTextSource(null);
-      setActiveResult(null);
-      if (found.length) selectLatest.current(found[0], 0, searchScope);
-      setMessage(found.length === 500 ? 'Showing the first 500 matches. Narrow your search.' : outcome.message);
-      setSearching(false);
+      if (outcome && token === requestId.current) finish(outcome.found, outcome.message, searchScope, term);
     } catch (reason) {
-      if (token === requestId.current) {
-        setInterrupted('failed');
-        setMessage(reason instanceof Error ? reason.message : 'Search failed.');
-        setSearching(false);
-      }
+      if (token === requestId.current) fail(reason);
     }
   };
 

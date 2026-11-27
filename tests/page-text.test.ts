@@ -199,4 +199,22 @@ describe('page text source mapping', () => {
       { end: 6, start: 5, value: 32 },
     ]);
   });
+  it('caps a page at 100 text sources and marks only the last one incomplete', async () => {
+    const { results } = await sources(`BT /F1 12 Tf (${'Hi '.repeat(130)}) Tj ET`, 'Hi');
+    expect(results).toHaveLength(100);
+    expect(results.every((result) => result.ranges.length === 1)).toBe(true);
+    expect(results.slice(0, -1).some((result) => result.incomplete)).toBe(false);
+    expect(results[99].incomplete).toBe(true);
+  });
+  it('starts a new line for \' and " and maps the string operand of "', async () => {
+    const quote = await sources("BT /F1 12 Tf 14 TL (Hel) Tj (lo) ' ET", 'Hello');
+    expect(quote.results).toHaveLength(1);
+    expect(quote.results[0].ranges).toEqual([]);
+    const next = await sources("BT /F1 12 Tf 14 TL (Hel) Tj (lo) ' ET", 'lo');
+    expect(selected(next.bytes, next.results[0].originalRanges!)).toEqual(['lo']);
+    const spaced = await sources('BT /F1 12 Tf 14 TL (Hel) Tj 1 2 (lo) " ET', 'Hello');
+    expect(spaced.results[0].ranges).toEqual([]);
+    const { bytes, results } = await sources('BT /F1 12 Tf 14 TL 1 2 (Hello) " ET', 'Hello');
+    expect(selected(bytes, results[0].originalRanges!)).toEqual(['Hello']);
+  });
 });

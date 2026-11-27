@@ -22,17 +22,22 @@ export const resourcePageAccess = (document: PdfDocumentInfo, objects: Map<strin
         incomplete = true;
         return;
       }
-      if (value.type === 'reference') {
-        if (seen.has(value.ref)) return;
-        seen.add(value.ref);
-        const object = objects.get(value.ref);
-        if (!object) {
-          incomplete = true;
-          return;
-        }
-        if (resourceKind(object)) pages.set(value.ref, [...(pages.get(value.ref) ?? []), index + 1]);
-        visit(object.value, depth + 1);
-      } else if (value.type === 'array') {
+      if (value.type === 'reference') visitReference(value.ref, depth);
+      else visitChildren(value, depth);
+    };
+    const visitReference = (ref: string, depth: number) => {
+      if (seen.has(ref)) return;
+      seen.add(ref);
+      const object = objects.get(ref);
+      if (!object) {
+        incomplete = true;
+        return;
+      }
+      if (resourceKind(object)) pages.set(ref, [...(pages.get(ref) ?? []), index + 1]);
+      visit(object.value, depth + 1);
+    };
+    const visitChildren = (value: PdfValue, depth: number) => {
+      if (value.type === 'array') {
         for (const child of value.items) {
           if (remaining <= 0) {
             incomplete = true;
@@ -107,32 +112,32 @@ export const compareObjects = (left: PdfObjectRecord, right: PdfObjectRecord): C
 /** Fail closed on masks, nonstandard decoding and color spaces requiring interpretation. */
 export const imagePlan = (object: PdfObjectRecord): ImagePlan => {
   if (!hasSubtype(object, 'Image')) throw new Error('This object is not an image XObject.');
-  const number = (key: string) => {
-    const value = property(object.value, key);
-    return value?.type === 'number' ? value.value : NaN;
-  };
-  const width = number('Width'),
-    height = number('Height');
-  if (
-    !Number.isSafeInteger(width) ||
-    !Number.isSafeInteger(height) ||
-    width <= 0 ||
-    height <= 0 ||
-    width > 4096 ||
-    height > 4096 ||
-    width * height > 4000000
-  )
-    throw new Error('Thumbnail unavailable: image dimensions exceed the 4 megapixel / 4096 pixel safety limit or are invalid.');
+  const { height, width } = imageDimensions(object);
   if (['Decode', 'ImageMask', 'Mask', 'SMask', 'SMaskInData'].some((key) => property(object.value, key) !== undefined))
     throw new Error(
       'Thumbnail unavailable: custom decoding or image masks require a full renderer. Inspect the dictionary and stream instead.'
     );
+  return { channels: imageChannels(object), height, width };
+};
+const numberProperty = (object: PdfObjectRecord, key: string) => {
+  const value = property(object.value, key);
+  return value?.type === 'number' ? value.value : NaN;
+};
+const validImageSide = (size: number) => Number.isSafeInteger(size) && size > 0 && size <= 4096;
+const imageDimensions = (object: PdfObjectRecord) => {
+  const width = numberProperty(object, 'Width'),
+    height = numberProperty(object, 'Height');
+  if (!validImageSide(width) || !validImageSide(height) || width * height > 4000000)
+    throw new Error('Thumbnail unavailable: image dimensions exceed the 4 megapixel / 4096 pixel safety limit or are invalid.');
+  return { height, width };
+};
+const imageChannels = (object: PdfObjectRecord): ImagePlan['channels'] => {
   const space = property(object.value, 'ColorSpace');
-  if (space?.type !== 'name' || !['DeviceRGB', 'DeviceGray'].includes(space.value) || number('BitsPerComponent') !== 8)
+  if (space?.type !== 'name' || !['DeviceRGB', 'DeviceGray'].includes(space.value) || numberProperty(object, 'BitsPerComponent') !== 8)
     throw new Error(
       'Thumbnail unavailable: only 8-bit DeviceRGB and DeviceGray images are supported here. Inspect the dictionary and stream instead.'
     );
-  return { channels: space.value === 'DeviceRGB' ? 3 : 1, height, width };
+  return space.value === 'DeviceRGB' ? 3 : 1;
 };
 export const imageRgba = (plan: ImagePlan, bytes: Uint8Array): Uint8ClampedArray => {
   const expected = plan.width * plan.height * plan.channels;

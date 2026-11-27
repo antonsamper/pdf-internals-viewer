@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import type { Locator, Page, Route } from '@playwright/test';
 
 import { test, expect } from '@playwright/test';
 import { mkdir, readFile } from 'node:fs/promises';
@@ -51,6 +51,37 @@ const focusRing = (element: Locator) =>
 const samplePath = (name: string) => resolve('public/samples', name);
 // Keep artifacts separate when --browser=all runs engines concurrently.
 const screenshotPath = (name: string) => resolve('.context', test.info().project.use.browserName ?? 'chromium', name);
+type CachedAsset = { body: Buffer; headers: Record<string, string>; status: number };
+const engineAssets = new Map<string, Promise<CachedAsset>>();
+const serveEngineAsset = async (route: Route) => {
+  const url = route.request().url();
+  if (!engineAssets.has(url)) {
+    const cached = route.fetch().then(async (response) => {
+      const { 'content-encoding': _encoding, 'content-length': _length, 'transfer-encoding': _transfer, ...headers } = response.headers();
+      return { body: await response.body(), headers, status: response.status() };
+    });
+    engineAssets.set(url, cached);
+    // A failed or partial fetch is not cached, so a later boot retries the server.
+    cached.then(
+      (asset) => asset.status === 200 || engineAssets.delete(url),
+      () => engineAssets.delete(url)
+    );
+  }
+  try {
+    await route.fulfill(await engineAssets.get(url)!);
+  } catch (error) {
+    // The page closed or the fetch failed; let the request fail as it would without the cache.
+    console.warn(`Engine asset ${url} not served: ${error instanceof Error ? error.message : error}`);
+    await route.abort().catch(() => undefined);
+  }
+};
+/**
+ * Browser contexts don't share an HTTP cache, so every PDFium engine boot downloads the 7.8 MB wasm again, and
+ * `wrangler pages dev` compresses each response on one thread. Concurrent page-text searches then queue behind it
+ * past the expect timeout. Call this in tests that boot the engine: it fetches each hashed engine asset once per
+ * test worker and serves repeats from memory. Routing turns off the HTTP cache for the context, so other tests skip it.
+ */
+const cacheEngineAssets = (page: Page) => page.context().route('**/assets/embedpdf*', serveEngineAsset);
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
 });
@@ -627,6 +658,7 @@ test('distinguishes compressed-object provenance and decodes filtered streams', 
 });
 for (const width of [1440, 390]) {
   test(`custom search scope supports keyboard selection and keeps results open at ${width}px`, async ({ page }) => {
+    await cacheEngineAssets(page);
     await page.setViewportSize({ height: 1000, width });
     await openMinimal(page);
     const scope = page.getByRole('combobox', {
@@ -687,6 +719,7 @@ for (const width of [1440, 390]) {
 }
 for (const width of [1440, 390]) {
   test(`search selection preserves focus and labels single-page navigation at ${width}px`, async ({ page }) => {
+    await cacheEngineAssets(page);
     await page.setViewportSize({ height: 1000, width });
     const fixture = pageTextSearchPdf(true);
     await page.getByLabel('Open local PDF').setInputFiles({
@@ -2136,6 +2169,7 @@ for (const sample of ['embedded-font', 'hidden-attachment', 'repeated-logo', 'pa
   });
 }
 test('opens example find-text-source and follows a page-text match to its source bytes', async ({ page }) => {
+  await cacheEngineAssets(page);
   await page.goto('/examples/find-text-source');
   await expect(page.getByRole('link', { exact: true, name: 'Download sample PDF' })).toHaveAttribute(
     'href',
@@ -2498,8 +2532,49 @@ test('public headers match the workspace height and align the mobile identity ro
     }
   }
 });
+test('keeps the site header in view while scrolling public pages, direct or followed', async ({ page }) => {
+  const checkScrolled = async (width: number) => {
+    const header = page.getByRole('banner');
+    const title = page.getByRole('heading', { level: 1 });
+    await expect(title).toBeInViewport();
+    await page.mouse.move(width / 2, 600);
+    // Scroll past the title but not to the end, where the sidebar leaves with its column.
+    await page.mouse.wheel(0, 800);
+    await expect(title).not.toBeInViewport();
+    await expect(header.getByRole('navigation', { name: 'Main navigation' })).toBeInViewport();
+    const banner = (await header.boundingBox())!;
+    expect(banner.y).toBe(0);
+    // The section sidebar sticks below the header instead of sliding under it.
+    if (width > 900) {
+      const sidebar = page.getByRole('navigation', { name: 'Content navigation' });
+      await expect(sidebar).toBeInViewport();
+      expect((await sidebar.boundingBox())!.y).toBeGreaterThanOrEqual(banner.height);
+    }
+  };
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ height: 844, width });
+    // Static articles scroll the document under a sticky header; About scrolls inside the app shell.
+    for (const route of ['/who-its-for', '/examples/large-pdf', '/about']) {
+      await page.goto(route);
+      await checkScrolled(width);
+    }
+    // Pages reached from About render inside the app shell.
+    await page.getByRole('navigation', { name: 'Project' }).getByRole('link', { exact: true, name: 'Guide' }).click();
+    await expect(page).toHaveURL(/\/guide$/);
+    await checkScrolled(width);
+  }
+});
+test('lands anchors on static pages below the sticky header', async ({ page }) => {
+  await page.goto('/guide#keyboard-shortcuts');
+  const heading = page.getByRole('heading', { name: 'Keyboard shortcuts' });
+  await expect(heading).toBeInViewport();
+  const banner = (await page.getByRole('banner').boundingBox())!;
+  expect(banner.y).toBe(0);
+  expect((await heading.boundingBox())!.y).toBeGreaterThanOrEqual(banner.height);
+});
 for (const compressed of [false, true]) {
   test(`page text search maps split words to ${compressed ? 'decoded' : 'original'} bytes`, async ({ page }) => {
+    await cacheEngineAssets(page);
     const fixture = pageTextSearchPdf(compressed);
     await page.getByLabel('Open local PDF').setInputFiles({
       buffer: Buffer.from(fixture.bytes),
@@ -2559,6 +2634,7 @@ for (const compressed of [false, true]) {
   });
 }
 test('preview search highlights follow page rotation, zoom and page navigation', async ({ page }) => {
+  await cacheEngineAssets(page);
   const content = 'BT /F1 12 Tf 72 700 Td (Hello Hello) Tj ET';
   const other = 'BT /F1 12 Tf 72 700 Td (Other page) Tj ET';
   const fixture = classicPdf([
@@ -2624,6 +2700,7 @@ test('preview search highlights follow page rotation, zoom and page navigation',
   await expect(polygons).toHaveCount(0);
 });
 test('page text search labels unsupported font mappings as candidate streams on mobile', async ({ page }) => {
+  await cacheEngineAssets(page);
   await page.setViewportSize({ height: 844, width: 390 });
   const fixture = pageTextSearchPdf(false, true);
   await page.getByLabel('Open local PDF').setInputFiles({
@@ -2668,6 +2745,7 @@ test('page text search labels unsupported font mappings as candidate streams on 
   await expect(preview.locator('[data-pdf-search-highlights]')).toHaveCount(0);
 });
 test('page text search uses the unlock password and keeps encrypted source bytes distinct', async ({ page }) => {
+  await cacheEngineAssets(page);
   await page.getByLabel('Open local PDF').setInputFiles(resolve('tests/fixtures/encryption/AES-256-password.pdf'));
   const password = page.getByLabel('PDF password', { exact: true });
   await password.fill('secret');
@@ -2685,6 +2763,7 @@ test('page text search uses the unlock password and keeps encrypted source bytes
   await expect(page.locator('[data-text-source-note]')).toContainText('Containing stream only');
 });
 test('cancels a pending page text search when the document is replaced', async ({ page }) => {
+  await cacheEngineAssets(page);
   await openMinimal(page);
   let release!: () => void;
   const gate = new Promise<void>((done) => {
@@ -2979,6 +3058,7 @@ for (const width of [1440, 390]) {
 }
 for (const width of [1440, 390, 320]) {
   test(`keeps match navigation in the popover and offers contextual results at ${width}px`, async ({ page }) => {
+    await cacheEngineAssets(page);
     await page.setViewportSize({ height: 900, width });
     await openMinimal(page);
     const search = page.getByRole('textbox', {
@@ -3053,6 +3133,7 @@ for (const width of [1440, 390, 320]) {
 }
 for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
   test(`reselecting the same ${scope} result reveals its highlighted bytes after scrolling away`, async ({ page }) => {
+    await cacheEngineAssets(page);
     const content = 'BT /F1 12 Tf 72 700 Td (Hello) Tj ET\n%' + 'padding '.repeat(4000);
     const compressed = scope === 'pageTextDecoded';
     const contentBytes = compressed ? (await import('node:zlib')).deflateSync(Buffer.from(content)) : Buffer.from(content);
@@ -3129,6 +3210,7 @@ for (const scope of ['text', 'pageText', 'pageTextDecoded']) {
 }
 for (const width of [1440, 390]) {
   test(`result arrows reveal the whole page result card at ${width}px`, async ({ page }) => {
+    await cacheEngineAssets(page);
     await page.setViewportSize({ height: 900, width });
     const content = 'BT /F1 12 Tf 72 700 Td (Hello model) Tj ET';
     const objects: [number, string][] = [
@@ -3210,6 +3292,7 @@ for (const width of [1440, 390]) {
   });
 }
 test('page result actions are visible before choosing an unselected page', async ({ page }) => {
+  await cacheEngineAssets(page);
   const content = 'BT /F1 12 Tf 72 700 Td (Hello) Tj ET';
   const fixture = classicPdf([
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
@@ -3245,6 +3328,7 @@ test('page result actions are visible before choosing an unselected page', async
   ).toHaveCount(5);
 });
 test('page text search highlights bytes encoded through a Unicode range font map', async ({ page }) => {
+  await cacheEngineAssets(page);
   const content = 'BT /F1 12 Tf 72 700 Td (Hello) Tj ET';
   const cmap = 'begincmap\n1 begincodespacerange <00> <FF> endcodespacerange\n1 beginbfrange <00> <FF> <0000> endbfrange\nendcmap';
   const fixture = classicPdf([

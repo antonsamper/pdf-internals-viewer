@@ -1,6 +1,10 @@
 import type { UIEvent } from 'react';
 
 import { useLayoutEffect, useRef } from 'react';
+const restoreScroll = (element: HTMLDivElement, positionRef: ScrollPosition) => {
+  element.scrollTop = positionRef.current?.top ?? 0;
+  element.scrollLeft = positionRef.current?.left ?? 0;
+};
 export const useScrollRestoration = function useScrollRestoration(positionRef: ScrollPosition, ready = true) {
   const onScroll = function onScroll(event: UIEvent<HTMLDivElement>) {
     if (!ready || restored.current?.positionRef !== positionRef) return;
@@ -19,8 +23,7 @@ export const useScrollRestoration = function useScrollRestoration(positionRef: S
     const element = ref.current;
     if (!element || !ready || !element.clientHeight) return;
     if (restored.current?.positionRef === positionRef && restored.current.element === element) return;
-    element.scrollTop = positionRef.current?.top ?? 0;
-    element.scrollLeft = positionRef.current?.left ?? 0;
+    restoreScroll(element, positionRef);
     restored.current = { element, positionRef };
   });
   return { onScroll, ref };
