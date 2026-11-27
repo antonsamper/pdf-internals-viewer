@@ -598,8 +598,9 @@ const Limitations = function Limitations() {
     </>
   );
 };
-/** The article body for each public path. Paths without an entry show the fonts and images guide. */
-const PAGE_CONTENT: Partial<Record<SitePath, ComponentType>> = {
+/** Home and About have their own components; every other public path needs an entry here. */
+type ArticlePath = Exclude<SitePath, '/' | '/about'>;
+const PAGE_CONTENT: Record<ArticlePath, ComponentType> = {
   '/examples': Examples,
   '/examples/broken-xref': BrokenXrefExample,
   '/examples/embedded-font': FontExample,
@@ -614,6 +615,7 @@ const PAGE_CONTENT: Partial<Record<SitePath, ComponentType>> = {
   '/guide': Guide,
   '/guides/decode-pdf-streams': StreamsGuide,
   '/guides/find-pdf-attachments': AttachmentsGuide,
+  '/guides/find-pdf-fonts-images': ResourcesGuide,
   '/guides/inspect-pdf-objects': ObjectsGuide,
   '/guides/investigate-suspicious-features': SuspiciousFeaturesGuide,
   '/guides/search-bookmark-compare': SearchGuide,
@@ -660,7 +662,7 @@ export const PublicPage = function PublicPage({
   onFollowLink?: (event: MouseEvent<HTMLElement>) => boolean;
   standalone?: boolean;
 }) {
-  const Content = PAGE_CONTENT[page.path] ?? ResourcesGuide;
+  const Content = PAGE_CONTENT[page.path as ArticlePath] ?? ResourcesGuide;
   return (
     <ReadingPage labelledBy="public-title" onClick={onFollowLink} path={page.path} standalone={standalone}>
       <BackToWorkspace />
