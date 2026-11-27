@@ -50,7 +50,6 @@ export interface OverviewPaneProps {
 
 type DocumentProps = OverviewPaneProps & { document: PdfDocumentInfo };
 
-/** A paragraph of muted body text in the overview. */
 const OverviewText = ({ className, ...props }: ComponentProps<'p'>) => {
   return <p className={cn('text-detail leading-[1.8] text-muted-foreground', className)} {...props} />;
 };

@@ -12,12 +12,10 @@ import { Warning } from '@/components/inspector/warning';
 import { Button } from '@/components/ui/button';
 import { contentInstructions, explainInstruction, namedResource, resourceCategory, resourceContexts } from '@/lib/pdf/content-stream';
 import { cn } from '@/lib/utils';
-/** A link in the explanations above the instructions. */
 const ExplanationLink = ({ className, ...props }: ComponentProps<'a'>) => {
   return <a className={cn('underline underline-offset-3', className)} {...props} />;
 };
 
-/** Switches between the readable instructions and the decoded byte text. */
 const RepresentationToggle = ({ readable, onChange }: { readable: boolean; onChange: (readable: boolean) => void }) => {
   return (
     <div className="my-3 flex flex-wrap items-center gap-1.5" aria-label="Decoded stream representation">
@@ -47,7 +45,6 @@ const RepresentationToggle = ({ readable, onChange }: { readable: boolean; onCha
   );
 };
 
-/** Explains the numbers between strings in a TJ array. */
 const TextArrayHelp = ({ onFollowLink }: { onFollowLink?: (event: MouseEvent<HTMLElement>) => boolean }) => {
   return (
     <details className="mb-3 rounded-[5px] border px-3 py-2.5 text-small leading-[1.7]" data-text-help>

@@ -28,7 +28,6 @@ interface SearchDeps {
   visit: (next: Selection) => void;
 }
 
-/** Search state, requests and result navigation for the document search box. */
 export const useDocumentSearch = (deps: SearchDeps) => {
   const { document, reveal, setMobilePane, setPreview, setPreviewPage } = deps;
   const inputRef = useRef<HTMLInputElement>(null);

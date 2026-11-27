@@ -7,7 +7,6 @@ import type { SitePath } from '@/lib/site-content';
 import { buttonVariants } from '@/components/ui/button-variants';
 import { CONTENT_GROUPS, contentType, relatedPages } from '@/lib/site-navigation';
 import { cn } from '@/lib/utils';
-/** A header link shaped like a small ghost button, in medium-weight type a little under 13px. */
 export const HeaderLink = function HeaderLink({ className, ...props }: ComponentProps<'a'>) {
   return (
     <a

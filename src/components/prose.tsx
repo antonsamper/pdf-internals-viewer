@@ -8,19 +8,15 @@ import { cn } from '@/lib/utils';
  * the lead paragraph, the action and source lines, and the About page's text button.
  */
 
-/** The reading column of an article: titles, headings, paragraphs, lists, code blocks and links. */
 export const Prose = function Prose({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div
       className={cn(
-        // Titles and headings
         '[&_h1]:mb-4.5 [&_h1]:text-[clamp(30px,4vw,40px)] [&_h1]:leading-[1.2] [&_h1]:font-[550] [&_h1]:tracking-[-0.035em]',
         '[&_h2]:mt-8 [&_h2]:mb-3 [&_h2]:text-subheading [&_h2]:font-[550]',
         '[&_h3]:mt-6 [&_h3]:mb-2.5 [&_h3]:text-reading [&_h3]:font-semibold',
-        // Paragraphs
         '[&_p:not([class])]:mb-3.5 [&_p:not([class])]:text-reading [&_p:not([class])]:leading-[1.85]',
         '[&_p:not([class])]:text-muted-foreground',
-        // Lists
         '[&_dl]:text-reading [&_dl]:leading-[1.85] [&_dl]:text-muted-foreground',
         '[&_dd]:m-0 [&_dt]:mt-3 [&_dt]:font-semibold [&_dt]:text-foreground',
         '[&_ol]:mt-4 [&_ol]:mb-6 [&_ol]:list-decimal [&_ol]:pl-6',
@@ -28,11 +24,9 @@ export const Prose = function Prose({ children, className }: { children: ReactNo
         '[&_ul]:mt-4 [&_ul]:mb-6 [&_ul]:list-disc [&_ul]:pl-6',
         '[&_ul]:text-reading [&_ul]:leading-[1.85] [&_ul]:text-muted-foreground',
         '[&_li]:my-2',
-        // Code blocks and bold text
         '[&_pre]:my-6 [&_pre]:p-5 [&_pre]:leading-[1.7] [&_pre]:[overflow-wrap:anywhere] [&_pre]:whitespace-pre-wrap',
         '[&_pre]:rounded-md [&_pre]:border [&_pre]:border-border [&_pre]:bg-muted',
         '[&_strong]:font-semibold [&_strong]:text-foreground',
-        // Links are violet and underline on hover; inside a paragraph they are always underlined
         '[&_a:not([class])]:text-reference [&_a:not([class])]:underline-offset-3 [&_a:not([class])]:hover:underline',
         '[&_p_a:not([class])]:underline',
         'max-w760:[&_pre]:p-3.5',
@@ -44,12 +38,10 @@ export const Prose = function Prose({ children, className }: { children: ReactNo
   );
 };
 
-/** The paragraph under the title. */
 export const Lead = function Lead({ children }: { children: ReactNode }) {
   return <p className="mb-10 text-heading leading-[1.7] text-muted-foreground">{children}</p>;
 };
 
-/** A row of links such as "Explore this sample" and "Download sample PDF". */
 export const ArticleActions = function ArticleActions({ children }: { children: ReactNode }) {
   return (
     <p
@@ -64,12 +56,10 @@ export const ArticleActions = function ArticleActions({ children }: { children: 
   );
 };
 
-/** The "Example source" line at the end of an example. */
 export const ArticleSource = function ArticleSource({ children }: { children: ReactNode }) {
   return <p className="mt-8 mb-3.5 text-small leading-[1.85] text-muted-foreground">{children}</p>;
 };
 
-/** An example's preview image and caption. */
 export const ExamplePreview = function ExamplePreview({
   alt,
   caption,

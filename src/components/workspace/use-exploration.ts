@@ -14,7 +14,6 @@ const initialHistory = (): Selection[] => {
   return [{ id: null, section: 'overview', tab: 'properties' }];
 };
 
-/** Whether two selections show the same object, tab, section, byte range and trail. */
 const sameSelection = (a: Selection, b: Selection) => {
   return (
     a.id === b.id &&

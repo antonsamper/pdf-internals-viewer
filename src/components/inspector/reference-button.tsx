@@ -2,7 +2,6 @@ import type { ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
 
-/** A navigable PDF reference: violet monospace text that underlines on hover. */
 export const ReferenceButton = ({ className, ...props }: ComponentProps<'button'>) => {
   return (
     <button

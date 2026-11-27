@@ -2,12 +2,10 @@ import type { ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
 
-/** Small explanatory text, such as what a representation shows and what it leaves out. */
 export const Note = ({ className, ...props }: ComponentProps<'p'>) => {
   return <p className={cn('mb-3.75 text-caption leading-[1.7] text-muted-foreground', className)} {...props} />;
 };
 
-/** A full-width notice under a pane heading. */
 export const Notice = ({ className, ...props }: ComponentProps<'div'>) => {
   return (
     <div
@@ -22,7 +20,6 @@ export const Notice = ({ className, ...props }: ComponentProps<'div'>) => {
   );
 };
 
-/** Muted text in the issues pane and the overview's issue section. */
 export const IssueNote = ({ className, ...props }: ComponentProps<'p'>) => {
   return <p className={cn('my-2 text-muted-foreground', className)} {...props} />;
 };
