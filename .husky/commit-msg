@@ -1,0 +1,1 @@
+node scripts/check-title.mjs --commit-msg-file "$1"
