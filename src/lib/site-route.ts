@@ -41,6 +41,19 @@ const updateMetadata = (path: SitePath) => {
     );
   schema.textContent = JSON.stringify(structuredData(page));
 };
+/** A primary click with no modifier keys that nothing else has handled. */
+const isPlainClick = (event: MouseEvent<HTMLElement>) =>
+  !event.defaultPrevented && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+/** The public page a clicked link opens in place, or undefined when the browser should follow the link itself. */
+const inPlaceTarget = (event: MouseEvent<HTMLElement>) => {
+  const anchor = event.target instanceof Element ? event.target.closest('a') : null;
+  if (!anchor || anchor.hasAttribute('download') || anchor.target === '_blank') return undefined;
+  const url = new URL(anchor.href);
+  // Sample links intentionally load a fresh workspace, and external links stay native.
+  if (url.origin !== window.location.origin || url.search || url.hash) return undefined;
+  const next = sitePage(url.pathname);
+  return next && { next, url };
+};
 // Keep the PDF workspace mounted while visiting public content.
 export const useSiteRoute = (initialPath: SitePath = '/') => {
   const goHome = () => {
@@ -49,16 +62,11 @@ export const useSiteRoute = (initialPath: SitePath = '/') => {
     setPath('/');
   };
   const followLink = (event: MouseEvent<HTMLElement>) => {
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return false;
-    const anchor = event.target instanceof Element ? event.target.closest('a') : null;
-    if (!anchor || anchor.hasAttribute('download') || anchor.target === '_blank') return false;
-    const url = new URL(anchor.href);
-    const next = sitePage(url.pathname);
-    // Sample links intentionally load a fresh workspace, and external links stay native.
-    if (url.origin !== window.location.origin || !next || url.search || url.hash) return false;
+    const target = isPlainClick(event) ? inPlaceTarget(event) : undefined;
+    if (!target) return false;
     event.preventDefault();
-    if (url.pathname !== window.location.pathname) window.history.pushState(null, '', url);
-    setPath(next.path);
+    if (target.url.pathname !== window.location.pathname) window.history.pushState(null, '', target.url);
+    setPath(target.next.path);
     return true;
   };
   const [path, setPath] = useState<SitePath>(initialPath);
