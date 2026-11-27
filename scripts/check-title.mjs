@@ -8,7 +8,8 @@ export const MAX_LENGTH = 72;
 
 const pattern = new RegExp(`^\\[PIV-[0-9]+\\] (${TYPES.join('|')})\\((${AREAS.join('|')})\\): [a-z0-9]([^A-Z]*[^A-Z.])?$`);
 // Git writes these subjects itself. Squash merges replace them with the PR title, so they never reach main.
-const gitSubject = /^(Merge (branch(es)?|remote-tracking branch(es)?|commit|tag|pull request) |Revert "|Reapply "|(fixup|squash|amend)! )/;
+const gitSubject =
+  /^(Merge (branch(es)?|remote-tracking branch(es)?|commit|tags?|pull request|HEAD,) |Merge (\S+:\/\/|[./])|Revert "|Reapply "|(fixup|squash|amend)! )/;
 
 export const titleProblem = function titleProblem(title) {
   if (!pattern.test(title)) {

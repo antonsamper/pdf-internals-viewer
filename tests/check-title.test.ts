@@ -62,6 +62,8 @@ describe('commitSubjectProblem', () => {
     "Merge branch 'main' into PIV-1",
     "Merge remote-tracking branch 'origin/main' into PIV-1",
     "Merge branches 'PIV-1' and 'PIV-2'",
+    "Merge tags 'v1' and 'v2'",
+    'Merge https://github.com/example/fork',
     'Revert "[PIV-1] fix(search): keep the note"',
     'Reapply "[PIV-1] fix(search): keep the note"',
     'fixup! [PIV-1] fix(search): keep the note',
