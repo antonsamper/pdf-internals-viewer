@@ -17,9 +17,9 @@ jobs:
           TITLE: ${{ github.event.pull_request.title }}
           BODY: ${{ github.event.pull_request.body }}
         run: |
-          pattern='^\[PIV-([0-9]+)\] (feat|fix|chore|docs|ci|test|perf|refactor)(\((inspector|site|search|infra|brand)\))?: [a-z0-9]([^A-Z]*[^A-Z.])?$'
+          pattern='^\[PIV-([0-9]+)\] (feat|fix|chore|docs|ci|test|perf|refactor)\((inspector|site|search|infra|brand|repo)\): [a-z0-9]([^A-Z]*[^A-Z.])?$'
           if [[ ! "$TITLE" =~ $pattern ]]; then
-            echo "::error::Title must match '[PIV-<issue>] type(scope): summary', with an all-lowercase summary. See AGENTS.md."
+            echo "::error::Title must match '[PIV-<issue>] type(scope): summary', with an area scope and an all-lowercase summary. See AGENTS.md."
             exit 1
           fi
           issue="${BASH_REMATCH[1]}"
