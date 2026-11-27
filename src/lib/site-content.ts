@@ -2,9 +2,15 @@ export const sitePage = function sitePage(pathname: string): SitePage | undefine
   const path = pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
   return SITE_PAGES.find((page) => page.path === path);
 };
+/** The index an article sits under: guides under the guide, examples under the examples. Other pages have none. */
+export const articleSection = function articleSection(path: string) {
+  if (path.startsWith('/guides/')) return { href: '/guide', label: 'Guide' };
+  if (path.startsWith('/examples/')) return { href: '/examples', label: 'Examples' };
+  return null;
+};
 /** Guides and examples are dated, authored articles; the other pages are plain web pages. */
 export const isArticlePath = function isArticlePath(path: string) {
-  return path.startsWith('/guides/') || path.startsWith('/examples/');
+  return articleSection(path) !== null;
 };
 const articleDetails = function articleDetails(page: SitePage) {
   if (!isArticlePath(page.path)) return {};
@@ -16,14 +22,7 @@ const articleDetails = function articleDetails(page: SitePage) {
 /** The breadcrumb trail for every page except the home page, with the guide or examples index between home and an article. */
 const breadcrumbs = function breadcrumbs(page: SitePage, url: string) {
   if (page.path === '/') return [];
-  const article = isArticlePath(page.path);
-  const examples = page.path.startsWith('/examples/');
-  const parent = {
-    '@type': 'ListItem',
-    item: `${SITE_URL}${examples ? '/examples' : '/guide'}`,
-    name: examples ? 'Examples' : 'Guide',
-    position: 2,
-  };
+  const section = articleSection(page.path);
   return [
     {
       '@id': `${url}#breadcrumbs`,
@@ -35,12 +34,12 @@ const breadcrumbs = function breadcrumbs(page: SitePage, url: string) {
           name: 'PDF Internals',
           position: 1,
         },
-        ...(article ? [parent] : []),
+        ...(section ? [{ '@type': 'ListItem', item: `${SITE_URL}${section.href}`, name: section.label, position: 2 }] : []),
         {
           '@type': 'ListItem',
           item: url,
           name: page.heading,
-          position: article ? 3 : 2,
+          position: section ? 3 : 2,
         },
       ],
     },

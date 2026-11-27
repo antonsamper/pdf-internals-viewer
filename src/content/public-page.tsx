@@ -8,7 +8,7 @@ import { BackToWorkspace, ReadingPage } from '@/components/reading-page';
 import { SiteHeader } from '@/components/site-header';
 import { SiteLinks } from '@/components/site-links';
 import { MAX_INPUT_BYTES, MAX_DISPLAY_BYTES, MAX_OBJECTS, MAX_DECODED_BYTES, OPERATION_TIMEOUT_MS } from '@/lib/pdf/limits';
-import { PRIVACY_SUMMARY, PROJECT_URL, isArticlePath } from '@/lib/site-content';
+import { PRIVACY_SUMMARY, PROJECT_URL, articleSection, isArticlePath } from '@/lib/site-content';
 import { navigationLabel } from '@/lib/site-navigation';
 import { cn } from '@/lib/utils';
 
@@ -624,14 +624,8 @@ const PAGE_CONTENT: Record<ArticlePath, ComponentType> = {
   '/privacy': Privacy,
   '/who-its-for': AudiencePage,
 };
-/** The section an article sits under in the breadcrumb, if any. */
-const parentSection = function parentSection(path: SitePath) {
-  if (path.startsWith('/guides/')) return { href: '/guide', label: 'Guide' };
-  if (path.startsWith('/examples/')) return { href: '/examples', label: 'Examples' };
-  return null;
-};
 const Breadcrumb = function Breadcrumb({ path }: { path: SitePath }) {
-  const parent = parentSection(path);
+  const parent = articleSection(path);
   return (
     <nav className="mb-6 text-small leading-[1.8] [overflow-wrap:anywhere] text-muted-foreground" aria-label="Breadcrumb">
       <a href="/">PDF Internals</a>

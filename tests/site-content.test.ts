@@ -25,6 +25,14 @@ describe('public page structured data', () => {
     ]);
   });
 
+  it('keeps the guide and examples indexes as plain web pages', () => {
+    for (const path of ['/guide', '/examples']) {
+      expect(node(path, 'WebPage')).not.toHaveProperty('dateModified');
+      expect(node(path, 'TechArticle')).toBeUndefined();
+      expect(trail(path)).toHaveLength(2);
+    }
+  });
+
   it('marks guides as authored articles under the guide', () => {
     expect(node('/guides/decode-pdf-streams', 'TechArticle')).toMatchObject({
       author: { '@id': `${SITE_URL}/#author` },
