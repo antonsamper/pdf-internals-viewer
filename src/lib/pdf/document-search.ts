@@ -53,6 +53,14 @@ const pageTextResult = (hit: PageTextHit, pageId: string, pageNumber: number, { 
   },
 });
 
+/** Results that stop at MAX_RESULTS say so. Each result is one match. */
+const limitNotice = (found: SearchResult[]) =>
+  found.length === MAX_RESULTS ? `Showing the first ${MAX_RESULTS} matches. Narrow your search.` : '';
+
+/** Page-text results are pages, and the search stops at MAX_RESULTS text matches rather than pages. */
+const pageTextNote = (limited: boolean, pages: number) =>
+  `${limited ? `Showing ${pages} page${pages === 1 ? '' : 's'} for the first ${MAX_RESULTS} text matches. ` : ''}Results are grouped by page. Source locations cover supported fonts and direct page streams; candidate streams are labelled. Scans without a text layer need OCR.`;
+
 const searchPageText = async (request: SearchRequest): Promise<SearchOutcome> => {
   const { bytes, document, isCurrent, objectMap, objects, password, readStream, signal, term } = request;
   if (!document || document.locked) throw new Error('Unlock the PDF before searching page text.');
@@ -76,7 +84,7 @@ const searchPageText = async (request: SearchRequest): Promise<SearchOutcome> =>
   if (!isCurrent()) return null;
   return {
     found,
-    message: `${pageSearch.limited ? 'Showing the first 500 text matches. ' : ''}Results are grouped by page. Source locations cover supported fonts and direct page streams; candidate streams are labelled. Scans without a text layer need OCR.`,
+    message: pageTextNote(pageSearch.limited, found.length),
   };
 };
 
@@ -99,7 +107,7 @@ const searchObjects = ({ objects, scope, term }: SearchRequest): SearchOutcome =
     });
     if (found.length === MAX_RESULTS) break;
   }
-  return { found, message: '' };
+  return { found, message: limitNotice(found) };
 };
 
 const searchDecoded = async ({ isCurrent, objects, readStream, term }: SearchRequest): Promise<SearchOutcome> => {
@@ -125,7 +133,8 @@ const searchDecoded = async ({ isCurrent, objects, readStream, term }: SearchReq
     }
     if (found.length === MAX_RESULTS) break;
   }
-  return { found, message: skipped ? `${skipped} stream(s) unsupported or incomplete. Results are partial.` : '' };
+  const partial = skipped ? `${skipped} stream(s) unsupported or incomplete. Results are partial.` : '';
+  return { found, message: [limitNotice(found), partial].filter(Boolean).join(' ') };
 };
 
 /** The bytes to find; throws when the term is not valid for the scope. */
@@ -164,7 +173,7 @@ const searchBytes = async ({ bytes, isCurrent, scope, term }: SearchRequest): Pr
     found.push(byteResult(bytes, offset, needle.length, scope === 'hex'));
     if (found.length === MAX_RESULTS) break;
   }
-  return { found, message: '' };
+  return { found, message: limitNotice(found) };
 };
 
 /** Runs one document search; scope-specific validation errors are thrown. */
