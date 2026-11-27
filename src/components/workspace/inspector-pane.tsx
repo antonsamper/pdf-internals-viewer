@@ -4,11 +4,13 @@ import { BookmarkPlus, Braces, Image, LoaderCircle, Pin, X } from 'lucide-react'
 import { lazy, Suspense } from 'react';
 
 import type { PdfPreviewProps } from '@/components/pdf-preview';
+import type { PdfActionReport } from '@/lib/pdf/document-actions';
 import type { PdfIssue } from '@/lib/pdf/issues';
 import type { ResourceCategory, ResourceEntry } from '@/lib/pdf/resource-catalog';
 import type { PdfDocumentInfo, PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 import type { ScrollPosition } from '@/lib/scroll-restoration';
 
+import { ActionsPanel } from '@/components/actions-panel';
 import { LoadingMessage } from '@/components/inspector/loading-message';
 import { Notice } from '@/components/inspector/notes';
 import { PaneHeading } from '@/components/inspector/pane';
@@ -33,6 +35,7 @@ const PdfPreview = lazy(() =>
 );
 
 export interface InspectorPaneProps {
+  actionReport: PdfActionReport;
   busy: boolean;
   bytes: Uint8Array;
   document: PdfDocumentInfo | null;
@@ -40,7 +43,7 @@ export interface InspectorPaneProps {
   hasRange: boolean;
   inspectorContent: ReactNode;
   issues: PdfIssue[];
-  limits: { issueLimit: number; resourceLimit: number };
+  limits: { actionLimit: number; issueLimit: number; resourceLimit: number };
   notice: string | null;
   objectMap: Map<string, PdfObjectRecord>;
   overview: ReactNode;
@@ -57,11 +60,13 @@ export interface InspectorPaneProps {
   selected: PdfObjectRecord | undefined;
   extractImage: (id: string) => Promise<StreamResult>;
   extractStream: (id: string, purpose?: 'download' | 'size') => Promise<StreamResult>;
+  readStream: (id: string, mode: 'raw' | 'decoded') => Promise<StreamResult>;
   onBookmark: () => void;
   onBrowseResources: () => void;
   onCategoryChange: (category: ResourceCategory) => void;
   onDismissNotice: () => void;
   onFilterChange: (filter: string) => void;
+  onActionLimitChange: (limit: number) => void;
   onIssueLimitChange: (limit: number) => void;
   onNavigate: (id: string) => void;
   onPageChange: (page: number) => void;
@@ -76,6 +81,7 @@ const paneTitle = ({ busy, preview, section, selected }: Pick<InspectorPaneProps
   if (preview) return 'Page preview';
   if (selected) return 'Object inspector';
   const titles: Partial<Record<Section, string>> = {
+    actions: 'Actions',
     issues: 'Issues',
     resources: 'Resource browser',
     structure: 'File structure',
@@ -180,12 +186,10 @@ const PreviewView = ({ bytes, filename, previewPage, previewPassword, previewSea
   </Suspense>
 );
 
-const InspectorBody = (props: InspectorPaneProps) => {
-  const { busy, bytes, document, filename, issues, limits, objectMap, overview, preview, section, selected, scrollPositionRef } = props;
-  if (busy) return <LoadingView />;
-  if (preview && bytes.length) return <PreviewView {...props} />;
-  if (selected) return <SelectedObjectView {...props} />;
-  if (section === 'issues' && document)
+/** The issues, actions or resources section, or null for a section without its own view. */
+const SectionView = (props: InspectorPaneProps & { document: PdfDocumentInfo }) => {
+  const { document, filename, issues, limits, objectMap, section, scrollPositionRef } = props;
+  if (section === 'issues')
     return (
       <IssuesPanel
         key={filename}
@@ -199,7 +203,21 @@ const InspectorBody = (props: InspectorPaneProps) => {
         onStructure={props.onStructure}
       />
     );
-  if (section === 'resources' && document)
+  if (section === 'actions')
+    return (
+      <ActionsPanel
+        key={filename}
+        locked={document.locked}
+        recovered={document.recovered}
+        report={props.actionReport}
+        limit={limits.actionLimit}
+        onLimitChange={props.onActionLimitChange}
+        scrollPositionRef={scrollPositionRef}
+        readStream={props.readStream}
+        onNavigate={props.onNavigate}
+      />
+    );
+  if (section === 'resources')
     return (
       <ResourceBrowser
         scrollPositionRef={scrollPositionRef}
@@ -217,6 +235,17 @@ const InspectorBody = (props: InspectorPaneProps) => {
         onNavigate={props.onNavigate}
       />
     );
+  return null;
+};
+
+const SECTION_VIEWS = new Set<Section>(['issues', 'actions', 'resources']);
+
+const InspectorBody = (props: InspectorPaneProps) => {
+  const { busy, bytes, document, overview, preview, section, selected } = props;
+  if (busy) return <LoadingView />;
+  if (preview && bytes.length) return <PreviewView {...props} />;
+  if (selected) return <SelectedObjectView {...props} />;
+  if (document && SECTION_VIEWS.has(section)) return <SectionView {...props} document={document} />;
   return overview;
 };
 

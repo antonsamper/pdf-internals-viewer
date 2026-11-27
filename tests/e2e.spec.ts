@@ -5,6 +5,8 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 // @ts-expect-error local JavaScript fixture helpers have no declaration file
+import { actionsPdf } from '../scripts/fixtures/action-fixtures.mjs';
+// @ts-expect-error local JavaScript fixture helpers have no declaration file
 import { classicPdf, encryptedPdf, embeddedFilesPdf, imageExportPdf, pageTextSearchPdf } from '../scripts/fixtures/pdf-fixtures.mjs';
 const upload = async (page: Page, name: string) => {
   await page.getByLabel('Open local PDF').setInputFiles(samplePath(name));
@@ -210,6 +212,42 @@ test('summarizes page rotation in the document overview', async ({ page }) => {
     });
     await expect(rotation).toHaveText(expected);
   }
+});
+test('lists document actions without running them, with notes and an empty state', async ({ page }) => {
+  const dialogs: string[] = [];
+  page.on('dialog', (dialog) => {
+    dialogs.push(dialog.message());
+    void dialog.dismiss();
+  });
+  await page.goto('/');
+  await page.getByLabel('Open local PDF').setInputFiles({
+    buffer: Buffer.from(actionsPdf().bytes),
+    mimeType: 'application/pdf',
+    name: 'actions.pdf',
+  });
+  await expect(page.getByRole('contentinfo')).toContainText('objects indexed');
+  const sections = page.getByRole('navigation', { name: 'Document sections' });
+  await expect(sections.getByRole('button', { name: /^Actions/ })).toContainText('14');
+  await sections.getByRole('button', { name: /^Actions/ }).click();
+  const panel = page.getByRole('region', { name: 'PDF actions' });
+  await expect(panel.getByRole('status')).toHaveText('14 actions · 6 marked for review · 4 parse notes');
+  await expect(panel.locator('[data-action-type="JavaScript"]')).toHaveCount(3);
+  await expect(panel.locator('[data-action-type="Launch"]')).toContainText('Opens a file or app');
+  await expect(panel).toContainText('Cycle: /Next leads back to 7 0 obj');
+  await expect(panel).toContainText('The action dictionary has no /S action type.');
+  await expect(panel).toContainText('annotation 3 30 0 R could not be resolved.');
+  await expect(panel).toContainText('event.rc = true;');
+  await panel.getByRole('button', { exact: true, name: 'Show decoded script' }).first().click();
+  await expect(panel.getByLabel('Decoded script from 14 0 obj')).toContainText('app.alert("Sample script text.');
+  await expect(panel).toContainText('Decoded stream text from 14 0 obj, read as one character per byte. Not run.');
+  expect(dialogs).toEqual([]);
+  await panel.getByRole('button', { exact: true, name: 'Inspect holder 1 0 obj' }).first().click();
+  await expect(page.getByRole('heading', { name: /1 0\s+obj/ })).toBeVisible();
+  await page.getByLabel('Open local PDF').setInputFiles(samplePath('minimal.pdf'));
+  await expect(page.getByRole('contentinfo')).toContainText('5 objects indexed');
+  await sections.getByRole('button', { name: /^Actions/ }).click();
+  await expect(panel.getByRole('status')).toHaveText('No actions found in the sources below');
+  await expect(panel.getByRole('list', { name: 'Actions' }).getByRole('listitem')).toHaveCount(0);
 });
 test('follows page references, reads stream representations, and navigates history', async ({ page }) => {
   await openMinimal(page);

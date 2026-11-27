@@ -55,8 +55,8 @@ export const AudiencePage = function AudiencePage() {
 
       <h2>Security analysts inspecting document structure</h2>
       <p>
-        Locate automatic actions, JavaScript entries and embedded files, then follow their references. This can help you understand what a
-        document contains, within the parser’s supported features and limits.
+        List automatic actions, link targets and scripts under Actions in the explorer, find embedded files, then follow their references.
+        This can help you understand what a document contains, within the parser’s supported features and limits.
       </p>
       <p>
         Read the <a href="/guides/investigate-suspicious-features">suspicious-feature guide</a> and the{' '}

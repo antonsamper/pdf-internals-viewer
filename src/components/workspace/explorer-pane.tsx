@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 
-import { Braces, ChevronRight, FileCode2, FileWarning, Files, FolderOpen, Layers, LayoutDashboard, ListTree } from 'lucide-react';
+import { Braces, ChevronRight, FileCode2, FileWarning, Files, FolderOpen, Layers, LayoutDashboard, ListTree, Zap } from 'lucide-react';
 
 import type { PageTreeState } from '@/components/page-tree';
 import type { SessionBookmark } from '@/components/session-bookmarks';
@@ -33,6 +33,7 @@ const SECTIONS = [
   ['objects', Braces, 'All objects'],
   ['structure', FileCode2, 'File structure'],
   ['issues', FileWarning, 'Issues'],
+  ['actions', Zap, 'Actions'],
 ] as const;
 
 const LIST_HEADINGS: Partial<Record<Section, string>> = { pages: 'PAGE CONNECTIONS', resources: 'RESOURCE OBJECTS' };
@@ -61,6 +62,7 @@ const IssueCount = ({ issues, severity }: { issues: PdfIssue[]; severity: 'error
 
 /** A button in the section list, with the issue or page count where the section has one. */
 const SectionButton = ({
+  actionTotal,
   active,
   document,
   entry: [key, Icon, label],
@@ -68,6 +70,7 @@ const SectionButton = ({
   issueSeverity,
   onChoose,
 }: {
+  actionTotal: number | undefined;
   active: boolean;
   document: PdfDocumentInfo | null;
   entry: (typeof SECTIONS)[number];
@@ -88,6 +91,7 @@ const SectionButton = ({
     <span>{label}</span>
     {key === 'issues' && <IssueCount issues={issues} severity={issueSeverity} />}
     {key === 'pages' && <SectionCount>{document?.pages.length ?? '—'}</SectionCount>}
+    {key === 'actions' && <SectionCount>{actionTotal ?? '—'}</SectionCount>}
   </button>
 );
 
@@ -165,6 +169,7 @@ const ObjectList = ({
 };
 
 export const ExplorerPane = ({
+  actionTotal,
   bookmarks,
   bookmarksSaved,
   document,
@@ -186,6 +191,7 @@ export const ExplorerPane = ({
   onScroll,
   onVisitBookmark,
 }: {
+  actionTotal: number | undefined;
   bookmarks: SessionBookmark<Selection>[];
   bookmarksSaved: boolean;
   document: PdfDocumentInfo | null;
@@ -221,6 +227,7 @@ export const ExplorerPane = ({
         {SECTIONS.map((entry) => (
           <SectionButton
             key={entry[0]}
+            actionTotal={actionTotal}
             active={section === entry[0]}
             document={document}
             entry={entry}

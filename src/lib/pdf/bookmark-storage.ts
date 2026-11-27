@@ -18,7 +18,7 @@ const validSelection = function validSelection(s: BookmarkSelection | undefined)
     !!s &&
     nullableString(s.id) &&
     ['properties', 'source', 'raw', 'decoded'].includes(s.tab) &&
-    ['overview', 'catalog', 'pages', 'resources', 'objects', 'structure', 'issues'].includes(s.section) &&
+    ['overview', 'catalog', 'pages', 'resources', 'objects', 'structure', 'issues', 'actions'].includes(s.section) &&
     (s.notice === undefined || typeof s.notice === 'string') &&
     validRange(s.range) &&
     validTrail(s.trail)
@@ -67,7 +67,7 @@ export const writeBookmarks = function writeBookmarks(key: string, bookmarks: Se
 export type BookmarkSelection = {
   id: string | null;
   tab: 'properties' | 'source' | 'raw' | 'decoded';
-  section: 'overview' | 'catalog' | 'pages' | 'resources' | 'objects' | 'structure' | 'issues';
+  section: 'overview' | 'catalog' | 'pages' | 'resources' | 'objects' | 'structure' | 'issues' | 'actions';
   range?: ByteRange;
   notice?: string;
   trail?: ExplorationStep[];
