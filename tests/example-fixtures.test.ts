@@ -9,7 +9,7 @@ import { PdfInspector } from '../src/lib/pdf/inspector';
 import { documentIssues } from '../src/lib/pdf/issues';
 import { effectiveResources, property } from '../src/lib/pdf/navigation';
 import { pageRotationSummary } from '../src/lib/pdf/page-rotation';
-import { pageTextSources } from '../src/lib/pdf/page-text';
+import { pageTextSourceList } from '../src/lib/pdf/page-text';
 import { resourceCatalog } from '../src/lib/pdf/resource-catalog';
 
 interface ExampleContext {
@@ -79,7 +79,7 @@ const exampleChecks: Record<string, (context: ExampleContext) => void | Promise<
     expect(document.pages).toEqual(['3 0']);
     expect(objects.get('4 0')?.stream?.filters).toEqual(['FlateDecode']);
     expect(inspector.readStream('4 0', 'decoded').text).toContain('[(Payment refer) 12 (ence: INV-2048)] TJ');
-    const sources = await pageTextSources(
+    const { sources } = await pageTextSourceList(
       objects.get('3 0')!,
       objects,
       'reference',

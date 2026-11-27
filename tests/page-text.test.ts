@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 // @ts-expect-error shared plain JS fixture generator
 import { classicPdf } from '../scripts/fixtures/pdf-fixtures.mjs';
 import { PdfInspector } from '../src/lib/pdf/inspector';
-import { pageTextSourceList, pageTextSources, stringBytes, unicodeMap, pageContentIds } from '../src/lib/pdf/page-text';
+import { pageTextSourceList, stringBytes, unicodeMap, pageContentIds } from '../src/lib/pdf/page-text';
 const fixture = (content: string, compressed = false, font = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>', cmap?: string) => {
   const data = compressed ? deflateSync(Buffer.from(content, 'latin1')) : Buffer.from(content, 'latin1');
   const stream = Buffer.concat([
@@ -26,7 +26,7 @@ const sources = async (content: string, term: string, compressed = false, font?:
   const inspector = new PdfInspector();
   const document = await inspector.open(file.bytes);
   const objects = new Map(document.objects.map((object) => [object.id, object]));
-  const results = await pageTextSources(
+  const { sources: results } = await pageTextSourceList(
     objects.get('3 0')!,
     objects,
     term,
@@ -205,7 +205,7 @@ describe('page text source mapping', () => {
   it('cancels without reading more streams and safely follows indirect Contents arrays with cycles', async () => {
     const { objects } = await sources('BT /F1 12 Tf (Hello) Tj ET', 'Hello');
     const page = objects.get('3 0')!;
-    const result = await pageTextSources(
+    const { sources: result } = await pageTextSourceList(
       page,
       objects,
       'Hello',

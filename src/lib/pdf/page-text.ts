@@ -4,6 +4,7 @@ import type { ContentToken } from './content-stream';
 import type { ByteRange, PdfObjectRecord, PdfValue, StreamResult } from './types';
 
 import { contentInstructions, resolveValue } from './content-stream';
+import { MAX_TEXT_SOURCES } from './limits';
 import { effectiveResources, property } from './navigation';
 const hexStringBytes = (text: string, start: number): EncodedByte[] => {
   const digits = [...text.matchAll(/[\da-f]/gi)].map((match) => ({
@@ -328,7 +329,6 @@ const pageFonts = async (
   }
   return fonts;
 };
-export const MAX_TEXT_SOURCES = 100;
 interface StreamSearch {
   encrypted: boolean;
   fonts: Map<string, Decoder | undefined>;
@@ -391,9 +391,6 @@ export const pageTextSourceList = async (
   }
   return { limited: sources.length > MAX_TEXT_SOURCES || read < contentIds.length, sources: sources.slice(0, MAX_TEXT_SOURCES) };
 };
-/** The sources alone, for callers that don't report the limit. */
-export const pageTextSources = async (...args: Parameters<typeof pageTextSourceList>): Promise<TextSource[]> =>
-  (await pageTextSourceList(...args)).sources;
 export interface TextSource {
   id: string;
   bytes: Uint8Array;

@@ -3352,7 +3352,7 @@ test('page text search says when a page stops at the source limit', async ({ pag
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   const results = page.getByRole('region', { exact: true, name: 'Search results' });
   await expect(results).toContainText('1 page');
-  await expect(results).toContainText('Only the first 100 source locations are listed.');
+  await expect(results).toContainText('This page has more than 100 source locations. Only the first 100 are listed.');
   await expect(results.getByRole('button', { name: /Show bytes · 103 0 obj/ })).toBeVisible();
   await expect(page.locator('[data-text-source-note]')).toContainText('Highlighted original bytes');
   await expect(page.locator('[data-text-source-note]')).not.toContainText('incomplete');

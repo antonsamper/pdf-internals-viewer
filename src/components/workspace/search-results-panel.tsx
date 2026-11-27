@@ -6,7 +6,7 @@ import type { PageTextLocation, TextSource } from '@/lib/pdf/page-text';
 
 import { SearchResultsPopover } from '@/components/search-results-popover';
 import { Button } from '@/components/ui/button';
-import { MAX_TEXT_SOURCES } from '@/lib/pdf/page-text';
+import { MAX_TEXT_SOURCES } from '@/lib/pdf/limits';
 import { cn } from '@/lib/utils';
 
 import type { SearchResult } from './types';
@@ -201,7 +201,9 @@ const SourceButtons = ({
 };
 
 /** A note about a page's source locations, above its source buttons. */
-const SourcesNote = (props: ComponentProps<'span'>) => <span className="mb-0.5 text-detail text-muted-foreground" {...props} />;
+const SourcesNote = ({ className, ...props }: ComponentProps<'span'>) => (
+  <span className={cn('mb-0.5 text-detail text-muted-foreground', className)} {...props} />
+);
 
 const PageTextLinks = ({
   index,
@@ -226,7 +228,7 @@ const PageTextLinks = ({
       )}
       {location.sourcesLimited && (
         <SourcesNote>
-          Only the first {MAX_TEXT_SOURCES} source locations are listed. Later matches and content streams on this page weren’t read.
+          This page has more than {MAX_TEXT_SOURCES} source locations. Only the first {MAX_TEXT_SOURCES} are listed.
         </SourcesNote>
       )}
       {location.sources.length > 0 && <SourceButtons index={index} location={location} search={search} textSource={textSource} />}
