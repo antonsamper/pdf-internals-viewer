@@ -30,7 +30,6 @@ const dereference = (value: PdfValue | undefined, owner: string | null, objects:
   }
   return { owner: currentOwner, value: current };
 };
-/** The value one path segment below a dictionary, stream or array. */
 const segmentValue = (value: PdfValue | undefined, segment: string): PdfValue | undefined => {
   if (value?.type === 'dictionary' || value?.type === 'stream') {
     return value.entries.find((entry) => {

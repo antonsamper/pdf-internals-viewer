@@ -31,6 +31,7 @@ PDF Internals Viewer is a static Vite/React app for inspecting the structure of 
 ## Docs
 
 - Docs and code comments describe the current state. History belongs in git, issues and PRs.
+- Write a comment only for what the code doesn't show: why it's written this way, a constraint, or behaviour a reader wouldn't expect. Leave out comments that say what a component, function or constant is when its name already says it.
 - Update the repo docs and the user-facing site content (guides, examples, limitations) in the same PR as the code change.
 - Follow `DESIGN.md` for UI work, and update it when the design changes.
 

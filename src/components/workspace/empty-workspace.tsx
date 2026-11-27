@@ -18,7 +18,6 @@ const SAMPLES = SITE_SAMPLES.map((sample) => {
     icon: sampleIcons[sample.id],
   };
 });
-/** A pill stating how the app treats the file. */
 const TrustBadge = ({ className, ...props }: ComponentProps<'span'>) => {
   return (
     <span
@@ -38,7 +37,6 @@ const SAMPLE_TONES = {
   purple: '[--sample-ink:var(--brand-purple)] [--sample-wash:var(--brand-purple-soft)]',
   red: '[--sample-ink:var(--brand-red-ink)] [--sample-wash:var(--brand-red-soft)]',
 };
-/** A row that opens one of the sample PDFs, in that sample's colours. */
 const SampleButton = ({
   sample: { detail, icon: Icon, name, tone },
   onClick,

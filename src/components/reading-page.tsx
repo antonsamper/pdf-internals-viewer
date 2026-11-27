@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 
 type FollowLink = (event: MouseEvent<HTMLAnchorElement>) => boolean;
 
-/** The first link of every article. */
 export const BackToWorkspace = function BackToWorkspace({ onClick }: { onClick?: MouseEventHandler<HTMLAnchorElement> }) {
   return (
     <a

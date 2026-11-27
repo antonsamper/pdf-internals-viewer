@@ -67,7 +67,6 @@ const HeaderButton = ({ className, ...props }: ComponentProps<typeof Button>) =>
   return <Button variant="ghost" className={cn('text-small narrow:min-h-11 narrow:min-w-11', className)} {...props} />;
 };
 
-/** A note above or below the result cards. */
 const ResultsNote = ({ className, ...props }: ComponentProps<'p'>) => {
   return <p className={cn('px-3.5 py-2.5 text-small [overflow-wrap:anywhere]', className)} {...props} />;
 };
@@ -76,7 +75,6 @@ const focusSearchToggle = (search: Search) => {
   return search.formRef.current?.querySelector<HTMLButtonElement>('[data-search-show]')?.focus({ preventScroll: true });
 };
 
-/** The active result's position and the previous and next buttons. */
 const ResultNavigation = ({ search }: { search: Search }) => {
   const { activeResult, move, resultsScope, searching } = search;
   const results = search.results ?? [];
@@ -218,7 +216,6 @@ const SourceButtons = ({
   );
 };
 
-/** A note about a page's source locations, above its source buttons. */
 const SourcesNote = ({ className, ...props }: ComponentProps<'span'>) => {
   return <span className={cn('mb-0.5 text-detail text-muted-foreground', className)} {...props} />;
 };
@@ -424,7 +421,6 @@ const stepWithArrows = (search: Search) => {
   };
 };
 
-/** The scrolling list of result cards with its notes. */
 const ResultsBody = ({ search, textSource }: { search: Search; textSource: TextSource | null }) => {
   const { interrupted, message, resultsQuery, resultsScope, searching, showPrevious } = search;
   const results = search.results ?? [];

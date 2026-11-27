@@ -23,7 +23,6 @@ import { cn } from '@/lib/utils';
 
 import type { Section } from './types';
 
-/** A small ghost button in the pane heading, in compact type. */
 const PaneAction = ({ className, ...props }: ComponentProps<typeof Button>) => {
   return <Button variant="ghost" size="sm" className={cn('gap-1.25 text-caption font-medium', className)} {...props} />;
 };
@@ -114,7 +113,6 @@ const PinAction = ({ pinnedId, selected, onPin }: Pick<InspectorPaneProps, 'pinn
   );
 };
 
-/** Switches between the page preview and the inspector. */
 const PreviewAction = ({
   busy,
   bytes,

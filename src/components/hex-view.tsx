@@ -23,7 +23,6 @@ const HexGrid = ({ className, ...props }: ComponentProps<'div'>) => {
   );
 };
 
-/** The byte columns in the heading and in each row. */
 const ByteColumns = ({ children }: { children: ReactNode }) => {
   return (
     <span className={cn('grid grid-cols-[repeat(var(--hex-columns),23px)]', 'max-w400:grid-cols-[repeat(var(--hex-columns),22px)]')}>
@@ -133,7 +132,6 @@ type SavedScroll = NonNullable<ScrollPosition['current']>;
 const reflows = (saved: SavedScroll | undefined, columns: number): saved is SavedScroll & { byteColumns: number } => {
   return saved?.byteColumns !== undefined && saved.byteColumns !== columns;
 };
-/** Where to scroll after the range or the column count changes. */
 const nextScrollTop = (
   saved: SavedScroll | undefined,
   columns: number,

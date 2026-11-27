@@ -110,7 +110,6 @@ const PreviewError = ({ error }: { error: string }) => {
     </div>
   );
 };
-/** The rendered page with the search matches drawn over it. */
 const PreviewImage = ({
   alt,
   firstHighlight,

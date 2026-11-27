@@ -25,7 +25,6 @@ import { objectName, objectRelationships, objectSummary } from '@/lib/pdf/object
 import { useScrollRestoration } from '@/lib/scroll-restoration';
 import { cn } from '@/lib/utils';
 
-/** Tabs sit on one flat line: violet when active, with a red underline. */
 const ObjectTab = ({ className, ...props }: ComponentProps<typeof TabsTrigger>) => {
   return (
     <TabsTrigger
@@ -64,7 +63,6 @@ const RelationshipLink = ({ children, onClick }: { children: ReactNode; onClick:
   );
 };
 
-/** A titled list of relationship links, with a sentence in place of the list when it is empty. */
 const Relationships = ({ children, count, empty, title }: { children: ReactNode; count: number; empty?: string; title: string }) => {
   return (
     <>
@@ -197,7 +195,6 @@ const useStreamRead = (object: PdfObjectRecord, tab: InspectorTab, readStream: O
   return { error: current?.error, stream: current?.result };
 };
 
-/** The page's resources, with where they were inherited from. */
 const PageResources = ({
   objectId,
   objects,
@@ -404,7 +401,6 @@ const nonStreamTab = (tab: InspectorTab) => {
   return isStreamTab(tab) ? 'properties' : tab;
 };
 
-/** The image export and the embedded files an object leads to. */
 const ObjectDownloads = ({
   downloadIndex,
   object,
@@ -430,7 +426,6 @@ const ObjectDownloads = ({
   );
 };
 
-/** The Properties tab: the object's value, the page's resources and the references in and out. */
 const PropertiesContent = ({
   links,
   object,

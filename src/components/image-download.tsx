@@ -14,7 +14,6 @@ import { saveFile } from '@/lib/save-file';
 import { useVisible } from '@/lib/use-visible';
 import { cn } from '@/lib/utils';
 
-/** The text in the preview placeholder, at a readable measure. */
 const PreviewStatus = ({ children }: { children: ReactNode }) => {
   return <p className="max-w-[54ch] leading-[1.6]">{children}</p>;
 };
@@ -28,7 +27,6 @@ const downloadPlan = (object: PdfObjectRecord) => {
   }
 };
 
-/** The thumbnail, or a placeholder while it loads or when it cannot be drawn. */
 const ImagePreview = ({ error, image, objectId }: { error: string | undefined; image: string | undefined; objectId: string }) => {
   if (image) {
     return (
@@ -63,7 +61,6 @@ const ImagePreview = ({ error, image, objectId }: { error: string | undefined; i
   );
 };
 
-/** The size of the exported file next to the stream's size in the PDF. */
 const DownloadSize = ({ failed, object, size }: { failed: boolean; object: PdfObjectRecord; size: number | undefined }) => {
   let text = failed ? 'Download size unavailable' : 'Calculating download size…';
   if (size !== undefined) {

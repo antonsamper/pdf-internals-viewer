@@ -44,7 +44,6 @@ const summary = ({ actions, notes }: PdfActionReport) => {
     .join(' · ');
 };
 
-/** An outline button in an action row, in the pane's text size. */
 const InspectButton = ({ className, ...props }: ComponentProps<typeof Button>) => {
   return <Button variant="outline" size="sm" className={cn('text-small leading-[1.7]', 'narrow:min-h-11', className)} {...props} />;
 };
@@ -64,12 +63,10 @@ const DecodedText = ({ className, ...props }: ComponentProps<'pre'>) => {
   );
 };
 
-/** A caption above decoded text, saying where it came from. */
 const DecodedLabel = ({ className, ...props }: ComponentProps<'p'>) => {
   return <p className={cn('mt-2 text-caption text-muted-foreground', className)} {...props} />;
 };
 
-/** A script read from a stream, labelled with how its bytes were decoded. */
 const DecodedScript = ({ result, streamId }: { result: StreamResult; streamId: string }) => {
   const { encoding, text } = scriptText(result);
   return (

@@ -7,12 +7,10 @@ import type { PdfDocumentInfo, PdfObjectRecord, PdfValue } from '@/lib/pdf/types
 
 import { effectiveResources, property } from '@/lib/pdf/navigation';
 import { cn } from '@/lib/utils';
-/** A sentence at the top of the tree, or in place of it when there are no pages. */
 const TreeIntro = ({ children }: { children: ReactNode }) => {
   return <p className="mx-1.5 mt-1.5 mb-3 text-detail leading-[1.6] text-muted-foreground">{children}</p>;
 };
 
-/** Details under a node, such as its object kind or why it stops expanding. */
 const NodeDetail = ({ children }: { children: ReactNode }) => {
   return <p className="mr-1.25 mb-1.75 ml-6.5 text-caption [overflow-wrap:anywhere] text-muted-foreground">{children}</p>;
 };
@@ -64,7 +62,6 @@ interface TreeChild {
   inherited?: boolean;
 }
 
-/** Everything a node needs to render itself and its branches. */
 interface TreeNodeProps {
   value: PdfValue;
   label: string;
@@ -77,7 +74,6 @@ interface TreeNodeProps {
   pageRoot?: boolean;
 }
 
-/** The tree's shared data and callbacks. */
 interface TreeContext {
   objects: Map<string, PdfObjectRecord>;
   selectedId: string | null;
@@ -156,7 +152,6 @@ const dictionaryChildren = (
   return children;
 };
 
-/** The branches below a resolved value: dictionary entries or array items. */
 const nodeChildren = (
   resolved: PdfValue | undefined,
   object: PdfObjectRecord | undefined,
@@ -284,7 +279,6 @@ const NodeChildren = ({
   );
 };
 
-/** The notes under a node: what it is, and why it stops or appears elsewhere. */
 const nodeDetails = ({ cycle, object, ref, resolved }: ReturnType<typeof resolveNode>, bounded: boolean, pageRoot: boolean) => {
   return [
     kindDetail(object, ref, resolved),
@@ -297,7 +291,6 @@ const nodeDetails = ({ cycle, object, ref, resolved }: ReturnType<typeof resolve
     .join(' · ');
 };
 
-/** What a node shows: its resolved value, its branches and the notes under it. */
 const nodeModel = (node: TreeNodeProps, tree: TreeContext) => {
   const pageRoot = node.pageRoot ?? false;
   const resolved = resolveNode(node, tree.objects);

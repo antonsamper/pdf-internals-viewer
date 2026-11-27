@@ -20,7 +20,6 @@ import type { Section, Selection } from './types';
 // The object list is virtualised: rows are positioned from this pixel height, so it also sets each row's height.
 const OBJECT_ROW_HEIGHT = 42;
 
-/** The count at the end of a section button. */
 const SectionCount = ({ className, ...props }: ComponentProps<'span'>) => {
   return <span className={cn('ml-auto text-caption tabular-nums', className)} {...props} />;
 };
@@ -58,7 +57,6 @@ const sectionObjects = (
   return section === 'resources' ? resourceObjects : objects;
 };
 
-/** The issue count, tinted by the most severe issue. */
 const IssueCount = ({ issues, severity }: { issues: PdfIssue[]; severity: 'error' | 'warning' | undefined }) => {
   return (
     <SectionCount
@@ -73,7 +71,6 @@ const IssueCount = ({ issues, severity }: { issues: PdfIssue[]; severity: 'error
   );
 };
 
-/** A button in the section list, with the issue or page count where the section has one. */
 const SectionButton = ({
   actionTotal,
   active,
@@ -112,7 +109,6 @@ const SectionButton = ({
   );
 };
 
-/** A row in the virtualised object list. */
 const ObjectRow = ({
   object,
   selected,
@@ -152,7 +148,6 @@ const ObjectRow = ({
   );
 };
 
-/** The virtualised list of the section's objects. */
 const ObjectList = ({
   locked,
   objects,

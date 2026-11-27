@@ -5,7 +5,6 @@ import { FileWarning } from 'lucide-react';
 import { ActionButton, ActionRow } from '@/components/inspector/actions';
 import { inspectionFailure } from '@/lib/pdf/failure';
 
-/** A paragraph explaining why structure is unavailable. */
 const Explanation = ({ children }: { children: ReactNode }) => {
   return <p className="mb-3 max-w-[65ch] text-small leading-[1.8] text-muted-foreground">{children}</p>;
 };

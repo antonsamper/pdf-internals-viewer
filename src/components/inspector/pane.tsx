@@ -3,7 +3,6 @@ import type { ComponentProps, ReactNode } from 'react';
 
 import { cn } from '@/lib/utils';
 
-/** A pane's title row: fixed height, bottom border, small type. */
 export const PaneHeading = ({ className, ...props }: ComponentProps<'div'>) => {
   return (
     <div
@@ -18,7 +17,6 @@ export const PaneBody = ({ className, ...props }: ComponentProps<'div'>) => {
   return <div className={cn('min-h-0 flex-1 overflow-auto p-5.5 max-w480:p-4.5', className)} {...props} />;
 };
 
-/** The icon, title and subtitle at the top of the overview and issues panes. */
 export const PaneIntro = ({ children, icon: Icon, title }: { children: ReactNode; icon: LucideIcon; title: ReactNode }) => {
   return (
     <div>
@@ -33,7 +31,6 @@ export const PaneSubtitle = ({ className, ...props }: ComponentProps<'p'>) => {
   return <p className={cn('mb-6.5 text-small [overflow-wrap:anywhere] text-muted-foreground', className)} {...props} />;
 };
 
-/** A heading for a section inside a pane body. */
 export const SectionHeading = ({ className, ...props }: ComponentProps<'h2'>) => {
   return <h2 className={cn('mt-7 mb-3 text-small font-[550]', className)} {...props} />;
 };
