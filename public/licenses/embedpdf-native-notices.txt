@@ -11,7 +11,7 @@ PDFium source dependencies and toolchain sources. It includes notices for
 optional components and code that may not survive compilation or linking.
 It is not a supplier-issued SBOM or a claim that every listed component is
 linked. Each component retains its own license; these texts do not change
-the MIT license of the original application code.
+the Apache License 2.0 of the original application code.
 
 Source URLs, text hashes, extraction descriptions and source comment
 provenance are recorded in native-notice-manifest.json and the accompanying
