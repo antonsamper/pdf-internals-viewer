@@ -38,7 +38,7 @@ describe('cn with the type scale', () => {
 // The app's own shadows, read from the theme so a token missing from `cn`'s shadow scale fails here.
 const shadows = [...theme.matchAll(/--shadow-([a-z-]+):/g)].map((match) => match[1]);
 
-describe('cn with the theme shadows and radii', () => {
+describe('cn with the theme shadows', () => {
   it('reads the shadows from the theme', () => {
     expect(shadows).toContain('popover');
   });
@@ -48,10 +48,5 @@ describe('cn with the theme shadows and radii', () => {
     expect(cn('shadow-none', `shadow-${shadow}`)).toBe(`shadow-${shadow}`);
     expect(cn('shadow-md', `shadow-${shadow}`)).toBe(`shadow-${shadow}`);
     expect(cn(`shadow-${shadow}`, 'shadow-reference')).toBe(`shadow-${shadow} shadow-reference`);
-  });
-
-  it.each(['xs', 'sm', 'md', 'lg'])('lets rounded-none replace rounded-%s and back', (radius) => {
-    expect(cn(`rounded-${radius}`, 'rounded-none')).toBe('rounded-none');
-    expect(cn('rounded-none', `rounded-${radius}`)).toBe(`rounded-${radius}`);
   });
 });

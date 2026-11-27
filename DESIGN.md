@@ -49,8 +49,9 @@ Font sizes come from the type scale in `src/index.css`, named by what each size 
 ## Radii, shadows and spacing
 
 - Radii come from the theme where one matches: `rounded-xs` (2px), `rounded-sm` (6px), `rounded-md` (8px) and `rounded-lg` (10px). The 4px and 5px corners of small controls and rows, and a few one-off shapes such as the drop overlay, keep arbitrary values.
-- Floating surfaces use the shadow tokens: `shadow-popover` for the search results popover, `shadow-menu` for the search scope menu and `shadow-nav-menu` for the public pages' mobile menu. Add a token to `src/index.css` and to the `shadow` theme scale in `src/lib/utils.ts` for a new floating surface instead of writing `shadow-[…]`. Inset rings and the header's red rule stay arbitrary.
-- Spacing and sizing use the spacing scale, where each step is 4px: `px-3.75` is 15px and `h-10.5` is 42px. Don't write `px-[15px]`; any whole number of pixels has a step. Bracketed values stay for `calc()`, `min()`, `max()` and CSS variables.
+- Floating surfaces use the shadow tokens: `shadow-popover` for the search results popover, `shadow-menu` for the search scope menu and `shadow-nav-menu` for the public pages' mobile menu. Add a token to `src/index.css` and to the `shadow` theme scale in `src/lib/utils.ts` for a new floating surface instead of writing `shadow-[…]`. Inset rings, the header's red rule, the footer's top shadow and the drop overlay's glow stay arbitrary.
+- Spacing and sizing use the spacing scale. A step is 0.25rem, 4px at the browser's default font size: `px-3.75` is 15px and `h-10.5` is 42px. Don't write `px-[15px]`; any whole number of pixels has a step. Steps follow the visitor's font-size setting, while the type scale stays in pixels.
+- A size that has to match a pixel value elsewhere stays in pixels, or shares one constant with it: the virtualised explorer rows and hex rows take their height from the constant their script positions them with, and the hex ASCII cells match the pixel widths of the hex grid columns. Bracketed values also stay for `calc()`, `min()`, `max()` and CSS variables.
 
 ## Colour roles
 

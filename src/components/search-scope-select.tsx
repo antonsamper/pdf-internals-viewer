@@ -20,7 +20,7 @@ export const SearchScopeSelect = function SearchScopeSelect({
     >
       <Select.Trigger
         className={cn(
-          'flex flex-[0_0_132px] items-center justify-between [grid-area:mode]',
+          'flex shrink-0 grow-0 basis-33 items-center justify-between [grid-area:mode]',
           'h-7 w-33 gap-2 pr-2 pl-0',
           'text-detail whitespace-nowrap text-foreground',
           'bg-background outline-none',

@@ -21,7 +21,7 @@ const NodeDetail = ({ children }: { children: ReactNode }) => (
 const NodeToggle = ({ expanded, label, onToggle }: { expanded: boolean; label: string; onToggle?: () => void }) =>
   onToggle ? (
     <button
-      className="grid h-7.5 w-6.5 flex-[0_0_26px] place-items-center rounded-[4px]"
+      className="grid h-7.5 w-6.5 shrink-0 grow-0 basis-6.5 place-items-center rounded-[4px]"
       aria-label={label}
       aria-expanded={expanded}
       onClick={onToggle}
@@ -29,7 +29,7 @@ const NodeToggle = ({ expanded, label, onToggle }: { expanded: boolean; label: s
       {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
     </button>
   ) : (
-    <span className="h-7.5 w-6.5 flex-[0_0_26px]" />
+    <span className="h-7.5 w-6.5 shrink-0 grow-0 basis-6.5" />
   );
 
 /** A node's label and object number: a button when the node opens an object. */

@@ -41,7 +41,7 @@ const HEX_BYTE = cn(
 );
 const HEX_ASCII_CELL = cn(
   'inline-block w-2 py-0.75 text-center',
-  'max-w400:w-1.75',
+  'max-w400:w-[7px]',
   'data-[selected]:bg-byte-selection data-[selected]:text-byte-selection-foreground'
 );
 const printable = (byte: number) => {
