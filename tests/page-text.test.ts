@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 // @ts-expect-error shared plain JS fixture generator
 import { classicPdf } from '../scripts/fixtures/pdf-fixtures.mjs';
 import { PdfInspector } from '../src/lib/pdf/inspector';
-import { pageTextSources, stringBytes, unicodeMap, pageContentIds } from '../src/lib/pdf/page-text';
+import { pageTextSourceList, stringBytes, unicodeMap, pageContentIds } from '../src/lib/pdf/page-text';
 const fixture = (content: string, compressed = false, font = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>', cmap?: string) => {
   const data = compressed ? deflateSync(Buffer.from(content, 'latin1')) : Buffer.from(content, 'latin1');
   const stream = Buffer.concat([
@@ -26,7 +26,7 @@ const sources = async (content: string, term: string, compressed = false, font?:
   const inspector = new PdfInspector();
   const document = await inspector.open(file.bytes);
   const objects = new Map(document.objects.map((object) => [object.id, object]));
-  const results = await pageTextSources(
+  const { sources: results } = await pageTextSourceList(
     objects.get('3 0')!,
     objects,
     term,
@@ -35,6 +35,32 @@ const sources = async (content: string, term: string, compressed = false, font?:
     () => false
   );
   return { bytes: file.bytes, objects, results };
+};
+/** A page drawn by one content stream per entry, numbered from object 4. */
+const streamPageSources = async (contents: string[], term: string) => {
+  const ids = contents.map((_, index) => index + 4);
+  const font = ids.length + 4;
+  const file = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+    [
+      3,
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 ${font} 0 R >> >> /Contents [${ids.map((id) => `${id} 0 R`).join(' ')}] >>`,
+    ],
+    ...contents.map((content, index) => [ids[index], Buffer.from(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`)]),
+    [font, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'],
+  ]);
+  const inspector = new PdfInspector();
+  const document = await inspector.open(file.bytes);
+  const objects = new Map(document.objects.map((object) => [object.id, object]));
+  return pageTextSourceList(
+    objects.get('3 0')!,
+    objects,
+    term,
+    async (id) => inspector.readStream(id, 'decoded'),
+    false,
+    () => false
+  );
 };
 const selected = (
   bytes: Uint8Array,
@@ -179,7 +205,7 @@ describe('page text source mapping', () => {
   it('cancels without reading more streams and safely follows indirect Contents arrays with cycles', async () => {
     const { objects } = await sources('BT /F1 12 Tf (Hello) Tj ET', 'Hello');
     const page = objects.get('3 0')!;
-    const result = await pageTextSources(
+    const { sources: result } = await pageTextSourceList(
       page,
       objects,
       'Hello',
@@ -199,12 +225,25 @@ describe('page text source mapping', () => {
       { end: 6, start: 5, value: 32 },
     ]);
   });
-  it('caps a page at 100 text sources and marks only the last one incomplete', async () => {
-    const { results } = await sources(`BT /F1 12 Tf (${'Hi '.repeat(130)}) Tj ET`, 'Hi');
-    expect(results).toHaveLength(100);
-    expect(results.every((result) => result.ranges.length === 1)).toBe(true);
-    expect(results.slice(0, -1).some((result) => result.incomplete)).toBe(false);
-    expect(results[99].incomplete).toBe(true);
+  it('caps a page at 100 text sources and reports the list as limited, not the fully read stream', async () => {
+    const list = await streamPageSources([`BT /F1 12 Tf (${'Hi '.repeat(130)}) Tj ET`], 'Hi');
+    expect(list.sources).toHaveLength(100);
+    expect(list.sources.every((source) => source.ranges.length === 1 && !source.incomplete)).toBe(true);
+    expect(list.limited).toBe(true);
+  });
+  it('reports unread content streams past the source limit without marking read sources incomplete', async () => {
+    const shown = 'BT /F1 12 Tf (Hello) Tj ET';
+    const list = await streamPageSources([...Array.from({ length: 99 }, () => '0 0 m 1 1 l S'), shown, shown], 'Hello');
+    expect(list.limited).toBe(true);
+    expect(list.sources).toHaveLength(100);
+    expect(list.sources.filter((source) => source.ranges.length).map((source) => source.id)).toEqual(['103 0']);
+    expect(list.sources.some((source) => source.incomplete)).toBe(false);
+  });
+  it('does not report a page with exactly 100 sources as limited', async () => {
+    const list = await streamPageSources([...Array.from({ length: 99 }, () => '0 0 m 1 1 l S'), 'BT /F1 12 Tf (Hello) Tj ET'], 'Hello');
+    expect(list.sources).toHaveLength(100);
+    expect(list.sources.some((source) => source.incomplete)).toBe(false);
+    expect(list.limited).toBe(false);
   });
   it('starts a new line for \' and " and maps the string operand of "', async () => {
     const quote = await sources("BT /F1 12 Tf 14 TL (Hel) Tj (lo) ' ET", 'Hello');

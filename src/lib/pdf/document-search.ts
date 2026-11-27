@@ -1,9 +1,9 @@
-import type { PageTextLocation, TextSource } from '@/lib/pdf/page-text';
+import type { PageTextLocation, PageTextSourceList } from '@/lib/pdf/page-text';
 import type { PageTextHit } from '@/lib/pdf/page-text-search';
 import type { SearchSnippet } from '@/lib/pdf/search-snippet';
 import type { PdfDocumentInfo, PdfObjectRecord, PdfValue, StreamResult } from '@/lib/pdf/types';
 
-import { pageTextSources } from '@/lib/pdf/page-text';
+import { pageTextSourceList } from '@/lib/pdf/page-text';
 import { byteSearchSnippet } from '@/lib/pdf/search-snippet';
 
 export type SearchResult = {
@@ -34,7 +34,7 @@ export type SearchOutcome = { found: SearchResult[]; message: string } | null;
 
 export const MAX_RESULTS = 500;
 
-const pageTextResult = (hit: PageTextHit, pageId: string, pageNumber: number, sources: TextSource[]): SearchResult => ({
+const pageTextResult = (hit: PageTextHit, pageId: string, pageNumber: number, { limited, sources }: PageTextSourceList): SearchResult => ({
   detail: `${hit.count} text match${hit.count === 1 ? '' : 'es'}`,
   label: `Page ${pageNumber}`,
   pageText: {
@@ -44,6 +44,7 @@ const pageTextResult = (hit: PageTextHit, pageId: string, pageNumber: number, so
     pageNumber,
     snippet: hit.snippet,
     sources,
+    sourcesLimited: limited,
   },
   snippet: hit.context ?? {
     after: '',
@@ -68,9 +69,9 @@ const searchPageText = async (request: SearchRequest): Promise<SearchOutcome> =>
     const page = objects.find((object) => object.objectNumber === hit.objectNumber && object.kind === 'Page');
     if (!page) continue;
     // oxlint-disable-next-line react-doctor/async-await-in-loop -- sequential: every page reads streams through the shared cache and must stop as soon as the search is cancelled.
-    const sources = await pageTextSources(page, objectMap, term, cachedRead, document.encrypted, () => !isCurrent());
-    sources.sort((a, b) => Number(Boolean(b.ranges.length)) - Number(Boolean(a.ranges.length)));
-    found.push(pageTextResult(hit, page.id, pageSearch.pages.get(hit.objectNumber) ?? document.pages.indexOf(page.id) + 1, sources));
+    const list = await pageTextSourceList(page, objectMap, term, cachedRead, document.encrypted, () => !isCurrent());
+    list.sources.sort((a, b) => Number(Boolean(b.ranges.length)) - Number(Boolean(a.ranges.length)));
+    found.push(pageTextResult(hit, page.id, pageSearch.pages.get(hit.objectNumber) ?? document.pages.indexOf(page.id) + 1, list));
   }
   if (!isCurrent()) return null;
   return {
