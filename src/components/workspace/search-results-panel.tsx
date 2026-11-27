@@ -1,12 +1,13 @@
-import type { ComponentProps } from 'react';
+import type { ComponentProps, KeyboardEvent } from 'react';
 
-import { cn } from 'cn';
 import { ChevronDown, ChevronRight, ChevronUp, Eye, FileCode2, Search } from 'lucide-react';
 
 import type { PageTextLocation, TextSource } from '@/lib/pdf/page-text';
 
 import { SearchResultsPopover } from '@/components/search-results-popover';
 import { Button } from '@/components/ui/button';
+import { MAX_TEXT_SOURCES } from '@/lib/pdf/limits';
+import { cn } from '@/lib/utils';
 
 import type { SearchResult } from './types';
 import type { useDocumentSearch } from './use-document-search';
@@ -37,59 +38,86 @@ const countLabel = (count: number, scope: string) => {
 
 const statusText = ({ displayedScope, interrupted, results, resultsScope, searching, searchingQuery }: Search) => {
   let headline = countLabel(results?.length ?? 0, resultsScope);
-  if (searching) headline = `Searching for “${searchingQuery}”…`;
-  else if (interrupted) headline = `Search ${interrupted} for “${searchingQuery}”`;
+  if (searching) {
+    headline = `Searching for “${searchingQuery}”…`;
+  } else if (interrupted) {
+    headline = `Search ${interrupted} for “${searchingQuery}”`;
+  }
   return `${headline} · ${SCOPE_LABELS[displayedScope] ?? displayedScope}`;
 };
 
 /** A button inside a result card: compact, left aligned, and tall enough to tap on small and touch screens. */
-const CardButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
-  <Button
-    size="xs"
-    className={cn(
-      'h-auto min-h-6 max-w-full justify-start',
-      'rounded-[4px] px-1.5 py-0.5 text-left text-[11px] whitespace-normal',
-      'pointer-coarse:min-h-11 narrow:not-pointer-coarse:min-h-8',
-      className
-    )}
-    {...props}
-  />
-);
+const CardButton = ({ className, ...props }: ComponentProps<typeof Button>) => {
+  return (
+    <Button
+      size="xs"
+      className={cn(
+        'h-auto min-h-6 max-w-full justify-start',
+        'rounded-[4px] px-1.5 py-0.5 text-left text-detail whitespace-normal',
+        'pointer-coarse:min-h-11 narrow:not-pointer-coarse:min-h-8',
+        className
+      )}
+      {...props}
+    />
+  );
+};
 
 /** A header button in the header's 12px type that grows to a 44px touch target on small screens. */
-const HeaderButton = ({ className, ...props }: ComponentProps<typeof Button>) => (
-  <Button variant="ghost" className={cn('text-[12px] narrow:min-h-11 narrow:min-w-11', className)} {...props} />
-);
+const HeaderButton = ({ className, ...props }: ComponentProps<typeof Button>) => {
+  return <Button variant="ghost" className={cn('text-small narrow:min-h-11 narrow:min-w-11', className)} {...props} />;
+};
 
-/** A note above or below the result cards. */
-const ResultsNote = ({ className, ...props }: ComponentProps<'p'>) => (
-  <p className={cn('px-3.5 py-2.5 text-[12px] [overflow-wrap:anywhere]', className)} {...props} />
-);
+const ResultsNote = ({ className, ...props }: ComponentProps<'p'>) => {
+  return <p className={cn('px-3.5 py-2.5 text-small [overflow-wrap:anywhere]', className)} {...props} />;
+};
 
-const focusSearchToggle = (search: Search) =>
-  search.formRef.current?.querySelector<HTMLButtonElement>('[data-search-show]')?.focus({ preventScroll: true });
+const focusSearchToggle = (search: Search) => {
+  return search.formRef.current?.querySelector<HTMLButtonElement>('[data-search-show]')?.focus({ preventScroll: true });
+};
 
-const ResultsHeader = ({ search }: { search: Search }) => {
-  const {
-    activeResult,
-    cancel,
-    cancelReady,
-    cancelRequest,
-    inputRef,
-    interrupted,
-    move,
-    resultsQuery,
-    resultsScope,
-    searching,
-    searchingQuery,
-  } = search;
+const ResultNavigation = ({ search }: { search: Search }) => {
+  const { activeResult, move, resultsScope, searching } = search;
   const results = search.results ?? [];
   const pageText = resultsScope === 'pageText';
+  return (
+    <div className="ml-auto flex items-center gap-0.5 whitespace-nowrap" aria-label="Search result navigation" role="group">
+      <span className="mr-1.5 text-detail" aria-live="polite" aria-atomic="true">
+        {pageText ? 'Page ' : 'Match '}
+        {results.length ? `${(activeResult ?? 0) + 1} of ${results.length}` : '0 of 0'}
+      </span>
+      <HeaderButton
+        size="icon-sm"
+        aria-label="Previous search result"
+        title={pageText ? 'Previous matching page' : 'Previous match'}
+        disabled={searching || results.length < 2}
+        onClick={() => {
+          return move(-1);
+        }}
+      >
+        <ChevronUp size={14} />
+      </HeaderButton>
+      <HeaderButton
+        size="icon-sm"
+        aria-label="Next search result"
+        title={pageText ? 'Next matching page' : 'Next match'}
+        disabled={searching || results.length < 2}
+        onClick={() => {
+          return move(1);
+        }}
+      >
+        <ChevronDown size={14} />
+      </HeaderButton>
+    </div>
+  );
+};
+
+const ResultsHeader = ({ search }: { search: Search }) => {
+  const { cancel, cancelReady, cancelRequest, inputRef, interrupted, resultsQuery, searching, searchingQuery } = search;
   return (
     <div
       className={cn(
         'flex shrink-0 items-center gap-2 px-3 py-2',
-        'border-b bg-sidebar text-[12px] text-muted-foreground',
+        'border-b bg-sidebar text-small text-muted-foreground',
         'narrow:px-2 narrow:py-1.5'
       )}
     >
@@ -100,30 +128,7 @@ const ResultsHeader = ({ search }: { search: Search }) => {
       >
         {statusText(search)}
       </span>
-      <div className="ml-auto flex items-center gap-0.5 whitespace-nowrap" aria-label="Search result navigation" role="group">
-        <span className="mr-1.5 text-[11px]" aria-live="polite" aria-atomic="true">
-          {pageText ? 'Page ' : 'Match '}
-          {results.length ? `${(activeResult ?? 0) + 1} of ${results.length}` : '0 of 0'}
-        </span>
-        <HeaderButton
-          size="icon-sm"
-          aria-label="Previous search result"
-          title={pageText ? 'Previous matching page' : 'Previous match'}
-          disabled={searching || results.length < 2}
-          onClick={() => move(-1)}
-        >
-          <ChevronUp size={14} />
-        </HeaderButton>
-        <HeaderButton
-          size="icon-sm"
-          aria-label="Next search result"
-          title={pageText ? 'Next matching page' : 'Next match'}
-          disabled={searching || results.length < 2}
-          onClick={() => move(1)}
-        >
-          <ChevronDown size={14} />
-        </HeaderButton>
-      </div>
+      <ResultNavigation search={search} />
       {searching && cancelReady === cancelRequest && (
         <HeaderButton
           size="xs"
@@ -152,7 +157,9 @@ const ResultsHeader = ({ search }: { search: Search }) => {
   );
 };
 
-const hexOffset = (value: number) => `0x${value.toString(16).toUpperCase()}`;
+const hexOffset = (value: number) => {
+  return `0x${value.toString(16).toUpperCase()}`;
+};
 
 const SourceButtons = ({
   index,
@@ -167,40 +174,50 @@ const SourceButtons = ({
 }) => {
   const { formRef, searching, selectSource, setOpen, sourceLocationsPage } = search;
   const sources = location.sources.slice(0, sourceLocationsPage === location.pageId ? undefined : 1);
-  const keys = uniqueKeys(sources, (source) => `${source.id}:${source.ranges[0]?.start ?? 'candidate'}`);
-  const mapped = location.sources.some((source) => source.ranges.length);
+  const keys = uniqueKeys(sources, (source) => {
+    return `${source.id}:${source.ranges[0]?.start ?? 'candidate'}`;
+  });
+  const mapped = location.sources.some((source) => {
+    return source.ranges.length;
+  });
   return (
-    <div className="flex flex-wrap items-center gap-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1">
-      <span className="mr-0.5 text-[11px] text-muted-foreground max-w400:col-span-full max-w400:m-0">{mapped ? 'Bytes' : 'Streams'}</span>
-      {sources.map((source, sourceIndex) => (
-        <CardButton
-          key={keys[sourceIndex]}
-          className="max-w400:min-w-0 max-w400:justify-self-start"
-          variant={textSource === source ? 'secondary' : 'ghost'}
-          aria-label={`${source.ranges.length ? 'Show bytes' : 'Inspect content stream'} · ${source.id} obj${source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}`}
-          title={source.ranges.length ? 'Show matching bytes' : 'Inspect candidate content stream'}
-          aria-pressed={textSource === source}
-          disabled={searching}
-          onClick={() => {
-            selectSource(location, source, index);
-            setOpen(false);
-            requestAnimationFrame(() =>
-              formRef.current
-                ?.closest('[data-app-shell]')
-                ?.querySelector<HTMLElement>('[data-text-source-bytes] [data-hex-viewport]')
-                ?.focus({ preventScroll: true })
-            );
-          }}
-        >
-          <FileCode2 size={12} />
-          <code className="text-[11px] font-normal max-w400:[overflow-wrap:anywhere]">
-            {source.ranges.length ? source.id : `Candidate ${source.id}`}
-            {source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}
-          </code>
-        </CardButton>
-      ))}
+    <div className={cn('flex flex-wrap items-center gap-1', 'max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1')}>
+      <span className="mr-0.5 text-detail text-muted-foreground max-w400:col-span-full max-w400:m-0">{mapped ? 'Bytes' : 'Streams'}</span>
+      {sources.map((source, sourceIndex) => {
+        return (
+          <CardButton
+            key={keys[sourceIndex]}
+            className="max-w400:min-w-0 max-w400:justify-self-start"
+            variant={textSource === source ? 'secondary' : 'ghost'}
+            aria-label={`${source.ranges.length ? 'Show bytes' : 'Inspect content stream'} · ${source.id} obj${source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}`}
+            title={source.ranges.length ? 'Show matching bytes' : 'Inspect candidate content stream'}
+            aria-pressed={textSource === source}
+            disabled={searching}
+            onClick={() => {
+              selectSource(location, source, index);
+              setOpen(false);
+              requestAnimationFrame(() => {
+                return formRef.current
+                  ?.closest('[data-app-shell]')
+                  ?.querySelector<HTMLElement>('[data-text-source-bytes] [data-hex-viewport]')
+                  ?.focus({ preventScroll: true });
+              });
+            }}
+          >
+            <FileCode2 size={12} />
+            <code className="text-detail font-normal max-w400:[overflow-wrap:anywhere]">
+              {source.ranges.length ? source.id : `Candidate ${source.id}`}
+              {source.ranges[0] ? ` · ${hexOffset(source.ranges[0].start)}` : ''}
+            </code>
+          </CardButton>
+        );
+      })}
     </div>
   );
+};
+
+const SourcesNote = ({ className, ...props }: ComponentProps<'span'>) => {
+  return <span className={cn('mb-0.5 text-detail text-muted-foreground', className)} {...props} />;
 };
 
 const PageTextLinks = ({
@@ -218,23 +235,30 @@ const PageTextLinks = ({
 }) => {
   const { openResultPreview, searching, setOpen, sourceLocationsPage, toggleSources } = search;
   const expanded = sourceLocationsPage === location.pageId;
-  const mapped = location.sources.some((source) => source.ranges.length);
+  const mapped = location.sources.some((source) => {
+    return source.ranges.length;
+  });
   return (
     <div className="mx-3 mb-2.5 flex flex-col items-stretch gap-1.5 border-t pt-2" role="group" aria-label="Page text source locations">
       {!mapped && (
-        <span className="mb-0.5 text-[11px] leading-normal text-muted-foreground">
-          Exact word bytes could not be mapped. Stream inspection highlights a candidate container, not the word.
-        </span>
+        <SourcesNote>Exact word bytes could not be mapped. Stream inspection highlights a candidate container, not the word.</SourcesNote>
+      )}
+      {location.sourcesLimited && (
+        <SourcesNote>
+          This page has more than {MAX_TEXT_SOURCES} source locations. Only the first {MAX_TEXT_SOURCES} are listed.
+        </SourcesNote>
       )}
       {location.sources.length > 0 && <SourceButtons index={index} location={location} search={search} textSource={textSource} />}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 max-w400:grid max-w400:grid-cols-2 max-w400:gap-2">
         {location.sources.length > 1 && (
           <CardButton
             variant="link"
-            className="px-0 text-muted-foreground underline-offset-[3px]"
+            className="px-0 text-muted-foreground underline-offset-3"
             disabled={searching}
             aria-expanded={expanded}
-            onClick={() => toggleSources(location.pageId)}
+            onClick={() => {
+              return toggleSources(location.pageId);
+            }}
           >
             {expanded ? 'Fewer sources' : `${location.sources.length - 1} more source${location.sources.length > 2 ? 's' : ''}`}
             {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
@@ -242,7 +266,7 @@ const PageTextLinks = ({
         )}
         <CardButton
           variant="link"
-          className="px-0 text-(--reference) underline-offset-[3px]"
+          className="px-0 text-reference underline-offset-3"
           disabled={searching}
           onClick={() => {
             openResultPreview(result, index);
@@ -260,28 +284,26 @@ const PageTextLinks = ({
 
 const ResultSummary = ({ result, resultsScope }: { result: SearchResult; resultsScope: string }) => {
   const { snippet } = result;
-  if (!snippet)
+  if (!snippet) {
     return (
       <>
-        <code className="col-start-1 text-[12px] font-semibold text-foreground">{result.label}</code>
-        <span className="col-start-1 text-[12px] leading-normal [overflow-wrap:anywhere] text-muted-foreground">{result.detail}</span>
+        <code className="col-start-1 text-small font-semibold text-foreground">{result.label}</code>
+        <span className="col-start-1 text-small [overflow-wrap:anywhere] text-muted-foreground">{result.detail}</span>
       </>
     );
+  }
   return (
     <>
       <span
-        className={cn(
-          'col-start-1 text-[13px] leading-normal [overflow-wrap:anywhere] text-foreground',
-          resultsScope !== 'pageText' && 'font-mono'
-        )}
+        className={cn('col-start-1 text-body [overflow-wrap:anywhere] text-foreground', resultsScope !== 'pageText' && 'font-mono')}
         data-search-result-context=""
       >
         {snippet.before}
-        <mark className="rounded-[2px] bg-(--byte-selection) px-px text-(--byte-selection-foreground)">{snippet.match}</mark>
+        <mark className="rounded-xs bg-byte-selection px-px text-byte-selection-foreground">{snippet.match}</mark>
         {snippet.after}
       </span>
       {!result.pageText && (
-        <code className="col-start-1 text-[11px] font-normal text-muted-foreground" data-search-result-meta="">
+        <code className="col-start-1 text-detail font-normal text-muted-foreground" data-search-result-meta="">
           {result.label}
           <span className="font-sans"> · {result.detail}</span>
         </code>
@@ -306,8 +328,8 @@ const ResultItem = ({
     <div
       className={cn(
         'scroll-my-2 overflow-hidden bg-background',
-        'rounded-[8px] border',
-        'has-[[aria-current=true]]:border-(--reference) has-[[aria-current=true]]:shadow-[0_0_0_1px_var(--reference)]'
+        'rounded-md border',
+        'has-[[aria-current=true]]:border-reference has-[[aria-current=true]]:shadow-[0_0_0_1px_var(--reference)]'
       )}
       data-search-result-item=""
     >
@@ -337,13 +359,10 @@ const ResultItem = ({
       >
         {result.pageText && (
           <span
-            className={cn(
-              'col-start-1 flex items-baseline justify-between gap-3',
-              'text-[12px] leading-normal [overflow-wrap:anywhere] text-foreground'
-            )}
+            className={cn('col-start-1 flex items-baseline justify-between gap-3', 'text-small [overflow-wrap:anywhere] text-foreground')}
           >
-            <strong className="text-[12px] font-semibold">{result.label}</strong>
-            <span className="text-[11px] whitespace-nowrap text-muted-foreground">{result.detail}</span>
+            <strong className="text-small font-semibold">{result.label}</strong>
+            <span className="text-detail whitespace-nowrap text-muted-foreground">{result.detail}</span>
           </span>
         )}
         <ResultSummary result={result} resultsScope={resultsScope} />
@@ -362,10 +381,10 @@ const ResultItem = ({
 const EmptyResults = ({ search }: { search: Search }) => {
   const { resultsQuery, resultsScope, searchAsPageText } = search;
   return (
-    <div className="flex min-h-[100px] flex-col items-center justify-center gap-2.5 p-5 text-center text-muted-foreground">
+    <div className={cn('flex min-h-25 flex-col items-center justify-center', 'gap-2.5 p-5 text-center text-muted-foreground')}>
       <Search size={22} aria-hidden="true" />
-      <p className="text-[13px] [overflow-wrap:anywhere] text-foreground">No results for “{resultsQuery}”</p>
-      <span className="text-[12px]">{EMPTY_HINTS[resultsScope] ?? 'Try a shorter sequence of complete hexadecimal bytes.'}</span>
+      <p className="text-body [overflow-wrap:anywhere] text-foreground">No results for “{resultsQuery}”</p>
+      <span className="text-small">{EMPTY_HINTS[resultsScope] ?? 'Try a shorter sequence of complete hexadecimal bytes.'}</span>
       {['objects', 'keys', 'text', 'decoded'].includes(resultsScope) && (
         <Button className="narrow:min-h-11" size="sm" variant="secondary" onClick={searchAsPageText}>
           Search page text instead
@@ -375,35 +394,64 @@ const EmptyResults = ({ search }: { search: Search }) => {
   );
 };
 
-const CoverageNote = ({ message, resultsScope }: { message: string; resultsScope: string }) =>
-  resultsScope === 'pageText' ? (
-    <details className="border-t px-3.5 py-2.5 text-[11px] text-muted-foreground" open={message.startsWith('Showing')}>
+const CoverageNote = ({ message, resultsScope }: { message: string; resultsScope: string }) => {
+  return resultsScope === 'pageText' ? (
+    <details className="border-t px-3.5 py-2.5 text-detail text-muted-foreground" open={message.startsWith('Showing')}>
       <summary className="cursor-pointer">Search coverage</summary>
       <p className="mt-2 leading-normal">{message}</p>
     </details>
   ) : (
     <ResultsNote className="text-muted-foreground">{message}</ResultsNote>
   );
+};
+
+/** Arrow keys on a result card step through the results and keep focus on the active card. */
+const stepWithArrows = (search: Search) => {
+  return (event: KeyboardEvent<HTMLElement>) => {
+    if ((event.key !== 'ArrowDown' && event.key !== 'ArrowUp') || !(event.target as HTMLElement).matches('[data-search-result]')) {
+      return;
+    }
+    event.preventDefault();
+    search.move(event.key === 'ArrowDown' ? 1 : -1);
+    requestAnimationFrame(() => {
+      return search.activeMatchRef.current?.focus({
+        preventScroll: true,
+      });
+    });
+  };
+};
+
+const ResultsBody = ({ search, textSource }: { search: Search; textSource: TextSource | null }) => {
+  const { interrupted, message, resultsQuery, resultsScope, searching, showPrevious } = search;
+  const results = search.results ?? [];
+  const keys = uniqueKeys(results, (result) => {
+    return result.label;
+  });
+  const settled = !searching && !interrupted;
+  return (
+    <div className="min-h-0 flex-1 overflow-auto overscroll-contain" data-search-results-body="" aria-busy={searching}>
+      {showPrevious && (
+        <ResultsNote className="text-muted-foreground" data-search-previous="">
+          Previous results for “{resultsQuery}”
+        </ResultsNote>
+      )}
+      {interrupted === 'failed' && message && <ResultsNote role="status">{message}</ResultsNote>}
+      <div className="flex flex-col gap-3 bg-muted p-3 group-data-searching/results:opacity-55" data-search-matches="">
+        {results.map((result, index) => {
+          return <ResultItem key={keys[index]} index={index} result={result} search={search} textSource={textSource} />;
+        })}
+      </div>
+      {settled && !results.length && <EmptyResults search={search} />}
+      {settled && message && <CoverageNote message={message} resultsScope={resultsScope} />}
+    </div>
+  );
+};
 
 export const SearchResultsPanel = ({ search, textSource }: { search: Search; textSource: TextSource | null }) => {
-  const {
-    activeMatchRef,
-    formRef,
-    inputRef,
-    interrupted,
-    message,
-    move,
-    open,
-    results,
-    resultsId,
-    resultsQuery,
-    resultsScope,
-    searching,
-    setOpen,
-    showPrevious,
-  } = search;
-  if (results === null) return null;
-  const keys = uniqueKeys(results, (result) => result.label);
+  const { formRef, inputRef, open, results, resultsId, searching, setOpen, showPrevious } = search;
+  if (results === null) {
+    return null;
+  }
   return (
     <SearchResultsPopover
       id={resultsId}
@@ -416,7 +464,7 @@ export const SearchResultsPanel = ({ search, textSource }: { search: Search; tex
       <section
         className={cn(
           'group/results flex flex-col overflow-hidden',
-          'max-h-[min(480px,60dvh,var(--available-height,480px))] min-h-[100px]',
+          'max-h-[min(480px,60dvh,var(--available-height,480px))] min-h-25',
           'bg-background',
           'data-hold-height:h-[var(--search-loading-height,180px)]'
         )}
@@ -424,34 +472,10 @@ export const SearchResultsPanel = ({ search, textSource }: { search: Search; tex
         data-search-results=""
         data-searching={searching || undefined}
         data-hold-height={searching || showPrevious || undefined}
-        onKeyDown={(event) => {
-          if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && (event.target as HTMLElement).matches('[data-search-result]')) {
-            event.preventDefault();
-            move(event.key === 'ArrowDown' ? 1 : -1);
-            requestAnimationFrame(() =>
-              activeMatchRef.current?.focus({
-                preventScroll: true,
-              })
-            );
-          }
-        }}
+        onKeyDown={stepWithArrows(search)}
       >
         <ResultsHeader search={search} />
-        <div className="min-h-0 flex-1 overflow-auto overscroll-contain" data-search-results-body="" aria-busy={searching}>
-          {showPrevious && (
-            <ResultsNote className="text-muted-foreground" data-search-previous="">
-              Previous results for “{resultsQuery}”
-            </ResultsNote>
-          )}
-          {interrupted === 'failed' && message && <ResultsNote role="status">{message}</ResultsNote>}
-          <div className="flex flex-col gap-3 bg-muted p-3 group-data-searching/results:opacity-55" data-search-matches="">
-            {results.map((result, index) => (
-              <ResultItem key={keys[index]} index={index} result={result} search={search} textSource={textSource} />
-            ))}
-          </div>
-          {!searching && !interrupted && !results.length && <EmptyResults search={search} />}
-          {!searching && !interrupted && message && <CoverageNote message={message} resultsScope={resultsScope} />}
-        </div>
+        <ResultsBody search={search} textSource={textSource} />
       </section>
     </SearchResultsPopover>
   );

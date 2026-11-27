@@ -1,17 +1,23 @@
-import type { MouseEvent } from 'react';
+import type { ComponentType, MouseEvent } from 'react';
 
-import { cn } from 'cn';
-
-import type { SitePage } from '@/lib/site-content';
+import type { SitePage, SitePath } from '@/lib/site-content';
 
 import { ContentHeaderLinks } from '@/components/content-navigation';
 import { ArticleActions, ArticleSource, ComparisonTable, Lead } from '@/components/prose';
 import { BackToWorkspace, ReadingPage } from '@/components/reading-page';
 import { SiteHeader } from '@/components/site-header';
 import { SiteLinks } from '@/components/site-links';
-import { MAX_INPUT_BYTES, MAX_DISPLAY_BYTES, MAX_OBJECTS, MAX_DECODED_BYTES, OPERATION_TIMEOUT_MS } from '@/lib/pdf/limits';
-import { PRIVACY_SUMMARY, PROJECT_URL } from '@/lib/site-content';
+import {
+  ENGINE_LOAD_TIMEOUT_MS,
+  MAX_INPUT_BYTES,
+  MAX_DISPLAY_BYTES,
+  MAX_OBJECTS,
+  MAX_DECODED_BYTES,
+  OPERATION_TIMEOUT_MS,
+} from '@/lib/pdf/limits';
+import { PRIVACY_SUMMARY, PROJECT_URL, articleSection, isArticlePath } from '@/lib/site-content';
 import { navigationLabel } from '@/lib/site-navigation';
+import { cn } from '@/lib/utils';
 
 import { Examples, LargePdfExample, IncorrectTextExample } from './examples';
 import {
@@ -88,8 +94,10 @@ const Guide = function Guide() {
       </p>
       <p>
         Use <strong>Back</strong> and <strong>Forward</strong> to retrace objects, inspector tabs, sections, and selected byte ranges. Each
-        visit restores its scroll positions. <strong>File structure</strong> opens the trailer and cross-reference entry point. Visiting a
-        guide or example keeps your open PDF and selection in memory; choose <strong>Back to the workspace</strong> to continue.
+        visit restores its scroll positions. <strong>File structure</strong> opens the trailer and cross-reference entry point.{' '}
+        <strong>Actions</strong> lists the actions in the catalogue, pages, annotations, form fields and outline, and{' '}
+        <strong>Issues</strong> collects parser diagnostics. Visiting a guide or example keeps your open PDF and selection in memory; choose{' '}
+        <strong>Back to the workspace</strong> to continue.
       </p>
       <p>
         Expand <strong>Pages</strong> to browse each page's content streams, resources, and annotations. In the Inspector, follow{' '}
@@ -280,7 +288,7 @@ Q`}</code>
       <ComparisonTable>
         <caption>Reading a TJ text instruction</caption>
         <colgroup>
-          <col style={{ width: '30%' }} />
+          <col className="w-3/10" />
           <col />
         </colgroup>
         <thead>
@@ -343,7 +351,7 @@ Q`}</code>
       </p>
       <details
         className={cn(
-          'my-4 text-[14px] leading-[1.85]',
+          'my-4 text-reading leading-[1.85]',
           '[&_summary]:cursor-pointer [&_summary]:underline [&_summary]:underline-offset-3',
           '[&_p]:mt-3'
         )}
@@ -529,6 +537,11 @@ const Limitations = function Limitations() {
         <dd>{MAX_DISPLAY_BYTES / 1024} KiB</dd>
         <dt>Parser operation timeout</dt>
         <dd>{OPERATION_TIMEOUT_MS / 1000} seconds</dd>
+        <dt>Page text search timeout</dt>
+        <dd>
+          {OPERATION_TIMEOUT_MS / 1000} seconds for each step (opening the file, listing pages, each batch of 25 pages), counted once the
+          page text engine has loaded. Loading may take up to {ENGINE_LOAD_TIMEOUT_MS / 60_000} minutes.
+        </dd>
       </dl>
       <p>
         The inspector allows up to 128 MiB of decoded data across all streams in a document. The browser also needs memory for objects and
@@ -556,6 +569,13 @@ const Limitations = function Limitations() {
         not page text search. Font or image availability does not prove page usage. Resource lists cover indexed objects; unparsed objects
         can contain additional resources.
       </p>
+      <p>
+        Actions lists actions from the catalogue, pages, page annotations, form fields and outline, up to 5,000 actions and 64 steps in a{' '}
+        <code>/Next</code> chain. It also stops, with a note, after 500,000 steps through pages, annotations and actions, which a file can
+        reach when every page shares one large annotation array. Document-level scripts in the <code>/Names /JavaScript</code> tree, XFA
+        form scripts and actions stored elsewhere need a search. Nothing is run, so the list cannot show what a reader would do with an
+        action.
+      </p>
       <h2>Page text search and source mapping</h2>
       <p>
         Page text search finds words extracted from pages that have a text layer. It runs locally in your browser, stops at 500 matches, and
@@ -564,7 +584,8 @@ const Limitations = function Limitations() {
       <p>
         Mapping those words to source bytes works for common ASCII fonts and fixed-width ToUnicode maps in direct page content streams. In
         compressed or encrypted streams the decoded bytes are exact, while the original file highlights only the containing stream. Mapped
-        locations are candidates for the page text and may differ from reading order.
+        locations are candidates for the page text and may differ from reading order. Each page lists at most 100 source locations; a page
+        that reaches the limit says so, and the matches and content streams after it are not listed.
       </p>
       <p>
         Some words are found but cannot be mapped: text with unsupported font encodings or inside Form XObjects, <code>/ActualText</code>{' '}
@@ -599,6 +620,55 @@ const Limitations = function Limitations() {
     </>
   );
 };
+/** Home and About have their own components; every other public path needs an entry here. */
+type ArticlePath = Exclude<SitePath, '/' | '/about'>;
+const PAGE_CONTENT: Record<ArticlePath, ComponentType> = {
+  '/examples': Examples,
+  '/examples/broken-xref': BrokenXrefExample,
+  '/examples/embedded-font': FontExample,
+  '/examples/find-text-source': FindTextSourceExample,
+  '/examples/hidden-attachment': AttachmentExample,
+  '/examples/incorrect-text': IncorrectTextExample,
+  '/examples/inherited-resources': InheritanceExample,
+  '/examples/large-pdf': LargePdfExample,
+  '/examples/opening-action': ActionExample,
+  '/examples/page-rotation': RotationExample,
+  '/examples/repeated-logo': LogoExample,
+  '/guide': Guide,
+  '/guides/decode-pdf-streams': StreamsGuide,
+  '/guides/find-pdf-attachments': AttachmentsGuide,
+  '/guides/find-pdf-fonts-images': ResourcesGuide,
+  '/guides/inspect-pdf-objects': ObjectsGuide,
+  '/guides/investigate-suspicious-features': SuspiciousFeaturesGuide,
+  '/guides/search-bookmark-compare': SearchGuide,
+  '/limitations': Limitations,
+  '/pdf-inspector-vs-viewer': InspectorVsViewerPage,
+  '/privacy': Privacy,
+  '/who-its-for': AudiencePage,
+};
+const Breadcrumb = function Breadcrumb({ path }: { path: SitePath }) {
+  const parent = articleSection(path);
+  return (
+    <nav className="mb-6 text-small leading-[1.8] [overflow-wrap:anywhere] text-muted-foreground" aria-label="Breadcrumb">
+      <a href="/">PDF Internals</a>
+      <span aria-hidden="true"> / </span>
+      {parent && (
+        <>
+          <a href={parent.href}>{parent.label}</a>
+          <span aria-hidden="true"> / </span>
+        </>
+      )}
+      <span aria-current="page">{navigationLabel(path)}</span>
+    </nav>
+  );
+};
+const Byline = function Byline() {
+  return (
+    <p className="mb-8 text-small leading-[1.85] text-muted-foreground">
+      By <a href="https://github.com/antonsamper">Anton Samper</a> · Reviewed <time dateTime="2026-11-15">15 November 2026</time>
+    </p>
+  );
+};
 export const PublicPage = function PublicPage({
   page,
   onFollowLink,
@@ -608,77 +678,14 @@ export const PublicPage = function PublicPage({
   onFollowLink?: (event: MouseEvent<HTMLElement>) => boolean;
   standalone?: boolean;
 }) {
+  const Content = PAGE_CONTENT[page.path as ArticlePath] ?? ResourcesGuide;
   return (
     <ReadingPage labelledBy="public-title" onClick={onFollowLink} path={page.path} standalone={standalone}>
       <BackToWorkspace />
-      <nav className="mb-6 text-[12px] leading-[1.8] [overflow-wrap:anywhere] text-muted-foreground" aria-label="Breadcrumb">
-        <a href="/">PDF Internals</a>
-        <span aria-hidden="true"> / </span>
-        {page.path.startsWith('/guides/') && (
-          <>
-            <a href="/guide">Guide</a>
-            <span aria-hidden="true"> / </span>
-          </>
-        )}
-        {page.path.startsWith('/examples/') && (
-          <>
-            <a href="/examples">Examples</a>
-            <span aria-hidden="true"> / </span>
-          </>
-        )}
-        <span aria-current="page">{navigationLabel(page.path)}</span>
-      </nav>
+      <Breadcrumb path={page.path} />
       <h1 id="public-title">{page.heading}</h1>
-      {(page.path.startsWith('/guides/') || page.path.startsWith('/examples/')) && (
-        <p className="mb-8 text-[12px] leading-[1.85] text-muted-foreground">
-          By <a href="https://github.com/antonsamper">Anton Samper</a> · Reviewed <time dateTime="2026-11-15">15 November 2026</time>
-        </p>
-      )}
-      {page.path === '/who-its-for' ? (
-        <AudiencePage />
-      ) : page.path === '/pdf-inspector-vs-viewer' ? (
-        <InspectorVsViewerPage />
-      ) : page.path === '/examples' ? (
-        <Examples />
-      ) : page.path === '/examples/large-pdf' ? (
-        <LargePdfExample />
-      ) : page.path === '/examples/incorrect-text' ? (
-        <IncorrectTextExample />
-      ) : page.path === '/examples/find-text-source' ? (
-        <FindTextSourceExample />
-      ) : page.path === '/examples/broken-xref' ? (
-        <BrokenXrefExample />
-      ) : page.path === '/examples/embedded-font' ? (
-        <FontExample />
-      ) : page.path === '/examples/hidden-attachment' ? (
-        <AttachmentExample />
-      ) : page.path === '/examples/repeated-logo' ? (
-        <LogoExample />
-      ) : page.path === '/examples/page-rotation' ? (
-        <RotationExample />
-      ) : page.path === '/examples/inherited-resources' ? (
-        <InheritanceExample />
-      ) : page.path === '/examples/opening-action' ? (
-        <ActionExample />
-      ) : page.path === '/guide' ? (
-        <Guide />
-      ) : page.path === '/privacy' ? (
-        <Privacy />
-      ) : page.path === '/limitations' ? (
-        <Limitations />
-      ) : page.path === '/guides/inspect-pdf-objects' ? (
-        <ObjectsGuide />
-      ) : page.path === '/guides/decode-pdf-streams' ? (
-        <StreamsGuide />
-      ) : page.path === '/guides/find-pdf-attachments' ? (
-        <AttachmentsGuide />
-      ) : page.path === '/guides/search-bookmark-compare' ? (
-        <SearchGuide />
-      ) : page.path === '/guides/investigate-suspicious-features' ? (
-        <SuspiciousFeaturesGuide />
-      ) : (
-        <ResourcesGuide />
-      )}
+      {isArticlePath(page.path) && <Byline />}
+      <Content />
     </ReadingPage>
   );
 };
@@ -686,7 +693,7 @@ export const PublicPage = function PublicPage({
 export const StaticPublicPage = function StaticPublicPage({ page }: { page: SitePage }) {
   return (
     <div className="flex min-h-dvh flex-col bg-background text-foreground">
-      <SiteHeader content href="/">
+      <SiteHeader content href="/" sticky>
         <ContentHeaderLinks path={page.path} />
       </SiteHeader>
       <PublicPage page={page} standalone />

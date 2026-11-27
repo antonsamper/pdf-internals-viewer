@@ -11,13 +11,13 @@ const require = createRequire(import.meta.url);
 const sourceFile = require.resolve('@libpdf/core');
 const sourceDir = dirname(sourceFile);
 const pkg = JSON.parse(await readFile(join(sourceDir, '../package.json'), 'utf8'));
-if (pkg.version !== '0.5.3') throw new Error('Inspection adapter requires @libpdf/core exactly 0.5.3. Review parser instrumentation before upgrading.');
+if (pkg.version !== '0.5.3') { throw new Error('Inspection adapter requires @libpdf/core exactly 0.5.3. Review parser instrumentation before upgrading.'); }
 const source = await readFile(sourceFile, 'utf8');
 const expected = '7b9b699034c81be2ab6af3337e0d2559df2b91b5016913b2c202cbaafc534400';
 const digest = createHash('sha256').update(source).digest('hex');
-if (digest !== expected) throw new Error('Pinned parser bundle changed; review instrumentation.');
+if (digest !== expected) { throw new Error('Pinned parser bundle changed; review instrumentation.'); }
 for (const name of ['Scanner', 'DocumentParser', 'IndirectObjectParser', 'ObjectStreamParser', 'ObjectParser', 'TokenReader', 'XRefParser', 'FlateFilter']) {
-  if (!source.includes(`var ${name} = class`)) throw new Error(`Missing pinned parser symbol: ${name}`);
+  if (!source.includes(`var ${name} = class`)) { throw new Error(`Missing pinned parser symbol: ${name}`); }
 }
 const out = new URL('../src/generated/', import.meta.url);
 await mkdir(out, { recursive: true });
@@ -120,17 +120,17 @@ await readFile(lruBrowser, 'utf8'); // Fail closed if the pinned dependency layo
 let browserSource = source;
 for (const optional of ['@google-cloud/kms', '@google-cloud/secret-manager']) {
   const expression = `import(${JSON.stringify(optional)})`;
-  if (browserSource.split(expression).length !== 2) throw new Error(`Unexpected optional cloud import shape: ${optional}`);
+  if (browserSource.split(expression).length !== 2) { throw new Error(`Unexpected optional cloud import shape: ${optional}`); }
   browserSource = browserSource.replace(expression, `Promise.reject(new Error(${JSON.stringify('Cloud signing is excluded from this read-only browser inspection adapter.')}))`);
 }
 // R6 /Perms stores a 32-bit bit pattern. Producers may write /P unsigned;
 // compare both sides as signed int32 instead of rejecting valid passwords.
 const permsComparison = '(decrypted[0] | decrypted[1] << 8 | decrypted[2] << 16 | decrypted[3] << 24) !== expectedPermissions';
-if (browserSource.split(permsComparison).length !== 2) throw new Error('Unexpected R6 permissions comparison');
+if (browserSource.split(permsComparison).length !== 2) { throw new Error('Unexpected R6 permissions comparison'); }
 browserSource = browserSource.replace(permsComparison, permsComparison.replace('!== expectedPermissions', '!== (expectedPermissions | 0)'));
 // Never silently fall back to ciphertext after a decryption error.
 const decryptFallback = 'console.warn(`Failed to decrypt object ${objNum} ${genNum}:`, error);\n\t\t\t\treturn obj;';
-if (browserSource.split(decryptFallback).length !== 2) throw new Error('Unexpected decryption fallback');
+if (browserSource.split(decryptFallback).length !== 2) { throw new Error('Unexpected decryption fallback'); }
 browserSource = browserSource.replace(decryptFallback, 'throw new Error(`Failed to decrypt object ${objNum} ${genNum}: ${error instanceof Error ? error.message : "decryption failed"}`);');
 // Relocating the bundle must preserve every dependency's engine-local resolution.
 // The complete upstream source is hash-pinned above; only static bare imports move.

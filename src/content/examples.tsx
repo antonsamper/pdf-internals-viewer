@@ -31,16 +31,18 @@ export const Examples = function Examples() {
         The invoice shows £1,250.00, but a text extractor returns £9,250.00. Follow the content stream to its font and find the incorrect
         Unicode mapping.
       </p>
-      {SITE_PAGES.filter(
-        (page) => page.path.startsWith('/examples/') && page.path !== '/examples/large-pdf' && page.path !== '/examples/incorrect-text'
-      ).map((page) => (
-        <section key={page.path}>
-          <h2>
-            <a href={page.path}>{page.heading}</a>
-          </h2>
-          <p>{page.description}</p>
-        </section>
-      ))}
+      {SITE_PAGES.filter((page) => {
+        return page.path.startsWith('/examples/') && page.path !== '/examples/large-pdf' && page.path !== '/examples/incorrect-text';
+      }).map((page) => {
+        return (
+          <section key={page.path}>
+            <h2>
+              <a href={page.path}>{page.heading}</a>
+            </h2>
+            <p>{page.description}</p>
+          </section>
+        );
+      })}
       <h2>Use the same approach on your own file</h2>
       <p>
         Start with the page preview, then follow its content and resource references to the bytes you need to inspect. Another PDF may have

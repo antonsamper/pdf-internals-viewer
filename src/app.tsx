@@ -10,10 +10,7 @@ import { DropOverlay } from '@/components/workspace/drop-overlay';
 import { EmptyWorkspace } from '@/components/workspace/empty-workspace';
 import { ErrorBanner } from '@/components/workspace/error-banner';
 import { ExplorerPane } from '@/components/workspace/explorer-pane';
-import { InspectorPane } from '@/components/workspace/inspector-pane';
-import { OverviewPane } from '@/components/workspace/overview-pane';
 import { SearchResultsPanel } from '@/components/workspace/search-results-panel';
-import { SelectedObjectPane } from '@/components/workspace/selected-object-pane';
 import { emptyPageTree } from '@/components/workspace/types';
 import { useArrival } from '@/components/workspace/use-arrival';
 import { useBookmarks } from '@/components/workspace/use-bookmarks';
@@ -26,21 +23,27 @@ import { useSourceReveal } from '@/components/workspace/use-source-reveal';
 import { useInitialSample, useWorkspaceShortcuts } from '@/components/workspace/use-workspace-shortcuts';
 import { WorkspaceContent, OpeningProgress, WorkspaceFooter } from '@/components/workspace/workspace-content';
 import { WorkspaceHeader } from '@/components/workspace/workspace-header';
+import { WorkspaceInspector } from '@/components/workspace/workspace-inspector';
 import { WorkspaceLayout } from '@/components/workspace/workspace-layout';
 import { WorkspaceToolbar } from '@/components/workspace/workspace-toolbar';
 import { sitePage } from '@/lib/site-content';
 import { useSiteRoute } from '@/lib/site-route';
 
+const NO_ACTIONS = { actions: [], notes: [], total: 0 };
 const useNarrow = () => {
   // Match the build-time render; adapt after hydration on narrow screens.
   const [narrow, setNarrow] = useState(false);
   useEffect(() => {
     // Same range as the `w900` breakpoint token: widths below 901px.
     const query = window.matchMedia('(width < 901px)');
-    const update = () => setNarrow(query.matches);
+    const update = () => {
+      return setNarrow(query.matches);
+    };
     update();
     query.addEventListener('change', update);
-    return () => query.removeEventListener('change', update);
+    return () => {
+      return query.removeEventListener('change', update);
+    };
   }, []);
   return narrow;
 };
@@ -51,12 +54,14 @@ const App = ({ initialPath = '/' }: { initialPath?: SitePath }) => {
       key={session.id}
       initialPath={session.path}
       openInitialSample={session.id === 0}
-      onSessionEnd={() =>
-        setSession((current) => ({
-          id: current.id + 1,
-          path: sitePage(window.location.pathname)?.path ?? '/',
-        }))
-      }
+      onSessionEnd={() => {
+        return setSession((current) => {
+          return {
+            id: current.id + 1,
+            path: sitePage(window.location.pathname)?.path ?? '/',
+          };
+        });
+      }}
     />
   );
 };
@@ -84,15 +89,31 @@ const PdfWorkspace = ({
   const reveal = useSourceReveal();
   const bookmarks = useBookmarks();
   const loader = useDocumentLoader({
-    closeAll: () => closeAll(),
+    closeAll: () => {
+      return closeAll();
+    },
     goHome,
     loadBookmarks: bookmarks.load,
     setNotice,
   });
   const { busy, bytes, document, filename } = loader;
-  const drop = useFileDrop((file) => void loader.open(file));
-  const objects = useMemo(() => document?.objects ?? [], [document]);
-  const objectMap = useMemo(() => new Map(objects.map((object) => [object.id, object])), [objects]);
+  const drop = useFileDrop((file) => {
+    return void loader.open(file);
+  });
+  const objects = useMemo(() => {
+    return document?.objects ?? [];
+  }, [document]);
+  const objectMap = useMemo(() => {
+    return new Map(
+      objects.map((object) => {
+        return [object.id, object];
+      })
+    );
+  }, [objects]);
+  // The parser worker builds the report, and leaves it empty for a locked document.
+  const actionReport = useMemo(() => {
+    return document?.indexes?.actions ?? NO_ACTIONS;
+  }, [document]);
   const onArrive = useArrival({ document, reveal, setNotice, setObjectScroll, setPreview, setPreviewPage });
   const exploration = useExploration({
     document,
@@ -102,7 +123,7 @@ const PdfWorkspace = ({
     setMobilePane,
     setNotice,
   });
-  const { navigate, section, selected, selection, viewports } = exploration;
+  const { navigate, section, selection, viewports } = exploration;
   const search = useDocumentSearch({
     bytes,
     document,
@@ -140,12 +161,17 @@ const PdfWorkspace = ({
     // and event-handler closures cannot retain a closed PDF until another update.
     onSessionEnd();
   };
-  const openFile = () => input.current?.click();
+  const openFile = () => {
+    return input.current?.click();
+  };
   useWorkspaceShortcuts(openFile, search.inputRef, search.setOpen);
-  useInitialSample(shouldOpenInitialSample, (file) => void loader.sample(file));
-  const { downloadIndex, resourceEntries, resourceObjects } = useResourceIndex(document, objectMap);
+  useInitialSample(shouldOpenInitialSample, (file) => {
+    return void loader.sample(file);
+  });
+  const resources = useResourceIndex(document, objectMap);
   const explorer = (
     <ExplorerPane
+      actionTotal={document && !document.locked ? actionReport.total : undefined}
       bookmarks={bookmarks.bookmarks}
       bookmarksSaved={bookmarks.saved}
       document={document}
@@ -155,14 +181,16 @@ const PdfWorkspace = ({
       objectScroll={objectScroll}
       objects={objects}
       pageTreeState={pageTreeState}
-      resourceObjects={resourceObjects}
+      resourceObjects={resources.resourceObjects}
       section={section}
       selectedId={selection.id}
       onChooseSection={(next) => {
         exploration.chooseSection(next);
         setObjectScroll(0);
       }}
-      onNavigate={(id) => navigate(id)}
+      onNavigate={(id) => {
+        return navigate(id);
+      }}
       onNoteBookmark={bookmarks.setNote}
       onPageNavigate={(id, trail) => {
         exploration.visit({ id, section: 'pages', tab: 'properties', trail });
@@ -177,33 +205,6 @@ const PdfWorkspace = ({
       }}
     />
   );
-  const overview = (
-    <OverviewPane
-      byteCount={bytes.length}
-      document={document}
-      filename={filename}
-      inspectionError={loader.inspectionError}
-      issues={loader.issues}
-      objectMap={objectMap}
-      objects={objects}
-      resourceObjects={resourceObjects}
-      scrollPositionRef={viewports.inspector}
-      section={section}
-      unlockError={loader.unlockError}
-      unlocking={loader.unlocking}
-      onChooseSection={exploration.chooseSection}
-      onFollowReference={exploration.followReference}
-      onNavigate={navigate}
-      onOpenFile={openFile}
-      onPreview={() => setPreview(true)}
-      onSelectRange={exploration.selectRange}
-      onShowBytes={() => {
-        exploration.selectRange({ end: Math.min(bytes.length, 1), start: 0 });
-        setMobilePane('bytes');
-      }}
-      onUnlock={(password) => void loader.unlock(password)}
-    />
-  );
   const { byteReveal, textSource } = reveal;
   const byteView = (
     <BytePane
@@ -216,63 +217,32 @@ const PdfWorkspace = ({
       onByteSelect={exploration.selectByte}
     />
   );
-  const objectInspector = selected ? (
-    <SelectedObjectPane
-      downloadIndex={downloadIndex}
-      objectMap={objectMap}
-      pages={document?.pages}
-      scrollPositionRef={viewports.inspector}
-      selected={selected}
-      tab={selection.tab}
-      textSource={textSource}
-      trail={selection.trail}
-      extractImage={loader.extractImage}
-      extractStream={loader.extractStream}
-      readStream={loader.readStream}
-      onFollowLink={followLink}
-      onFollowReference={exploration.followReference}
-      onNavigate={navigate}
-      onTabChange={(tab) => navigate(selected.id, tab)}
-    />
-  ) : null;
   const inspector = (
-    <InspectorPane
-      busy={busy}
-      bytes={bytes}
-      document={document}
-      filename={filename}
-      hasRange={Boolean(selection.range)}
-      inspectorContent={objectInspector}
-      issues={loader.issues}
-      limits={viewports}
+    <WorkspaceInspector
+      actionReport={actionReport}
+      bookmarks={bookmarks}
+      exploration={exploration}
+      loader={loader}
       notice={notice}
       objectMap={objectMap}
-      overview={overview}
+      objects={objects}
       pinnedId={pinnedId}
       preview={preview}
       previewPage={previewPage}
-      previewPassword={loader.previewPassword}
-      previewSearch={search.previewSearch}
       resourceCategory={resourceCategory}
-      resourceEntries={resourceEntries}
       resourceFilter={resourceFilter}
-      scrollPositionRef={viewports.inspector}
-      section={section}
-      selected={selected}
-      extractImage={loader.extractImage}
-      extractStream={loader.extractStream}
-      onBookmark={() => bookmarks.add(selection)}
-      onBrowseResources={() => navigate(null, 'properties', 'resources')}
+      resources={resources}
+      search={search}
+      textSource={textSource}
       onCategoryChange={setResourceCategory}
-      onDismissNotice={() => setNotice(null)}
       onFilterChange={setResourceFilter}
-      onIssueLimitChange={(issueLimit) => exploration.updateViewports({ issueLimit })}
-      onNavigate={(id) => navigate(id)}
+      onFollowLink={followLink}
+      onMobilePane={setMobilePane}
+      onNotice={setNotice}
+      onOpenFile={openFile}
       onPageChange={setPreviewPage}
       onPin={setPinnedId}
       onPreviewChange={setPreview}
-      onResourceLimitChange={(resourceLimit) => exploration.updateViewports({ resourceLimit })}
-      onStructure={() => exploration.chooseSection('structure')}
     />
   );
 
@@ -287,7 +257,9 @@ const PdfWorkspace = ({
           aria-label="Open local PDF"
           onChange={(event) => {
             const file = event.target.files?.[0];
-            if (file) void loader.open(file);
+            if (file) {
+              void loader.open(file);
+            }
             event.target.value = '';
           }}
         />
@@ -299,14 +271,31 @@ const PdfWorkspace = ({
           onClose={endSession}
           onFollowLink={followLink}
           onHome={() => {
-            if (document) navigate(null, 'properties', 'overview');
+            if (document) {
+              navigate(null, 'properties', 'overview');
+            }
           }}
           onOpenFile={openFile}
         />
-        {loader.error && <ErrorBanner message={loader.error} onDismiss={() => loader.setError(null)} />}
+        {loader.error && (
+          <ErrorBanner
+            message={loader.error}
+            onDismiss={() => {
+              return loader.setError(null);
+            }}
+          />
+        )}
         <WorkspaceContent
           about={about}
-          empty={<EmptyWorkspace onFollowLink={followLink} onOpenFile={openFile} onSample={(file) => void loader.sample(file)} />}
+          empty={
+            <EmptyWorkspace
+              onFollowLink={followLink}
+              onOpenFile={openFile}
+              onSample={(file) => {
+                return void loader.sample(file);
+              }}
+            />
+          }
           path={path}
           showWorkspace={bytes.length > 0 || busy}
           workspace={

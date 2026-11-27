@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import type { PdfObjectRecord, PdfValue } from '../src/lib/pdf/types';
+
 // @ts-expect-error shared JavaScript fixture generator
 import { embeddedFilesPdf, classicPdf, oversizedDecodedPdf } from '../scripts/fixtures/pdf-fixtures.mjs';
 import { downloadFilename, embeddedDownloads } from '../src/lib/pdf/downloads';
@@ -10,7 +12,13 @@ describe('embedded file extraction', () => {
     const fixture = embeddedFilesPdf();
     const inspector = new PdfInspector();
     const document = await inspector.open(fixture.bytes);
-    const index = embeddedDownloads(new Map(document.objects.map((object) => [object.id, object])));
+    const index = embeddedDownloads(
+      new Map(
+        document.objects.map((object) => {
+          return [object.id, object];
+        })
+      )
+    );
     expect(index.get('6 0')).toEqual([
       {
         filename: 'report.txt',
@@ -36,7 +44,13 @@ describe('embedded file extraction', () => {
     const fixture = embeddedFilesPdf();
     const inspector = new PdfInspector();
     const document = await inspector.open(fixture.bytes);
-    const index = embeddedDownloads(new Map(document.objects.map((object) => [object.id, object])));
+    const index = embeddedDownloads(
+      new Map(
+        document.objects.map((object) => {
+          return [object.id, object];
+        })
+      )
+    );
     for (const id of ['8 0', '9 0', '10 0', '11 0']) {
       expect(index.get(id)).toEqual([
         {
@@ -69,5 +83,54 @@ describe('embedded file extraction', () => {
     expect(downloadFilename('C:\\folder\\font.ttf', 'fallback.bin')).toBe('font.ttf');
     expect(downloadFilename('  .. ', 'fallback.bin')).toBe('fallback.bin');
     expect(downloadFilename('report\u202etxt.exe', 'fallback.bin')).toBe('report_txt.exe');
+  });
+  it('names font files by their font file key and subtype', () => {
+    const name = (value: string): PdfValue => {
+      return { text: `/${value}`, type: 'name', value };
+    };
+    const record = (id: string, entries: [string, PdfValue][], stream = false): PdfObjectRecord => {
+      return {
+        generation: 0,
+        id,
+        kind: 'Dictionary',
+        label: id,
+        objectNumber: Number(id.split(' ')[0]),
+        provenance: { reason: 'test', type: 'unknown' },
+        referencedBy: [],
+        references: [],
+        source: '',
+        ...(stream ? { stream: { filters: [], length: 0 } } : {}),
+        value: {
+          entries: entries.map(([key, value]) => {
+            return { key, value };
+          }),
+          text: '<<>>',
+          type: stream ? 'stream' : 'dictionary',
+        },
+        warnings: [],
+      };
+    };
+    const cases: [string, string | undefined, string][] = [
+      ['FontFile', undefined, 'type1'],
+      ['FontFile2', 'OpenType', 'ttf'],
+      ['FontFile3', 'OpenType', 'otf'],
+      ['FontFile3', 'Type1C', 'cff'],
+      ['FontFile3', 'CIDFontType0C', 'cff'],
+      ['FontFile3', 'Type0', 'bin'],
+      ['FontFile3', undefined, 'bin'],
+    ];
+    for (const [key, subtype, extension] of cases) {
+      const objects = new Map([
+        [
+          '1 0',
+          record('1 0', [
+            ['FontName', name('Example')],
+            [key, { ref: '2 0', text: '2 0 R', type: 'reference' }],
+          ]),
+        ],
+        ['2 0', record('2 0', subtype ? [['Subtype', name(subtype)]] : [], true)],
+      ]);
+      expect(embeddedDownloads(objects).get('1 0')?.[0].filename).toBe(`Example.${extension}`);
+    }
   });
 });

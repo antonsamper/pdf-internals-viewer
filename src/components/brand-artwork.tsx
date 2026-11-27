@@ -1,4 +1,4 @@
-import { cn } from 'cn';
+import { cn } from '@/lib/utils';
 
 export const BrandIcon = function BrandIcon({ className }: { className?: string }) {
   return (
@@ -28,18 +28,20 @@ export const BrandArtwork = function BrandArtwork({ className = '', decorative =
           mode: 'dark',
           width: 1535,
         },
-      ].map(({ mode, file, width, height }) => (
-        <img
-          key={mode}
-          className={cn('h-auto max-w-full', mode === 'light' ? 'block dark:hidden' : 'hidden dark:block', className)}
-          data-brand-artwork={mode}
-          src={`${import.meta.env.BASE_URL}brand/${file}`}
-          alt={decorative ? '' : 'PDF Internals — a detective exploring PDF objects, pages, fonts, and streams'}
-          width={width}
-          height={height}
-          decoding="async"
-        />
-      ))}
+      ].map(({ mode, file, width, height }) => {
+        return (
+          <img
+            key={mode}
+            className={cn('h-auto max-w-full', mode === 'light' ? 'block dark:hidden' : 'hidden dark:block', className)}
+            data-brand-artwork={mode}
+            src={`${import.meta.env.BASE_URL}brand/${file}`}
+            alt={decorative ? '' : 'PDF Internals — a detective exploring PDF objects, pages, fonts, and streams'}
+            width={width}
+            height={height}
+            decoding="async"
+          />
+        );
+      })}
     </>
   );
 };

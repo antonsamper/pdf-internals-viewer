@@ -1,15 +1,16 @@
 import type { ComponentProps, ReactNode } from 'react';
 
-import { cn } from 'cn';
 import { BookmarkPlus, Braces, Image, LoaderCircle, Pin, X } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 
 import type { PdfPreviewProps } from '@/components/pdf-preview';
+import type { PdfActionReport } from '@/lib/pdf/document-actions';
 import type { PdfIssue } from '@/lib/pdf/issues';
 import type { ResourceCategory, ResourceEntry } from '@/lib/pdf/resource-catalog';
 import type { PdfDocumentInfo, PdfObjectRecord, StreamResult } from '@/lib/pdf/types';
 import type { ScrollPosition } from '@/lib/scroll-restoration';
 
+import { ActionsPanel } from '@/components/actions-panel';
 import { LoadingMessage } from '@/components/inspector/loading-message';
 import { Notice } from '@/components/inspector/notes';
 import { PaneHeading } from '@/components/inspector/pane';
@@ -18,21 +19,24 @@ import { ObjectComparison } from '@/components/object-comparison';
 import { ResourceBrowser } from '@/components/resource-browser';
 import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
+import { cn } from '@/lib/utils';
 
 import type { Section } from './types';
 
-/** A small ghost button in the pane heading, in compact type. */
-const PaneAction = ({ className, ...props }: ComponentProps<typeof Button>) => (
-  <Button variant="ghost" size="sm" className={cn('gap-[5px] text-[10px] font-medium', className)} {...props} />
-);
+const PaneAction = ({ className, ...props }: ComponentProps<typeof Button>) => {
+  return <Button variant="ghost" size="sm" className={cn('gap-1.25 text-caption font-medium', className)} {...props} />;
+};
 
-const PdfPreview = lazy(() =>
-  import('@/components/pdf-preview').then((module) => ({
-    default: module.PdfPreview,
-  }))
-);
+const PdfPreview = lazy(() => {
+  return import('@/components/pdf-preview').then((module) => {
+    return {
+      default: module.PdfPreview,
+    };
+  });
+});
 
 export interface InspectorPaneProps {
+  actionReport: PdfActionReport;
   busy: boolean;
   bytes: Uint8Array;
   document: PdfDocumentInfo | null;
@@ -40,7 +44,7 @@ export interface InspectorPaneProps {
   hasRange: boolean;
   inspectorContent: ReactNode;
   issues: PdfIssue[];
-  limits: { issueLimit: number; resourceLimit: number };
+  limits: { actionLimit: number; issueLimit: number; resourceLimit: number };
   notice: string | null;
   objectMap: Map<string, PdfObjectRecord>;
   overview: ReactNode;
@@ -57,11 +61,13 @@ export interface InspectorPaneProps {
   selected: PdfObjectRecord | undefined;
   extractImage: (id: string) => Promise<StreamResult>;
   extractStream: (id: string, purpose?: 'download' | 'size') => Promise<StreamResult>;
+  readStream: (id: string, mode: 'raw' | 'decoded') => Promise<StreamResult>;
   onBookmark: () => void;
   onBrowseResources: () => void;
   onCategoryChange: (category: ResourceCategory) => void;
   onDismissNotice: () => void;
   onFilterChange: (filter: string) => void;
+  onActionLimitChange: (limit: number) => void;
   onIssueLimitChange: (limit: number) => void;
   onNavigate: (id: string) => void;
   onPageChange: (page: number) => void;
@@ -72,10 +78,17 @@ export interface InspectorPaneProps {
 }
 
 const paneTitle = ({ busy, preview, section, selected }: Pick<InspectorPaneProps, 'busy' | 'preview' | 'section' | 'selected'>) => {
-  if (busy) return 'Opening PDF';
-  if (preview) return 'Page preview';
-  if (selected) return 'Object inspector';
+  if (busy) {
+    return 'Opening PDF';
+  }
+  if (preview) {
+    return 'Page preview';
+  }
+  if (selected) {
+    return 'Object inspector';
+  }
   const titles: Partial<Record<Section, string>> = {
+    actions: 'Actions',
     issues: 'Issues',
     resources: 'Resource browser',
     structure: 'File structure',
@@ -83,43 +96,59 @@ const paneTitle = ({ busy, preview, section, selected }: Pick<InspectorPaneProps
   return titles[section] ?? 'Overview';
 };
 
-const PaneActions = ({
+/** Pins the selected object to compare it with the next one, or unpins it. */
+const PinAction = ({ pinnedId, selected, onPin }: Pick<InspectorPaneProps, 'pinnedId' | 'onPin'> & { selected: PdfObjectRecord }) => {
+  const pinned = pinnedId === selected.id;
+  return (
+    <PaneAction
+      variant={pinned ? 'secondary' : 'ghost'}
+      onClick={() => {
+        return onPin(pinned ? null : selected.id);
+      }}
+      aria-pressed={pinned}
+    >
+      <Pin size={14} />
+      {pinned ? 'Unpin' : 'Pin to compare'}
+    </PaneAction>
+  );
+};
+
+const PreviewAction = ({
   busy,
   bytes,
-  hasRange,
-  pinnedId,
   preview,
-  section,
-  selected,
-  onBookmark,
-  onBrowseResources,
-  onPin,
   onPreviewChange,
-}: InspectorPaneProps) => (
-  <div className="flex items-center gap-1 narrow:flex-wrap">
-    {section === 'resources' && selected && <PaneAction onClick={onBrowseResources}>Browse resources</PaneAction>}
-    {(selected || hasRange) && (
-      <PaneAction onClick={onBookmark}>
-        <BookmarkPlus size={14} />
-        Bookmark
-      </PaneAction>
-    )}
-    {selected && (
-      <PaneAction
-        variant={pinnedId === selected.id ? 'secondary' : 'ghost'}
-        onClick={() => onPin(pinnedId === selected.id ? null : selected.id)}
-        aria-pressed={pinnedId === selected.id}
-      >
-        <Pin size={14} />
-        {pinnedId === selected.id ? 'Unpin' : 'Pin to compare'}
-      </PaneAction>
-    )}
-    <PaneAction variant={preview ? 'secondary' : 'ghost'} disabled={!bytes.length || busy} onClick={() => onPreviewChange(!preview)}>
+}: Pick<InspectorPaneProps, 'busy' | 'bytes' | 'preview' | 'onPreviewChange'>) => {
+  return (
+    <PaneAction
+      variant={preview ? 'secondary' : 'ghost'}
+      disabled={!bytes.length || busy}
+      onClick={() => {
+        return onPreviewChange(!preview);
+      }}
+    >
       {preview ? <Braces size={14} /> : <Image size={14} />}
       {preview ? 'Inspect' : 'Preview'}
     </PaneAction>
-  </div>
-);
+  );
+};
+
+const PaneActions = (props: InspectorPaneProps) => {
+  const { hasRange, section, selected, onBookmark, onBrowseResources } = props;
+  return (
+    <div className="flex items-center gap-1 narrow:flex-wrap">
+      {section === 'resources' && selected && <PaneAction onClick={onBrowseResources}>Browse resources</PaneAction>}
+      {(selected || hasRange) && (
+        <PaneAction onClick={onBookmark}>
+          <BookmarkPlus size={14} />
+          Bookmark
+        </PaneAction>
+      )}
+      {selected && <PinAction pinnedId={props.pinnedId} selected={selected} onPin={props.onPin} />}
+      <PreviewAction {...props} />
+    </div>
+  );
+};
 
 const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, onNavigate, onPin }: InspectorPaneProps) => {
   const pinned = pinnedId ? objectMap.get(pinnedId) : undefined;
@@ -128,7 +157,14 @@ const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, o
       {pinned ? (
         <ResizablePanelGroup orientation="vertical">
           <ResizablePanel defaultSize="40%" minSize="20%">
-            <ObjectComparison pinned={pinned} current={selected!} onUnpin={() => onPin(null)} onNavigate={onNavigate} />
+            <ObjectComparison
+              pinned={pinned}
+              current={selected!}
+              onUnpin={() => {
+                return onPin(null);
+              }}
+              onNavigate={onNavigate}
+            />
           </ResizablePanel>
           <ResizableHandle
             withHandle
@@ -150,39 +186,41 @@ const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, o
   );
 };
 
-const LoadingView = () => (
-  <section
-    className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto px-6 py-8 text-center"
-    role="status"
-    aria-label="Opening PDF"
-  >
-    <LoaderCircle size={32} className="mb-5 shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none" aria-hidden="true" />
-    <h1 className="mb-2.5 text-[18px] font-medium">Opening PDF…</h1>
-    <p className="max-w-[38ch] text-[12px] leading-[1.8] text-muted-foreground">
-      Reading objects and building the document structure. Larger documents can take a few seconds.
-    </p>
-  </section>
-);
+const LoadingView = () => {
+  return (
+    <section
+      className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-auto px-6 py-8 text-center"
+      role="status"
+      aria-label="Opening PDF"
+    >
+      <LoaderCircle size={32} className="mb-5 shrink-0 animate-spin text-muted-foreground motion-reduce:animate-none" aria-hidden="true" />
+      <h1 className="mb-2.5 text-heading font-medium">Opening PDF…</h1>
+      <p className="max-w-[38ch] text-small leading-[1.8] text-muted-foreground">
+        Reading objects and building the document structure. Larger documents can take a few seconds.
+      </p>
+    </section>
+  );
+};
 
-const PreviewView = ({ bytes, filename, previewPage, previewPassword, previewSearch, onPageChange }: InspectorPaneProps) => (
-  <Suspense fallback={<LoadingMessage>Loading EmbedPDF…</LoadingMessage>}>
-    <PdfPreview
-      bytes={bytes}
-      fileName={filename}
-      password={previewPassword}
-      pageNumber={previewPage}
-      onPageChange={onPageChange}
-      search={previewSearch}
-    />
-  </Suspense>
-);
+const PreviewView = ({ bytes, filename, previewPage, previewPassword, previewSearch, onPageChange }: InspectorPaneProps) => {
+  return (
+    <Suspense fallback={<LoadingMessage>Loading EmbedPDF…</LoadingMessage>}>
+      <PdfPreview
+        bytes={bytes}
+        fileName={filename}
+        password={previewPassword}
+        pageNumber={previewPage}
+        onPageChange={onPageChange}
+        search={previewSearch}
+      />
+    </Suspense>
+  );
+};
 
-const InspectorBody = (props: InspectorPaneProps) => {
-  const { busy, bytes, document, filename, issues, limits, objectMap, overview, preview, section, selected, scrollPositionRef } = props;
-  if (busy) return <LoadingView />;
-  if (preview && bytes.length) return <PreviewView {...props} />;
-  if (selected) return <SelectedObjectView {...props} />;
-  if (section === 'issues' && document)
+/** The issues, actions or resources section, or null for a section without its own view. */
+const SectionView = (props: InspectorPaneProps & { document: PdfDocumentInfo }) => {
+  const { document, filename, issues, limits, objectMap, section, scrollPositionRef } = props;
+  if (section === 'issues') {
     return (
       <IssuesPanel
         key={filename}
@@ -196,7 +234,23 @@ const InspectorBody = (props: InspectorPaneProps) => {
         onStructure={props.onStructure}
       />
     );
-  if (section === 'resources' && document)
+  }
+  if (section === 'actions') {
+    return (
+      <ActionsPanel
+        key={filename}
+        locked={document.locked}
+        recovered={document.recovered}
+        report={props.actionReport}
+        limit={limits.actionLimit}
+        onLimitChange={props.onActionLimitChange}
+        scrollPositionRef={scrollPositionRef}
+        readStream={props.readStream}
+        onNavigate={props.onNavigate}
+      />
+    );
+  }
+  if (section === 'resources') {
     return (
       <ResourceBrowser
         scrollPositionRef={scrollPositionRef}
@@ -214,23 +268,45 @@ const InspectorBody = (props: InspectorPaneProps) => {
         onNavigate={props.onNavigate}
       />
     );
+  }
+  return null;
+};
+
+const SECTION_VIEWS = new Set<Section>(['issues', 'actions', 'resources']);
+
+const InspectorBody = (props: InspectorPaneProps) => {
+  const { busy, bytes, document, overview, preview, section, selected } = props;
+  if (busy) {
+    return <LoadingView />;
+  }
+  if (preview && bytes.length) {
+    return <PreviewView {...props} />;
+  }
+  if (selected) {
+    return <SelectedObjectView {...props} />;
+  }
+  if (document && SECTION_VIEWS.has(section)) {
+    return <SectionView {...props} document={document} />;
+  }
   return overview;
 };
 
-export const InspectorPane = (props: InspectorPaneProps) => (
-  <main className="flex h-full min-h-0 flex-col overflow-hidden" aria-label="Document inspection" aria-busy={props.busy}>
-    <PaneHeading className="justify-between narrow:h-auto narrow:flex-wrap narrow:gap-1.5 narrow:py-1.5">
-      <span>{paneTitle(props)}</span>
-      <PaneActions {...props} />
-    </PaneHeading>
-    {props.notice && (
-      <Notice role="status">
-        <span>{props.notice}</span>
-        <button className="ml-auto bg-transparent" aria-label="Dismiss notice" onClick={props.onDismissNotice}>
-          <X size={14} />
-        </button>
-      </Notice>
-    )}
-    <InspectorBody {...props} />
-  </main>
-);
+export const InspectorPane = (props: InspectorPaneProps) => {
+  return (
+    <main className="flex h-full min-h-0 flex-col overflow-hidden" aria-label="Document inspection" aria-busy={props.busy}>
+      <PaneHeading className="justify-between narrow:h-auto narrow:flex-wrap narrow:gap-1.5 narrow:py-1.5">
+        <span>{paneTitle(props)}</span>
+        <PaneActions {...props} />
+      </PaneHeading>
+      {props.notice && (
+        <Notice role="status">
+          <span>{props.notice}</span>
+          <button className="ml-auto bg-transparent" aria-label="Dismiss notice" onClick={props.onDismissNotice}>
+            <X size={14} />
+          </button>
+        </Notice>
+      )}
+      <InspectorBody {...props} />
+    </main>
+  );
+};

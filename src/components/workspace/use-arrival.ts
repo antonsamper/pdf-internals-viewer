@@ -16,10 +16,14 @@ interface ArrivalDeps {
 export const useArrival = ({ document, reveal, setNotice, setObjectScroll, setPreview, setPreviewPage }: ArrivalDeps) => {
   return (next: Selection, previousSection: Section) => {
     reveal.clear();
-    if (next.section !== previousSection) setObjectScroll(0);
+    if (next.section !== previousSection) {
+      setObjectScroll(0);
+    }
     setNotice(next.notice ?? null);
     setPreview(false);
     const page = document?.pages.indexOf(next.id ?? '') ?? -1;
-    if (page >= 0) setPreviewPage(page + 1);
+    if (page >= 0) {
+      setPreviewPage(page + 1);
+    }
   };
 };

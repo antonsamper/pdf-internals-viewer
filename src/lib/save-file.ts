@@ -7,5 +7,7 @@ export const saveFile = function saveFile(blob: Blob, filename: string) {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+  window.setTimeout(() => {
+    return URL.revokeObjectURL(url);
+  }, 60000);
 };

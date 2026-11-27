@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 // @ts-expect-error shared plain JS fixture generator
 import { classicPdf } from '../scripts/fixtures/pdf-fixtures.mjs';
 import { PdfInspector } from '../src/lib/pdf/inspector';
-import { pageTextSources, stringBytes, unicodeMap, pageContentIds } from '../src/lib/pdf/page-text';
+import { pageTextSourceList, stringBytes, unicodeMap, pageContentIds } from '../src/lib/pdf/page-text';
 const fixture = (content: string, compressed = false, font = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>', cmap?: string) => {
   const data = compressed ? deflateSync(Buffer.from(content, 'latin1')) : Buffer.from(content, 'latin1');
   const stream = Buffer.concat([
@@ -25,16 +25,66 @@ const sources = async (content: string, term: string, compressed = false, font?:
   const file = fixture(content, compressed, font, cmap);
   const inspector = new PdfInspector();
   const document = await inspector.open(file.bytes);
-  const objects = new Map(document.objects.map((object) => [object.id, object]));
-  const results = await pageTextSources(
+  const objects = new Map(
+    document.objects.map((object) => {
+      return [object.id, object];
+    })
+  );
+  const { sources: results } = await pageTextSourceList(
     objects.get('3 0')!,
     objects,
     term,
-    async (id) => inspector.readStream(id, 'decoded'),
+    async (id) => {
+      return inspector.readStream(id, 'decoded');
+    },
     encrypted,
-    () => false
+    () => {
+      return false;
+    }
   );
   return { bytes: file.bytes, objects, results };
+};
+/** A page drawn by one content stream per entry, numbered from object 4. */
+const streamPageSources = async (contents: string[], term: string) => {
+  const ids = contents.map((_, index) => {
+    return index + 4;
+  });
+  const font = ids.length + 4;
+  const file = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+    [
+      3,
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 ${font} 0 R >> >> /Contents [${ids
+        .map((id) => {
+          return `${id} 0 R`;
+        })
+        .join(' ')}] >>`,
+    ],
+    ...contents.map((content, index) => {
+      return [ids[index], Buffer.from(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`)];
+    }),
+    [font, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'],
+  ]);
+  const inspector = new PdfInspector();
+  const document = await inspector.open(file.bytes);
+  const objects = new Map(
+    document.objects.map((object) => {
+      return [object.id, object];
+    })
+  );
+  return pageTextSourceList(
+    objects.get('3 0')!,
+    objects,
+    term,
+    async (id) => {
+      return inspector.readStream(id, 'decoded');
+    },
+    false,
+    () => {
+      return false;
+    }
+  );
 };
 const selected = (
   bytes: Uint8Array,
@@ -42,7 +92,11 @@ const selected = (
     start: number;
     end: number;
   }[]
-) => ranges.map((range) => Buffer.from(bytes.subarray(range.start, range.end)).toString('latin1'));
+) => {
+  return ranges.map((range) => {
+    return Buffer.from(bytes.subarray(range.start, range.end)).toString('latin1');
+  });
+};
 describe('page text source mapping', () => {
   for (const encoding of [undefined, 'StandardEncoding', 'WinAnsiEncoding', 'MacRomanEncoding']) {
     it(`respects quote codes in ${encoding ?? 'default Type1 encoding'}`, async () => {
@@ -158,8 +212,9 @@ describe('page text source mapping', () => {
       '2 beginbfchar <01> <0041> endbfchar',
       '1 beginbfrange <00> <01> <0041> unexpected endbfrange',
       '2 begincodespacerange <00> <FF> <0000> <FFFF> endcodespacerange 1 beginbfrange <0000> <0001> <0041> endbfrange',
-    ])
+    ]) {
       expect(unicodeMap(cmap)).toBeUndefined();
+    }
     expect(unicodeMap('1 beginbfrange <00> <01> <00FF> endbfrange')?.get('01')).toBe('Ā');
   });
   it('keeps repeated source occurrences separate and never joins across lines, text objects or unknown fonts', async () => {
@@ -179,7 +234,7 @@ describe('page text source mapping', () => {
   it('cancels without reading more streams and safely follows indirect Contents arrays with cycles', async () => {
     const { objects } = await sources('BT /F1 12 Tf (Hello) Tj ET', 'Hello');
     const page = objects.get('3 0')!;
-    const result = await pageTextSources(
+    const { sources: result } = await pageTextSourceList(
       page,
       objects,
       'Hello',
@@ -187,16 +242,90 @@ describe('page text source mapping', () => {
         throw new Error('Must not read');
       },
       false,
-      () => true
+      () => {
+        return true;
+      }
     );
     expect(result).toEqual([]);
     expect(pageContentIds(page, objects)).toEqual(['4 0']);
   });
   it('decodes escaped parentheses, continued lines and odd hex nibbles with source offsets', () => {
-    expect(stringBytes('(a\\(b\\)\\\r\nc)').map((byte) => byte.value)).toEqual([97, 40, 98, 41, 99]);
+    expect(
+      stringBytes('(a\\(b\\)\\\r\nc)').map((byte) => {
+        return byte.value;
+      })
+    ).toEqual([97, 40, 98, 41, 99]);
     expect(stringBytes('<4 1 2>')).toEqual([
       { end: 4, start: 1, value: 65 },
       { end: 6, start: 5, value: 32 },
     ]);
+  });
+  it('caps a page at 100 text sources and reports the list as limited, not the fully read stream', async () => {
+    const list = await streamPageSources([`BT /F1 12 Tf (${'Hi '.repeat(130)}) Tj ET`], 'Hi');
+    expect(list.sources).toHaveLength(100);
+    expect(
+      list.sources.every((source) => {
+        return source.ranges.length === 1 && !source.incomplete;
+      })
+    ).toBe(true);
+    expect(list.limited).toBe(true);
+  });
+  it('reports unread content streams past the source limit without marking read sources incomplete', async () => {
+    const shown = 'BT /F1 12 Tf (Hello) Tj ET';
+    const list = await streamPageSources(
+      [
+        ...Array.from({ length: 99 }, () => {
+          return '0 0 m 1 1 l S';
+        }),
+        shown,
+        shown,
+      ],
+      'Hello'
+    );
+    expect(list.limited).toBe(true);
+    expect(list.sources).toHaveLength(100);
+    expect(
+      list.sources
+        .filter((source) => {
+          return source.ranges.length;
+        })
+        .map((source) => {
+          return source.id;
+        })
+    ).toEqual(['103 0']);
+    expect(
+      list.sources.some((source) => {
+        return source.incomplete;
+      })
+    ).toBe(false);
+  });
+  it('does not report a page with exactly 100 sources as limited', async () => {
+    const list = await streamPageSources(
+      [
+        ...Array.from({ length: 99 }, () => {
+          return '0 0 m 1 1 l S';
+        }),
+        'BT /F1 12 Tf (Hello) Tj ET',
+      ],
+      'Hello'
+    );
+    expect(list.sources).toHaveLength(100);
+    expect(
+      list.sources.some((source) => {
+        return source.incomplete;
+      })
+    ).toBe(false);
+    expect(list.limited).toBe(false);
+  });
+  it('starts a new line for \' and " and maps the string operand of "', async () => {
+    const quote = await sources("BT /F1 12 Tf 14 TL (Hel) Tj (lo) ' ET", 'Hello');
+    expect(quote.results).toHaveLength(1);
+    expect(quote.results[0].ranges).toEqual([]);
+    const next = await sources("BT /F1 12 Tf 14 TL (Hel) Tj (lo) ' ET", 'lo');
+    expect(selected(next.bytes, next.results[0].originalRanges!)).toEqual(['lo']);
+    const spaced = await sources('BT /F1 12 Tf 14 TL (Hel) Tj 1 2 (lo) " ET', 'Hello');
+    expect(spaced.results[0].ranges).toEqual([]);
+    const { bytes, results } = await sources('BT /F1 12 Tf 14 TL 1 2 (Hello) " ET', 'Hello');
+    expect(selected(bytes, results[0].originalRanges!)).toEqual(['Hello']);
   });
 });

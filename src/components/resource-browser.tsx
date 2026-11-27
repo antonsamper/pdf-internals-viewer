@@ -47,14 +47,21 @@ export const ResourceBrowser = function ResourceBrowser({
   onNavigate: (id: string) => void;
 }) {
   const scroll = useScrollRestoration(scrollPositionRef);
-  const access = useMemo(() => resourcePageAccess(document, objectMap), [document, objectMap]);
-  const matching = resources.filter(
-    ({ object, kind, downloads }) =>
+  const access = useMemo(() => {
+    return resourcePageAccess(document, objectMap);
+  }, [document, objectMap]);
+  const matching = resources.filter(({ object, kind, downloads }) => {
+    return (
       (category === 'All' || kind === category) &&
-      `${object.id} ${object.label} ${detail(object, 'BaseFont')} ${kind} ${downloads.map((asset) => asset.filename).join(' ')}`
+      `${object.id} ${object.label} ${detail(object, 'BaseFont')} ${kind} ${downloads
+        .map((asset) => {
+          return asset.filename;
+        })
+        .join(' ')}`
         .toLowerCase()
         .includes(filter.toLowerCase())
-  );
+    );
+  });
   return (
     <section {...scroll} aria-label="Visual resource browser" className="min-h-0 flex-1 overflow-auto p-5">
       <h1 className="mb-2 text-xl font-medium">Resources</h1>
@@ -63,7 +70,7 @@ export const ResourceBrowser = function ResourceBrowser({
         links show where a resource is available, including inherited and nested resources; they do not prove it is drawn on the page. Image
         previews load automatically as you scroll.
       </p>
-      <div className="mt-[18px] mb-3.5 flex flex-wrap gap-1.5" role="group" aria-label="Resource categories">
+      <div className="mt-4.5 mb-3.5 flex flex-wrap gap-1.5" role="group" aria-label="Resource categories">
         {(
           [
             ['All', 'All', Layers],
@@ -72,24 +79,30 @@ export const ResourceBrowser = function ResourceBrowser({
             ['Image', 'Images', ImageIcon],
             ['Form', 'Forms', Shapes],
           ] as const
-        ).map(([value, label, Icon]) => (
-          <Button
-            key={value}
-            variant={category === value ? 'secondary' : 'outline'}
-            size="sm"
-            aria-pressed={category === value}
-            onClick={() => {
-              onCategoryChange(value);
-              onLimitChange(50);
-            }}
-          >
-            <Icon aria-hidden="true" size={14} />
-            {label}{' '}
-            <span className="rounded-[4px] bg-muted px-[5px] text-[10px] text-muted-foreground tabular-nums">
-              {value === 'All' ? resources.length : resources.filter((entry) => entry.kind === value).length}
-            </span>
-          </Button>
-        ))}
+        ).map(([value, label, Icon]) => {
+          return (
+            <Button
+              key={value}
+              variant={category === value ? 'secondary' : 'outline'}
+              size="sm"
+              aria-pressed={category === value}
+              onClick={() => {
+                onCategoryChange(value);
+                onLimitChange(50);
+              }}
+            >
+              <Icon aria-hidden="true" size={14} />
+              {label}{' '}
+              <span className="rounded-[4px] bg-muted px-1.25 text-caption text-muted-foreground tabular-nums">
+                {value === 'All'
+                  ? resources.length
+                  : resources.filter((entry) => {
+                      return entry.kind === value;
+                    }).length}
+              </span>
+            </Button>
+          );
+        })}
       </div>
       <Input
         aria-label="Filter resources"
@@ -129,8 +142,14 @@ export const ResourceBrowser = function ResourceBrowser({
           return (
             <article key={object.id} aria-label={`${kind} ${object.id}`} className="min-w-0 py-4">
               <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-[12px] leading-[calc(1.25/0.875)] font-[550]">{kind}</h2>
-                <ReferenceButton onClick={() => onNavigate(object.id)}>{object.id} obj</ReferenceButton>
+                <h2 className="text-small leading-[calc(1.25/0.875)] font-[550]">{kind}</h2>
+                <ReferenceButton
+                  onClick={() => {
+                    return onNavigate(object.id);
+                  }}
+                >
+                  {object.id} obj
+                </ReferenceButton>
               </div>
               <p className="mt-1 text-xs break-words text-muted-foreground">{object.label}</p>
               {downloads.length > 0 && (
@@ -141,11 +160,11 @@ export const ResourceBrowser = function ResourceBrowser({
                   {!downloads.length && <p className="my-3 text-xs text-muted-foreground">No embedded font file available to download.</p>}
                   <dl className="my-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
                     <dt className="text-muted-foreground">Base font</dt>
-                    <dd className="font-mono text-[12px] break-all">{detail(object, 'BaseFont')}</dd>
+                    <dd className="font-mono text-small leading-[inherit] break-all">{detail(object, 'BaseFont')}</dd>
                     <dt className="text-muted-foreground">Subtype</dt>
-                    <dd className="font-mono text-[12px] break-all">{detail(object, 'Subtype')}</dd>
+                    <dd className="font-mono text-small leading-[inherit] break-all">{detail(object, 'Subtype')}</dd>
                     <dt className="text-muted-foreground">Encoding</dt>
-                    <dd className="font-mono text-[12px] break-all">{detail(object, 'Encoding')}</dd>
+                    <dd className="font-mono text-small leading-[inherit] break-all">{detail(object, 'Encoding')}</dd>
                   </dl>
                 </>
               ) : kind === 'Image' ? (
@@ -167,11 +186,18 @@ export const ResourceBrowser = function ResourceBrowser({
                   <span className="text-muted-foreground">Available to:</span>
                   {pages.length ? (
                     <>
-                      {pages.slice(0, 30).map((page) => (
-                        <ReferenceButton key={page} onClick={() => onNavigate(document.pages[page - 1])}>
-                          Page {page}
-                        </ReferenceButton>
-                      ))}
+                      {pages.slice(0, 30).map((page) => {
+                        return (
+                          <ReferenceButton
+                            key={page}
+                            onClick={() => {
+                              return onNavigate(document.pages[page - 1]);
+                            }}
+                          >
+                            Page {page}
+                          </ReferenceButton>
+                        );
+                      })}
                       {pages.length > 30 && <span className="text-muted-foreground">and {pages.length - 30} more pages</span>}
                     </>
                   ) : (
@@ -210,7 +236,13 @@ export const ResourceBrowser = function ResourceBrowser({
         </div>
       )}
       {matching.length > limit && (
-        <Button variant="outline" size="sm" onClick={() => onLimitChange(limit + 50)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            return onLimitChange(limit + 50);
+          }}
+        >
           Show 50 more resources
         </Button>
       )}

@@ -20,7 +20,11 @@ describe('exploration trail', () => {
       { id: '8 0', label: '8 0 obj' },
     ];
     const extended = extendExplorationTrail(trail, trail[1], trail[0], ['/Parent']);
-    expect(extended.map((step) => step.id)).toEqual(['3 0', '8 0', '8 0', '3 0']);
+    expect(
+      extended.map((step) => {
+        return step.id;
+      })
+    ).toEqual(['3 0', '8 0', '8 0', '3 0']);
     expect(trail).toHaveLength(2);
   });
 
@@ -31,7 +35,11 @@ describe('exploration trail', () => {
       { id: '9 0', label: '9 0 obj' },
     ];
     const extended = extendExplorationTrail(trail.slice(0, 1), trail[0], { id: '12 0', label: '12 0 obj' }, ['/Contents', '[0]']);
-    expect(extended.map((step) => step.label)).toEqual(['Page 1', '/Contents', '[0]', '12 0 obj']);
+    expect(
+      extended.map((step) => {
+        return step.label;
+      })
+    ).toEqual(['Page 1', '/Contents', '[0]', '12 0 obj']);
   });
 });
 
