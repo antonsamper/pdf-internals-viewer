@@ -1,25 +1,33 @@
+import type { PdfAction, PdfActionReport } from './document-actions';
 import type { EmbeddedDownload } from './downloads';
 import type { ResourceEntry } from './resource-catalog';
 import type { PdfDocumentInfo, PdfObjectRecord, PdfValue } from './types';
 
+import { documentActions } from './document-actions';
 import { embeddedDownloads } from './downloads';
 import { resourceCatalog } from './resource-catalog';
+const NO_ACTIONS: PdfActionReport = { actions: [], notes: [], total: 0 };
 const documentItems = function* documentItems(document: PdfDocumentInfo): Generator<DocumentTransferItem> {
   const { objects, ...header } = document;
   delete header.indexes;
   const objectMap = new Map(objects.map((object) => [object.id, object]));
   const downloads = embeddedDownloads(objectMap);
   const resources = resourceCatalog(objectMap, downloads);
+  // A locked document lists no actions. Unlocking opens it again, which builds them.
+  const { actions, notes, total } = document.locked ? NO_ACTIONS : documentActions(document, objectMap);
   yield { document: header, type: 'document' };
   for (const object of objects) yield { object, type: 'object' };
   for (const entry of downloads) yield { entry, type: 'download' };
   for (const { object, ...entry } of resources) yield { entry: { ...entry, objectId: object.id }, type: 'resource' };
+  for (const action of actions) yield { action, type: 'action' };
+  yield { notes, total, type: 'action-summary' };
 };
 export interface InspectionIndexes {
   downloads: [string, EmbeddedDownload[]][];
   resources: (Omit<ResourceEntry, 'object'> & {
     objectId: string;
   })[];
+  actions: PdfActionReport;
 }
 export type DocumentTransferItem =
   | {
@@ -37,6 +45,15 @@ export type DocumentTransferItem =
   | {
       type: 'resource';
       entry: InspectionIndexes['resources'][number];
+    }
+  | {
+      type: 'action';
+      action: PdfAction;
+    }
+  | {
+      type: 'action-summary';
+      notes: string[];
+      total: number;
     };
 /** Keep each response small; a single oversized record is sent on its own.
  * Source/value/provenance are preserved exactly, including strings and unknown keys.
@@ -114,7 +131,7 @@ export class DocumentReceiver {
   }
   private header: Omit<PdfDocumentInfo, 'objects' | 'indexes'> | undefined;
   private objects: PdfObjectRecord[] = [];
-  private indexes: InspectionIndexes = { downloads: [], resources: [] };
+  private indexes: InspectionIndexes = { actions: { actions: [], notes: [], total: 0 }, downloads: [], resources: [] };
   accept(items: DocumentTransferItem[]): void {
     for (const item of items) {
       switch (item.type) {
@@ -131,6 +148,13 @@ export class DocumentReceiver {
           break;
         case 'resource':
           this.indexes.resources.push(item.entry);
+          break;
+        case 'action':
+          this.indexes.actions.actions.push(item.action);
+          break;
+        case 'action-summary':
+          this.indexes.actions.notes = item.notes;
+          this.indexes.actions.total = item.total;
           break;
       }
     }

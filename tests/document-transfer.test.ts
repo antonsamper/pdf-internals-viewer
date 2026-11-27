@@ -1,25 +1,34 @@
 import { expect, it } from 'vitest';
 
+import type { PdfDocumentInfo } from '../src/lib/pdf/types';
+
+// @ts-expect-error shared JavaScript fixture generator
+import { actionsPdf } from '../scripts/fixtures/action-fixtures.mjs';
 // @ts-expect-error shared JavaScript fixture generator
 import { embeddedFilesPdf, compressedPdf } from '../scripts/fixtures/pdf-fixtures.mjs';
+import { documentActions } from '../src/lib/pdf/document-actions';
 import { DocumentReceiver, DocumentTransfer, TRANSFER_BATCH_CHARACTERS } from '../src/lib/pdf/document-transfer';
 import { embeddedDownloads } from '../src/lib/pdf/downloads';
 import { PdfInspector } from '../src/lib/pdf/inspector';
 import { resourceCatalog } from '../src/lib/pdf/resource-catalog';
 
-it.each([embeddedFilesPdf, compressedPdf])(
+const transferred = (document: PdfDocumentInfo) => {
+  const sender = new DocumentTransfer(document);
+  const receiver = new DocumentReceiver();
+  let done = false;
+  while (!done) {
+    const batch = structuredClone(sender.next());
+    receiver.accept(batch.items);
+    done = batch.done;
+  }
+  return receiver.finish();
+};
+
+it.each([embeddedFilesPdf, compressedPdf, actionsPdf])(
   'preserves complete records, source provenance and shared indexes through independently cloned batches',
   async (fixture) => {
     const document = await new PdfInspector().open(fixture().bytes);
-    const sender = new DocumentTransfer(document);
-    const receiver = new DocumentReceiver();
-    let done = false;
-    while (!done) {
-      const batch = structuredClone(sender.next());
-      receiver.accept(batch.items);
-      done = batch.done;
-    }
-    const result = receiver.finish();
+    const result = transferred(document);
     const { indexes, ...rest } = result;
     expect(rest).toEqual(document);
     const objects = new Map(result.objects.map((object) => [object.id, object]));
@@ -30,8 +39,17 @@ it.each([embeddedFilesPdf, compressedPdf])(
         objectId: object.id,
       }))
     );
+    expect(indexes?.actions).toEqual(documentActions(document, objects));
   }
 );
+
+it('builds the actions report in the sender and leaves it empty while the document is locked', async () => {
+  const document = await new PdfInspector().open(actionsPdf().bytes);
+  const report = transferred(document).indexes?.actions;
+  expect(report?.total).toBeGreaterThan(0);
+  expect(report?.notes.length).toBeGreaterThan(0);
+  expect(transferred({ ...document, locked: true }).indexes?.actions).toEqual({ actions: [], notes: [], total: 0 });
+});
 
 it('splits large documents without losing object identity, special numbers or Unicode source', async () => {
   const document = await new PdfInspector().open(embeddedFilesPdf().bytes);
