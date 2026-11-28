@@ -95,9 +95,9 @@ const Guide = function Guide() {
       <p>
         Use <strong>Back</strong> and <strong>Forward</strong> to retrace objects, inspector tabs, sections, and selected byte ranges. Each
         visit restores its scroll positions. <strong>File structure</strong> opens the trailer and cross-reference entry point.{' '}
-        <strong>Actions</strong> lists the actions in the catalogue, pages, annotations, form fields and outline, and{' '}
-        <strong>Issues</strong> collects parser diagnostics. Visiting a guide or example keeps your open PDF and selection in memory; choose{' '}
-        <strong>Back to the workspace</strong> to continue.
+        <strong>Actions</strong> lists the actions in the catalogue, its document-level scripts, pages, annotations, form fields and
+        outline, and <strong>Issues</strong> collects parser diagnostics. Visiting a guide or example keeps your open PDF and selection in
+        memory; choose <strong>Back to the workspace</strong> to continue.
       </p>
       <p>
         Expand <strong>Pages</strong> to browse each page's content streams, resources, and annotations. In the Inspector, follow{' '}
@@ -572,9 +572,9 @@ const Limitations = function Limitations() {
       <p>
         Actions lists actions from the catalogue, pages, page annotations, form fields and outline, up to 5,000 actions and 64 steps in a{' '}
         <code>/Next</code> chain. It also stops, with a note, after 500,000 steps through pages, annotations and actions, which a file can
-        reach when every page shares one large annotation array. Document-level scripts in the <code>/Names /JavaScript</code> tree, XFA
-        form scripts and actions stored elsewhere need a search. Nothing is run, so the list cannot show what a reader would do with an
-        action.
+        reach when every page shares one large annotation array. Document-level scripts are read from the <code>/Names /JavaScript</code>{' '}
+        tree up to 32 levels deep. XFA form scripts and actions stored elsewhere need a search. Nothing is run, so the list cannot show what
+        a reader would do with an action.
       </p>
       <h2>Page text search and source mapping</h2>
       <p>
