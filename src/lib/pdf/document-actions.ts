@@ -846,7 +846,7 @@ export const documentActions = function documentActions(document: PdfDocumentInf
     walk.notes.push(`The list stops after ${MAX_STEPS} steps. Later actions are not listed.`);
   }
   if (walk.unread.length) {
-    walk.notes.push(`The list was full before these sources were read, so their actions are not listed: ${walk.unread.join(', ')}.`);
+    walk.notes.push(`The list stopped before these sources were read, so any actions in them are not listed: ${walk.unread.join(', ')}.`);
   }
   if (walk.hiddenNotes) {
     walk.notes.push(`${walk.hiddenNotes} more parse notes are not shown.`);
