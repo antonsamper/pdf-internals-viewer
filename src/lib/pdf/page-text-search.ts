@@ -4,29 +4,10 @@ import { localEngine } from '@embedpdf/engine';
 
 import type { SearchSnippet } from './search-snippet';
 
+import { ENGINE_LOAD_FAILED, ENGINE_LOAD_SLOW, withTimeout } from './engine-load';
 import { ENGINE_LOAD_TIMEOUT_MS, OPERATION_TIMEOUT_MS } from './limits';
 
-const ENGINE_LOAD_FAILED = 'The page text engine could not load. Check your connection and search again.';
-const ENGINE_LOAD_SLOW = `The page text engine did not load within ${ENGINE_LOAD_TIMEOUT_MS / 60_000} minutes. Check your connection and search again.`;
 const SEARCH_TIMED_OUT = `Page text search exceeded ${OPERATION_TIMEOUT_MS / 1000} seconds. Try a smaller PDF or another search mode.`;
-
-/** Settles with `request`, or rejects with `message` after `ms` and calls `onTimeout`. */
-const withTimeout = async <T>(request: PromiseLike<T>, ms: number, message: string, onTimeout: () => void): Promise<T> => {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    return await Promise.race([
-      Promise.resolve(request),
-      new Promise<never>((_, reject) => {
-        timer = setTimeout(() => {
-          onTimeout();
-          reject(new Error(message));
-        }, ms);
-      }),
-    ]);
-  } finally {
-    clearTimeout(timer);
-  }
-};
 
 /** A blank one-page PDF with a valid cross-reference table. */
 const blankPdf = () => {
@@ -52,16 +33,16 @@ const blankPdf = () => {
 };
 
 /**
- * Waits for the engine to download and start. The engine starts on its first request, so it opens a blank PDF; the
- * search's own time limit then covers only the user's file.
+ * Waits for the engine to download and start, until `deadline`. The engine starts on its first request, so it opens a
+ * blank PDF; the search's own time limit then covers only the user's file.
  */
-const loadEngine = async (engine: ReturnType<typeof localEngine>, signal: AbortSignal, abort: () => void) => {
+const loadEngine = async (engine: ReturnType<typeof localEngine>, signal: AbortSignal, abort: () => void, deadline: number) => {
   let timedOut = false;
   const ready = engine.open({ bytes: blankPdf().buffer, kind: 'bytes' }).then((blank) => {
     return blank.close();
   });
   try {
-    await withTimeout(ready, ENGINE_LOAD_TIMEOUT_MS, ENGINE_LOAD_SLOW, () => {
+    await withTimeout(ready, Math.max(0, deadline - Date.now()), ENGINE_LOAD_SLOW, () => {
       timedOut = true;
       abort();
     });
@@ -90,12 +71,16 @@ const addMatch = (hits: Map<number, PageTextHit>, match: SearchMatch, text: stri
   });
 };
 
-/** A short-lived local engine, terminated on cancellation or completion. */
+/**
+ * A short-lived local engine, terminated on cancellation or completion. `deadline` is when the engine must have
+ * loaded; the caller sets it before importing this module so the import counts towards the same limit.
+ */
 export const searchPageText = async function searchPageText(
   bytes: Uint8Array,
   text: string,
   password: string | undefined,
-  signal: AbortSignal
+  signal: AbortSignal,
+  deadline = Date.now() + ENGINE_LOAD_TIMEOUT_MS
 ) {
   // A malformed file must not leave the search UI waiting on a stuck worker.
   const bounded = <T>(request: PromiseLike<T>) => {
@@ -110,7 +95,7 @@ export const searchPageText = async function searchPageText(
   signal.addEventListener('abort', abort, { once: true });
   try {
     signal.throwIfAborted();
-    await loadEngine(engine, signal, abort);
+    await loadEngine(engine, signal, abort, deadline);
     const document = await bounded(engine.open({ bytes: bytes.slice().buffer, kind: 'bytes' }, { password }));
     const listed = await bounded(document.pages.list());
     const pages = new Map(
