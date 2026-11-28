@@ -3818,7 +3818,7 @@ test('page result actions are visible before choosing an unselected page', async
     page.getByRole('region', { exact: true, name: 'Original file bytes' }).locator('button[data-hex-byte][data-selected]')
   ).toHaveCount(5);
 });
-test('page text search keeps its coverage note when 500 pages match', async ({ page }) => {
+test('page text search keeps its coverage note without a limit notice when exactly 500 pages match', async ({ page }) => {
   await cacheEngineAssets(page);
   const pages = Array.from({ length: 500 }, (_, index) => {
     return index + 3;
@@ -3851,7 +3851,8 @@ test('page text search keeps its coverage note when 500 pages match', async ({ p
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   const results = page.getByRole('region', { exact: true, name: 'Search results' });
   await expect(results).toContainText('500 pages', { timeout: 30_000 });
-  await expect(results).toContainText('Showing 500 pages for the first 500 text matches. Results are grouped by page.');
+  await expect(results).toContainText('Results are grouped by page.');
+  await expect(results).not.toContainText('for the first 500 text matches');
   await expect(results).not.toContainText('Showing the first 500 matches');
   await results.locator('[data-search-results-body]').evaluate((body) => {
     return body.scrollTo({ top: body.scrollHeight });

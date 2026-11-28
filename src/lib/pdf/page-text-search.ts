@@ -71,6 +71,25 @@ const loadEngine = async (engine: ReturnType<typeof localEngine>, signal: AbortS
   }
 };
 
+const MAX_MATCHES = 500;
+
+const addMatch = (hits: Map<number, PageTextHit>, match: SearchMatch, text: string) => {
+  const objectNumber = match.page.objectNumber;
+  const prior = hits.get(objectNumber);
+  if (prior) {
+    prior.count++;
+    prior.matches.push(match);
+    return;
+  }
+  hits.set(objectNumber, {
+    context: match.snippet,
+    count: 1,
+    matches: [match],
+    objectNumber,
+    snippet: match.snippet ? `${match.snippet.before}${match.snippet.match}${match.snippet.after}` : text,
+  });
+};
+
 /** A short-lived local engine, terminated on cancellation or completion. */
 export const searchPageText = async function searchPageText(
   bytes: Uint8Array,
@@ -102,38 +121,31 @@ export const searchPageText = async function searchPageText(
     const hits = new Map<number, PageTextHit>();
     let cursor: string | undefined;
     let count = 0;
+    let limited = false;
     do {
       signal.throwIfAborted();
+      // One match past the cap shows whether the search was cut off or had exactly MAX_MATCHES matches.
       const batch = await bounded(
         document.search.query({
           cursor,
-          limit: { matches: 500 - count, pages: 25 },
+          limit: { matches: MAX_MATCHES + 1 - count, pages: 25 },
           matchDiacritics: true,
           snippets: true,
           text,
         })
       );
       for (const match of batch.matches) {
-        const objectNumber = match.page.objectNumber;
-        const prior = hits.get(objectNumber);
-        if (prior) {
-          prior.count++;
-          prior.matches.push(match);
-        } else {
-          hits.set(objectNumber, {
-            context: match.snippet,
-            count: 1,
-            matches: [match],
-            objectNumber,
-            snippet: match.snippet ? `${match.snippet.before}${match.snippet.match}${match.snippet.after}` : text,
-          });
+        if (count === MAX_MATCHES) {
+          limited = true;
+          break;
         }
+        addMatch(hits, match, text);
         count++;
       }
       cursor = batch.nextCursor ?? undefined;
-    } while (cursor && count < 500);
+    } while (cursor && !limited);
     signal.throwIfAborted();
-    return { hits: [...hits.values()], limited: count >= 500, pages };
+    return { hits: [...hits.values()], limited, pages };
   } finally {
     signal.removeEventListener('abort', abort);
     await engine.destroy().catch(() => {
