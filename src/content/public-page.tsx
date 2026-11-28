@@ -585,7 +585,8 @@ const Limitations = function Limitations() {
         Mapping those words to source bytes works for common ASCII fonts and fixed-width ToUnicode maps in direct page content streams. In
         compressed or encrypted streams the decoded bytes are exact, while the original file highlights only the containing stream. Mapped
         locations are candidates for the page text and may differ from reading order. Each page lists at most 100 source locations; a page
-        that reaches the limit says so, and the matches and content streams after it are not listed.
+        that reaches the limit says so, and the matches and content streams after it are not listed. Mapping follows the first 100,000{' '}
+        <code>/Contents</code> references on a page and says so when a page has more.
       </p>
       <p>
         Some words are found but cannot be mapped: text with unsupported font encodings or inside Form XObjects, <code>/ActualText</code>{' '}
