@@ -3,6 +3,8 @@ import type { PageTextHit } from '@/lib/pdf/page-text-search';
 import type { SearchSnippet } from '@/lib/pdf/search-snippet';
 import type { PdfDocumentInfo, PdfObjectRecord, PdfValue, StreamResult } from '@/lib/pdf/types';
 
+import { ENGINE_LOAD_FAILED, ENGINE_LOAD_SLOW, withTimeout } from '@/lib/pdf/engine-load';
+import { ENGINE_LOAD_TIMEOUT_MS } from '@/lib/pdf/limits';
 import { pageTextSourceList } from '@/lib/pdf/page-text';
 import { byteSearchSnippet } from '@/lib/pdf/search-snippet';
 
@@ -69,13 +71,28 @@ const pageTextNote = (limited: boolean, pages: number) => {
   return `${limited ? `Showing ${pages} page${pages === 1 ? '' : 's'} for the first ${MAX_RESULTS} text matches. ` : ''}Results are grouped by page. Source locations cover supported fonts and direct page streams; candidate streams are labelled. Scans without a text layer need OCR.`;
 };
 
+/** The page-text search code is fetched on first use, so loading it counts towards the engine loading limit. */
+const loadPageTextSearch = async (signal: AbortSignal, deadline: number) => {
+  let timedOut = false;
+  try {
+    const module = await withTimeout(import('@/lib/pdf/page-text-search'), deadline - Date.now(), ENGINE_LOAD_SLOW, () => {
+      timedOut = true;
+    });
+    return module.searchPageText;
+  } catch (error) {
+    signal.throwIfAborted();
+    throw timedOut ? error : new Error(ENGINE_LOAD_FAILED, { cause: error });
+  }
+};
+
 const searchPageText = async (request: SearchRequest): Promise<SearchOutcome> => {
   const { bytes, document, isCurrent, objectMap, objects, password, readStream, signal, term } = request;
   if (!document || document.locked) {
     throw new Error('Unlock the PDF before searching page text.');
   }
-  const { searchPageText: runPageSearch } = await import('@/lib/pdf/page-text-search');
-  const pageSearch = await runPageSearch(bytes, term, password, signal);
+  const deadline = Date.now() + ENGINE_LOAD_TIMEOUT_MS;
+  const runPageSearch = await loadPageTextSearch(signal, deadline);
+  const pageSearch = await runPageSearch(bytes, term, password, signal, deadline);
   const streamCache = new Map<string, Promise<StreamResult>>();
   const cachedRead = (id: string) => {
     if (!streamCache.has(id)) {
