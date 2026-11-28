@@ -80,6 +80,7 @@ export const SessionBookmarks = function SessionBookmarks<T>({
     </section>
   );
 };
+
 export interface SessionBookmark<T> {
   key: number;
   label: string;

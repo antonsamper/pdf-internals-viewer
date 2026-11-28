@@ -10,6 +10,7 @@ export const inspectionFailure = function inspectionFailure(message?: string): {
       title: 'Inspection timed out',
     };
   }
+
   if (message && /exceeds? .*\b(limit|budget)\b/i.test(message)) {
     return {
       explanation: 'This document exceeds a processing or memory limit in the viewer.',
@@ -17,6 +18,7 @@ export const inspectionFailure = function inspectionFailure(message?: string): {
       title: 'Inspection limit reached',
     };
   }
+
   if (message && /worker|module|export named/i.test(message)) {
     return {
       explanation:
@@ -25,6 +27,7 @@ export const inspectionFailure = function inspectionFailure(message?: string): {
       title: 'PDF inspection engine unavailable',
     };
   }
+
   if (message && /password required|unsupported encryption|unsupported security handler/i.test(message)) {
     return {
       explanation: 'The parser reported a password or encryption limitation.',
@@ -32,6 +35,7 @@ export const inspectionFailure = function inspectionFailure(message?: string): {
       title: 'Encryption could not be opened',
     };
   }
+
   return {
     explanation:
       'The file may be incomplete, damaged, or use a PDF feature this viewer does not support. The parser could not determine whether it is encrypted.',

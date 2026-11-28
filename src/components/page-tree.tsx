@@ -34,6 +34,7 @@ const NodeToggle = ({ expanded, label, onToggle }: { expanded: boolean; label: s
 /** A node's label and object number: a button when the node opens an object. */
 const NodeLabel = ({ children, current, onSelect }: { children: ReactNode; current?: boolean; onSelect?: () => void }) => {
   const className = cn('flex min-w-0 flex-1 flex-col items-start py-1.25 pr-1.25', 'text-left text-detail [overflow-wrap:anywhere]');
+
   return onSelect ? (
     <button className={className} aria-current={current ? 'true' : undefined} onClick={onSelect}>
       {children}
@@ -91,8 +92,10 @@ const resolveNode = ({ value, owner, path, trail, ancestors }: TreeNodeProps, ob
   if (value.type !== 'reference') {
     return { ancestors, cycle: false, object: undefined, owner, path, ref: undefined, resolved: value, trail };
   }
+
   const { ref } = value;
   const object = objects.get(ref);
+
   return {
     ancestors: [...ancestors, ref],
     cycle: ancestors.includes(ref),
@@ -124,12 +127,14 @@ const dictionaryChildren = (
     })
     .map((entry) => {
       const name = entry.key.replace(/^\//, '');
+
       return {
         label: labels[name] ? `${labels[name]} · /${name}` : `/${name}`,
         segment: `/${name}`,
         value: entry.value,
       };
     });
+
   if (
     !pageRoot ||
     !object ||
@@ -139,7 +144,9 @@ const dictionaryChildren = (
   ) {
     return children;
   }
+
   const resources = effectiveResources(object, objects);
+
   if (resources) {
     children.push({
       inherited: true,
@@ -149,6 +156,7 @@ const dictionaryChildren = (
       value: resources.value,
     });
   }
+
   return children;
 };
 
@@ -161,14 +169,17 @@ const nodeChildren = (
   if (!resolved) {
     return [];
   }
+
   if (dictionary(resolved) && 'entries' in resolved) {
     return dictionaryChildren(resolved.entries, object, objects, pageRoot);
   }
+
   if (resolved.type === 'array') {
     return resolved.items.map((item, index) => {
       return { label: `[${index}]`, segment: `[${index}]`, value: item };
     });
   }
+
   return [];
 };
 
@@ -176,8 +187,10 @@ const nodeChildren = (
 const kindDetail = (object: PdfObjectRecord | undefined, ref: string | undefined, resolved: PdfValue | undefined) => {
   if (object) {
     const fontName = property(object.value, 'BaseFont');
+
     return object.kind === 'Font' && fontName?.type === 'name' ? `${fontName.value} · ${object.label}` : object.kind;
   }
+
   return !ref && resolved && !dictionary(resolved) && resolved.type !== 'array' ? resolved.text : '';
 };
 
@@ -211,6 +224,7 @@ const NodeRow = ({
   onToggle?: () => void;
 }) => {
   const selected = !!refId && tree.selectedId === refId;
+
   return (
     <div
       className={cn(
@@ -258,10 +272,12 @@ const NodeChildren = ({
   depth: number;
 }) => {
   const limit = tree.state.limits[nodeKey] ?? 50;
+
   return (
     <ul className="ml-2.5 border-l pl-1.75">
       {branches.slice(0, limit).map((child, index) => {
         const props = childNode(child, index, { ...parent, key: nodeKey });
+
         return <PageTreeNode key={props.nodeKey} {...props} ancestors={node.ancestors} depth={node.depth + 1} tree={tree} />;
       })}
       {branches.length > limit && (
@@ -297,6 +313,7 @@ const nodeModel = (node: TreeNodeProps, tree: TreeContext) => {
   const branches = resolved.cycle ? [] : nodeChildren(resolved.resolved, resolved.object, tree.objects, pageRoot);
   const bounded = node.depth >= 6 && branches.length > 0;
   const expandable = branches.length > 0 && !bounded;
+
   return {
     // A page starts a fresh trail, so its branches lead back to the page rather than to the page tree.
     branchTrail: pageRoot ? [{ id: resolved.ref!, label: node.label }] : resolved.trail,
@@ -311,6 +328,7 @@ const nodeModel = (node: TreeNodeProps, tree: TreeContext) => {
 
 const PageTreeNode = ({ tree, ...node }: TreeNodeProps & { tree: TreeContext }) => {
   const { branches, branchTrail, details, emptyPage, expandable, open, resolved } = nodeModel(node, tree);
+
   return (
     <li>
       <NodeRow
@@ -382,11 +400,13 @@ export const PageTree = ({
     },
     onToggle: (key) => {
       const expanded = new Set(state.expanded);
+
       if (expanded.has(key)) {
         expanded.delete(key);
       } else {
         expanded.add(key);
       }
+
       onStateChange({ ...state, expanded });
     },
     selectedId,
@@ -394,12 +414,14 @@ export const PageTree = ({
   };
   // Root pagination is cheap and does not affect expanded branches.
   const rootLimit = state.limits.root ?? 50;
+
   return (
     <nav className="min-h-0 flex-1 overflow-auto px-2 pb-3" aria-label="Page relationships">
       <TreeIntro>Expand a page to explore its connections. Shared objects can appear on several paths.</TreeIntro>
       <ul>
         {document.pages.slice(0, rootLimit).map((id, index) => {
           const root = pageNode(id, index);
+
           return <PageTreeNode key={root.nodeKey} {...root} tree={tree} />;
         })}
       </ul>
@@ -416,6 +438,7 @@ export const PageTree = ({
     </nav>
   );
 };
+
 const labels: Record<string, string> = {
   Annots: 'Annotations',
   ColorSpace: 'Colour spaces',
@@ -430,6 +453,7 @@ const labels: Record<string, string> = {
 const dictionary = (value: PdfValue) => {
   return value.type === 'dictionary' || value.type === 'stream';
 };
+
 export interface PageTreeState {
   expanded: Set<string>;
   limits: Record<string, number>;

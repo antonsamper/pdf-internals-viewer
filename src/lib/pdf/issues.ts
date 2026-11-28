@@ -4,6 +4,7 @@ export const diagnosticIssue = function diagnosticIssue(evidence: string, object
   let severity: IssueSeverity = 'warning';
   let title = 'Parser warning';
   let explanation = 'The parser reported a concern. Inspect the evidence before drawing conclusions about the file.';
+
   if (/Encrypted document unlocked locally/.test(evidence)) {
     severity = 'info';
     title = 'Document unlocked locally';
@@ -34,6 +35,7 @@ export const diagnosticIssue = function diagnosticIssue(evidence: string, object
     title = 'Object unavailable';
     explanation = 'The parser could not read this object. Content or relationships depending on it may be missing.';
   }
+
   return {
     evidence,
     explanation,
@@ -43,6 +45,7 @@ export const diagnosticIssue = function diagnosticIssue(evidence: string, object
     title,
   };
 };
+
 export const documentIssues = function documentIssues(document: PdfDocumentInfo): PdfIssue[] {
   const available = new Set(
     document.objects.map((object) => {
@@ -50,19 +53,25 @@ export const documentIssues = function documentIssues(document: PdfDocumentInfo)
     })
   );
   const issues = new Map<string, PdfIssue>();
+
   for (const evidence of document.warnings) {
     const id = /^Object (\d+ \d+)(?::| )/.exec(evidence)?.[1];
     const issue = diagnosticIssue(evidence, id && available.has(id) ? id : undefined);
+
     issues.set(issue.id, issue);
   }
+
   for (const object of document.objects) {
     for (const evidence of object.warnings) {
       const issue = diagnosticIssue(evidence, object.id);
+
       issues.set(issue.id, issue);
     }
   }
+
   return [...issues.values()];
 };
+
 export const issueSummary = function issueSummary(issues: PdfIssue[]): string {
   return (
     issueOrder
@@ -71,11 +80,13 @@ export const issueSummary = function issueSummary(issues: PdfIssue[]): string {
           return issue.severity === severity;
         }).length;
         const label = severity === 'info' ? 'information note' : severity === 'limitation' ? 'inspection limitation' : severity;
+
         return count ? [`${count} ${label}${count === 1 ? '' : 's'}`] : [];
       })
       .join(' · ') || 'No issues detected by these checks.'
   );
 };
+
 export type IssueSeverity = 'error' | 'warning' | 'limitation' | 'info';
 export interface PdfIssue {
   id: string;

@@ -13,6 +13,7 @@ const dict = (entries: Record<string, PdfValue>): PdfValue => {
     type: 'dictionary',
   };
 };
+
 const ref = (id: string): PdfValue => {
   return {
     ref: id,
@@ -20,6 +21,7 @@ const ref = (id: string): PdfValue => {
     type: 'reference',
   };
 };
+
 const name = (value: string): PdfValue => {
   return {
     text: `/${value}`,
@@ -27,6 +29,7 @@ const name = (value: string): PdfValue => {
     value,
   };
 };
+
 const record = (id: string, value: PdfValue): PdfObjectRecord => {
   return {
     generation: 0,
@@ -48,18 +51,21 @@ describe('content instruction interpretation', () => {
     const text =
       '% fake /Wrong 99 Tf\nBT /F1 12 Tf (Hello \\( nested (Tf) text) Tj [(Do) -12 <5466>] TJ /Tag << /ActualText (Tf) >> BDC ET';
     const parsed = contentInstructions(text);
+
     expect(
       parsed.instructions.map((row) => {
         return row.operator;
       })
     ).toEqual(['BT', 'Tf', 'Tj', 'TJ', 'BDC', 'ET']);
     const font = parsed.instructions[1];
+
     expect(text.slice(font.start, font.end)).toBe('/F1 12 Tf');
     expect(explainInstruction(font)).toBe('Select font /F1 at size 12.');
     expect(parsed.incomplete).toBe(false);
   });
   it('stops at opaque inline images instead of treating image bytes as instructions', () => {
     const parsed = contentInstructions('q BI /W 1 /H 1 ID /Fake 12 Tf EI Q');
+
     expect(
       parsed.instructions.map((row) => {
         return row.operator;
@@ -77,6 +83,7 @@ describe('content instruction interpretation', () => {
   it('bounds deeply nested values and operand-heavy inputs', () => {
     expect(contentInstructions('['.repeat(12000) + '0' + ']'.repeat(12000) + ' TJ').instructions[0].operator).toBe('TJ');
     const parsed = contentInstructions('1 '.repeat(20000) + 'm');
+
     expect(parsed.incomplete).toBe(true);
     expect(parsed.instructions[0].tokens.length).toBeLessThanOrEqual(5000);
   });
@@ -111,6 +118,7 @@ describe('content resource provenance', () => {
 
   it('preserves distinct page scopes for a shared content stream, including inherited and indirect resources', () => {
     const contexts = resourceContexts(stream, map, pages);
+
     expect(
       contexts.map((context) => {
         return context.id;
@@ -128,14 +136,17 @@ describe('content resource provenance', () => {
         Subtype: name('Form'),
       })
     );
+
     expect(namedResource(resourceContexts(form, map, pages, pageA.id)[0], 'Font', '/F1', map)?.id).toBe(fontB.id);
     const unknown = record('12 0', dict({ Subtype: name('Form') }));
+
     expect(resourceContexts(unknown, map, pages, pageA.id)[0].resources).toBeUndefined();
     expect(resourceContexts(unknown, map, pages, pageA.id)[0].label).toContain('unknown');
   });
   it('does not interpret arbitrary streams and does not invent missing/cyclic resources', () => {
     expect(resourceContexts(record('13 0', dict({ Subtype: name('Image') })), map, pages)).toEqual([]);
     const cyclic = new Map(map).set('14 0', record('14 0', ref('14 0')));
+
     expect(namedResource({ id: 'context', label: 'test', path: [], resources: ref('14 0') }, 'Font', '/F1', cyclic)).toBeUndefined();
     expect(namedResource(resourceContexts(stream, map, pages)[0], 'Font', '/Missing', map)).toBeUndefined();
     expect(resourceCategory('Tf', 0, 2)).toBe('Font');
@@ -153,9 +164,11 @@ describe('content resource provenance', () => {
       ['SCN', 0, 1, 'Pattern'],
       ['DP', 1, 2, 'Properties'],
     ];
+
     for (const [operator, index, count, category] of cases) {
       expect(resourceCategory(operator, index, count)).toBe(category);
     }
+
     expect(resourceCategory('scn', 0, 3)).toBeUndefined();
     expect(resourceCategory('Do', 1, 2)).toBeUndefined();
     expect(resourceCategory(undefined, 0, 1)).toBeUndefined();

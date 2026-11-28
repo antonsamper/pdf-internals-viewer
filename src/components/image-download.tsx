@@ -37,6 +37,7 @@ const ImagePreview = ({ error, image, objectId }: { error: string | undefined; i
       />
     );
   }
+
   return (
     <div
       className={cn(
@@ -63,9 +64,11 @@ const ImagePreview = ({ error, image, objectId }: { error: string | undefined; i
 
 const DownloadSize = ({ failed, object, size }: { failed: boolean; object: PdfObjectRecord; size: number | undefined }) => {
   let text = failed ? 'Download size unavailable' : 'Calculating download size…';
+
   if (size !== undefined) {
     text = `Download: ${fileSize(size)}`;
   }
+
   return (
     <div
       className="my-2.5 text-detail leading-[1.6] text-muted-foreground tabular-nums"
@@ -92,6 +95,7 @@ const exportNote = (plan: ReturnType<typeof imageDownloadPlan> | undefined, unav
   if (unavailable) {
     return `Image export unavailable: ${unavailable}`;
   }
+
   return plan?.format === 'jpeg'
     ? 'JPEG · embedded file, without page masks, colour adjustments, or transforms.'
     : 'PNG · full image dimensions, without page transforms. Up to 4 megapixels / 4096 pixels per side.';
@@ -120,7 +124,9 @@ export const ImageDownload = ({
     if (!plan) {
       return;
     }
+
     const token = ++request.current;
+
     setPending(true);
     setError(null);
     try {
@@ -128,7 +134,9 @@ export const ImageDownload = ({
         if (request.current !== token) {
           return;
         }
+
         const file = await buildImageFile(object, extractImage);
+
         if (request.current === token) {
           saveFile(file.blob, file.filename);
           setState((current) => {
@@ -146,6 +154,7 @@ export const ImageDownload = ({
       }
     }
   };
+
   const { ref, visible } = useVisible();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -156,9 +165,11 @@ export const ImageDownload = ({
     exportError?: string;
   }>({});
   const request = useRef(0);
+
   useEffect(
     () => {
       const counter = request;
+
       return () => {
         counter.current++;
       };
@@ -167,22 +178,29 @@ export const ImageDownload = ({
     [object]
   );
   const { plan, unavailable } = downloadPlan(object);
+
   useEffect(() => {
     if (!visible) {
       return;
     }
+
     let active = true;
+
     void queueImageWork(async () => {
       if (!active) {
         return;
       }
+
       try {
         const file = await buildImageFile(object, extractImage);
+
         if (!active) {
           return;
         }
+
         let image: string | undefined;
         let previewError: string | undefined;
+
         if (showPreview) {
           try {
             image = await imageThumbnail(object, file.blob);
@@ -190,6 +208,7 @@ export const ImageDownload = ({
             previewError = message(reason);
           }
         }
+
         if (active) {
           setState({ image, previewError, size: file.blob.size });
         }
@@ -202,6 +221,7 @@ export const ImageDownload = ({
         }
       }
     });
+
     return () => {
       active = false;
     };
@@ -209,6 +229,7 @@ export const ImageDownload = ({
   }, [object, extractImage, showPreview, visible]);
   const previewError = unavailable ?? state.previewError;
   const downloadError = error ?? state.exportError;
+
   return (
     <div ref={ref}>
       {showPreview && <ImagePreview error={previewError} image={state.image} objectId={object.id} />}
@@ -229,6 +250,7 @@ export const ImageDownload = ({
     </div>
   );
 };
+
 const message = (reason: unknown) => {
   return (reason instanceof Error ? reason.message : 'The browser could not process this image.').replace(
     /^(Thumbnail|Image export) unavailable:\s*/,

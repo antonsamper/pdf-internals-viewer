@@ -5,6 +5,7 @@ import { useState } from 'react';
 /** Drag-and-drop of one file onto the whole window, with an overlay flag. */
 export const useFileDrop = (onFile: (file: File) => void) => {
   const [dragging, setDragging] = useState(false);
+
   return {
     dragging,
     handlers: {
@@ -23,6 +24,7 @@ export const useFileDrop = (onFile: (file: File) => void) => {
         event.preventDefault();
         setDragging(false);
         const file = event.dataTransfer.files[0];
+
         if (file) {
           onFile(file);
         }

@@ -47,4 +47,5 @@ export const SiteLinks = function SiteLinks({ onFollowLink }: { onFollowLink?: (
     </nav>
   );
 };
+
 export { PROJECT_URL } from '@/lib/site-content';

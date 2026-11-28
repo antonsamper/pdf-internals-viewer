@@ -11,22 +11,27 @@ export const useWorkspaceShortcuts = (
   setSearchOpen: (open: boolean) => void
 ) => {
   const open = useEffectEvent(openFile);
+
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (!(event.metaKey || event.ctrlKey)) {
         return;
       }
+
       if (event.key === 'o') {
         event.preventDefault();
         open();
       }
+
       if (event.key === 'k') {
         event.preventDefault();
         setSearchOpen(true);
         searchInput.current?.focus();
       }
     };
+
     window.addEventListener('keydown', handler);
+
     return () => {
       return window.removeEventListener('keydown', handler);
     };
@@ -36,20 +41,25 @@ export const useWorkspaceShortcuts = (
 /** Opens the `?sample=` document named in the address bar, once, for a fresh session. */
 export const useInitialSample = (enabled: boolean, openSample: (file: string) => void) => {
   const open = useEffectEvent(openSample);
+
   useEffect(() => {
     if (!enabled) {
       return;
     }
+
     const id = new URLSearchParams(window.location.search).get('sample');
     const selectedSample = ALL_SAMPLES.find((item) => {
       return item.id === id;
     });
+
     if (!selectedSample) {
       return;
     }
+
     const timer = window.setTimeout(() => {
       return open(selectedSample.file);
     }, 0);
+
     return () => {
       return window.clearTimeout(timer);
     };

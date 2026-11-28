@@ -20,17 +20,21 @@ export const IssueSummary = ({ empty: Empty, issues }: { empty: ComponentType<Co
   if (!issues.length) {
     return <Empty role="status">{issueSummary(issues)}</Empty>;
   }
+
   return (
     <div role="status" className="my-3 flex flex-wrap gap-2">
       {issueOrder.map((severity) => {
         const count = issues.filter((issue) => {
           return issue.severity === severity;
         }).length;
+
         if (!count) {
           return null;
         }
+
         const Icon = severityIcons[severity];
         const label = severity === 'info' ? 'information note' : severity === 'limitation' ? 'inspection limitation' : severity;
+
         return (
           <SeverityPill
             key={severity}
@@ -45,6 +49,7 @@ export const IssueSummary = ({ empty: Empty, issues }: { empty: ComponentType<Co
     </div>
   );
 };
+
 export const IssuesPanel = ({
   issues,
   limit,
@@ -68,6 +73,7 @@ export const IssuesPanel = ({
   const sorted = issues.toSorted((a, b) => {
     return issueOrder.indexOf(a.severity) - issueOrder.indexOf(b.severity);
   });
+
   return (
     <PaneBody {...scroll} role="region" aria-label="PDF issues">
       <PaneIntro icon={FileWarning} title="Issues">
@@ -94,6 +100,7 @@ export const IssuesPanel = ({
       <ol>
         {sorted.slice(0, limit).map((issue) => {
           const Icon = severityIcons[issue.severity];
+
           return (
             <li
               key={issue.id}
@@ -148,6 +155,7 @@ export const IssuesPanel = ({
     </PaneBody>
   );
 };
+
 /** Errors and warnings get a coloured rule down the left edge. */
 const MARKED: Record<IssueSeverity, boolean> = { error: true, info: false, limitation: false, warning: true };
 const severityIcons = {

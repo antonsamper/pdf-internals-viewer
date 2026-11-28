@@ -5,6 +5,7 @@ import { extendExplorationTrail, referencePathOwners } from '../src/lib/pdf/expl
 describe('exploration trail', () => {
   it('preserves the exact key and index route across direct dictionaries', () => {
     const source = { id: '3 0', label: 'Page 1' };
+
     expect(extendExplorationTrail([], source, { id: '8 0', label: '8 0 obj' }, ['/Resources', '/Font', '/F1'])).toEqual([
       source,
       { id: '3 0', label: '/Resources' },
@@ -20,6 +21,7 @@ describe('exploration trail', () => {
       { id: '8 0', label: '8 0 obj' },
     ];
     const extended = extendExplorationTrail(trail, trail[1], trail[0], ['/Parent']);
+
     expect(
       extended.map((step) => {
         return step.id;
@@ -35,6 +37,7 @@ describe('exploration trail', () => {
       { id: '9 0', label: '9 0 obj' },
     ];
     const extended = extendExplorationTrail(trail.slice(0, 1), trail[0], { id: '12 0', label: '12 0 obj' }, ['/Contents', '[0]']);
+
     expect(
       extended.map((step) => {
         return step.label;
@@ -80,6 +83,7 @@ it('resolves key ownership through inline-expanded indirect dictionaries', () =>
     text: '',
     type: 'dictionary',
   };
+
   expect(
     referencePathOwners(
       root as Parameters<typeof referencePathOwners>[0],

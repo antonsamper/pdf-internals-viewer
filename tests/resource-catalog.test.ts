@@ -17,6 +17,7 @@ it('lists named attachments once and exposes downloads on font entries', async (
   const attachments = entries.filter((entry) => {
     return entry.kind === 'Attachment';
   });
+
   expect(attachments).toHaveLength(1);
   expect(attachments[0].object.id).toBe('6 0');
   expect(
@@ -49,6 +50,7 @@ it('includes embedded file streams without named file specifications', async () 
       })
     )
   );
+
   expect(entries).toHaveLength(1);
   expect(entries[0].kind).toBe('Attachment');
   expect(entries[0].downloads[0].filename).toBe('attachment-4-0.bin');
@@ -65,6 +67,7 @@ it('retains fonts without downloadable embedded programs', async () => {
   ).filter((entry) => {
     return entry.kind === 'Font';
   });
+
   expect(fonts).toHaveLength(1);
   expect(fonts[0].downloads).toEqual([]);
 });
@@ -87,6 +90,7 @@ it.each([
       })
     )
   );
+
   expect(entries).toHaveLength(1);
   expect(entries[0].kind).toBe('Attachment');
   expect(entries[0].downloads).toEqual([

@@ -9,6 +9,7 @@ import { resourceCatalog } from './resource-catalog';
 const NO_ACTIONS: PdfActionReport = { actions: [], notes: [], total: 0 };
 const documentItems = function* documentItems(document: PdfDocumentInfo): Generator<DocumentTransferItem> {
   const { objects, ...header } = document;
+
   delete header.indexes;
   const objectMap = new Map(
     objects.map((object) => {
@@ -17,24 +18,31 @@ const documentItems = function* documentItems(document: PdfDocumentInfo): Genera
   );
   const downloads = embeddedDownloads(objectMap);
   const resources = resourceCatalog(objectMap, downloads);
+
   yield { document: header, type: 'document' };
   for (const object of objects) {
     yield { object, type: 'object' };
   }
+
   for (const entry of downloads) {
     yield { entry, type: 'download' };
   }
+
   for (const { object, ...entry } of resources) {
     yield { entry: { ...entry, objectId: object.id }, type: 'resource' };
   }
+
   // Built last, so on a large document the walk runs under a later batch request's timeout, not the parse's.
   // A locked document lists no actions. Unlocking opens it again, which builds them.
   const { actions, notes, total } = document.locked ? NO_ACTIONS : documentActions(document, objectMap);
+
   for (const action of actions) {
     yield { action, type: 'action' };
   }
+
   yield { notes, total, type: 'action-summary' };
 };
+
 export interface InspectionIndexes {
   downloads: [string, EmbeddedDownload[]][];
   resources: (Omit<ResourceEntry, 'object'> & {
@@ -82,6 +90,7 @@ const sameScalar = function sameScalar(existing: PdfValue, value: PdfValue): boo
       ('value' in value && 'value' in existing && Object.is(value.value, existing.value)))
   );
 };
+
 /** Pull protocol: only one bounded batch is in flight. Each acknowledgement
  * creates a new browser task, giving rendering and cancellation a chance to run.
  * Keep structured cloning so numbers and optional fields retain their exact values.
@@ -99,23 +108,30 @@ export class DocumentTransfer {
     const batch: DocumentTransferItem[] = [];
     let characters = 2;
     let done = false;
+
     while (batch.length < TRANSFER_BATCH_ITEMS) {
       if (this.queued === undefined) {
         const item = this.items.next();
+
         if (item.done) {
           done = true;
           break;
         }
+
         this.queued = item.value;
       }
+
       const length = JSON.stringify(this.queued).length;
+
       if (batch.length && characters + length + 1 > TRANSFER_BATCH_CHARACTERS) {
         break;
       }
+
       batch.push(this.queued);
       characters += length + 1;
       this.queued = undefined;
     }
+
     return { done, items: batch };
   }
 }
@@ -136,6 +152,7 @@ export class DocumentReceiver {
     } else {
       return this.shareScalar(value);
     }
+
     return value;
   }
   private shareScalar(value: PdfValue): PdfValue {
@@ -143,15 +160,19 @@ export class DocumentReceiver {
     if (Object.keys(value).length !== (value.type === 'null' ? 2 : 3)) {
       return value;
     }
+
     const existing = this.values.get(value.text);
+
     if (existing && sameScalar(existing, value)) {
       return existing;
     }
+
     // The displayed text is the lookup key, but never the equality test: long
     // strings may have the same truncated display and different full values.
     if (!existing && this.values.size < MAX_SHARED_SCALARS) {
       this.values.set(value.text, Object.freeze(value));
     }
+
     return value;
   }
   private header: Omit<PdfDocumentInfo, 'objects' | 'indexes'> | undefined;
@@ -188,7 +209,9 @@ export class DocumentReceiver {
     if (!this.header) {
       throw new Error('The document transfer did not include its summary.');
     }
+
     this.values.clear();
+
     return { ...this.header, indexes: this.indexes, objects: this.objects };
   }
 }

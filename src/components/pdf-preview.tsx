@@ -9,9 +9,11 @@ import { Button } from '@/components/ui/button';
 const errorMessage = (error: unknown): string => {
   return error instanceof Error ? error.message : 'The PDF rendering engine could not open this document.';
 };
+
 /** The opened document, if it belongs to these bytes. A new file shows as opening until its own document arrives. */
 const currentDocument = (openedPreview: OpenedPreview | null, bytes: Uint8Array) => {
   const opened = openedPreview?.bytes === bytes ? openedPreview : null;
+
   return {
     document: opened?.document ?? null,
     error: opened?.error ?? null,
@@ -19,11 +21,14 @@ const currentDocument = (openedPreview: OpenedPreview | null, bytes: Uint8Array)
     pages: opened?.pages ?? EMPTY_PAGES,
   };
 };
+
 /** The rendered image, if it is for the current document, page and zoom. */
 const currentRender = (renderedPreview: RenderedPreview | null, request: object) => {
   const rendered = renderedPreview?.request === request ? renderedPreview : null;
+
   return { error: rendered?.error ?? null, imageUrl: rendered?.url ?? null, rendered, transform: rendered?.transform };
 };
+
 const PreviewToolbar = ({
   currentPage,
   opening,
@@ -100,6 +105,7 @@ const PreviewToolbar = ({
     </div>
   );
 };
+
 const PreviewError = ({ error }: { error: string }) => {
   return (
     <div role="alert" className="mx-auto flex max-w-sm flex-col items-center gap-3 py-12 text-center">
@@ -110,6 +116,7 @@ const PreviewError = ({ error }: { error: string }) => {
     </div>
   );
 };
+
 const PreviewImage = ({
   alt,
   firstHighlight,
@@ -158,6 +165,7 @@ const PreviewImage = ({
     </div>
   );
 };
+
 const PreviewFooter = ({ hasPages, matchCount, search }: { hasPages: boolean; matchCount: number; search: PdfPreviewProps['search'] }) => {
   return (
     <div className="border-t px-3 py-2 text-detail text-muted-foreground">
@@ -170,13 +178,16 @@ const PreviewFooter = ({ hasPages, matchCount, search }: { hasPages: boolean; ma
     </div>
   );
 };
+
 /** Read-only local rendering. Never save/rewrite these bytes for the inspector. */
 export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange, search }: PdfPreviewProps) => {
   const navigate = (nextPage: number) => {
     const next = Math.max(1, Math.min(nextPage, pages.length));
+
     setLocalPage(next);
     onPageChange?.(next);
   };
+
   const [openedPreview, setOpenedPreview] = useState<OpenedPreview | null>(null);
   const [renderedPreview, setRenderedPreview] = useState<RenderedPreview | null>(null);
   const [localPage, setLocalPage] = useState(1);
@@ -192,6 +203,7 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
   const error = openError ?? renderError;
   const searchMatches = useMemo(() => {
     const page = pages[currentPage - 1]?.ref;
+
     return (
       search?.matches.filter((match) => {
         return match.page.objectNumber === page?.objectNumber;
@@ -202,9 +214,11 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
     if (!transform) {
       return [];
     }
+
     return searchMatches.flatMap((match) => {
       return match.segments.map((segment) => {
         const quad = transform.pageToPixels(segment.quad);
+
         return [quad.upperLeft, quad.upperRight, quad.lowerRight, quad.lowerLeft]
           .map((point) => {
             return `${point.x},${point.y}`;
@@ -213,16 +227,19 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
       });
     });
   }, [searchMatches, transform]);
+
   useEffect(() => {
     if (!highlights.length) {
       return;
     }
+
     const frame = requestAnimationFrame(() => {
       firstHighlight.current?.scrollIntoView({
         block: 'nearest',
         inline: 'nearest',
       });
     });
+
     return () => {
       return cancelAnimationFrame(frame);
     };
@@ -235,16 +252,20 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
     // Always copy: an engine may transfer its input to its worker. The hex
     // inspector must retain its own original, non-detached byte buffer.
     const request = engine.open({ bytes: bytes.slice().buffer, kind: 'bytes' }, { password });
+
     void request
       .then(async (openedDoc) => {
         openedDocument = openedDoc;
         if (!active) {
           return;
         }
+
         const listed = await openedDoc.pages.list();
+
         if (!active) {
           return;
         }
+
         setLocalPage(1);
         setZoom(1);
         setOpenedPreview({
@@ -264,6 +285,7 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
           });
         }
       });
+
     return () => {
       active = false;
       request.abort();
@@ -274,6 +296,7 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
           return undefined;
         });
       }
+
       void engine.destroy().catch(() => {
         return undefined;
       });
@@ -284,6 +307,7 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
     if (!document || !pages[currentPage - 1]) {
       return;
     }
+
     let active = true;
     let image: {
       url: string;
@@ -300,18 +324,24 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
         width: Math.min(2400, Math.round(1000 * zoom)),
       },
     });
+
     void request
       .then(async (renderedImage) => {
         if (!active) {
           return;
         }
+
         const pending = renderedImage.objectUrl();
+
         imageRequest = pending;
         const nextImage = await pending;
+
         if (!active) {
           nextImage.revoke();
+
           return;
         }
+
         image = nextImage;
         setRenderedPreview({
           error: null,
@@ -329,6 +359,7 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
           });
         }
       });
+
     return () => {
       active = false;
       request.abort();
@@ -336,6 +367,7 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
       image?.revoke();
     };
   }, [document, pages, currentPage, zoom, renderIdentity]);
+
   return (
     <section aria-label="Rendered page preview" className="flex h-full min-h-0 flex-col">
       <PreviewToolbar
@@ -371,6 +403,7 @@ export const PdfPreview = ({ bytes, fileName, password, pageNumber, onPageChange
     </section>
   );
 };
+
 type PreviewDocument = Awaited<ReturnType<ReturnType<typeof localEngine>['open']>>;
 type PreviewPages = Awaited<ReturnType<PreviewDocument['pages']['list']>>['pages'];
 type OpenedPreview = {
@@ -386,6 +419,7 @@ type RenderedPreview = {
   transform?: PageRenderTransform;
 };
 const EMPTY_PAGES: PreviewPages = [];
+
 export interface PdfPreviewProps {
   bytes: Uint8Array;
   fileName: string;

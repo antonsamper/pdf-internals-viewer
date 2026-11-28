@@ -27,15 +27,18 @@ it('bundles reproducible samples whose indexed objects support the walkthrough f
     ['incorrect-unicode', incorrectUnicodePdf],
   ] as const) {
     const bytes = readFileSync(`public/samples/${name}.pdf`);
+
     expect(Buffer.from(generate().bytes)).toEqual(bytes);
     const inspector = new PdfInspector();
     const document = await inspector.open(new Uint8Array(bytes), `${name}.pdf`);
+
     expect(document.recovered).toBe(false);
     expect(document.pages).toEqual(['3 0']);
     expect(document.objects).toHaveLength(6);
     const evidence = document.objects.find((object) => {
       return object.id === '6 0';
     })!;
+
     if (name === 'oversized-image') {
       expect(evidence.label).toContain('Image');
       expect(evidence.stream?.length).toBe(4_320_000);
@@ -61,6 +64,7 @@ const exampleChecks: Record<string, (context: ExampleContext) => void | Promise<
     expect(objects.has('6 0')).toBe(false);
     expect(get('1 0', 'Metadata')).toMatchObject({ ref: '6 0' });
     const issues = documentIssues(document);
+
     expect(
       issues.filter((issue) => {
         return issue.severity === 'error';
@@ -93,6 +97,7 @@ const exampleChecks: Record<string, (context: ExampleContext) => void | Promise<
     expect(get('6 0', 'FontDescriptor')).toMatchObject({ ref: '7 0' });
     expect(get('7 0', 'FontFile2')).toMatchObject({ ref: '8 0' });
     const font = inspector.readStream('8 0', 'decoded', 'download');
+
     expect(Buffer.from(font.bytes)).toEqual(readFileSync('scripts/fixtures/assets/example-mark.ttf'));
     expect(
       resources.filter((resource) => {
@@ -121,6 +126,7 @@ const exampleChecks: Record<string, (context: ExampleContext) => void | Promise<
         return false;
       }
     );
+
     expect(sources).toHaveLength(1);
     expect(sources[0]!.incomplete).toBe(false);
     expect(
@@ -180,10 +186,12 @@ const exampleChecks: Record<string, (context: ExampleContext) => void | Promise<
     const imageRef = (id: string) => {
       return property(property(get(id, 'Resources')!, 'XObject')!, 'Logo');
     };
+
     expect(imageRef('3 0')).toMatchObject({ ref: '7 0' });
     expect(imageRef('4 0')).toMatchObject({ ref: '7 0' });
     expect(imageRef('5 0')).toMatchObject({ ref: '8 0' });
     const first = inspector.readStream('7 0', 'raw');
+
     expect(first.bytes.length).toBe(1728);
     expect(inspector.readStream('8 0', 'raw').bytes).toEqual(first.bytes);
     expect(
@@ -197,13 +205,17 @@ const exampleChecks: Record<string, (context: ExampleContext) => void | Promise<
 for (const [name, generate] of ADDITIONAL_EXAMPLES) {
   it(`provides reproducible, inspectable evidence for ${name}`, async () => {
     const check = exampleChecks[name];
+
     if (!check) {
       throw new Error(`No checks for the ${name} example`);
     }
+
     const bytes = readFileSync(`public/samples/${name}.pdf`);
+
     expect(Buffer.from(generate().bytes)).toEqual(bytes);
     const inspector = new PdfInspector();
     const document = await inspector.open(new Uint8Array(bytes));
+
     expect(document.recovered).toBe(false);
     const objects = new Map(
       document.objects.map((object) => {
@@ -213,6 +225,7 @@ for (const [name, generate] of ADDITIONAL_EXAMPLES) {
     const get = (id: string, key: string) => {
       return property(objects.get(id)!.value, key);
     };
+
     await check({ bytes, document, get, inspector, objects, resources: resourceCatalog(objects) });
   });
 }

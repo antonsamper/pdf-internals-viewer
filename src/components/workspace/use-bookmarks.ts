@@ -12,14 +12,17 @@ export const useBookmarks = () => {
   const activeStorageKey = useRef<string | null>(null);
   const [storageKey, setStorageKey] = useState<string | null>(null);
   const [saved, setSaved] = useState(true);
+
   useEffect(() => {
     if (!storageKey) {
       return;
     }
+
     const sync = (event: StorageEvent) => {
       if (event.key !== storageKey && event.key !== null) {
         return;
       }
+
       try {
         setBookmarks(readBookmarks(storageKey));
         setSaved(true);
@@ -27,7 +30,9 @@ export const useBookmarks = () => {
         setSaved(false);
       }
     };
+
     window.addEventListener('storage', sync);
+
     return () => {
       return window.removeEventListener('storage', sync);
     };
@@ -39,16 +44,21 @@ export const useBookmarks = () => {
       if (activeStorageKey.current !== key) {
         return;
       }
+
       let current = bookmarks;
+
       if (key && saved) {
         try {
           current = readBookmarks(key);
         } catch {}
       }
+
       const next = mutate(current);
+
       setBookmarks(next);
       setSaved(key ? writeBookmarks(key, next) : false);
     };
+
     // Serialize edits across tabs, reading the latest snapshot inside the lock.
     if (key && navigator.locks) {
       void navigator.locks.request(key, apply);
@@ -61,10 +71,12 @@ export const useBookmarks = () => {
     if (!selection.id && !selection.range) {
       return;
     }
+
     const rangeLabel = selection.range
       ? `Bytes 0x${selection.range.start.toString(16).toUpperCase()}–0x${(selection.range.end - 1).toString(16).toUpperCase()}`
       : '';
     const label = rangeLabel || `${selection.id} obj · ${selection.tab}`;
+
     update((current) => {
       return current.concat({
         key:
@@ -82,10 +94,13 @@ export const useBookmarks = () => {
   const load = async (original: Uint8Array<ArrayBuffer>, isCurrent: () => boolean) => {
     try {
       const key = await documentBookmarkKey(original);
+
       if (!isCurrent()) {
         return false;
       }
+
       const stored = readBookmarks(key);
+
       activeStorageKey.current = key;
       setBookmarks(stored);
       setStorageKey(key);
@@ -93,8 +108,10 @@ export const useBookmarks = () => {
       if (!isCurrent()) {
         return false;
       }
+
       setSaved(false);
     }
+
     return true;
   };
 

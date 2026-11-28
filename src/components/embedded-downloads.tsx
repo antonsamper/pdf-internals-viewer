@@ -23,19 +23,24 @@ export const EmbeddedDownloads = ({
 }) => {
   const download = async (asset: EmbeddedDownload) => {
     const token = ++request.current;
+
     setPending(asset.streamId);
     setError(null);
     try {
       const result = await extractStream(asset.streamId);
+
       if (token !== request.current) {
         return;
       }
+
       if (result.error) {
         throw new Error(result.error);
       }
+
       if (result.truncated) {
         throw new Error('The stream is incomplete. No file was downloaded.');
       }
+
       saveFile(
         new Blob([new Uint8Array(result.bytes)], {
           type: 'application/octet-stream',
@@ -52,12 +57,15 @@ export const EmbeddedDownloads = ({
       }
     }
   };
+
   const request = useRef(0);
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     // oxlint-disable-next-line react/exhaustive-effect-dependencies -- object identity is the trigger that cancels in-flight extractions.
     const counter = request;
+
     return () => {
       counter.current++;
     };
@@ -65,6 +73,7 @@ export const EmbeddedDownloads = ({
   const hasFont = assets.some((asset) => {
     return asset.kind === 'font';
   });
+
   return (
     <section className={cn('mx-5.5 mb-4 rounded-md border bg-sidebar p-3', className)} aria-label="Embedded file downloads">
       {assets.map((asset) => {

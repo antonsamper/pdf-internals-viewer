@@ -15,6 +15,7 @@ const Tabs = function Tabs({ className, orientation = 'horizontal', ...props }: 
     />
   );
 };
+
 const TabsList = function TabsList({
   className,
   variant = 'default',
@@ -24,6 +25,7 @@ const TabsList = function TabsList({
     <TabsPrimitive.List data-slot="tabs-list" data-variant={variant} className={cn(tabsListVariants({ variant }), className)} {...props} />
   );
 };
+
 const TabsTrigger = function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
   return (
     <TabsPrimitive.Tab
@@ -39,6 +41,7 @@ const TabsTrigger = function TabsTrigger({ className, ...props }: TabsPrimitive.
     />
   );
 };
+
 const TabsContent = function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
   return <TabsPrimitive.Panel data-slot="tabs-content" className={cn('flex-1 text-sm outline-none', className)} {...props} />;
 };

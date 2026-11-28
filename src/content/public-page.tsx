@@ -42,6 +42,7 @@ const SampleLinks = function SampleLinks({ sample, label }: { sample: string; la
     </ArticleActions>
   );
 };
+
 const Guide = function Guide() {
   return (
     <>
@@ -151,6 +152,7 @@ const Guide = function Guide() {
     </>
   );
 };
+
 const ObjectsGuide = function ObjectsGuide() {
   return (
     <>
@@ -215,6 +217,7 @@ endobj`}</code>
     </>
   );
 };
+
 const StreamsGuide = function StreamsGuide() {
   return (
     <>
@@ -399,6 +402,7 @@ Q`}</code>
     </>
   );
 };
+
 const ResourcesGuide = function ResourcesGuide() {
   return (
     <>
@@ -461,6 +465,7 @@ const ResourcesGuide = function ResourcesGuide() {
     </>
   );
 };
+
 const Privacy = function Privacy() {
   return (
     <>
@@ -518,6 +523,7 @@ const Privacy = function Privacy() {
     </>
   );
 };
+
 const Limitations = function Limitations() {
   return (
     <>
@@ -623,6 +629,7 @@ const Limitations = function Limitations() {
     </>
   );
 };
+
 /** Home and About have their own components; every other public path needs an entry here. */
 type ArticlePath = Exclude<SitePath, '/' | '/about'>;
 const PAGE_CONTENT: Record<ArticlePath, ComponentType> = {
@@ -651,6 +658,7 @@ const PAGE_CONTENT: Record<ArticlePath, ComponentType> = {
 };
 const Breadcrumb = function Breadcrumb({ path }: { path: SitePath }) {
   const parent = articleSection(path);
+
   return (
     <nav className="mb-6 text-small leading-[1.8] [overflow-wrap:anywhere] text-muted-foreground" aria-label="Breadcrumb">
       <a href="/">PDF Internals</a>
@@ -665,6 +673,7 @@ const Breadcrumb = function Breadcrumb({ path }: { path: SitePath }) {
     </nav>
   );
 };
+
 const Byline = function Byline() {
   return (
     <p className="mb-8 text-small leading-[1.85] text-muted-foreground">
@@ -672,6 +681,7 @@ const Byline = function Byline() {
     </p>
   );
 };
+
 export const PublicPage = function PublicPage({
   page,
   onFollowLink,
@@ -682,6 +692,7 @@ export const PublicPage = function PublicPage({
   standalone?: boolean;
 }) {
   const Content = PAGE_CONTENT[page.path as ArticlePath] ?? ResourcesGuide;
+
   return (
     <ReadingPage labelledBy="public-title" onClick={onFollowLink} path={page.path} standalone={standalone}>
       <BackToWorkspace />
@@ -692,6 +703,7 @@ export const PublicPage = function PublicPage({
     </ReadingPage>
   );
 };
+
 /** Direct article requests are complete documents and do not load the inspector. */
 export const StaticPublicPage = function StaticPublicPage({ page }: { page: SitePage }) {
   return (
@@ -704,4 +716,5 @@ export const StaticPublicPage = function StaticPublicPage({ page }: { page: Site
     </div>
   );
 };
+
 const fixtureSource = `${PROJECT_URL}/blob/main/scripts/fixtures/pdf-fixtures.mjs`;

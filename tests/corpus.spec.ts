@@ -35,10 +35,12 @@ interface ProbeResult {
 const hash = (bytes: Uint8Array) => {
   return createHash('sha256').update(bytes).digest('hex');
 };
+
 const reports: unknown[] = [];
 
 const readFixture = (fixture: Fixture) => {
   const filename = resolve('.context/corpus', fixture.filename);
+
   try {
     return { bytes: readFileSync(filename), filename };
   } catch {
@@ -64,8 +66,10 @@ const probe = (filename: string, offsets: SampleOffset[]): ProbeResult => {
     ],
     { encoding: 'utf8', maxBuffer: 1024 * 1024, timeout: 15_000 }
   );
+
   expect(child.error, child.error?.message).toBeUndefined();
   expect(child.status, child.stderr).toBe(0);
+
   return JSON.parse(child.stdout.trim().split('\n').at(-1)!);
 };
 
@@ -113,6 +117,7 @@ const expectKnownRecovery = (fixture: Fixture, result: ProbeResult) => {
     expect(result.recovered).toBe(true);
     expect(result.warnings.length).toBeGreaterThan(0);
   }
+
   if (fixture.id === 'pdf-lib-missing_endobj_keyword') {
     expect(result.unknownObjects).toBeGreaterThan(0);
   }
@@ -123,6 +128,7 @@ const expectOracleMatch = (fixture: Fixture, offsets: SampleOffset[], result: Pr
   if (fixture.oracle.popplerPages !== undefined) {
     expect(result.pages).toBe(fixture.oracle.popplerPages);
   }
+
   expectOracleObjects(fixture, result);
   expectSampledOffsets(fixture, offsets, result);
   expectKnownRecovery(fixture, result);
@@ -132,16 +138,20 @@ const expectStructure = (fixture: Fixture, offsets: SampleOffset[], result: Prob
   if (fixture.expectation === 'locked') {
     expect(result.locked).toBe(true);
     expect(result.objects).toBe(0);
+
     return;
   }
+
   expect(result.locked).toBe(false);
   if (fixture.expectation === 'partial-recovery') {
     // This damaged document needs more recovery than the current engine can do.
     // Accept improved recovery, but never silently lose all structure.
     expect(result.objects).toBeGreaterThan(0);
     expect(result.pages === fixture.oracle.pages || result.warnings.length > 0).toBe(true);
+
     return;
   }
+
   expectOracleMatch(fixture, offsets, result);
 };
 
@@ -149,10 +159,12 @@ describe('opt-in, pinned upstream PDF corpus', () => {
   for (const fixture of manifest.files) {
     it(fixture.id, () => {
       const { bytes, filename } = readFixture(fixture);
+
       expect(bytes.length).toBe(fixture.size);
       expect(hash(bytes)).toBe(fixture.sha256);
       const offsets = fixture.oracle.sampleOffsets ?? [];
       const result = probe(filename, offsets);
+
       recordReport(fixture, result);
       expect(result.status, result.error).toBe('opened');
       expect(result.immutable).toBe(true);

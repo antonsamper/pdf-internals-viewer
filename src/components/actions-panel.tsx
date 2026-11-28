@@ -35,6 +35,7 @@ const summary = ({ actions, notes }: PdfActionReport) => {
     all.reduce((total, action) => {
       return total + action.notes.length;
     }, 0);
+
   return [
     all.length ? plural(all.length, 'action') : 'No actions found in the sources below',
     sensitive && `${sensitive} marked for review`,
@@ -69,6 +70,7 @@ const DecodedLabel = ({ className, ...props }: ComponentProps<'p'>) => {
 
 const DecodedScript = ({ result, streamId }: { result: StreamResult; streamId: string }) => {
   const { encoding, text } = scriptText(result);
+
   return (
     <>
       <DecodedLabel>
@@ -96,7 +98,9 @@ const ScriptStream = ({ streamId, readStream, onNavigate }: { streamId: string; 
       setLoading(false);
     }
   };
+
   const error = failure ?? result?.error;
+
   return (
     <div className="my-2">
       <div className="flex flex-wrap gap-2">
@@ -135,6 +139,7 @@ const ActionTarget = ({ target, readStream, onNavigate }: { target: PdfActionTar
       </>
     );
   }
+
   if (target.decodedString) {
     return (
       <>
@@ -145,6 +150,7 @@ const ActionTarget = ({ target, readStream, onNavigate }: { target: PdfActionTar
       </>
     );
   }
+
   return (
     <>
       <p className="mt-2 [overflow-wrap:anywhere]">
@@ -228,6 +234,7 @@ const ActionItem = ({
   onNavigate: Navigate;
 }) => {
   const Heading = chained ? 'h3' : 'h2';
+
   return (
     <li
       className={cn(
@@ -299,6 +306,7 @@ export const ActionsPanel = ({
 }) => {
   const scroll = useScrollRestoration(scrollPositionRef);
   const { actions, notes } = report;
+
   return (
     <PaneBody {...scroll} role="region" aria-label="PDF actions">
       <PaneIntro icon={Zap} title="Actions">

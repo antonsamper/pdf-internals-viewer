@@ -11,6 +11,7 @@ import { PdfInspector } from '../src/lib/pdf/inspector';
 
 const inspect = async (bytes: Uint8Array) => {
   const document = await new PdfInspector().open(bytes, 'actions.pdf');
+
   return documentActions(
     document,
     new Map(
@@ -24,6 +25,7 @@ const inspect = async (bytes: Uint8Array) => {
 const page = (extra = '') => {
   return `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] ${extra} >>`;
 };
+
 const minimal = (catalog: string, pageExtra = '', more: [number, string][] = []) => {
   return classicPdf([
     [1, `<< /Type /Catalog /Pages 2 0 R ${catalog} >>`],
@@ -49,6 +51,7 @@ describe('documentActions', () => {
     const rows = report.actions.map((action) => {
       return [action.trigger, action.entry, action.holderId, action.type];
     });
+
     expect(rows).toEqual([
       ['Document opens', '/OpenAction', '1 0', 'JavaScript'],
       ['Before the document closes', '/AA /WC', '1 0', 'SubmitForm'],
@@ -71,6 +74,7 @@ describe('documentActions', () => {
 
   it('summarises targets and keeps script text as a decoded string or a stream to read', async () => {
     const [open, close, documentScript, , uri, launch, , keystroke, validate] = (await inspect(actionsPdf().bytes)).actions;
+
     expect(open.actionId).toBe('6 0');
     expect(open.target).toEqual({ label: 'Script', streamId: '14 0' });
     expect(close.target).toEqual({ label: 'Submit to', text: 'https://example.invalid/collect' });
@@ -93,6 +97,7 @@ describe('documentActions', () => {
 
   it('keeps /Next chains in order, including arrays and shared actions', async () => {
     const uri = (await inspect(actionsPdf().bytes)).actions[4];
+
     expect(
       uri.next.map((action) => {
         return [action.entry, action.type, action.target?.text];
@@ -108,8 +113,10 @@ describe('documentActions', () => {
 
   it('stops a /Next cycle with a note', async () => {
     const goTo = (await inspect(actionsPdf().bytes)).actions[3];
+
     expect(goTo.next).toHaveLength(1);
     const named = goTo.next[0];
+
     expect(named).toMatchObject({ actionId: '8 0', holderId: '7 0', type: 'Named' });
     expect(named.next).toHaveLength(1);
     expect(named.next[0].actionId).toBe('7 0');
@@ -120,6 +127,7 @@ describe('documentActions', () => {
   it('notes malformed and unresolvable actions and keeps the rest', async () => {
     const report = await inspect(actionsPdf().bytes);
     const [noType, missing] = [report.actions[6], report.actions[10]];
+
     expect(noType.notes).toEqual(['The action dictionary has no /S action type.']);
     expect(missing.notes).toEqual(['99 0 R could not be resolved.']);
     expect(missing.actionId).toBeUndefined();
@@ -130,6 +138,7 @@ describe('documentActions', () => {
 
   it('lists a widget reached from both the page and the form fields once', async () => {
     const actions = flattenActions((await inspect(actionsPdf().bytes)).actions);
+
     expect(
       actions.filter((action) => {
         return action.holderId === '13 0';
@@ -139,16 +148,20 @@ describe('documentActions', () => {
 
   it('reads an /OpenAction destination array and explains other non-action values', async () => {
     const [destination] = (await inspect(minimal('/OpenAction [3 0 R /Fit]'))).actions;
+
     expect(destination).toMatchObject({ destination: true, notes: [], target: { label: 'Destination', text: '[ 3 0 R /Fit ]' } });
     expect(destination.type).toBeUndefined();
     const [name] = (await inspect(minimal('/OpenAction /Start'))).actions;
+
     expect(name.notes).toEqual(['Expected an action dictionary or a destination array, found a name.']);
     const [link] = (await inspect(minimal('', '/Annots [<< /Subtype /Link /A [1 2] >>]'))).actions;
+
     expect(link.notes).toEqual(['Expected an action dictionary, found an array.']);
   });
 
   it('notes a broken /AA entry, an unknown event and a missing target', async () => {
     const report = await inspect(minimal('/AA 5 0 R', '/AA << /Zz << /S /URI >> >>', [[5, '(not a dictionary)']]));
+
     expect(
       report.actions.map((action) => {
         return [action.trigger, action.notes];
@@ -168,6 +181,7 @@ describe('documentActions', () => {
         [9, '<< /Not /AnArray >>'],
       ])
     );
+
     expect(
       report.actions.map((action) => {
         return action.context;
@@ -181,11 +195,13 @@ describe('documentActions', () => {
 
   it('reports no actions for a document without any', async () => {
     const report = await inspect(new Uint8Array(readFileSync('public/samples/minimal.pdf')));
+
     expect(report).toEqual({ actions: [], notes: [], total: 0 });
   });
 
   it('reads the opening-action sample as a single GoTo', async () => {
     const report = await inspect(new Uint8Array(readFileSync('public/samples/opening-action.pdf')));
+
     expect(report.actions).toHaveLength(1);
     expect(report.actions[0]).toMatchObject({
       actionId: '6 0',
@@ -200,8 +216,10 @@ describe('documentActions', () => {
     const more = Array.from({ length: 30 }, (_, i): [number, string] => {
       return [10 + i, `<< /S /Named /N /NextPage /Next [${11 + i} 0 R ${11 + i} 0 R] >>`];
     });
+
     more.push([40, '<< /S /Named /N /NextPage >>']);
     const report = await inspect(minimal('/OpenAction 10 0 R', '', more));
+
     expect(report.total).toBe(5000);
     expect(flattenActions(report.actions)).toHaveLength(5000);
     expect(report.notes).toContain('The list stops at 5000 actions. Later actions are not listed.');
@@ -214,9 +232,11 @@ describe('documentActions', () => {
     const more = Array.from({ length: 3 }, (_, i): [number, string] => {
       return [10 + i, nested.replace(/>>$/, ` >>`).replace('/LastPage', `/LastPage /Next ${11 + i} 0 R`)];
     });
+
     more.push([13, '<< /S /Named /N /FirstPage >>']);
     const report = await inspect(minimal('/OpenAction 10 0 R', '', more));
     const chain = flattenActions(report.actions);
+
     expect(chain).toHaveLength(64);
     expect(chain.at(-1)?.notes).toEqual(['The /Next chain is longer than 64 actions. Later actions are not listed.']);
   });
@@ -229,6 +249,7 @@ describe('documentActions', () => {
       ])
     );
     const [open] = report.actions;
+
     expect(open.next).toHaveLength(1);
     expect(open.next[0].notes[0]).toMatch(/^Cycle: \/Next leads back to 6 0 obj/);
   });
@@ -243,11 +264,14 @@ describe('documentActions', () => {
         [6, '<< /T (child) /AA << /K << /S /JavaScript /JS (1;) >> >> >>'],
       ])
     );
+
     expect(repeated.actions).toHaveLength(1);
     expect(repeated.notes).toEqual(['Form fields: 6 0 obj is reached more than once, so the walk stops there.']);
     const looped = await inspect(minimal('/AcroForm << /Fields 7 0 R >>', '', [[7, '[<< /T (loop) /Kids 7 0 R >>]']]));
+
     expect(looped.notes).toEqual(['Form fields: a dictionary is reached more than once, so the walk stops there.']);
     const wide = await inspect(minimal(`/AcroForm << /Fields [${'<< /T (f) >> '.repeat(10_001)}] >>`));
+
     expect(wide.notes).toEqual(['Form fields: more than 10000 items. Later items are not listed.']);
   });
 
@@ -255,6 +279,7 @@ describe('documentActions', () => {
     const report = await inspect(
       minimal('/OpenAction << /S /__proto__ /Next << /S /constructor >> >> /AA << /__proto__ << /S /URI /URI (x) >> >>')
     );
+
     expect(
       report.actions.map((action) => {
         return [action.trigger, action.type, action.sensitive, action.target];
@@ -275,8 +300,10 @@ describe('documentActions', () => {
       )
     );
     const [launch, rendition, uri, longScript] = report.actions;
+
     expect(launch.target?.detail).toBe('Parameters: /c start');
     const marked = await inspect(minimal('/OpenAction << /S /URI /URI <FEFF0061061C00AD0062> >>'));
+
     expect(marked.actions[0].target?.text).toBe('a⟨U+061C⟩⟨U+00AD⟩b');
     expect(launch.target?.text).toBe('i⟨U+202E⟩x');
     expect(rendition).toMatchObject({ sensitive: 'Runs a script', target: { decodedString: true, label: 'Script', text: 'play();' } });
@@ -293,6 +320,7 @@ describe('documentActions', () => {
         [6, '(xfa)'],
       ])
     );
+
     // The tree and the /Names dictionary are direct, so the catalogue holds the script.
     expect(report.actions).toMatchObject([{ actionId: '5 0', context: 'Document-level script (init)', holderId: '1 0' }]);
     expect(report.notes).toEqual(['The form in 1 0 obj has an /XFA entry. Scripts inside XFA forms are not listed here.']);
@@ -302,6 +330,7 @@ describe('documentActions', () => {
         return [object.id, object];
       })
     );
+
     objects.delete('1 0');
     objects.delete('3 0');
     expect(documentActions(document, objects).notes).toEqual([
@@ -326,6 +355,7 @@ describe('documentActions', () => {
         [9, `<< /Length ${script.length} >>\nstream\n${script}\nendstream`],
       ])
     );
+
     expect(
       report.actions.map((action) => {
         return [action.trigger, action.entry, action.context, action.holderId, action.actionId, action.sensitive];
@@ -337,6 +367,7 @@ describe('documentActions', () => {
       ['Document opens', '/Names /JavaScript', 'Document-level script (third)', '7 0', undefined, 'Runs a script'],
     ]);
     const [first, second, third] = report.actions;
+
     expect(first.target).toEqual({ decodedString: true, label: 'Script', text: 'a = 1;' });
     expect(second.target).toEqual({ label: 'Script', streamId: '9 0' });
     // An entry without /S is still marked and its /JS is shown.
@@ -353,6 +384,7 @@ describe('documentActions', () => {
         [6, '<< /Kids [5 0 R 6 0 R] /Names [(kept) << /S /JavaScript /JS (1;) >>] >>'],
       ])
     );
+
     expect(
       looped.actions.map((action) => {
         return action.context;
@@ -365,8 +397,10 @@ describe('documentActions', () => {
     const deep = Array.from({ length: 40 }, (_, i): [number, string] => {
       return [10 + i, `<< /Kids [${11 + i} 0 R] >>`];
     });
+
     deep.push([50, '<< /Names [(deepest) << /S /JavaScript /JS (1;) >>] >>']);
     const tooDeep = await inspect(minimal('/Names << /JavaScript 10 0 R >> /OpenAction << /S /Named /N /FirstPage >>', '', deep));
+
     expect(
       tooDeep.actions.map((action) => {
         return action.entry;
@@ -389,6 +423,7 @@ describe('documentActions', () => {
         [20, '<< /Title (Still read) /A << /S /Named /N /FirstPage >> >>'],
       ])
     );
+
     expect(
       report.actions.map((action) => {
         return [action.context, action.holderId, action.sensitive, action.notes];
@@ -415,6 +450,7 @@ describe('documentActions', () => {
         '/Names << /JavaScript << /Names [(uri) << /S /URI /URI (https://example.invalid/) /JS (hidden();) >> (launch) << /S /Launch /F (a.exe) >> (bare) (x)] >> >>'
       )
     );
+
     expect(
       report.actions.map((action) => {
         return [action.type, action.sensitive, action.target, action.notes];
@@ -430,6 +466,7 @@ describe('documentActions', () => {
       [undefined, 'Runs a script', undefined, ['Expected an action dictionary, found a string.']],
     ]);
     const unreadable = await inspect(minimal('/Names 99 0 R'));
+
     expect(unreadable.notes).toEqual(["Document-level scripts: the catalogue's /Names could not be read. 99 0 R could not be resolved."]);
   });
 
@@ -438,6 +475,7 @@ describe('documentActions', () => {
     const report = await inspect(
       minimal('/Names << /JavaScript << /Names [(probe) << /S /JavaScript /JS (globalThis.pivScriptRan = 1;) >>] >> >>')
     );
+
     expect(report.actions[0].target).toEqual({ decodedString: true, label: 'Script', text: 'globalThis.pivScriptRan = 1;' });
     expect(scope.pivScriptRan).toBeUndefined();
   });
@@ -471,10 +509,12 @@ describe('documentActions', () => {
         return [object.id, object];
       })
     );
+
     // Pages 51 to 60 hold actions past the cap. Removing one would add a "could not be read" note if the walk reached it,
     // and the missing field and outline objects would add notes too.
     objects.delete(document.pages[55]);
     const report = documentActions(document, objects);
+
     expect(report.total).toBe(5000);
     expect(report.actions.at(-1)?.context).toBe('Link annotation on page 50');
     expect(report.notes).toEqual([
@@ -497,6 +537,7 @@ describe('documentActions', () => {
         ]
       )
     );
+
     expect(report.total).toBe(5000);
     expect(report.actions.at(-1)?.context).toBe('Document-level script (s4999)');
     expect(report.notes).toEqual([
@@ -509,10 +550,12 @@ describe('documentActions', () => {
     const more = Array.from({ length: 30 }, (_, i): [number, string] => {
       return [10 + i, `<< /S /Named /N /NextPage /Next [${11 + i} 0 R ${11 + i} 0 R] >>`];
     });
+
     more.push([40, '<< /S /Named /N /NextPage >>']);
     const report = await inspect(
       minimal('/OpenAction 10 0 R /Names << /JavaScript << /Names [(a) << /S /JavaScript /JS (a;) >>] >> >>', '', more)
     );
+
     expect(report.notes).toEqual([
       'The list stops at 5000 actions. Later actions are not listed.',
       'The list stopped before these sources were read, so any actions in them are not listed: document-level scripts, pages with their annotations.',
@@ -523,8 +566,10 @@ describe('documentActions', () => {
     const more = Array.from({ length: 30 }, (_, i): [number, string] => {
       return [10 + i, `<< /S /Named /N /NextPage /Next [${11 + i} 0 R ${11 + i} 0 R] >>`];
     });
+
     more.push([40, '<< /S /Named /N /NextPage >>']);
     const report = await inspect(minimal('/OpenAction 10 0 R /Names 99 0 R', '', more));
+
     expect(report.notes).toEqual([
       'The list stops at 5000 actions. Later actions are not listed.',
       'The list stopped before these sources were read, so any actions in them are not listed: document-level scripts, pages with their annotations.',
@@ -562,15 +607,20 @@ describe('documentActions', () => {
     const receiver = new DocumentReceiver();
     const start = performance.now();
     let done = false;
+
     while (!done) {
       const batch = structuredClone(sender.next());
+
       receiver.accept(batch.items);
       done = batch.done;
     }
+
     const elapsed = performance.now() - start;
     const opened = receiver.finish();
+
     expect(opened.pages).toHaveLength(2000);
     const report = opened.indexes?.actions;
+
     expect(
       report?.actions.map((action) => {
         return [action.trigger, action.context, action.type];

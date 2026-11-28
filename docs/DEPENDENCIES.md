@@ -10,9 +10,10 @@
 | Page preview   | `@embedpdf/engine` 3.4.0 (PDFium compiled to WebAssembly), pinned exactly                                       |
 | Tests          | Vitest, Playwright                                                                                              |
 | Code quality   | Oxlint, Oxfmt, React Doctor, Husky for the pre-commit and commit-msg hooks, lint-staged for the pre-commit hook |
+| Lint plugins   | `@stylistic/eslint-plugin` 6.0.1, loaded through Oxlint's `jsPlugins`, pinned exactly                           |
 | Hosting        | Wrangler 4.160.1 for Cloudflare Pages, pinned exactly                                                           |
 
-These three packages are pinned exactly. The notice check pins the EmbedPDF WebAssembly binary by hash, so upgrading `@embedpdf/engine` needs a [notice review](NOTICES.md#upgrading-embedpdf). The parser preparation script checks the `@libpdf/core` bundle by hash, so upgrading it needs the [instrumentation review](PARSER.md#instrumentation-and-reproducibility).
+These four packages are pinned exactly. The notice check pins the EmbedPDF WebAssembly binary by hash, so upgrading `@embedpdf/engine` needs a [notice review](NOTICES.md#upgrading-embedpdf). The parser preparation script checks the `@libpdf/core` bundle by hash, so upgrading it needs the [instrumentation review](PARSER.md#instrumentation-and-reproducibility). Oxlint's JS plugin support is alpha and not covered by semver, so upgrade `@stylistic/eslint-plugin` on its own and check that `pnpm lint` still passes.
 
 ## Package manager
 

@@ -82,6 +82,7 @@ const ResourceContextChoice = ({
       </Note>
     );
   }
+
   return (
     <>
       <label className="mb-3 flex flex-wrap items-center gap-2 text-detail leading-[inherit]">
@@ -120,6 +121,7 @@ const unresolvedTitle = (category: string | undefined, token: ContentToken, reso
   if (!category || (category === 'ColorSpace' && BUILT_IN_COLOUR_SPACES.includes(token.text))) {
     return undefined;
   }
+
   return resolved ? 'Direct resource value; inspect its resource dictionary for details.' : 'Resource unresolved in the selected context.';
 };
 
@@ -128,6 +130,7 @@ const instructionToken = (token: ContentToken, index: number, { context, instruc
   const category = token.kind === 'name' ? resourceCategory(instruction.operator, index, instruction.tokens.length - 1) : undefined;
   const resource = category ? namedResource(context, category, token.text, objects) : undefined;
   const resourceId = resource?.id;
+
   return (
     <Fragment key={token.start}>
       {index > 0 && text.slice(instruction.tokens[index - 1].end, token.start)}
@@ -185,6 +188,7 @@ const InstructionRow = ({ matched, matchRef, ...props }: InstructionProps & { ma
 const overlaps = (range: ByteRange, instruction: ContentInstruction) => {
   return range.start < instruction.end && range.end > instruction.start;
 };
+
 const startsIn = (range: ByteRange | undefined, instruction: ContentInstruction) => {
   return !!range && range.start >= instruction.start && range.start < instruction.end;
 };
@@ -218,6 +222,7 @@ export const ContentStreamView = ({
   onFollowLink?: (event: MouseEvent<HTMLElement>) => boolean;
 }) => {
   const firstMatch = useRef<HTMLLIElement>(null);
+
   useEffect(() => {
     firstMatch.current?.scrollIntoView({ block: 'nearest' });
     // oxlint-disable-next-line react/exhaustive-effect-dependencies -- scroll runs whenever the highlighted match ranges change.
@@ -233,9 +238,11 @@ export const ContentStreamView = ({
   const context = contexts.find((entry) => {
     return entry.id === (chosenContext ?? defaultContextId(contexts, contextPageId));
   });
+
   if (!contexts.length) {
     return <SourceCode>{stream.text}</SourceCode>;
   }
+
   return (
     <div>
       <RepresentationToggle readable={readable} onChange={setReadable} />

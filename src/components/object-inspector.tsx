@@ -80,6 +80,7 @@ const Relationships = ({ children, count, empty, title }: { children: ReactNode;
     </>
   );
 };
+
 const ObjectHeader = ({ object, summary }: { object: PdfObjectRecord; summary: string }) => {
   return (
     <header className="px-5.5 pt-5.75 pb-3.75 max-w480:px-4.5 max-w480:pt-5 max-w480:pb-3">
@@ -151,6 +152,7 @@ const emptyRelationships = (links: number, count: number, unavailable: string, n
   if (links) {
     return undefined;
   }
+
   return count ? unavailable : none;
 };
 
@@ -168,11 +170,14 @@ const useStreamRead = (object: PdfObjectRecord, tab: InspectorTab, readStream: O
     result?: StreamResult;
     error?: string;
   } | null>(null);
+
   useEffect(() => {
     if (!object.stream || !isStreamTab(tab)) {
       return;
     }
+
     let active = true;
+
     readStream(object.id, tab)
       .then((result) => {
         if (active) {
@@ -188,11 +193,13 @@ const useStreamRead = (object: PdfObjectRecord, tab: InspectorTab, readStream: O
           });
         }
       });
+
     return () => {
       active = false;
     };
   }, [object, tab, readStream]);
   const current = state?.object === object && state.tab === tab ? state : undefined;
+
   return { error: current?.error, stream: current?.result };
 };
 
@@ -208,6 +215,7 @@ const PageResources = ({
   onNavigate: ObjectInspectorProps['onNavigate'];
 }) => {
   const { inheritedFrom } = resources;
+
   return (
     <>
       <SectionHeading className="leading-[inherit]">Effective page resources</SectionHeading>
@@ -332,6 +340,7 @@ const StreamContent = ({ error, mode, stream, ...props }: StreamTabProps & { mod
   if (error) {
     return <Warning role="alert">{error}</Warning>;
   }
+
   if (!stream) {
     return (
       <LoadingMessage>
@@ -340,6 +349,7 @@ const StreamContent = ({ error, mode, stream, ...props }: StreamTabProps & { mod
       </LoadingMessage>
     );
   }
+
   return (
     <>
       {stream.error && <Warning role="alert">{stream.error}</Warning>}
@@ -415,6 +425,7 @@ const ObjectDownloads = ({
     return downloadIndex ?? embeddedDownloads(objects);
   }, [objects, downloadIndex]);
   const assets = downloads.get(object.id) ?? [];
+
   return (
     <>
       {object.stream && hasSubtype(object, 'Image') && (
@@ -437,6 +448,7 @@ const PropertiesContent = ({
   onNavigate,
 }: Omit<RelationshipListProps, 'objects'> & Pick<ObjectInspectorProps, 'objects' | 'resources' | 'onInspect' | 'onNavigate'>) => {
   const known = objects ?? EMPTY_OBJECTS;
+
   return (
     <>
       <ValueView key={object.id} value={object.value} onNavigate={onNavigate} objects={objects} ancestors={[object.id]} />
@@ -482,6 +494,7 @@ const WARNINGS_SHOWN = 5;
 /** An object can carry one warning per dangling reference, so a long list opens collapsed. */
 const ObjectWarnings = ({ warnings }: { warnings: string[] }) => {
   const [limit, setLimit] = useState(WARNINGS_SHOWN);
+
   return (
     <>
       {warnings.slice(0, limit).map((warning, i) => {
@@ -533,6 +546,7 @@ export const ObjectInspector = function ObjectInspector({
   const scrollFor = (value: InspectorTab) => {
     return safeTab === value ? scroll : {};
   };
+
   return (
     <section className="flex h-full min-h-0 flex-col overflow-hidden" aria-label="Object inspector">
       <ObjectHeader object={object} summary={summary} />
@@ -601,4 +615,5 @@ export const ObjectInspector = function ObjectInspector({
     </section>
   );
 };
+
 export type InspectorTab = 'properties' | 'source' | 'raw' | 'decoded';

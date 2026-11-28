@@ -5,6 +5,7 @@ import { inspectionFailure } from '../src/lib/pdf/failure';
 describe('inspection failure hints', () => {
   it('explains timeouts and gives the actual processing limit', () => {
     const result = inspectionFailure('PDF operation exceeded 15 seconds. Original bytes are still available; try a smaller file.');
+
     expect(result.title).toBe('Inspection timed out');
     expect(result.explanation).toContain('15-second');
     expect(result.suggestion).toContain('smaller document');
@@ -20,6 +21,7 @@ describe('inspection failure hints', () => {
       "Module does not provide an export named 'Boolean'",
     ]) {
       const result = inspectionFailure(message);
+
       expect(result.title).toBe('PDF inspection engine unavailable');
       expect(result.explanation).toContain('does not establish a problem with your PDF');
       expect(result.suggestion).toContain('Reload');
@@ -32,6 +34,7 @@ describe('inspection failure hints', () => {
   it('preserves uncertainty for unknown, malformed, or dismissed errors', () => {
     for (const message of [undefined, 'Could not recover PDF structure: no objects found', 'Unexpected parser response.']) {
       const result = inspectionFailure(message);
+
       expect(result.title).toBe('PDF structure could not be read');
       expect(result.explanation).toContain('could not determine whether it is encrypted');
       expect(result.suggestion).toContain('fresh copy');

@@ -12,6 +12,7 @@ export const BrandIcon = function BrandIcon({ className }: { className?: string 
     />
   );
 };
+
 export const BrandArtwork = function BrandArtwork({ className = '', decorative = false }: { className?: string; decorative?: boolean }) {
   return (
     <>

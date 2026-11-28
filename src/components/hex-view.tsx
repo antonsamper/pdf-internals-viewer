@@ -50,9 +50,11 @@ const HEX_ASCII_CELL = cn(
 const printable = (byte: number) => {
   return byte >= 32 && byte <= 126 ? String.fromCharCode(byte) : '.';
 };
+
 const rowStart = (current: number, columns: number) => {
   return Math.floor(current / columns) * columns;
 };
+
 type CursorMove = (current: number, columns: number, length: number, modified: boolean) => number | 'select';
 const CURSOR_MOVES = new Map<string, CursorMove>([
   [
@@ -107,12 +109,15 @@ const CURSOR_MOVES = new Map<string, CursorMove>([
 const cursorMove = (event: KeyboardEvent<HTMLDivElement>, current: number, columns: number, length: number): number | 'select' | null => {
   return CURSOR_MOVES.get(event.key)?.(current, columns, length, event.ctrlKey || event.metaKey) ?? null;
 };
+
 /** The selected span: the given range, or the byte under the cursor. */
 const selectionBounds = (length: number, range: HexViewProps['range'], cursor: number | null) => {
   const start = Math.max(0, Math.min(length, range?.start ?? cursor ?? 0));
   const end = Math.max(start, Math.min(length, range?.end ?? (cursor === null ? 0 : cursor + 1)));
+
   return { end, start };
 };
+
 /** Whether a byte click selected the object around it, so the view keeps its place instead of jumping to the object's start. */
 const keepsLocalSelection = (
   local: { bytes: Uint8Array; offset: number } | null,
@@ -127,11 +132,13 @@ const keepsLocalSelection = (
     local.offset < range.end
   );
 };
+
 type SavedScroll = NonNullable<ScrollPosition['current']>;
 /** Whether the saved scroll position was taken with a different number of byte columns. */
 const reflows = (saved: SavedScroll | undefined, columns: number): saved is SavedScroll & { byteColumns: number } => {
   return saved?.byteColumns !== undefined && saved.byteColumns !== columns;
 };
+
 const nextScrollTop = (
   saved: SavedScroll | undefined,
   columns: number,
@@ -141,16 +148,20 @@ const nextScrollTop = (
 ) => {
   const start = Math.max(0, Math.min(length - 1, rangeStart ?? 0));
   const rangeTop = Math.floor(start / columns) * ROW_HEIGHT;
+
   if (reveal) {
     return rangeTop;
   }
+
   // Pixel positions refer to different bytes in the 8- and 16-column grids.
   // Reflow around the previously visible byte, aligned to a complete row.
   if (reflows(saved, columns)) {
     return Math.floor(((saved.top / ROW_HEIGHT) * saved.byteColumns) / columns) * ROW_HEIGHT;
   }
+
   return saved?.top ?? rangeTop;
 };
+
 const storeScroll = (position: ScrollPosition, columns: number, element: HTMLElement) => {
   position.current = {
     byteColumns: columns,
@@ -158,6 +169,7 @@ const storeScroll = (position: ScrollPosition, columns: number, element: HTMLEle
     top: element.scrollTop,
   };
 };
+
 const HexToolbar = ({
   canCopy,
   copying,
@@ -203,6 +215,7 @@ const HexToolbar = ({
     </div>
   );
 };
+
 const HexJumpForm = ({
   disabled,
   id,
@@ -248,6 +261,7 @@ const HexJumpForm = ({
     </form>
   );
 };
+
 const HexRow = ({
   bytes,
   columns,
@@ -266,6 +280,7 @@ const HexRow = ({
   onSelect: (position: number) => void;
 }) => {
   const offset = row * columns;
+
   return (
     <HexGrid
       className="absolute left-0 font-mono text-detail leading-[normal] tabular-nums hover:bg-muted"
@@ -276,10 +291,13 @@ const HexRow = ({
         {Array.from({ length: columns }, (_, column) => {
           const position = offset + column;
           const byte = bytes[position];
+
           if (position >= bytes.length) {
             return <span key={position} />;
           }
+
           const selected = isSelected(position);
+
           return (
             <button
               key={position}
@@ -313,6 +331,7 @@ const HexRow = ({
     </HexGrid>
   );
 };
+
 const HexColumnHead = ({ columns }: { columns: number }) => {
   return (
     <HexGrid
@@ -337,6 +356,7 @@ const HexColumnHead = ({ columns }: { columns: number }) => {
     </HexGrid>
   );
 };
+
 const HexStatus = ({
   decimal,
   message,
@@ -369,6 +389,76 @@ const HexStatus = ({
     </div>
   );
 };
+
+const hexText = (bytes: Uint8Array, ranges: HexViewProps['ranges'], start: number, end: number) => {
+  return Array.from(
+    ranges
+      ? Uint8Array.from(
+          ranges.flatMap((part) => {
+            return Array.from(bytes.subarray(part.start, part.end));
+          })
+        )
+      : bytes.subarray(start, end),
+    (byte) => {
+      return byte.toString(16).padStart(2, '0').toUpperCase();
+    }
+  ).join(' ');
+};
+
+const HexRows = ({
+  bytes,
+  columns,
+  cursor,
+  firstRow,
+  lastRow,
+  totalRows,
+  isSelected,
+  offsetText,
+  onSelect,
+}: Omit<ComponentProps<typeof HexRow>, 'row'> & { firstRow: number; lastRow: number; totalRows: number }) => {
+  if (!bytes.length) {
+    return (
+      <div
+        className={cn(
+          'flex h-full min-h-45 flex-col items-center justify-center gap-2.5 p-6.25',
+          'text-center text-small text-muted-foreground'
+        )}
+      >
+        <FileCode2 size={24} aria-hidden="true" />
+        <p>Open a PDF to inspect its bytes.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="relative min-w-max"
+      data-hex-spacer=""
+      style={
+        {
+          '--hex-columns': columns,
+          height: totalRows * ROW_HEIGHT,
+        } as CSSProperties
+      }
+    >
+      {Array.from({ length: Math.max(0, lastRow - firstRow) }, (_row, index) => {
+        return (
+          <HexRow
+            key={(firstRow + index) * columns}
+            bytes={bytes}
+            columns={columns}
+            cursor={cursor}
+            isSelected={isSelected}
+            offsetText={offsetText}
+            row={firstRow + index}
+            onSelect={onSelect}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
 export const HexView = ({
   bytes,
   className,
@@ -414,18 +504,23 @@ export const HexView = ({
         })
       : position >= selectionStart && position < selectionEnd;
   };
+
   const offsetText = (offset: number) => {
     return decimal ? offset.toString().padStart(8, '0') : offset.toString(16).toUpperCase().padStart(8, '0');
   };
+
   useEffect(() => {
     const viewportElement = viewportRef.current;
+
     if (!viewportElement) {
       return;
     }
+
     const observer = new ResizeObserver(([entry]) => {
       if (!entry) {
         return;
       }
+
       setViewport((current) => {
         return {
           ...current,
@@ -434,19 +529,25 @@ export const HexView = ({
         };
       });
     });
+
     observer.observe(viewportElement);
+
     return () => {
       return observer.disconnect();
     };
   }, []);
   useLayoutEffect(() => {
     const viewportElement = viewportRef.current;
+
     if (!viewportElement) {
       return;
     }
+
     const reveal = revealKey !== undefined && revealKey !== lastReveal.current;
+
     lastReveal.current = revealKey;
     const saved = scrollPositionRef.current;
+
     // A byte click may select its enclosing object, whose start can be far
     // above the viewport. Preserve the clicked byte's position and cursor.
     if (!reveal && !reflows(saved, columns) && keepsLocalSelection(localSelection.current, bytes, { end: rangeEnd, start: rangeStart })) {
@@ -454,11 +555,14 @@ export const HexView = ({
       storeScroll(scrollPositionRef, columns, viewportElement);
       setMessage('');
       setCopying(false);
+
       return;
     }
+
     if (reveal) {
       localSelection.current = null;
     }
+
     viewportElement.scrollTop = nextScrollTop(saved, columns, reveal, bytes.length, rangeStart);
     viewportElement.scrollLeft = saved?.left ?? 0;
     // Store synchronously too: Strict Mode may repeat this layout effect
@@ -472,6 +576,7 @@ export const HexView = ({
       setMessage('');
       setCopying(false);
     });
+
     return () => {
       return cancelAnimationFrame(frame);
     };
@@ -488,15 +593,21 @@ export const HexView = ({
   const jumpToOffset = (event: FormEvent) => {
     event.preventDefault();
     const input = jump.trim();
+
     if (!/^(?:0x[0-9a-f]+|[0-9]+)$/i.test(input)) {
       setMessage('Enter a decimal offset, or prefix hexadecimal with 0x.');
+
       return;
     }
+
     const offset = Number(input);
+
     if (!Number.isSafeInteger(offset) || offset < 0 || offset >= bytes.length) {
       setMessage(`Offset must be between 0 and ${Math.max(0, bytes.length - 1).toLocaleString()}.`);
+
       return;
     }
+
     setCursor(offset);
     setMessage(`Jumped to ${decimal ? offset : `0x${offset.toString(16).toUpperCase()}`}.`);
     if (viewportRef.current) {
@@ -510,6 +621,7 @@ export const HexView = ({
     if (localSelectionFrame.current !== undefined) {
       cancelAnimationFrame(localSelectionFrame.current);
     }
+
     // Clear even when the same object's range stays unchanged. Otherwise a
     // later external navigation could incorrectly suppress its own reveal.
     localSelectionFrame.current = requestAnimationFrame(() => {
@@ -523,26 +635,35 @@ export const HexView = ({
   const moveCursor = (event: KeyboardEvent<HTMLDivElement>) => {
     const current = Math.max(0, Math.min(bytes.length - 1, cursor ?? range?.start ?? 0));
     const move = cursorMove(event, current, columns, bytes.length);
+
     if (move === 'select') {
       selectByte(current);
       event.preventDefault();
+
       return;
     }
+
     if (move === null) {
       return;
     }
+
     let next = move;
+
     if (!bytes.length) {
       return;
     }
+
     event.preventDefault();
     next = Math.max(0, Math.min(bytes.length - 1, next));
     setCursor(next);
     const element = viewportRef.current;
+
     if (!element) {
       return;
     }
+
     const top = Math.floor(next / columns) * ROW_HEIGHT;
+
     if (top < element.scrollTop) {
       element.scrollTop = top;
     } else if (top + ROW_HEIGHT > element.scrollTop + element.clientHeight) {
@@ -554,24 +675,15 @@ export const HexView = ({
     if (!selectedLength) {
       return;
     }
+
     if (selectedLength > COPY_LIMIT) {
       setMessage('Selection exceeds the 64 KiB copy limit. Choose a smaller object or byte range.');
+
       return;
     }
+
     try {
-      const value = Array.from(
-        ranges
-          ? Uint8Array.from(
-              ranges.flatMap((part) => {
-                return Array.from(bytes.subarray(part.start, part.end));
-              })
-            )
-          : bytes.subarray(selectionStart, selectionEnd),
-        (byte) => {
-          return byte.toString(16).padStart(2, '0').toUpperCase();
-        }
-      ).join(' ');
-      await navigator.clipboard.writeText(value);
+      await navigator.clipboard.writeText(hexText(bytes, ranges, selectionStart, selectionEnd));
       setCopying(true);
       setMessage(`Copied ${selectedLength.toLocaleString()} bytes as hexadecimal.`);
       clearTimeout(copyTimer.current);
@@ -610,6 +722,7 @@ export const HexView = ({
         aria-label="Hexadecimal bytes. Use arrow keys to move; Enter to inspect the object containing the byte."
         onScroll={(event) => {
           const top = event.currentTarget.scrollTop;
+
           storeScroll(scrollPositionRef, columns, event.currentTarget);
           setViewport((current) => {
             return { ...current, top };
@@ -617,43 +730,17 @@ export const HexView = ({
         }}
         onKeyDown={moveCursor}
       >
-        {bytes.length ? (
-          <div
-            className="relative min-w-max"
-            data-hex-spacer=""
-            style={
-              {
-                '--hex-columns': columns,
-                height: totalRows * ROW_HEIGHT,
-              } as CSSProperties
-            }
-          >
-            {Array.from({ length: Math.max(0, lastRow - firstRow) }, (_row, index) => {
-              return (
-                <HexRow
-                  key={(firstRow + index) * columns}
-                  bytes={bytes}
-                  columns={columns}
-                  cursor={cursor}
-                  isSelected={isSelected}
-                  offsetText={offsetText}
-                  row={firstRow + index}
-                  onSelect={selectByte}
-                />
-              );
-            })}
-          </div>
-        ) : (
-          <div
-            className={cn(
-              'flex h-full min-h-45 flex-col items-center justify-center gap-2.5 p-6.25',
-              'text-center text-small text-muted-foreground'
-            )}
-          >
-            <FileCode2 size={24} aria-hidden="true" />
-            <p>Open a PDF to inspect its bytes.</p>
-          </div>
-        )}
+        <HexRows
+          bytes={bytes}
+          columns={columns}
+          cursor={cursor}
+          firstRow={firstRow}
+          lastRow={lastRow}
+          totalRows={totalRows}
+          isSelected={isSelected}
+          offsetText={offsetText}
+          onSelect={selectByte}
+        />
       </div>
       <HexStatus
         message={message}
@@ -667,6 +754,7 @@ export const HexView = ({
     </section>
   );
 };
+
 interface HexViewProps {
   className?: string;
   bytes: Uint8Array;

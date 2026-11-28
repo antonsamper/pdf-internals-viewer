@@ -10,6 +10,7 @@ export const navigationLabel = function navigationLabel(path: SitePath) {
     })?.[1] ?? 'PDF Internals'
   );
 };
+
 export const relatedPages = function relatedPages(path: SitePath) {
   return (RELATED[path] ?? []).map((href) => {
     return SITE_PAGES.find((page) => {
@@ -17,6 +18,7 @@ export const relatedPages = function relatedPages(path: SitePath) {
     })!;
   });
 };
+
 export const contentType = function contentType(path: SitePath) {
   return (
     CONTENT_GROUPS.find((group) => {
@@ -26,6 +28,7 @@ export const contentType = function contentType(path: SitePath) {
     })?.label.replace(/s$/, '') ?? 'Overview'
   );
 };
+
 export const CONTENT_GROUPS: ReadonlyArray<{
   label: string;
   items: ReadonlyArray<readonly [SitePath, string]>;

@@ -33,16 +33,19 @@ const EMPTY_HINTS: Record<string, string> = {
 const countLabel = (count: number, scope: string) => {
   const noun = scope === 'pageText' ? 'page' : 'match';
   const plural = scope === 'pageText' ? 'pages' : 'matches';
+
   return `${count} ${count === 1 ? noun : plural}`;
 };
 
 const statusText = ({ displayedScope, engineLoading, interrupted, results, resultsScope, searching, searchingQuery }: Search) => {
   let headline = countLabel(results?.length ?? 0, resultsScope);
+
   if (searching) {
     headline = engineLoading ? 'Loading the page text engine…' : `Searching for “${searchingQuery}”…`;
   } else if (interrupted) {
     headline = `Search ${interrupted} for “${searchingQuery}”`;
   }
+
   return `${headline} · ${SCOPE_LABELS[displayedScope] ?? displayedScope}`;
 };
 
@@ -79,6 +82,7 @@ const ResultNavigation = ({ search }: { search: Search }) => {
   const { activeResult, move, resultsScope, searching } = search;
   const results = search.results ?? [];
   const pageText = resultsScope === 'pageText';
+
   return (
     <div className="ml-auto flex items-center gap-0.5 whitespace-nowrap" aria-label="Search result navigation" role="group">
       <span className="mr-1.5 text-detail" aria-live="polite" aria-atomic="true">
@@ -113,6 +117,7 @@ const ResultNavigation = ({ search }: { search: Search }) => {
 
 const ResultsHeader = ({ search }: { search: Search }) => {
   const { cancel, cancelReady, cancelRequest, inputRef, interrupted, resultsQuery, searching, searchingQuery } = search;
+
   return (
     <div
       className={cn(
@@ -180,6 +185,7 @@ const SourceButtons = ({
   const mapped = location.sources.some((source) => {
     return source.ranges.length;
   });
+
   return (
     <div className={cn('flex flex-wrap items-center gap-1', 'max-w400:grid max-w400:grid-cols-2 max-w400:gap-x-2 max-w400:gap-y-1')}>
       <span className="mr-0.5 text-detail text-muted-foreground max-w400:col-span-full max-w400:m-0">{mapped ? 'Bytes' : 'Streams'}</span>
@@ -238,6 +244,7 @@ const PageTextLinks = ({
   const mapped = location.sources.some((source) => {
     return source.ranges.length;
   });
+
   return (
     <div className="mx-3 mb-2.5 flex flex-col items-stretch gap-1.5 border-t pt-2" role="group" aria-label="Page text source locations">
       {!mapped && (
@@ -290,6 +297,7 @@ const PageTextLinks = ({
 
 const ResultSummary = ({ result, resultsScope }: { result: SearchResult; resultsScope: string }) => {
   const { snippet } = result;
+
   if (!snippet) {
     return (
       <>
@@ -298,6 +306,7 @@ const ResultSummary = ({ result, resultsScope }: { result: SearchResult; results
       </>
     );
   }
+
   return (
     <>
       <span
@@ -330,6 +339,7 @@ const ResultItem = ({
   textSource: TextSource | null;
 }) => {
   const { activeMatchRef, activeResult, inputRef, resultsScope, searching, selectResult, setOpen } = search;
+
   return (
     <div
       className={cn(
@@ -386,6 +396,7 @@ const ResultItem = ({
 
 const EmptyResults = ({ search }: { search: Search }) => {
   const { resultsQuery, resultsScope, searchAsPageText } = search;
+
   return (
     <div className={cn('flex min-h-25 flex-col items-center justify-center', 'gap-2.5 p-5 text-center text-muted-foreground')}>
       <Search size={22} aria-hidden="true" />
@@ -417,6 +428,7 @@ const stepWithArrows = (search: Search) => {
     if ((event.key !== 'ArrowDown' && event.key !== 'ArrowUp') || !(event.target as HTMLElement).matches('[data-search-result]')) {
       return;
     }
+
     event.preventDefault();
     search.move(event.key === 'ArrowDown' ? 1 : -1);
     requestAnimationFrame(() => {
@@ -434,6 +446,7 @@ const ResultsBody = ({ search, textSource }: { search: Search; textSource: TextS
     return result.label;
   });
   const settled = !searching && !interrupted;
+
   return (
     <div className="min-h-0 flex-1 overflow-auto overscroll-contain" data-search-results-body="" aria-busy={searching}>
       {showPrevious && (
@@ -455,9 +468,11 @@ const ResultsBody = ({ search, textSource }: { search: Search; textSource: TextS
 
 export const SearchResultsPanel = ({ search, textSource }: { search: Search; textSource: TextSource | null }) => {
   const { formRef, inputRef, open, results, resultsId, searching, setOpen, showPrevious } = search;
+
   if (results === null) {
     return null;
   }
+
   return (
     <SearchResultsPopover
       id={resultsId}

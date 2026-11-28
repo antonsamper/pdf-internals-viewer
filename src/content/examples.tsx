@@ -10,6 +10,7 @@ export const ExampleActions = function ExampleActions({ sample }: { sample: stri
     </ArticleActions>
   );
 };
+
 export const Examples = function Examples() {
   return (
     <>
@@ -52,6 +53,7 @@ export const Examples = function Examples() {
     </>
   );
 };
+
 export const LargePdfExample = function LargePdfExample() {
   return (
     <>
@@ -130,6 +132,7 @@ export const LargePdfExample = function LargePdfExample() {
     </>
   );
 };
+
 export const IncorrectTextExample = function IncorrectTextExample() {
   return (
     <>

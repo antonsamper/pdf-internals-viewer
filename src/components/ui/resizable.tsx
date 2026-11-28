@@ -11,9 +11,11 @@ const ResizablePanelGroup = ({ className, ...props }: ResizablePrimitive.GroupPr
     />
   );
 };
+
 const ResizablePanel = ({ ...props }: ResizablePrimitive.PanelProps) => {
   return <ResizablePrimitive.Panel data-slot="resizable-panel" {...props} />;
 };
+
 const ResizableHandle = ({
   withHandle,
   className,
@@ -34,4 +36,5 @@ const ResizableHandle = ({
     </ResizablePrimitive.Separator>
   );
 };
+
 export { ResizableHandle, ResizablePanel, ResizablePanelGroup };

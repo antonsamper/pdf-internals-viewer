@@ -33,22 +33,28 @@ const NO_ACTIONS = { actions: [], notes: [], total: 0 };
 const useNarrow = () => {
   // Match the build-time render; adapt after hydration on narrow screens.
   const [narrow, setNarrow] = useState(false);
+
   useEffect(() => {
     // Same range as the `w900` breakpoint token: widths below 901px.
     const query = window.matchMedia('(width < 901px)');
     const update = () => {
       return setNarrow(query.matches);
     };
+
     update();
     query.addEventListener('change', update);
+
     return () => {
       return query.removeEventListener('change', update);
     };
   }, []);
+
   return narrow;
 };
+
 const App = ({ initialPath = '/' }: { initialPath?: SitePath }) => {
   const [session, setSession] = useState({ id: 0, path: initialPath });
+
   return (
     <PdfWorkspace
       key={session.id}
@@ -65,6 +71,7 @@ const App = ({ initialPath = '/' }: { initialPath?: SitePath }) => {
     />
   );
 };
+
 const PdfWorkspace = ({
   initialPath,
   openInitialSample: shouldOpenInitialSample,
@@ -155,15 +162,18 @@ const PdfWorkspace = ({
     setResourceCategory('All');
     setResourceFilter('');
   };
+
   const endSession = () => {
     closeAll();
     // Unmount the document owner so React's previous render, memoised graphs
     // and event-handler closures cannot retain a closed PDF until another update.
     onSessionEnd();
   };
+
   const openFile = () => {
     return input.current?.click();
   };
+
   useWorkspaceShortcuts(openFile, search.inputRef, search.setOpen);
   useInitialSample(shouldOpenInitialSample, (file) => {
     return void loader.sample(file);
@@ -257,9 +267,11 @@ const PdfWorkspace = ({
           aria-label="Open local PDF"
           onChange={(event) => {
             const file = event.target.files?.[0];
+
             if (file) {
               void loader.open(file);
             }
+
             event.target.value = '';
           }}
         />
@@ -337,4 +349,5 @@ const PdfWorkspace = ({
     </TooltipProvider>
   );
 };
+
 export default App;

@@ -59,6 +59,7 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
 
   const objectStep = (id: string): ExplorationStep => {
     const pageIndex = document?.pages.indexOf(id) ?? -1;
+
     return { id, label: pageIndex >= 0 ? `Page ${pageIndex + 1}` : `${id} obj` };
   };
 
@@ -67,6 +68,7 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
     if (sameSelection(selection, next)) {
       return;
     }
+
     setViewportHistory(viewportHistory.slice(0, historyIndex + 1).concat(newViewports()));
     setHistory(history.slice(0, historyIndex + 1).concat(next));
     setHistoryIndex(historyIndex + 1);
@@ -75,8 +77,10 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
   const followReference = (id: string, referencePath?: string[]) => {
     if (!objectMap.has(id)) {
       setNotice(`Reference ${id} R has no available object in the current object set.`);
+
       return;
     }
+
     const source = selected ? objectStep(selected.id) : { id: null, label: section === 'structure' ? 'Trailer' : 'Document' };
     const trail = extendExplorationTrail(
       selection.trail ?? [],
@@ -85,6 +89,7 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
       referencePath,
       referencePathOwners(selected?.value ?? document!.trailer, referencePath ?? [], objectMap, source.id)
     );
+
     visit({ id, section, tab: 'properties', trail });
     setMobilePane('inspector');
   };
@@ -92,8 +97,10 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
   const navigate = (id: string | null, tab: InspectorTab = 'properties', nextSection: Section = section) => {
     if (id && !objectMap.has(id)) {
       setNotice(`Reference ${id} R has no available object in the current object set.`);
+
       return;
     }
+
     visit({
       id,
       section: nextSection,
@@ -111,6 +118,7 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
   const travel = (direction: number) => {
     const index = Math.max(0, Math.min(history.length - 1, historyIndex + direction));
     const next = history[index];
+
     onArrive(next, section);
     setHistoryIndex(index);
     setMobilePane(next.range ? 'bytes' : 'inspector');
@@ -120,6 +128,7 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
     const object = objects.find((candidate) => {
       return candidate.provenance.type === 'file' && offset >= candidate.provenance.range.start && offset < candidate.provenance.range.end;
     });
+
     if (object) {
       navigate(object.id);
     } else {
@@ -139,6 +148,7 @@ export const useExploration = ({ document, objectMap, objects, onArrive, setMobi
 
   const selectTrailStep = (index: number) => {
     const trail = selection.trail!;
+
     visit({
       id: trail[index].id,
       section,

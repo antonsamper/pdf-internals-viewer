@@ -10,6 +10,7 @@ const isSearchControl = (target: EventTarget | null, anchor: RefObject<HTMLFormE
     (target instanceof Element && target.closest('[data-search-scope-popup]'))
   );
 };
+
 type OpenChangeDetails = Parameters<NonNullable<Popover.Root.Props['onOpenChange']>>[1];
 /**
  * True when an outside press or focus-out lands on the search form or scope menu. During focusout, activeElement
@@ -19,9 +20,11 @@ const movesWithinSearch = (details: OpenChangeDetails, anchor: RefObject<HTMLFor
   if (details.reason !== 'outside-press' && details.reason !== 'focus-out') {
     return false;
   }
+
   if (isSearchControl(details.event.target, anchor)) {
     return true;
   }
+
   return (
     details.reason === 'focus-out' &&
     Boolean(
@@ -30,6 +33,7 @@ const movesWithinSearch = (details: OpenChangeDetails, anchor: RefObject<HTMLFor
     )
   );
 };
+
 /** Non-modal search: inspecting the document remains possible behind the results. */
 export const SearchResultsPopover = ({
   open,
@@ -50,22 +54,29 @@ export const SearchResultsPopover = ({
 }) => {
   const [popup, setPopup] = useState<HTMLDivElement | null>(null);
   const [height, setHeight] = useState(180);
+
   useLayoutEffect(() => {
     if (!open || busy) {
       return;
     }
+
     const section = popup?.querySelector<HTMLElement>('[data-search-results]');
+
     if (!section) {
       return;
     }
+
     const observer = new ResizeObserver(() => {
       return setHeight(section.getBoundingClientRect().height);
     });
+
     observer.observe(section);
+
     return () => {
       return observer.disconnect();
     };
   }, [open, busy, popup]);
+
   return (
     <Popover.Root
       open={open}
@@ -73,8 +84,10 @@ export const SearchResultsPopover = ({
       onOpenChange={(next, details) => {
         if (!next && movesWithinSearch(details, anchor)) {
           details.cancel();
+
           return;
         }
+
         onOpenChange(next);
         if (!next && details.reason === 'escape-key') {
           input.current?.focus();

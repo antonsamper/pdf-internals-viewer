@@ -19,16 +19,20 @@ const blankPdf = () => {
   let text = '%PDF-1.4\n';
   const offsets = objects.map((object, index) => {
     const offset = text.length;
+
     text += `${index + 1} 0 obj\n${object}\nendobj\n`;
+
     return offset;
   });
   const xref = text.length;
+
   text += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${offsets
     .map((offset) => {
       return `${String(offset).padStart(10, '0')} 00000 n \n`;
     })
     .join('')}`;
   text += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+
   return new TextEncoder().encode(text);
 };
 
@@ -38,13 +42,17 @@ const blankPdf = () => {
  */
 const loadWasm = async (signal: AbortSignal) => {
   const source = await resolveDefaultWasmSource({});
+
   if (source.wasmBinary) {
     return source.wasmBinary;
   }
+
   const response = await fetch(source.wasmUrl!, { signal });
+
   if (!response.ok) {
     throw new Error(`The page text engine download failed with HTTP ${response.status}.`);
   }
+
   return response.arrayBuffer();
 };
 
@@ -57,6 +65,7 @@ const loadEngine = async (engine: ReturnType<typeof localEngine>, signal: AbortS
   const ready = engine.open({ bytes: blankPdf().buffer, kind: 'bytes' }).then((blank) => {
     return blank.close();
   });
+
   try {
     await withTimeout(ready, Math.max(0, deadline - Date.now()), ENGINE_LOAD_SLOW, () => {
       timedOut = true;
@@ -73,11 +82,14 @@ const MAX_MATCHES = 500;
 const addMatch = (hits: Map<number, PageTextHit>, match: SearchMatch, text: string) => {
   const objectNumber = match.page.objectNumber;
   const prior = hits.get(objectNumber);
+
   if (prior) {
     prior.count++;
     prior.matches.push(match);
+
     return;
   }
+
   hits.set(objectNumber, {
     context: match.snippet,
     count: 1,
@@ -106,6 +118,7 @@ export const searchPageText = async function searchPageText(
   const bounded = <T>(request: PromiseLike<T>) => {
     return withTimeout(request, OPERATION_TIMEOUT_MS, SEARCH_TIMED_OUT, abort);
   };
+
   const download = new AbortController();
   const engine = localEngine({
     wasmLoader: () => {
@@ -118,6 +131,7 @@ export const searchPageText = async function searchPageText(
       return undefined;
     });
   };
+
   signal.addEventListener('abort', abort, { once: true });
   try {
     signal.throwIfAborted();
@@ -134,6 +148,7 @@ export const searchPageText = async function searchPageText(
     let cursor: string | undefined;
     let count = 0;
     let limited = false;
+
     do {
       signal.throwIfAborted();
       // One match past the cap shows whether the search was cut off or had exactly MAX_MATCHES matches.
@@ -146,17 +161,22 @@ export const searchPageText = async function searchPageText(
           text,
         })
       );
+
       for (const match of batch.matches) {
         if (count === MAX_MATCHES) {
           limited = true;
           break;
         }
+
         addMatch(hits, match, text);
         count++;
       }
+
       cursor = batch.nextCursor ?? undefined;
     } while (cursor && !limited);
+
     signal.throwIfAborted();
+
     return { hits: [...hits.values()], limited, pages };
   } finally {
     signal.removeEventListener('abort', abort);
@@ -165,6 +185,7 @@ export const searchPageText = async function searchPageText(
     });
   }
 };
+
 export interface PageTextHit {
   objectNumber: number;
   count: number;

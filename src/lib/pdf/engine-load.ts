@@ -6,6 +6,7 @@ export const ENGINE_LOAD_SLOW = `The page text engine did not load within ${ENGI
 /** Settles with `request`, or rejects with `message` after `ms` and calls `onTimeout`. */
 export const withTimeout = async <T>(request: PromiseLike<T>, ms: number, message: string, onTimeout: () => void): Promise<T> => {
   let timer: ReturnType<typeof setTimeout> | undefined;
+
   try {
     return await Promise.race([
       Promise.resolve(request),

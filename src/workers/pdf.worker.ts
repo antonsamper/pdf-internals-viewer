@@ -5,19 +5,24 @@ import { DocumentTransfer } from '../lib/pdf/document-transfer';
 import { PdfInspector } from '../lib/pdf/inspector';
 const inspector = new PdfInspector();
 let transfer: DocumentTransfer | undefined;
+
 self.addEventListener('message', async (event: MessageEvent<ParserRequest>) => {
   const request = event.data;
   let response: ParserResponse;
+
   try {
     if (request.type === 'open') {
       transfer = undefined;
       transfer = new DocumentTransfer(await inspector.open(request.bytes, request.filename, request.password));
     }
+
     if (request.type === 'open' || request.type === 'open-next') {
       if (!transfer) {
         throw new Error('No document transfer is available.');
       }
+
       const batch = transfer.next();
+
       response = {
         requestId: request.requestId,
         type: 'opened-batch',
@@ -41,6 +46,7 @@ self.addEventListener('message', async (event: MessageEvent<ParserRequest>) => {
       type: 'error',
     };
   }
+
   // Dedicated worker postMessage has no targetOrigin parameter.
   // oxlint-disable-next-line unicorn/require-post-message-target-origin
   self.postMessage(response);

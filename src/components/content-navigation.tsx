@@ -33,6 +33,7 @@ const SectionLinks = function SectionLinks({ menu, path, onFollowLink }: { menu:
     const active = group.items.some(([item]) => {
       return item === path;
     });
+
     return (
       <NavigationLink
         key={href}
@@ -88,6 +89,7 @@ export const ContentHeaderLinks = function ContentHeaderLinks({ path, onFollowLi
     </nav>
   );
 };
+
 const NavigationGroups = function NavigationGroups({
   className,
   path,
@@ -130,6 +132,7 @@ const NavigationGroups = function NavigationGroups({
     </nav>
   );
 };
+
 /**
  * Section navigation: a sticky sidebar from 900px up, a disclosure above the article below that.
  * `standalone` keeps the sidebar below the sticky header of a page that scrolls with the document.
@@ -160,6 +163,7 @@ export const ContentNavigation = function ContentNavigation({
     </>
   );
 };
+
 /** Three curated next steps. `about` matches the About page's compact list. */
 export const RelatedContent = function RelatedContent({
   about = false,
@@ -192,4 +196,5 @@ export const RelatedContent = function RelatedContent({
     </aside>
   );
 };
+
 type FollowLink = (event: MouseEvent<HTMLAnchorElement>) => boolean;

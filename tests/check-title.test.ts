@@ -36,6 +36,7 @@ describe('titleProblem', () => {
 
   it('allows the length limit and rejects one character more', () => {
     const title = '[PIV-1] chore(infra): ';
+
     expect(titleProblem(title + 'a'.repeat(MAX_LENGTH - title.length))).toBeUndefined();
     expect(titleProblem(title + 'a'.repeat(MAX_LENGTH + 1 - title.length))).toMatch(/characters/);
   });
@@ -86,6 +87,7 @@ describe('check-title command', () => {
 
   it('reads a commit message file', () => {
     const file = join(mkdtempSync(join(tmpdir(), 'check-title-')), 'COMMIT_EDITMSG');
+
     writeFileSync(file, 'add page-text search\n');
     expect(run(['--commit-msg-file', file]).status).toBe(1);
     writeFileSync(file, '[PIV-1] feat(search): add page-text search\n');
@@ -94,12 +96,14 @@ describe('check-title command', () => {
 
   it('runs the check when started through a symlink', () => {
     const link = join(mkdtempSync(join(tmpdir(), 'check-title-')), 'check-title.mjs');
+
     symlinkSync(script, link);
     expect(run(['[PIV-1] chore: x'], { path: link }).status).toBe(1);
   });
 
   it('prints one GitHub annotation line, even for a title with a newline', () => {
     const result = run(['bad\n::warning::second'], { actions: true });
+
     expect(result.status).toBe(1);
     expect(result.stdout.trimEnd().split('\n')).toEqual([expect.stringMatching(/^::error::"bad%0A::warning::second" must match/)]);
   });

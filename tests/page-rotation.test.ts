@@ -14,6 +14,7 @@ const inspect = async function inspect(parent = '', first = '', second = '') {
       [5, '-90'],
     ]).bytes
   );
+
   return {
     objects: new Map(
       document.objects.map((object) => {
@@ -23,6 +24,7 @@ const inspect = async function inspect(parent = '', first = '', second = '') {
     pages: document.pages,
   };
 };
+
 describe('overview page rotation', () => {
   it.each([
     ['', '', '', '0°'],
@@ -36,15 +38,18 @@ describe('overview page rotation', () => {
     ['/Rotate 90', '/Rotate 99 0 R', '', 'Mixed (90°, Unknown)'],
   ])('summarizes parent %s and overrides %s / %s as %s', async (parent, first, second, expected) => {
     const { pages, objects } = await inspect(parent, first, second);
+
     expect(pageRotationSummary(pages, objects)).toBe(expected);
   });
   it('reports unavailable pages and broken or cyclic parent chains as unknown', async () => {
     const { pages, objects } = await inspect();
+
     expect(pageRotationSummary([], objects)).toBe('Not available');
     expect(pageRotationSummary(['missing'], objects)).toBe('Unknown');
     objects.delete('2 0');
     expect(pageRotationSummary(pages, objects)).toBe('Unknown');
     const page = objects.get('3 0')!;
+
     page.value = {
       entries: [
         {

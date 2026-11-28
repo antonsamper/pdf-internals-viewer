@@ -14,9 +14,11 @@ it('exports full PNG samples beyond the thumbnail preview limit', async () => {
     return candidate.id === '6 0';
   })!;
   const plan = imageDownloadPlan(object);
+
   expect(plan.format).toBe('png');
   expect(inspector.readStream(object.id, 'decoded').truncated).toBe(true);
   const result = inspector.readStream(object.id, 'decoded', 'image');
+
   expect(result.error).toBeUndefined();
   expect(result.truncated).toBe(false);
   expect(result.bytes).toEqual(new Uint8Array(fixture.pixels));
@@ -32,6 +34,7 @@ it('preserves JPEG bytes explicitly, without relabeling decoded inspection as su
   const object = doc.objects.find((candidate) => {
     return candidate.id === '6 0';
   })!;
+
   expect(imageDownloadPlan(object)).toEqual({
     filename: 'image-6-0.jpg',
     format: 'jpeg',
@@ -39,6 +42,7 @@ it('preserves JPEG bytes explicitly, without relabeling decoded inspection as su
   expect(inspector.readStream(object.id, 'decoded').error).toMatch(/DCTDecode/);
   expect(inspector.readStream(object.id, 'decoded', 'download').error).toMatch(/DCTDecode/);
   const result = inspector.readStream(object.id, 'decoded', 'image');
+
   expect(result.error).toBeUndefined();
   expect(result.encoding).toBe('jpeg');
   expect(result.bytes).toEqual(new Uint8Array(jpeg));
@@ -48,6 +52,7 @@ it('preserves JPEG bytes explicitly, without relabeling decoded inspection as su
 it('rejects unsupported formats, masks, and excessive PNG dimensions', async () => {
   for (const options of [{ data: Buffer.from([0]), filter: 'JPXDecode' }, { extra: '/SMask 7 0 R' }, { height: 1, width: 5000 }]) {
     const doc = await new PdfInspector().open(imageExportPdf(options).bytes);
+
     expect(() => {
       return imageDownloadPlan(
         doc.objects.find((candidate) => {

@@ -56,6 +56,7 @@ export const AttachmentsGuide = function AttachmentsGuide() {
     </>
   );
 };
+
 export const SearchGuide = function SearchGuide() {
   return (
     <>
@@ -165,6 +166,7 @@ export const SearchGuide = function SearchGuide() {
     </>
   );
 };
+
 export const SuspiciousFeaturesGuide = function SuspiciousFeaturesGuide() {
   return (
     <>

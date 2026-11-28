@@ -15,8 +15,10 @@ import { resourcePageAccess } from '@/lib/pdf/resource-tools';
 import { useScrollRestoration } from '@/lib/scroll-restoration';
 const detail = function detail(object: PdfObjectRecord, key: string) {
   const value = property(object.value, key);
+
   return value?.text ?? 'Not specified';
 };
+
 export const ResourceBrowser = function ResourceBrowser({
   scrollPositionRef,
   limit,
@@ -62,6 +64,7 @@ export const ResourceBrowser = function ResourceBrowser({
         .includes(filter.toLowerCase())
     );
   });
+
   return (
     <section {...scroll} aria-label="Visual resource browser" className="min-h-0 flex-1 overflow-auto p-5">
       <h1 className="mb-2 text-xl font-medium">Resources</h1>
@@ -139,6 +142,7 @@ export const ResourceBrowser = function ResourceBrowser({
       <div className="divide-y">
         {matching.slice(0, limit).map(({ object, kind, downloads }) => {
           const pages = access.pages.get(object.id) ?? [];
+
           return (
             <article key={object.id} aria-label={`${kind} ${object.id}`} className="min-w-0 py-4">
               <div className="flex flex-wrap items-center gap-2">

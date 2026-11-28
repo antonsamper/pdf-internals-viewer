@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 
 const Location = function Location({ object }: { object: PdfObjectRecord }) {
   const source = object.provenance;
+
   return (
     <p className="mt-1 text-xs text-muted-foreground">
       {source.type === 'file'
@@ -21,6 +22,7 @@ const Location = function Location({ object }: { object: PdfObjectRecord }) {
     </p>
   );
 };
+
 export const ObjectComparison = function ObjectComparison({
   pinned,
   current,
@@ -34,6 +36,7 @@ export const ObjectComparison = function ObjectComparison({
 }) {
   const [differencesOnly, setDifferencesOnly] = useState(false);
   const rows = current ? compareObjects(pinned, current) : [];
+
   return (
     <section aria-label="Object comparison" className="h-full min-w-0 overflow-auto border-t p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">

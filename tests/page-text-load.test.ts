@@ -26,6 +26,7 @@ const mockModule = (loadMs: number) => {
   const searchPageText = vi.fn(async () => {
     return { hits: [], limited: false, pages: new Map() };
   });
+
   vi.doMock('../src/lib/pdf/page-text-search', async () => {
     await new Promise((resolve) => {
       // setTimeout treats an infinite delay as 1 ms, so a stalled load never schedules one.
@@ -33,8 +34,10 @@ const mockModule = (loadMs: number) => {
         setTimeout(resolve, loadMs);
       }
     });
+
     return { searchPageText };
   });
+
   return searchPageText;
 };
 
@@ -53,6 +56,7 @@ describe('page text search code loading', () => {
     const result = expect(runDocumentSearch(request())).rejects.toThrow(
       'The page text engine did not load within 2 minutes. Check your connection and search again.'
     );
+
     await vi.advanceTimersByTimeAsync(120_000);
     await result;
     expect(search).not.toHaveBeenCalled();
@@ -62,6 +66,7 @@ describe('page text search code loading', () => {
     const { runDocumentSearch } = await import('../src/lib/pdf/document-search');
     const started = Date.now();
     const result = runDocumentSearch(request());
+
     await vi.advanceTimersByTimeAsync(60_000);
     await result;
     expect(search).toHaveBeenCalledWith(
@@ -77,6 +82,7 @@ describe('page text search code loading', () => {
     const { runDocumentSearch } = await import('../src/lib/pdf/document-search');
     const controller = new AbortController();
     const result = expect(runDocumentSearch({ ...request(), signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
+
     controller.abort();
     await result;
   });
@@ -85,14 +91,17 @@ describe('page text search code loading', () => {
       throw new Error('chunk failed');
     });
     const { runDocumentSearch } = await import('../src/lib/pdf/document-search');
+
     await expect(runDocumentSearch(request())).rejects.toThrow(
       'The page text engine could not load. Check your connection and search again.'
     );
   });
   it('reports the engine as loading until the search itself starts', async () => {
     const search = mockModule(1000);
+
     search.mockImplementationOnce(async (_bytes, _text, _password, _signal, load) => {
       load?.onEngineReady?.();
+
       return { hits: [], limited: false, pages: new Map() };
     });
     const { runDocumentSearch } = await import('../src/lib/pdf/document-search');
@@ -103,6 +112,7 @@ describe('page text search code loading', () => {
         loading.push(value);
       },
     });
+
     expect(loading).toEqual([true]);
     await vi.advanceTimersByTimeAsync(1000);
     await result;

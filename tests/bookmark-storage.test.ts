@@ -21,6 +21,7 @@ afterEach(() => {
 describe('bookmark storage', () => {
   it('keys by exact bytes independently of the filename', async () => {
     const first = await documentBookmarkKey(new Uint8Array([1, 2, 3]));
+
     expect(await documentBookmarkKey(new Uint8Array([1, 2, 3]))).toBe(first);
     expect(await documentBookmarkKey(new Uint8Array([1, 2, 4]))).not.toBe(first);
   });
@@ -67,6 +68,7 @@ describe('bookmark storage', () => {
 
   it('removes the storage entry when the final bookmark is removed', () => {
     const removeItem = vi.fn();
+
     vi.stubGlobal('localStorage', { removeItem });
     expect(writeBookmarks('document', [])).toBe(true);
     expect(removeItem).toHaveBeenCalledWith('document');

@@ -11,6 +11,7 @@ export const EMPTY = new Uint8Array();
 export const emptyPageTree = (): PageTreeState => {
   return { expanded: new Set(), limits: {} };
 };
+
 export const newViewports = () => {
   return {
     actionLimit: ACTION_PAGE_SIZE,
@@ -20,6 +21,7 @@ export const newViewports = () => {
     resourceLimit: 50,
   };
 };
+
 export const size = (value: number) => {
   return value < 1024 ? `${value} B` : value < 1024 * 1024 ? `${(value / 1024).toFixed(1)} KB` : `${(value / 1024 / 1024).toFixed(1)} MB`;
 };

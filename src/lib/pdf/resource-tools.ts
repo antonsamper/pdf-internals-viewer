@@ -3,54 +3,70 @@ import type { PdfDocumentInfo, PdfObjectRecord, PdfValue } from './types';
 import { effectiveResources, hasSubtype, property } from './navigation';
 export const resourceKind = (object: PdfObjectRecord): 'Font' | 'Image' | 'Form' | undefined => {
   const type = property(object.value, 'Type');
+
   if (object.kind === 'Font' || (type?.type === 'name' && type.value === 'Font')) {
     return 'Font';
   }
+
   if (hasSubtype(object, 'Image')) {
     return 'Image';
   }
+
   if (hasSubtype(object, 'Form')) {
     return 'Form';
   }
 };
+
 /** Pages exposing a resource, not proof that a drawing operator uses it. */
 export const resourcePageAccess = (document: PdfDocumentInfo, objects: Map<string, PdfObjectRecord>) => {
   const pages = new Map<string, number[]>();
   let remaining = 100000;
   let incomplete = false;
+
   document.pages.forEach((id, index) => {
     const page = objects.get(id);
     const root = page && effectiveResources(page, objects);
+
     if (!root) {
       return;
     }
+
     const seen = new Set<string>();
     const visit = (value: PdfValue, depth: number) => {
       if (remaining-- <= 0 || depth > 32) {
         incomplete = true;
+
         return;
       }
+
       if (value.type === 'reference') {
         visitReference(value.ref, depth);
       } else {
         visitChildren(value, depth);
       }
     };
+
     const visitReference = (ref: string, depth: number) => {
       if (seen.has(ref)) {
         return;
       }
+
       seen.add(ref);
       const object = objects.get(ref);
+
       if (!object) {
         incomplete = true;
+
         return;
       }
+
       if (resourceKind(object)) {
         pages.set(ref, [...(pages.get(ref) ?? []), index + 1]);
       }
+
       visit(object.value, depth + 1);
     };
+
     const visitChildren = (value: PdfValue, depth: number) => {
       if (value.type === 'array') {
         for (const child of value.items) {
@@ -58,6 +74,7 @@ export const resourcePageAccess = (document: PdfDocumentInfo, objects: Map<strin
             incomplete = true;
             break;
           }
+
           visit(child, depth + 1);
         }
       } else if (value.type === 'dictionary' || value.type === 'stream') {
@@ -66,6 +83,7 @@ export const resourcePageAccess = (document: PdfDocumentInfo, objects: Map<strin
             incomplete = true;
             break;
           }
+
           // Parent points out of resource scope and could traverse the whole page tree.
           if (entry.key.replace(/^\//, '') !== 'Parent') {
             visit(entry.value, depth + 1);
@@ -73,10 +91,13 @@ export const resourcePageAccess = (document: PdfDocumentInfo, objects: Map<strin
         }
       }
     };
+
     visit(root.value, 0);
   });
+
   return { incomplete, pages };
 };
+
 const semanticValue = (value: PdfValue): unknown => {
   switch (value.type) {
     case 'dictionary':
@@ -101,28 +122,37 @@ const semanticValue = (value: PdfValue): unknown => {
       return [value.type, value.value];
   }
 };
+
 export const samePdfValue = (left: PdfValue, right: PdfValue): boolean => {
   return JSON.stringify(semanticValue(left)) === JSON.stringify(semanticValue(right));
 };
+
 const comparisonEntries = (value: PdfValue) => {
   return value.type === 'dictionary' || value.type === 'stream' ? value.entries : [{ key: 'Value', value }];
 };
+
 const indexEntries = (root: PdfValue) => {
   const seen = new Map<string, number>();
+
   return new Map(
     comparisonEntries(root).map(({ key, value }) => {
       const count = (seen.get(key) ?? 0) + 1;
+
       seen.set(key, count);
+
       return [`${key}${count > 1 ? ` (occurrence ${count})` : ''}`, value] as const;
     })
   );
 };
+
 export const compareObjects = (left: PdfObjectRecord, right: PdfObjectRecord): ComparisonRow[] => {
   const l = indexEntries(left.value),
     r = indexEntries(right.value);
+
   return [...new Set([...l.keys(), ...r.keys()])].map((key) => {
     const a = l.get(key),
       b = r.get(key);
+
     return {
       key,
       left: a,
@@ -131,12 +161,15 @@ export const compareObjects = (left: PdfObjectRecord, right: PdfObjectRecord): C
     };
   });
 };
+
 /** Fail closed on masks, nonstandard decoding and color spaces requiring interpretation. */
 export const imagePlan = (object: PdfObjectRecord): ImagePlan => {
   if (!hasSubtype(object, 'Image')) {
     throw new Error('This object is not an image XObject.');
   }
+
   const { height, width } = imageDimensions(object);
+
   if (
     ['Decode', 'ImageMask', 'Mask', 'SMask', 'SMaskInData'].some((key) => {
       return property(object.value, key) !== undefined;
@@ -146,46 +179,62 @@ export const imagePlan = (object: PdfObjectRecord): ImagePlan => {
       'Thumbnail unavailable: custom decoding or image masks require a full renderer. Inspect the dictionary and stream instead.'
     );
   }
+
   return { channels: imageChannels(object), height, width };
 };
+
 const numberProperty = (object: PdfObjectRecord, key: string) => {
   const value = property(object.value, key);
+
   return value?.type === 'number' ? value.value : NaN;
 };
+
 const validImageSide = (size: number) => {
   return Number.isSafeInteger(size) && size > 0 && size <= 4096;
 };
+
 const imageDimensions = (object: PdfObjectRecord) => {
   const width = numberProperty(object, 'Width'),
     height = numberProperty(object, 'Height');
+
   if (!validImageSide(width) || !validImageSide(height) || width * height > 4000000) {
     throw new Error('Thumbnail unavailable: image dimensions exceed the 4 megapixel / 4096 pixel safety limit or are invalid.');
   }
+
   return { height, width };
 };
+
 const imageChannels = (object: PdfObjectRecord): ImagePlan['channels'] => {
   const space = property(object.value, 'ColorSpace');
+
   if (space?.type !== 'name' || !['DeviceRGB', 'DeviceGray'].includes(space.value) || numberProperty(object, 'BitsPerComponent') !== 8) {
     throw new Error(
       'Thumbnail unavailable: only 8-bit DeviceRGB and DeviceGray images are supported here. Inspect the dictionary and stream instead.'
     );
   }
+
   return space.value === 'DeviceRGB' ? 3 : 1;
 };
+
 export const imageRgba = (plan: ImagePlan, bytes: Uint8Array): Uint8ClampedArray => {
   const expected = plan.width * plan.height * plan.channels;
+
   if (bytes.length !== expected) {
     throw new Error('Thumbnail unavailable: decoded sample length does not match the image dimensions.');
   }
+
   const rgba = new Uint8ClampedArray(plan.width * plan.height * 4);
+
   for (let i = 0, p = 0; i < bytes.length; i += plan.channels, p += 4) {
     rgba[p] = bytes[i];
     rgba[p + 1] = bytes[i + (plan.channels === 3 ? 1 : 0)];
     rgba[p + 2] = bytes[i + (plan.channels === 3 ? 2 : 0)];
     rgba[p + 3] = 255;
   }
+
   return rgba;
 };
+
 export interface ComparisonRow {
   key: string;
   left?: PdfValue;

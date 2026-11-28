@@ -66,18 +66,22 @@ const invalidOffsetWarning = (entry: InUseEntry, id: string, length: number) => 
 const resolveObject = (index: ObjectIndex, number: number, entry: InUseEntry) => {
   const generation = entryGeneration(entry);
   const { encryptRef } = index;
+
   // The encryption dictionary itself is never encrypted.
   if (entry.type === 'uncompressed' && encryptRef?.objectNumber === number && encryptRef.generation === generation) {
     return inspectionReadIndirect(index.bytes, entry.offset).value;
   }
+
   return index.parsed.getObject(PdfRef.of(number, generation));
 };
 
 const loadObject = (index: ObjectIndex, [number, entry]: IndexedEntry) => {
   const id = entryId(number, entry);
+
   try {
     const offsetWarning = invalidOffsetWarning(entry, id, index.bytes.length);
     const object = offsetWarning ? undefined : resolveObject(index, number, entry);
+
     if (offsetWarning) {
       index.warnings.push(offsetWarning);
     } else if (!object) {
@@ -102,9 +106,11 @@ const loadObjects = (index: ObjectIndex, entries: IndexedEntry[]) => {
 
 const sourcePreview = (bytes: Uint8Array, start: number, end: number) => {
   const preview = byteText(bytes.subarray(start, Math.min(end, start + MAX_DISPLAY_BYTES)));
+
   if (end - start <= MAX_DISPLAY_BYTES) {
     return preview;
   }
+
   return `${preview}\n… Source preview limited to 256 KiB. Inspect original bytes for the full object.`;
 };
 
@@ -118,16 +124,21 @@ const fileSource = (index: ObjectIndex, number: number, entry: UncompressedEntry
   const result = inspectionReadIndirect(bytes, entry.offset, (ref) => {
     return numberObjectValue(parsed.getObject(ref));
   });
+
   if (result.objNum !== number || result.genNum !== entry.generation) {
     throw new Error('Cross-reference target has a different object identity.');
   }
+
   if (isStream(result.value)) {
     index.rawStreams.set(id, result.value.data);
   }
+
   const { end } = result;
+
   if (end === undefined || end <= entry.offset || end > bytes.length) {
     return undefined;
   }
+
   return {
     provenance: { range: { end, start: entry.offset }, type: 'file' },
     source: sourcePreview(bytes, entry.offset, end),
@@ -137,10 +148,13 @@ const fileSource = (index: ObjectIndex, number: number, entry: UncompressedEntry
 const compressedSource = (index: ObjectIndex, number: number, entry: CompressedEntry): SourceLocation => {
   const containerId = entryId(entry.streamObjNum, index.parsed.xref.get(entry.streamObjNum));
   const stream = index.objects.get(containerId);
+
   if (!isStream(stream)) {
     throw new Error('Compressed object container is unavailable.');
   }
+
   const location = inspectionCompressedLocation(stream, entry.indexInStream, number);
+
   return {
     provenance: { containerId, range: { end: location.end, start: location.start }, type: 'decoded' },
     source: byteText(location.bytes.subarray(0, MAX_DISPLAY_BYTES)),
@@ -152,6 +166,7 @@ const locateSource = (index: ObjectIndex, [number, entry]: IndexedEntry, id: str
     return entry.type === 'uncompressed' ? fileSource(index, number, entry, id) : compressedSource(index, number, entry);
   } catch (error) {
     warnings.push(errorMessage(error));
+
     return undefined;
   }
 };
@@ -171,6 +186,7 @@ const objectLabel = (object: PdfObject) => {
   const dictionary = dictionaryOf(object);
   const kind = dictionary?.getName('Type')?.value ?? (object.type === 'stream' ? 'Stream' : object.type);
   const subtype = dictionary?.getName('Subtype')?.value;
+
   return { kind, label: subtype ? `${kind} · ${subtype}` : kind };
 };
 
@@ -179,7 +195,9 @@ const streamRange = (original: Uint8Array | undefined, bytes: Uint8Array): ByteR
   if (!original || original.buffer !== bytes.buffer) {
     return undefined;
   }
+
   const start = original.byteOffset - bytes.byteOffset;
+
   return { end: start + original.byteLength, start };
 };
 
@@ -199,13 +217,16 @@ const buildRecord = (index: ObjectIndex, item: IndexedEntry): PdfObjectRecord | 
   const [number, entry] = item;
   const id = entryId(number, entry);
   const object = index.objects.get(id);
+
   if (!object) {
     return undefined;
   }
+
   const warnings: string[] = [];
   const references = new Set<string>();
   const value = valueTree(object, references);
   const { provenance, source } = locateSource(index, item, id, warnings) ?? unverifiedSource(value.text);
+
   return {
     generation: entryGeneration(entry),
     id,
@@ -224,12 +245,15 @@ const buildRecord = (index: ObjectIndex, item: IndexedEntry): PdfObjectRecord | 
 /** Builds a display record for every loaded object. Run after `loadObjects`. */
 const buildRecords = (index: ObjectIndex, entries: IndexedEntry[]) => {
   const records = new Map<string, PdfObjectRecord>();
+
   for (const entry of entries) {
     const record = buildRecord(index, entry);
+
     if (record) {
       records.set(record.id, record);
     }
   }
+
   return records;
 };
 
@@ -239,6 +263,7 @@ const buildRecords = (index: ObjectIndex, entries: IndexedEntry[]) => {
  */
 export const indexObjects = (index: ObjectIndex, entries: IndexedEntry[]) => {
   loadObjects(index, entries);
+
   return buildRecords(index, entries);
 };
 
@@ -246,7 +271,9 @@ const linkContainerRange = (record: PdfObjectRecord, records: Map<string, PdfObj
   if (record.provenance.type !== 'decoded') {
     return;
   }
+
   const container = records.get(record.provenance.containerId);
+
   if (container?.provenance.type === 'file') {
     record.provenance.containerRange = container.provenance.range;
   }
@@ -255,6 +282,7 @@ const linkContainerRange = (record: PdfObjectRecord, records: Map<string, PdfObj
 const linkReferences = (record: PdfObjectRecord, records: Map<string, PdfObjectRecord>) => {
   for (const id of record.references) {
     const target = records.get(id);
+
     if (target) {
       target.referencedBy.push(record.id);
     } else {

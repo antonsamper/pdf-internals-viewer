@@ -1,38 +1,48 @@
 export const sitePage = function sitePage(pathname: string): SitePage | undefined {
   const path = pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+
   return SITE_PAGES.find((page) => {
     return page.path === path;
   });
 };
+
 /** The index an article sits under: guides under the guide, examples under the examples. Other pages have none. */
 export const articleSection = function articleSection(path: string) {
   if (path.startsWith('/guides/')) {
     return { href: '/guide', label: 'Guide' };
   }
+
   if (path.startsWith('/examples/')) {
     return { href: '/examples', label: 'Examples' };
   }
+
   return null;
 };
+
 /** Guides and examples are dated, authored articles; the other pages are plain web pages. */
 export const isArticlePath = function isArticlePath(path: string) {
   return articleSection(path) !== null;
 };
+
 const articleDetails = function articleDetails(page: SitePage) {
   if (!isArticlePath(page.path)) {
     return {};
   }
+
   return {
     author: { '@id': `${SITE_URL}/#author` },
     dateModified: page.path.startsWith('/examples/') ? '2026-11-15' : '2026-11-14',
   };
 };
+
 /** The breadcrumb trail for every page except the home page, with the guide or examples index between home and an article. */
 const breadcrumbs = function breadcrumbs(page: SitePage, url: string) {
   if (page.path === '/') {
     return [];
   }
+
   const section = articleSection(page.path);
+
   return [
     {
       '@id': `${url}#breadcrumbs`,
@@ -55,6 +65,7 @@ const breadcrumbs = function breadcrumbs(page: SitePage, url: string) {
     },
   ];
 };
+
 export const structuredData = function structuredData(page: SitePage) {
   const url = SITE_URL + page.path;
   const author = {
@@ -63,6 +74,7 @@ export const structuredData = function structuredData(page: SitePage) {
     name: 'Anton Samper',
     url: 'https://github.com/antonsamper',
   };
+
   return {
     '@context': 'https://schema.org',
     '@graph': [
@@ -106,9 +118,11 @@ export const structuredData = function structuredData(page: SitePage) {
     ],
   };
 };
+
 export const pageHead = function pageHead(page: SitePage) {
   const url = SITE_URL + page.path;
   const image = `${SITE_URL}/brand/pdf-internals-logo.png`;
+
   return `<title>${escapeHtml(page.title)}</title>
 <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png?v=8e7cb0ea" />
 <meta name="description" content="${escapeHtml(page.description)}" />
@@ -126,6 +140,7 @@ export const pageHead = function pageHead(page: SitePage) {
 <meta name="twitter:image" content="${image}" />
 <script type="application/ld+json" id="site-schema">${JSON.stringify(structuredData(page)).replaceAll('<', '\\u003c')}</script>`;
 };
+
 /** Public identity and route inventory shared by the build and client navigation. */
 export const SITE_URL = 'https://pdf-internals-viewer.pages.dev';
 export const PROJECT_URL = 'https://github.com/antonsamper/pdf-internals-viewer';

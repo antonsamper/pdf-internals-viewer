@@ -10,6 +10,7 @@ const before = createHash('sha256').update(bytes).digest('hex');
 const requestedIds: string[] = JSON.parse(process.argv[3] ?? '[]');
 const start = performance.now();
 const inspector = new PdfInspector();
+
 try {
   const document = await inspector.open(bytes, filename);
   const ids = document.objects
@@ -72,6 +73,7 @@ try {
     warnings: document.warnings,
     xrefFormat: document.xrefFormat,
   };
+
   console.log(JSON.stringify(result));
 } catch (reason) {
   console.log(

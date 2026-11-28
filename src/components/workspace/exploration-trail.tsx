@@ -32,6 +32,7 @@ export const ExplorationTrail = ({
     return step.id ?? 'root';
   });
   const fallback = SECTION_LABELS[section] ?? 'Document overview';
+
   return (
     <nav
       className={cn(
