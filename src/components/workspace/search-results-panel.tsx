@@ -6,7 +6,7 @@ import type { PageTextLocation, TextSource } from '@/lib/pdf/page-text';
 
 import { SearchResultsPopover } from '@/components/search-results-popover';
 import { Button } from '@/components/ui/button';
-import { MAX_TEXT_SOURCES } from '@/lib/pdf/limits';
+import { MAX_CONTENT_REFERENCES, MAX_TEXT_SOURCES } from '@/lib/pdf/limits';
 import { cn } from '@/lib/utils';
 
 import type { SearchResult } from './types';
@@ -246,6 +246,12 @@ const PageTextLinks = ({
       {location.sourcesLimited && (
         <SourcesNote>
           This page has more than {MAX_TEXT_SOURCES} source locations. Only the first {MAX_TEXT_SOURCES} are listed.
+        </SourcesNote>
+      )}
+      {location.contentsLimited && (
+        <SourcesNote>
+          This page lists more than {MAX_CONTENT_REFERENCES.toLocaleString('en-GB')} content references. Streams after the first{' '}
+          {MAX_CONTENT_REFERENCES.toLocaleString('en-GB')} were not read.
         </SourcesNote>
       )}
       {location.sources.length > 0 && <SourceButtons index={index} location={location} search={search} textSource={textSource} />}

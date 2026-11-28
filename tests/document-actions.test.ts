@@ -44,7 +44,7 @@ const streamResult = (bytes: number[], text = '') => {
 };
 
 describe('documentActions', () => {
-  it('lists actions from the catalogue, pages, annotations, form fields and outline', async () => {
+  it('lists actions from the catalogue, document-level scripts, pages, annotations, form fields and outline', async () => {
     const report = await inspect(actionsPdf().bytes);
     const rows = report.actions.map((action) => {
       return [action.trigger, action.entry, action.holderId, action.type];
@@ -52,6 +52,7 @@ describe('documentActions', () => {
     expect(rows).toEqual([
       ['Document opens', '/OpenAction', '1 0', 'JavaScript'],
       ['Before the document closes', '/AA /WC', '1 0', 'SubmitForm'],
+      ['Document opens', '/Names /JavaScript', '20 0', 'JavaScript'],
       ['Page opens', '/AA /O', '3 0', 'GoTo'],
       ['Link clicked', '/A', '10 0', 'URI'],
       ['Link clicked', '/A', '3 0', 'Launch'],
@@ -61,17 +62,23 @@ describe('documentActions', () => {
       ['Outline item selected', '/A', '17 0', 'GoTo'],
       ['Outline item selected', '/A', '18 0', undefined],
     ]);
-    expect(report.actions[2].context).toBe('Page 1');
-    expect(report.actions[4].context).toBe('Link annotation on page 1');
-    expect(report.actions[6].context).toBe('Widget annotation (total) on page 2');
-    expect(report.actions[8].context).toBe('Outline item (Chapter one)');
+    expect(report.actions[2].context).toBe('Document-level script (init)');
+    expect(report.actions[3].context).toBe('Page 1');
+    expect(report.actions[5].context).toBe('Link annotation on page 1');
+    expect(report.actions[7].context).toBe('Widget annotation (total) on page 2');
+    expect(report.actions[9].context).toBe('Outline item (Chapter one)');
   });
 
   it('summarises targets and keeps script text as a decoded string or a stream to read', async () => {
-    const [open, close, , uri, launch, , keystroke, validate] = (await inspect(actionsPdf().bytes)).actions;
+    const [open, close, documentScript, , uri, launch, , keystroke, validate] = (await inspect(actionsPdf().bytes)).actions;
     expect(open.actionId).toBe('6 0');
     expect(open.target).toEqual({ label: 'Script', streamId: '14 0' });
     expect(close.target).toEqual({ label: 'Submit to', text: 'https://example.invalid/collect' });
+    expect(documentScript).toMatchObject({
+      actionId: '21 0',
+      sensitive: 'Runs a script',
+      target: { decodedString: true, label: 'Script', text: 'var sample = "Document-level sample text. Not run.";' },
+    });
     expect(uri.target).toEqual({ label: 'URI', text: 'https://example.invalid/' });
     expect(launch.target).toEqual({ label: 'File', text: 'report.exe' });
     expect(
@@ -85,7 +92,7 @@ describe('documentActions', () => {
   });
 
   it('keeps /Next chains in order, including arrays and shared actions', async () => {
-    const uri = (await inspect(actionsPdf().bytes)).actions[3];
+    const uri = (await inspect(actionsPdf().bytes)).actions[4];
     expect(
       uri.next.map((action) => {
         return [action.entry, action.type, action.target?.text];
@@ -100,7 +107,7 @@ describe('documentActions', () => {
   });
 
   it('stops a /Next cycle with a note', async () => {
-    const goTo = (await inspect(actionsPdf().bytes)).actions[2];
+    const goTo = (await inspect(actionsPdf().bytes)).actions[3];
     expect(goTo.next).toHaveLength(1);
     const named = goTo.next[0];
     expect(named).toMatchObject({ actionId: '8 0', holderId: '7 0', type: 'Named' });
@@ -112,13 +119,13 @@ describe('documentActions', () => {
 
   it('notes malformed and unresolvable actions and keeps the rest', async () => {
     const report = await inspect(actionsPdf().bytes);
-    const [noType, missing] = [report.actions[5], report.actions[9]];
+    const [noType, missing] = [report.actions[6], report.actions[10]];
     expect(noType.notes).toEqual(['The action dictionary has no /S action type.']);
     expect(missing.notes).toEqual(['99 0 R could not be resolved.']);
     expect(missing.actionId).toBeUndefined();
     expect(report.notes).toEqual(['Page 2 (4 0 obj): annotation 3 30 0 R could not be resolved.']);
-    expect(report.total).toBe(14);
-    expect(flattenActions(report.actions)).toHaveLength(14);
+    expect(report.total).toBe(15);
+    expect(flattenActions(report.actions)).toHaveLength(15);
   });
 
   it('lists a widget reached from both the page and the form fields once', async () => {
@@ -286,10 +293,9 @@ describe('documentActions', () => {
         [6, '(xfa)'],
       ])
     );
-    expect(report.notes).toEqual([
-      '1 0 obj has a /Names /JavaScript tree. Its document-level scripts are not listed here.',
-      'The form in 1 0 obj has an /XFA entry. Scripts inside XFA forms are not listed here.',
-    ]);
+    // The tree and the /Names dictionary are direct, so the catalogue holds the script.
+    expect(report.actions).toMatchObject([{ actionId: '5 0', context: 'Document-level script (init)', holderId: '1 0' }]);
+    expect(report.notes).toEqual(['The form in 1 0 obj has an /XFA entry. Scripts inside XFA forms are not listed here.']);
     const document = await new PdfInspector().open(minimal(''), 'broken.pdf');
     const objects = new Map(
       document.objects.map((object) => {
@@ -306,6 +312,134 @@ describe('documentActions', () => {
       'The trailer names no catalogue, so catalogue, form field and outline actions are not listed.',
       'No pages were read from the page tree, so page and annotation actions are not listed. See Issues.',
     ]);
+  });
+
+  it('lists each document-level script in a nested /Names /JavaScript tree with the node that holds it', async () => {
+    const script = 'b = 2;';
+    const report = await inspect(
+      minimal('/Names 4 0 R', '', [
+        [4, '<< /JavaScript 5 0 R >>'],
+        [5, '<< /Kids [<< /Kids [6 0 R] >> 7 0 R] >>'],
+        [6, '<< /Names [(first) 8 0 R (second) << /S /JavaScript /JS 9 0 R >>] >>'],
+        [7, '<< /Kids [<< /Names [(third) << /JS (c = 3;) >>] >>] >>'],
+        [8, '<< /S /JavaScript /JS (a = 1;) >>'],
+        [9, `<< /Length ${script.length} >>\nstream\n${script}\nendstream`],
+      ])
+    );
+    expect(
+      report.actions.map((action) => {
+        return [action.trigger, action.entry, action.context, action.holderId, action.actionId, action.sensitive];
+      })
+    ).toEqual([
+      ['Document opens', '/Names /JavaScript', 'Document-level script (first)', '6 0', '8 0', 'Runs a script'],
+      ['Document opens', '/Names /JavaScript', 'Document-level script (second)', '6 0', undefined, 'Runs a script'],
+      // A direct leaf has no object of its own, so the row links to the nearest object above it.
+      ['Document opens', '/Names /JavaScript', 'Document-level script (third)', '7 0', undefined, 'Runs a script'],
+    ]);
+    const [first, second, third] = report.actions;
+    expect(first.target).toEqual({ decodedString: true, label: 'Script', text: 'a = 1;' });
+    expect(second.target).toEqual({ label: 'Script', streamId: '9 0' });
+    // An entry without /S is still marked and its /JS is shown.
+    expect(third.target).toEqual({ decodedString: true, label: 'Script', text: 'c = 3;' });
+    expect(third.type).toBeUndefined();
+    expect(third.notes).toEqual(['The action dictionary has no /S action type.']);
+    expect(report.notes).toEqual([]);
+  });
+
+  it('stops a looping or very deep /Names /JavaScript tree with a note and keeps the other actions', async () => {
+    const looped = await inspect(
+      minimal('/Names << /JavaScript 5 0 R >>', '/AA << /O << /S /Named /N /NextPage >> >>', [
+        [5, '<< /Kids [6 0 R] >>'],
+        [6, '<< /Kids [5 0 R 6 0 R] /Names [(kept) << /S /JavaScript /JS (1;) >>] >>'],
+      ])
+    );
+    expect(
+      looped.actions.map((action) => {
+        return action.context;
+      })
+    ).toEqual(['Document-level script (kept)', 'Page 1']);
+    expect(looped.notes).toEqual([
+      'Document-level scripts: 5 0 obj is reached more than once, so the walk stops there.',
+      'Document-level scripts: 6 0 obj is reached more than once, so the walk stops there.',
+    ]);
+    const deep = Array.from({ length: 40 }, (_, i): [number, string] => {
+      return [10 + i, `<< /Kids [${11 + i} 0 R] >>`];
+    });
+    deep.push([50, '<< /Names [(deepest) << /S /JavaScript /JS (1;) >>] >>']);
+    const tooDeep = await inspect(minimal('/Names << /JavaScript 10 0 R >> /OpenAction << /S /Named /N /FirstPage >>', '', deep));
+    expect(
+      tooDeep.actions.map((action) => {
+        return action.entry;
+      })
+    ).toEqual(['/OpenAction']);
+    expect(tooDeep.notes).toEqual([
+      'Document-level scripts: the tree is more than 32 levels deep, so the /Kids of 41 0 obj are not listed.',
+    ]);
+  });
+
+  it('notes malformed /Names /JavaScript nodes and entries and lists the readable ones', async () => {
+    const report = await inspect(
+      minimal('/Names << /JavaScript 5 0 R >> /Outlines << /First 20 0 R >>', '', [
+        [5, '<< /Kids [6 0 R 7 0 R 8 0 R 99 0 R (text) 9 0 R] >>'],
+        [6, '<< /Kids (not an array) >>'],
+        [7, '<< /Limits [(a) (z)] >>'],
+        [8, '<< /Names [(good) << /S /JavaScript /JS (1;) >> /NotAString << /S /JavaScript /JS (2;) >> (broken) 98 0 R (orphan)] >>'],
+        [9, '<< /Names 10 0 R >>'],
+        [10, '42'],
+        [20, '<< /Title (Still read) /A << /S /Named /N /FirstPage >> >>'],
+      ])
+    );
+    expect(
+      report.actions.map((action) => {
+        return [action.context, action.holderId, action.sensitive, action.notes];
+      })
+    ).toEqual([
+      ['Document-level script (good)', '8 0', 'Runs a script', []],
+      ['Document-level script', '8 0', 'Runs a script', ["The script's name is a name, not a string."]],
+      ['Document-level script (broken)', '8 0', 'Runs a script', ['98 0 R could not be resolved.']],
+      ['Outline item (Still read)', '20 0', undefined, []],
+    ]);
+    expect(report.notes).toEqual([
+      'Document-level scripts: /Kids in 6 0 obj is not an array.',
+      'Document-level scripts: 7 0 obj has neither /Names nor /Kids.',
+      'Document-level scripts: /Names in 8 0 obj has an odd number of items. The last name has no script and is skipped.',
+      'Document-level scripts: 99 0 R could not be resolved.',
+      'Document-level scripts: an item at 5 0/4 is not a dictionary',
+      'Document-level scripts: /Names in 9 0 obj is not an array.',
+    ]);
+  });
+
+  it('marks tree entries with another /S type or a non-dictionary value, and notes an unreadable /Names', async () => {
+    const report = await inspect(
+      minimal(
+        '/Names << /JavaScript << /Names [(uri) << /S /URI /URI (https://example.invalid/) /JS (hidden();) >> (launch) << /S /Launch /F (a.exe) >> (bare) (x)] >> >>'
+      )
+    );
+    expect(
+      report.actions.map((action) => {
+        return [action.type, action.sensitive, action.target, action.notes];
+      })
+    ).toEqual([
+      [
+        'URI',
+        'Runs a script',
+        { label: 'URI', text: 'https://example.invalid/' },
+        ['The /S action type is /URI, not /JavaScript, and the entry also has a /JS script. Inspect it to read the script.'],
+      ],
+      ['Launch', 'Opens a file or app', { label: 'File', text: 'a.exe' }, []],
+      [undefined, 'Runs a script', undefined, ['Expected an action dictionary, found a string.']],
+    ]);
+    const unreadable = await inspect(minimal('/Names 99 0 R'));
+    expect(unreadable.notes).toEqual(["Document-level scripts: the catalogue's /Names could not be read. 99 0 R could not be resolved."]);
+  });
+
+  it('reads document-level scripts as text and never runs them', async () => {
+    const scope = globalThis as { pivScriptRan?: number };
+    const report = await inspect(
+      minimal('/Names << /JavaScript << /Names [(probe) << /S /JavaScript /JS (globalThis.pivScriptRan = 1;) >>] >> >>')
+    );
+    expect(report.actions[0].target).toEqual({ decodedString: true, label: 'Script', text: 'globalThis.pivScriptRan = 1;' });
+    expect(scope.pivScriptRan).toBeUndefined();
   });
 
   it('decodes script stream text by its byte order mark and shows hidden characters', () => {

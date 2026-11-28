@@ -38,11 +38,17 @@ export type SearchOutcome = { found: SearchResult[]; message: string } | null;
 
 const MAX_RESULTS = 500;
 
-const pageTextResult = (hit: PageTextHit, pageId: string, pageNumber: number, { limited, sources }: PageTextSourceList): SearchResult => {
+const pageTextResult = (
+  hit: PageTextHit,
+  pageId: string,
+  pageNumber: number,
+  { contentsLimited, limited, sources }: PageTextSourceList
+): SearchResult => {
   return {
     detail: `${hit.count} text match${hit.count === 1 ? '' : 'es'}`,
     label: `Page ${pageNumber}`,
     pageText: {
+      contentsLimited,
       count: hit.count,
       matches: hit.matches,
       pageId,
