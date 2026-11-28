@@ -92,6 +92,7 @@ const MAX_CHAIN = 64;
 const MAX_ACTIONS = 5000;
 const MAX_NOTES = 200;
 const MAX_WALK = 10_000;
+const MAX_NAME_TREE_DEPTH = 32;
 /** Visits per walk. A shared `/Annots` array is visited once per page, so a small file can ask for millions. */
 const MAX_STEPS = 500_000;
 const MAX_SCRIPT_TEXT = 4096;
@@ -420,18 +421,20 @@ const readNext = (walk: Walk, action: PdfAction, value: PdfValue, chain: Chain) 
     });
 };
 
+/** Adds a top-level row and returns it, or nothing when the walk is full or the row is already listed. */
 const addAction = (walk: Walk, value: PdfValue | undefined, origin: Origin, place: string) => {
   if (!value || !spend(walk)) {
-    return;
+    return undefined;
   }
   const key = `${place}|${origin.entry}`;
   if (walk.rows.has(key)) {
-    return;
+    return undefined;
   }
   const action = readAction(walk, value, origin, key, { depth: 0, ids: [] });
   if (action) {
     walk.rows.set(key, action);
   }
+  return action;
 };
 
 /** A row for an `/AA` entry that isn't a dictionary, counted like any other action. */
@@ -471,12 +474,8 @@ const addAdditional = (
   }
 };
 
-/** Notes the script sources the panel doesn't list, so an empty list isn't read as "no scripts". */
+/** Notes the script source the panel doesn't list, so an empty list isn't read as "no scripts". */
 const noteUnlistedScripts = (walk: Walk, catalog: PdfObjectRecord) => {
-  const names = resolve(property(catalog.value, 'Names'), walk.objects);
-  if (names.value && isDictionary(names.value) && property(names.value, 'JavaScript')) {
-    addNote(walk, `${names.id ?? catalog.id} obj has a /Names /JavaScript tree. Its document-level scripts are not listed here.`);
-  }
   const form = resolve(property(catalog.value, 'AcroForm'), walk.objects);
   if (form.value && isDictionary(form.value) && property(form.value, 'XFA')) {
     addNote(walk, `The form in ${form.id ?? catalog.id} obj has an /XFA entry. Scripts inside XFA forms are not listed here.`);
@@ -492,6 +491,7 @@ const addCatalog = (walk: Walk, catalog: PdfObjectRecord) => {
     catalog.id
   );
   addAdditional(walk, catalog.value, origin, catalog.id, CATALOG_TRIGGERS);
+  addDocumentScripts(walk, catalog);
   noteUnlistedScripts(walk, catalog);
 };
 
@@ -576,17 +576,31 @@ const addPages = (walk: Walk, pages: string[]) => {
   }
 };
 
-type Visit = (value: PdfValue, id: string | undefined, place: string) => PdfValue[];
 interface TreeItem {
   place: string;
   value: PdfValue;
+  /** How many levels below a root the item sits. */
+  depth: number;
+  /** The nearest object that holds the item, so a direct dictionary still has an object to inspect. A visitor gets the item's own object when it has one. */
+  holderId?: string;
 }
+type Visit = (value: PdfValue, id: string | undefined, place: string, item: TreeItem) => PdfValue[];
+
+/** Visits a dictionary and places its children one level down, under its own object or its nearest one above. */
+const visitChildren = (value: PdfValue, id: string | undefined, item: TreeItem, visit: Visit): TreeItem[] => {
+  const base = id ?? item.place;
+  const holderId = id ?? item.holderId;
+  return visit(value, id, base, { ...item, holderId }).map((child, index) => {
+    return { depth: item.depth + 1, holderId, place: `${base}/${index}`, value: child };
+  });
+};
 
 /** Visits one tree item and returns its children, or none when it repeats or isn't a dictionary. */
-const visitItem = (walk: Walk, label: string, seen: Set<PdfValue>, { place, value }: TreeItem, visit: Visit): TreeItem[] => {
+const visitItem = (walk: Walk, label: string, seen: Set<PdfValue>, item: TreeItem, visit: Visit): TreeItem[] => {
   if (!spend(walk)) {
     return [];
   }
+  const { place, value } = item;
   const resolved = resolve(value, walk.objects);
   // Parsed values are shared, so one dictionary reached twice, directly or through a reference, is the same object.
   if (resolved.value && seen.has(resolved.value)) {
@@ -600,18 +614,15 @@ const visitItem = (walk: Walk, label: string, seen: Set<PdfValue>, { place, valu
     addNote(walk, `${label}: ${resolved.note ?? `an item at ${place} is not a dictionary`}`);
     return [];
   }
-  const base = resolved.id ?? place;
-  return visit(resolved.value, resolved.id, base).map((child, index) => {
-    return { place: `${base}/${index}`, value: child };
-  });
+  return visitChildren(resolved.value, resolved.id, item, visit);
 };
 
 /** Depth-first walk of a linked tree, guarding against cycles and very large trees. */
-const walkTree = (walk: Walk, roots: PdfValue[], label: string, visit: Visit) => {
+const walkTree = (walk: Walk, roots: PdfValue[], label: string, visit: Visit, holderId?: string) => {
   const seen = new Set<PdfValue>();
   const stack = roots
-    .map((value, index) => {
-      return { place: `${label}[${index}]`, value };
+    .map((value, index): TreeItem => {
+      return { depth: 0, holderId, place: `${label}[${index}]`, value };
     })
     .toReversed();
   for (let steps = 0; stack.length && !isFull(walk); steps++) {
@@ -664,6 +675,109 @@ const addOutline = (walk: Walk, catalog: PdfObjectRecord) => {
   });
 };
 
+const SCRIPTS_LABEL = 'Document-level scripts';
+
+/** A name-tree node's `/Kids` or `/Names` array, noting an entry that is there but isn't an array. */
+const nodeArray = (walk: Walk, node: PdfValue, key: string, label: string): PdfValue[] => {
+  const entry = property(node, key);
+  if (!entry) {
+    return [];
+  }
+  const resolved = resolve(entry, walk.objects);
+  if (resolved.value?.type !== 'array') {
+    addNote(walk, `${SCRIPTS_LABEL}: /${key} in ${label} ${resolved.note ? `could not be read. ${resolved.note}` : 'is not an array.'}`);
+    return [];
+  }
+  return resolved.value.items;
+};
+
+/**
+ * Readers run every entry in the tree as a script, so the row is marked even when `/S` is missing or different.
+ * A `/JS` script is shown when `/S` didn't lead to a target, and noted when `/S` led to another one.
+ */
+const markScript = (walk: Walk, action: PdfAction, value: PdfValue) => {
+  action.sensitive ??= SENSITIVE_ACTIONS.JavaScript;
+  const resolved = resolve(value, walk.objects).value;
+  const js = resolved && isDictionary(resolved) ? script(property(resolved, 'JS'), walk.objects) : undefined;
+  if (!js || action.target?.label === 'Script') {
+    return;
+  }
+  if (action.target) {
+    action.notes.push(
+      `The /S action type is /${action.type}, not /JavaScript, and the entry also has a /JS script. Inspect it to read the script.`
+    );
+  } else {
+    action.target = js;
+  }
+};
+
+const addScript = (walk: Walk, key: PdfValue, value: PdfValue, place: string, holderId: string | undefined) => {
+  const name = resolve(key, walk.objects).value;
+  const label = name?.type === 'string' ? shortLabel(name.value) : undefined;
+  const origin = {
+    context: label ? `Document-level script (${label})` : 'Document-level script',
+    entry: '/Names /JavaScript',
+    holderId,
+    trigger: 'Document opens',
+  };
+  const action = addAction(walk, value, origin, place);
+  if (!action) {
+    return;
+  }
+  markScript(walk, action, value);
+  if (name?.type !== 'string') {
+    action.notes.push(`The script's name is ${name ? `a ${name.type}` : 'missing'}, not a string.`);
+  }
+};
+
+/** A leaf's `/Names` array holds name and script pairs. */
+const addScripts = (walk: Walk, names: PdfValue[], place: string, holderId: string | undefined, label: string) => {
+  if (names.length % 2) {
+    addNote(walk, `${SCRIPTS_LABEL}: /Names in ${label} has an odd number of items. The last name has no script and is skipped.`);
+  }
+  for (let index = 0; index + 1 < names.length && !isFull(walk); index += 2) {
+    addScript(walk, names[index], names[index + 1], `${place}/Names[${index}]`, holderId);
+  }
+};
+
+/** One node of the `/Names /JavaScript` tree: its scripts, then its `/Kids` unless the tree is too deep. */
+const visitScriptNode = (walk: Walk, node: PdfValue, id: string | undefined, place: string, { depth, holderId }: TreeItem) => {
+  const label = id ? `${id} obj` : `a node in ${holderId} obj`;
+  if (!property(node, 'Names') && !property(node, 'Kids')) {
+    addNote(walk, `${SCRIPTS_LABEL}: ${label} has neither /Names nor /Kids.`);
+  }
+  addScripts(walk, nodeArray(walk, node, 'Names', label), place, holderId, label);
+  const kids = nodeArray(walk, node, 'Kids', label);
+  if (kids.length && depth + 1 >= MAX_NAME_TREE_DEPTH) {
+    addNote(walk, `${SCRIPTS_LABEL}: the tree is more than ${MAX_NAME_TREE_DEPTH} levels deep, so the /Kids of ${label} are not listed.`);
+    return [];
+  }
+  return kids;
+};
+
+/** Each entry in the catalogue's `/Names /JavaScript` tree, which readers run when the document opens. */
+const addDocumentScripts = (walk: Walk, catalog: PdfObjectRecord) => {
+  const entry = property(catalog.value, 'Names');
+  const names = resolve(entry, walk.objects);
+  if (entry && (!names.value || !isDictionary(names.value))) {
+    addNote(walk, `${SCRIPTS_LABEL}: the catalogue's /Names ${names.note ? `could not be read. ${names.note}` : 'is not a dictionary.'}`);
+    return;
+  }
+  const tree = names.value && property(names.value, 'JavaScript');
+  if (!tree) {
+    return;
+  }
+  walkTree(
+    walk,
+    [tree],
+    SCRIPTS_LABEL,
+    (node, id, place, item) => {
+      return visitScriptNode(walk, node, id, place, item);
+    },
+    names.id ?? catalog.id
+  );
+};
+
 /** The catalogue as a dictionary, or a note saying why catalogue, form and outline actions can't be read. */
 const readCatalog = (walk: Walk, document: PdfDocumentInfo) => {
   const catalog = document.catalogId ? walk.objects.get(document.catalogId) : undefined;
@@ -687,7 +801,7 @@ const walkSources = (walk: Walk, document: PdfDocumentInfo) => {
   }
 };
 
-/** Every action reachable from the catalogue, pages, annotations, form fields and outline. Nothing is run. */
+/** Every action reachable from the catalogue and its document-level scripts, pages, annotations, form fields and outline. Nothing is run. */
 export const documentActions = function documentActions(document: PdfDocumentInfo, objects: Objects): PdfActionReport {
   const walk: Walk = { hiddenNotes: 0, noted: new Set(), notes: [], objects, rows: new Map(), steps: 0, total: 0 };
   try {

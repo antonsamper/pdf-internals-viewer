@@ -12,11 +12,11 @@ const page = (extra = '') => { return `<< /Type /Page /Parent 2 0 R /MediaBox [0
 
 /**
  * One document with an action from every source the Actions panel reads:
- * the catalogue's /OpenAction and /AA, page /AA, link and widget annotations, a form field and the outline.
+ * the catalogue's /OpenAction and /AA, its /Names /JavaScript tree, page /AA, link and widget annotations, a form field and the outline.
  * Object 7 chains to 8 and 8 back to 7, a /Next cycle. Object 30 is missing, and object 12 has no /S.
  */
 export const actionsPdf = () => { return classicPdf([
-    [1, '<< /Type /Catalog /Pages 2 0 R /OpenAction 6 0 R /AA << /WC 9 0 R >> /AcroForm << /Fields [13 0 R] >> /Outlines 16 0 R >>'],
+    [1, '<< /Type /Catalog /Pages 2 0 R /OpenAction 6 0 R /AA << /WC 9 0 R >> /AcroForm << /Fields [13 0 R] >> /Outlines 16 0 R /Names << /JavaScript 19 0 R >> >>'],
     [2, '<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>'],
     [3, page('/AA << /O 7 0 R >> /Annots [10 0 R << /Type /Annot /Subtype /Link /Rect [72 600 300 620] /A << /S /Launch /F (report.exe) >> >>]')],
     [4, page('/Annots [11 0 R 13 0 R 30 0 R]')],
@@ -33,4 +33,7 @@ export const actionsPdf = () => { return classicPdf([
     [16, '<< /Type /Outlines /First 17 0 R /Last 18 0 R /Count 2 >>'],
     [17, '<< /Title (Chapter one) /Parent 16 0 R /Next 18 0 R /A << /S /GoTo /D [3 0 R /XYZ 0 792 0] >> >>'],
     [18, '<< /Title (Chapter two) /Parent 16 0 R /Prev 17 0 R /A 99 0 R >>'],
+    [19, '<< /Kids [20 0 R] >>'],
+    [20, '<< /Limits [(init) (init)] /Names [(init) 21 0 R] >>'],
+    [21, '<< /Type /Action /S /JavaScript /JS (var sample = "Document-level sample text. Not run.";) >>'],
 ]); };

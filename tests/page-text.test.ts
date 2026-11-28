@@ -1,6 +1,8 @@
 import { deflateSync } from 'node:zlib';
 import { describe, expect, it } from 'vitest';
 
+import type { PdfObjectRecord } from '../src/lib/pdf/types';
+
 // @ts-expect-error shared plain JS fixture generator
 import { classicPdf } from '../scripts/fixtures/pdf-fixtures.mjs';
 import { PdfInspector } from '../src/lib/pdf/inspector';
@@ -44,18 +46,21 @@ const sources = async (content: string, term: string, compressed = false, font?:
   );
   return { bytes: file.bytes, objects, results };
 };
-/** A page drawn by one content stream per entry, numbered from object 4. */
-const streamPageSources = async (contents: string[], term: string) => {
+/** A page drawn by one content stream per entry, numbered from object 4, after `missing` references to absent objects. */
+const streamPageSources = async (contents: string[], term: string, missing = 0) => {
   const ids = contents.map((_, index) => {
     return index + 4;
   });
   const font = ids.length + 4;
+  const absent = Array.from({ length: missing }, (_, index) => {
+    return `${font + 1 + index} 0 R `;
+  }).join('');
   const file = classicPdf([
     [1, '<< /Type /Catalog /Pages 2 0 R >>'],
     [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
     [
       3,
-      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 ${font} 0 R >> >> /Contents [${ids
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 ${font} 0 R >> >> /Contents [${absent}${ids
         .map((id) => {
           return `${id} 0 R`;
         })
@@ -97,6 +102,25 @@ const selected = (
     return Buffer.from(bytes.subarray(range.start, range.end)).toString('latin1');
   });
 };
+/** A page whose /Contents lists `missing` references to absent objects, then object 4. */
+const contentsPage = (missing: number) => {
+  const refs = Array.from({ length: missing }, (_, index) => {
+    return { ref: `${index + 10} 0`, text: '', type: 'reference' as const };
+  });
+  return {
+    value: {
+      entries: [
+        {
+          key: 'Contents',
+          value: { items: [...refs, { ref: '4 0', text: '', type: 'reference' as const }], text: '', type: 'array' as const },
+        },
+      ],
+      text: '',
+      type: 'dictionary' as const,
+    },
+  } as PdfObjectRecord;
+};
+
 describe('page text source mapping', () => {
   for (const encoding of [undefined, 'StandardEncoding', 'WinAnsiEncoding', 'MacRomanEncoding']) {
     it(`respects quote codes in ${encoding ?? 'default Type1 encoding'}`, async () => {
@@ -247,7 +271,7 @@ describe('page text source mapping', () => {
       }
     );
     expect(result).toEqual([]);
-    expect(pageContentIds(page, objects)).toEqual(['4 0']);
+    expect(pageContentIds(page, objects)).toEqual({ complete: true, ids: ['4 0'] });
   });
   it('decodes escaped parentheses, continued lines and odd hex nibbles with source offsets', () => {
     expect(
@@ -298,6 +322,21 @@ describe('page text source mapping', () => {
         return source.incomplete;
       })
     ).toBe(false);
+  });
+  it('reads content streams listed after 500 other /Contents references', async () => {
+    const list = await streamPageSources(['BT /F1 12 Tf (Hello) Tj ET'], 'Hello', 500);
+    expect(
+      list.sources.map((source) => {
+        return [source.id, source.ranges.length];
+      })
+    ).toEqual([['4 0', 1]]);
+    expect(list.limited).toBe(false);
+  });
+  it('says when a page lists more /Contents references than it follows', () => {
+    const stream = { id: '4 0', stream: { filters: [], length: 1 } } as PdfObjectRecord;
+    const objects = new Map([['4 0', stream]]);
+    expect(pageContentIds(contentsPage(9_999), objects)).toEqual({ complete: true, ids: ['4 0'] });
+    expect(pageContentIds(contentsPage(10_000), objects)).toEqual({ complete: false, ids: [] });
   });
   it('does not report a page with exactly 100 sources as limited', async () => {
     const list = await streamPageSources(

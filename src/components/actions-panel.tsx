@@ -262,13 +262,13 @@ const Coverage = ({ recovered }: { recovered: boolean }) => {
     <div className="mt-5 border-t py-3.5 text-small leading-[1.7]">
       <SectionHeading className="leading-[1.7]">Sources and limits</SectionHeading>
       <IssueNote>
-        Read from the catalogue’s <code>/OpenAction</code> and <code>/AA</code>, page <code>/AA</code>, annotation <code>/A</code> and{' '}
-        <code>/AA</code>, form field <code>/A</code> and <code>/AA</code> and outline item <code>/A</code> entries, with their{' '}
-        <code>/Next</code> chains.
+        Read from the catalogue’s <code>/OpenAction</code> and <code>/AA</code>, its <code>/Names /JavaScript</code> tree, page{' '}
+        <code>/AA</code>, annotation <code>/A</code> and <code>/AA</code>, form field <code>/A</code> and <code>/AA</code> and outline item{' '}
+        <code>/A</code> entries, with their <code>/Next</code> chains.
       </IssueNote>
       <IssueNote>
-        Document-level scripts in the <code>/Names /JavaScript</code> tree, XFA form scripts and actions inside other objects are not
-        listed; a note below says when this document has the first two. Search Keys for <code>JavaScript</code> to find them.
+        XFA form scripts and actions inside other objects are not listed. A note below says when this document has an XFA form. Search Keys
+        for <code>JavaScript</code> to find them.
       </IssueNote>
       <IssueNote>
         Nothing is run. Targets and scripts are decoded values; check the holder’s Source or Original bytes for the stored syntax.
