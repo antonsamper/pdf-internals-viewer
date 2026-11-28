@@ -18,16 +18,20 @@ const sourceNote = (decoded: boolean, { exact, originalRange, source }: SourceVi
       ? 'Highlighted bytes encode matching source text. Offsets are within this decoded stream.'
       : 'Candidate page content stream. Exact text bytes could not be mapped.';
   }
+
   if (source.originalRanges) {
     return 'Highlighted original bytes encode matching source text; intervening operators are excluded.';
   }
+
   if (exact) {
     return 'Containing stream only. Compressed or encrypted text has no direct word-sized range in the original file.';
   }
+
   return originalRange
     ? 'The highlighted bytes are a candidate page content stream, not an exact word match. Exact text bytes could not be mapped.'
     : 'Original source bytes are unavailable. Exact text bytes could not be mapped.';
 };
+
 /** Switches between the original file bytes and the decoded stream bytes. */
 const RepresentationToggle = ({
   decoded,
@@ -64,6 +68,7 @@ const RepresentationToggle = ({
     </div>
   );
 };
+
 export const TextSourceBytes = function TextSourceBytes({
   source,
   revealKey,
@@ -82,6 +87,7 @@ export const TextSourceBytes = function TextSourceBytes({
   const exact = source.ranges.length > 0;
   const [decoded, setDecoded] = useState(!source.originalRanges && source.bytes.length > 0 && (exact || !originalRange));
   const decodedScroll = useRef<ScrollPosition['current']>(undefined);
+
   return (
     <div className="flex h-full min-h-0 flex-col" data-text-source-bytes>
       <RepresentationToggle decoded={decoded} canDecode={source.bytes.length > 0} onChange={setDecoded} />

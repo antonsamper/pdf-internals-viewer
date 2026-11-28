@@ -7,15 +7,19 @@ import { cn } from '@/lib/utils';
 const Dialog = function Dialog({ ...props }: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 };
+
 const DialogTrigger = function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
 };
+
 const DialogPortal = function DialogPortal({ ...props }: DialogPrimitive.Portal.Props) {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 };
+
 const DialogClose = function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 };
+
 const DialogOverlay = function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) {
   return (
     <DialogPrimitive.Backdrop
@@ -28,6 +32,7 @@ const DialogOverlay = function DialogOverlay({ className, ...props }: DialogPrim
     />
   );
 };
+
 const DialogContent = function DialogContent({
   className,
   children,
@@ -61,9 +66,11 @@ const DialogContent = function DialogContent({
     </DialogPortal>
   );
 };
+
 const DialogHeader = function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return <div data-slot="dialog-header" className={cn('flex flex-col gap-2', className)} {...props} />;
 };
+
 const DialogFooter = function DialogFooter({
   className,
   showCloseButton = false,
@@ -83,6 +90,7 @@ const DialogFooter = function DialogFooter({
     </div>
   );
 };
+
 const DialogTitle = function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
   return (
     <DialogPrimitive.Title
@@ -92,6 +100,7 @@ const DialogTitle = function DialogTitle({ className, ...props }: DialogPrimitiv
     />
   );
 };
+
 const DialogDescription = function DialogDescription({ className, ...props }: DialogPrimitive.Description.Props) {
   return (
     <DialogPrimitive.Description
@@ -101,6 +110,7 @@ const DialogDescription = function DialogDescription({ className, ...props }: Di
     />
   );
 };
+
 export {
   Dialog,
   DialogClose,

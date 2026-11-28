@@ -157,9 +157,11 @@ const isHidden = (code: number, multiline: boolean) => {
     })
   );
 };
+
 const showHidden = (raw: string, multiline: boolean) => {
   return Array.from(raw, (character) => {
     const code = character.codePointAt(0)!;
+
     return isHidden(code, multiline) ? `⟨U+${code.toString(16).toUpperCase().padStart(4, '0')}⟩` : character;
   }).join('');
 };
@@ -167,6 +169,7 @@ const showHidden = (raw: string, multiline: boolean) => {
 /** Decoded text made safe to read: hidden characters become visible, and long text is cut short. */
 const displayText = (raw: string, max: number, multiline = false) => {
   const text = showHidden(raw.length > max * 2 ? raw.slice(0, max * 2) : raw, multiline);
+
   return text.length > max ? { text: `${text.slice(0, max)}…`, truncated: true } : { text };
 };
 
@@ -178,20 +181,26 @@ const shortLabel = (raw: string | undefined) => {
 const resolve = (value: PdfValue | undefined, objects: Objects): Resolved => {
   let current = value;
   let id: string | undefined;
+
   for (let hop = 0; current?.type === 'reference'; hop++) {
     if (hop >= MAX_HOPS) {
       return { id, note: `Reference chain from ${current.ref} R is too long to follow.` };
     }
+
     const record = objects.get(current.ref);
+
     if (!record) {
       return { id: current.ref, note: `${current.ref} R could not be resolved.` };
     }
+
     id = current.ref;
     current = record.value;
   }
+
   if (current?.type === 'raw') {
     return { id, note: `The value could not be parsed: ${shortLabel(current.text)}` };
   }
+
   return { id, value: current };
 };
 
@@ -203,6 +212,7 @@ const textOf = (value: PdfValue | undefined): string | undefined => {
   if (value?.type === 'string' || value?.type === 'name') {
     return value.value;
   }
+
   return value?.text;
 };
 
@@ -213,11 +223,14 @@ const resolvedText = (value: PdfValue | undefined, objects: Objects) => {
 /** The file a `/F` entry names: a string, or a file specification's `/UF`, `/F` or `/Win /F`. */
 const fileName = (value: PdfValue | undefined, objects: Objects): string | undefined => {
   const file = resolve(value, objects).value;
+
   if (!file || !isDictionary(file)) {
     return textOf(file);
   }
+
   const win = resolve(property(file, 'Win'), objects).value;
   const name = property(file, 'UF') ?? property(file, 'F') ?? (win && property(win, 'F'));
+
   return resolvedText(name, objects);
 };
 
@@ -227,12 +240,15 @@ const labelled = (label: string, raw: string | undefined): PdfActionTarget | und
 
 const script = (value: PdfValue | undefined, objects: Objects): PdfActionTarget | undefined => {
   const resolved = resolve(value, objects);
+
   if (resolved.value?.type === 'stream') {
     return { label: 'Script', streamId: resolved.id };
   }
+
   if (resolved.value?.type !== 'string') {
     return undefined;
   }
+
   return { decodedString: true, label: 'Script', ...displayText(resolved.value.value, MAX_SCRIPT_TEXT, true) };
 };
 
@@ -241,11 +257,15 @@ const launchTarget = (action: PdfValue, objects: Objects) => {
   const target = labelled('File', fileName(property(action, 'F') ?? property(action, 'Win'), objects));
   const win = resolve(property(action, 'Win'), objects).value;
   const parameters = win && isDictionary(win) ? resolvedText(property(win, 'P'), objects) : undefined;
+
   if (!target || !parameters) {
     return target;
   }
+
   const shown = displayText(parameters, MAX_TARGET_TEXT);
+
   target.detail = `Parameters: ${shown.text}${shown.truncated ? ' (truncated)' : ''}`;
+
   return target;
 };
 
@@ -302,6 +322,7 @@ const addNote = (walk: Walk, note: string) => {
   if (walk.noted.has(note)) {
     return;
   }
+
   walk.noted.add(note);
   if (walk.notes.length < MAX_NOTES) {
     walk.notes.push(note);
@@ -326,14 +347,18 @@ const blankAction = (origin: Origin, key: string, actionId?: string): PdfAction 
 /** The `/S` type, its target and the notes for a well-formed action dictionary. */
 const describe = (action: PdfAction, value: PdfValue, objects: Objects) => {
   const type = resolve(property(value, 'S'), objects).value;
+
   if (type?.type !== 'name') {
     action.notes.push(type ? 'The /S action type is not a name.' : 'The action dictionary has no /S action type.');
+
     return;
   }
+
   action.type = shortLabel(type.value);
   action.target = lookup(SUMMARIES, type.value)?.(value, objects);
   action.sensitive = lookup(SENSITIVE_ACTIONS, type.value) ?? (action.target?.label === 'Script' ? 'Runs a script' : undefined);
   const missing = lookup(MISSING_TARGET, type.value);
+
   if (missing && !action.target) {
     action.notes.push(`The ${missing} entry is missing or could not be read.`);
   }
@@ -341,6 +366,7 @@ const describe = (action: PdfAction, value: PdfValue, objects: Objects) => {
 
 const unexpected = (value: PdfValue | undefined, allowDestination: boolean | undefined) => {
   const found = value?.type === 'array' ? 'an array' : `a ${value?.type ?? 'missing value'}`;
+
   return `Expected an action dictionary${allowDestination ? ' or a destination array' : ''}, found ${found}.`;
 };
 
@@ -369,6 +395,7 @@ const isFull = (walk: Walk) => {
 /** Counts one visit. False once the walk is full, so the caller reads nothing more. */
 const spend = (walk: Walk) => {
   walk.steps++;
+
   return !isFull(walk);
 };
 
@@ -377,10 +404,12 @@ const readAction = (walk: Walk, value: PdfValue, origin: Origin, key: string, ch
   if (!spend(walk)) {
     return undefined;
   }
+
   walk.total++;
   const resolved = resolve(value, walk.objects);
   // Link the action's own object only when it exists, so a missing reference offers nothing to inspect.
   const action = blankAction(origin, key, resolved.id && walk.objects.has(resolved.id) ? resolved.id : undefined);
+
   if (resolved.note || !resolved.value) {
     action.notes.push(resolved.note ?? 'The action is empty.');
   } else if (resolved.id && chain.ids.includes(resolved.id)) {
@@ -388,32 +417,41 @@ const readAction = (walk: Walk, value: PdfValue, origin: Origin, key: string, ch
   } else {
     readValue(walk, action, resolved.value, origin, chain);
   }
+
   return action;
 };
 
 /** The actions a `/Next` entry lists, and the object of an indirect `/Next` array. */
 const nextItems = (next: PdfValue, objects: Objects) => {
   const resolved = resolve(next, objects);
+
   return resolved.value?.type === 'array' ? { arrayId: resolved.id, items: resolved.value.items } : { items: [next] };
 };
 
 /** `/Next` holds one action or an array of them, each with its own chain. */
 const readNext = (walk: Walk, action: PdfAction, value: PdfValue, chain: Chain) => {
   const next = property(value, 'Next');
+
   if (!next) {
     return;
   }
+
   if (chain.depth >= MAX_CHAIN) {
     action.notes.push(`The /Next chain is longer than ${MAX_CHAIN} actions. Later actions are not listed.`);
+
     return;
   }
+
   const { arrayId, items } = nextItems(next, walk.objects);
+
   // An indirect /Next array can list the action that holds it, so the array's own object counts as part of the chain.
   if (arrayId && chain.ids.includes(arrayId)) {
     return void action.notes.push(cycleNote(arrayId));
   }
+
   const ids = arrayId ? [...chain.ids, arrayId] : chain.ids;
   const origin = { context: action.context, entry: '/Next', holderId: action.actionId ?? action.holderId, trigger: 'Then' };
+
   action.next = items
     .map((item, index) => {
       return readAction(walk, item, origin, `${action.key}/Next[${index}]`, { depth: chain.depth, ids });
@@ -428,14 +466,19 @@ const addAction = (walk: Walk, value: PdfValue | undefined, origin: Origin, plac
   if (!value || !spend(walk)) {
     return undefined;
   }
+
   const key = `${place}|${origin.entry}`;
+
   if (walk.rows.has(key)) {
     return undefined;
   }
+
   const action = readAction(walk, value, origin, key, { depth: 0, ids: [] });
+
   if (action) {
     walk.rows.set(key, action);
   }
+
   return action;
 };
 
@@ -444,8 +487,10 @@ const addMalformedAdditional = (walk: Walk, origin: Omit<Origin, 'entry' | 'trig
   if (isFull(walk)) {
     return;
   }
+
   walk.total++;
   const row = blankAction({ ...origin, entry: '/AA', trigger: 'Additional actions' }, `${place}|/AA`);
+
   row.notes.push(note);
   walk.rows.set(row.key, row);
 };
@@ -459,19 +504,25 @@ const addAdditional = (
   triggers: Record<string, string>
 ) => {
   const entry = property(holder, 'AA');
+
   if (!entry) {
     return;
   }
+
   const additional = resolve(entry, walk.objects);
   const events = additional.value;
+
   if (events?.type !== 'dictionary' && events?.type !== 'stream') {
     return addMalformedAdditional(walk, origin, place, additional.note ?? unexpected(events, false));
   }
+
   for (const { key, value } of events.entries) {
     if (isFull(walk)) {
       return;
     }
+
     const name = shortLabel(key);
+
     addAction(walk, value, { ...origin, entry: `/AA /${name}`, trigger: lookup(triggers, key) ?? `Event /${name}` }, place);
   }
 };
@@ -479,6 +530,7 @@ const addAdditional = (
 /** Notes the script source the panel doesn't list, so an empty list isn't read as "no scripts". */
 const noteUnlistedScripts = (walk: Walk, catalog: PdfObjectRecord) => {
   const form = resolve(property(catalog.value, 'AcroForm'), walk.objects);
+
   if (form.value && isDictionary(form.value) && property(form.value, 'XFA')) {
     addNote(walk, `The form in ${form.id ?? catalog.id} obj has an /XFA entry. Scripts inside XFA forms are not listed here.`);
   }
@@ -488,18 +540,22 @@ const noteUnlistedScripts = (walk: Walk, catalog: PdfObjectRecord) => {
 const isUnread = (walk: Walk, label: string, present: boolean) => {
   if (present && isFull(walk)) {
     walk.unread.push(label);
+
     return true;
   }
+
   return false;
 };
 
 const hasEntry = (value: PdfValue | undefined, key: string, objects: Objects) => {
   const resolved = resolve(value, objects).value;
+
   return !!resolved && isDictionary(resolved) && !!property(resolved, key);
 };
 
 const addCatalog = (walk: Walk, catalog: PdfObjectRecord) => {
   const origin = { context: 'Document catalogue', holderId: catalog.id };
+
   addAction(
     walk,
     property(catalog.value, 'OpenAction'),
@@ -510,9 +566,11 @@ const addCatalog = (walk: Walk, catalog: PdfObjectRecord) => {
   const names = property(catalog.value, 'Names');
   // An unreadable /Names may still hold scripts, so it counts as a source too.
   const hasScripts = !!names && (hasEntry(names, 'JavaScript', walk.objects) || !isDictionary(resolve(names, walk.objects).value));
+
   if (!isUnread(walk, 'document-level scripts', hasScripts)) {
     addDocumentScripts(walk, catalog);
   }
+
   noteUnlistedScripts(walk, catalog);
 };
 
@@ -524,9 +582,11 @@ const activationTrigger = (subtype: string | undefined) => {
   if (subtype === 'Link') {
     return 'Link clicked';
   }
+
   if (subtype === 'Widget') {
     return 'Widget activated';
   }
+
   return 'Annotation activated';
 };
 
@@ -537,6 +597,7 @@ const fieldName = (value: PdfValue, objects: Objects) => {
 /** An annotation's or form field's `/A` and `/AA`. `place` identifies a direct dictionary that has no object of its own. */
 const addWidgetLike = (walk: Walk, value: PdfValue, holderId: string | undefined, place: string, context: string) => {
   const origin = { context, holderId };
+
   addAction(walk, property(value, 'A'), { ...origin, entry: '/A', trigger: activationTrigger(subtypeOf(value, walk.objects)) }, place);
   addAdditional(walk, value, origin, place, ANNOTATION_TRIGGERS);
 };
@@ -544,6 +605,7 @@ const addWidgetLike = (walk: Walk, value: PdfValue, holderId: string | undefined
 const annotationContext = (value: PdfValue, objects: Objects, pageNumber: number) => {
   const subtype = subtypeOf(value, objects);
   const name = fieldName(value, objects);
+
   return `${subtype ? `${subtype} annotation` : 'Annotation'}${name ? ` (${name})` : ''} on page ${pageNumber}`;
 };
 
@@ -551,26 +613,37 @@ const addAnnotation = (walk: Walk, page: PdfObjectRecord, pageNumber: number, it
   if (!spend(walk)) {
     return;
   }
+
   const annotation = resolve(item, walk.objects);
+
   if (!annotation.value || !isDictionary(annotation.value)) {
     addNote(walk, `Page ${pageNumber} (${page.id} obj): annotation ${index + 1} ${annotation.note ?? 'is not a dictionary'}`);
+
     return;
   }
+
   const place = annotation.id ?? `${page.id}/Annots[${index}]`;
+
   addWidgetLike(walk, annotation.value, annotation.id ?? page.id, place, annotationContext(annotation.value, walk.objects, pageNumber));
 };
 
 const addAnnotations = (walk: Walk, page: PdfObjectRecord, pageNumber: number) => {
   const entry = property(page.value, 'Annots');
+
   if (!entry) {
     return;
   }
+
   const annots = resolve(entry, walk.objects);
+
   if (annots.value?.type !== 'array') {
     addNote(walk, `Page ${pageNumber} (${page.id} obj): /Annots ${annots.note ?? 'is not an array'}`);
+
     return;
   }
+
   const items = annots.value.items;
+
   for (let index = 0; index < items.length && !isFull(walk); index++) {
     addAnnotation(walk, page, pageNumber, items[index], index);
   }
@@ -580,10 +653,13 @@ const addPage = (walk: Walk, id: string, pageNumber: number) => {
   if (!spend(walk)) {
     return;
   }
+
   const page = walk.objects.get(id);
+
   if (!page) {
     return addNote(walk, `Page ${pageNumber} (${id} obj) could not be read, so its actions are not listed.`);
   }
+
   addAdditional(walk, page.value, { context: `Page ${pageNumber}`, holderId: id }, id, PAGE_TRIGGERS);
   addAnnotations(walk, page, pageNumber);
 };
@@ -592,6 +668,7 @@ const addPages = (walk: Walk, pages: string[]) => {
   if (!pages.length) {
     addNote(walk, 'No pages were read from the page tree, so page and annotation actions are not listed. See Issues.');
   }
+
   for (let index = 0; index < pages.length && !isFull(walk); index++) {
     addPage(walk, pages[index], index + 1);
   }
@@ -611,6 +688,7 @@ type Visit = (value: PdfValue, id: string | undefined, place: string, item: Tree
 const visitChildren = (value: PdfValue, id: string | undefined, item: TreeItem, visit: Visit): TreeItem[] => {
   const base = id ?? item.place;
   const holderId = id ?? item.holderId;
+
   return visit(value, id, base, { ...item, holderId }).map((child, index) => {
     return { depth: item.depth + 1, holderId, place: `${base}/${index}`, value: child };
   });
@@ -621,20 +699,27 @@ const visitItem = (walk: Walk, label: string, seen: Set<PdfValue>, item: TreeIte
   if (!spend(walk)) {
     return [];
   }
+
   const { place, value } = item;
   const resolved = resolve(value, walk.objects);
+
   // Parsed values are shared, so one dictionary reached twice, directly or through a reference, is the same object.
   if (resolved.value && seen.has(resolved.value)) {
     addNote(walk, `${label}: ${resolved.id ? `${resolved.id} obj` : 'a dictionary'} is reached more than once, so the walk stops there.`);
+
     return [];
   }
+
   if (resolved.value) {
     seen.add(resolved.value);
   }
+
   if (!resolved.value || !isDictionary(resolved.value)) {
     addNote(walk, `${label}: ${resolved.note ?? `an item at ${place} is not a dictionary`}`);
+
     return [];
   }
+
   return visitChildren(resolved.value, resolved.id, item, visit);
 };
 
@@ -646,11 +731,14 @@ const walkTree = (walk: Walk, roots: PdfValue[], label: string, visit: Visit, ho
       return { depth: 0, holderId, place: `${label}[${index}]`, value };
     })
     .toReversed();
+
   for (let steps = 0; stack.length && !isFull(walk); steps++) {
     if (steps + stack.length > MAX_WALK) {
       return addNote(walk, `${label}: more than ${MAX_WALK} items. Later items are not listed.`);
     }
+
     const children = visitItem(walk, label, seen, stack.pop()!, visit);
+
     for (let index = children.length - 1; index >= 0; index--) {
       stack.push(children[index]);
     }
@@ -659,27 +747,35 @@ const walkTree = (walk: Walk, roots: PdfValue[], label: string, visit: Visit, ho
 
 const arrayItems = (value: PdfValue | undefined, objects: Objects) => {
   const resolved = resolve(value, objects).value;
+
   return resolved?.type === 'array' ? resolved.items : [];
 };
 
 const addFields = (walk: Walk, catalog: PdfObjectRecord) => {
   const form = resolve(property(catalog.value, 'AcroForm'), walk.objects).value;
+
   if (!form || !isDictionary(form)) {
     return;
   }
+
   walkTree(walk, arrayItems(property(form, 'Fields'), walk.objects), 'Form fields', (value, id, place) => {
     const name = fieldName(value, walk.objects);
+
     addWidgetLike(walk, value, id, place, name ? `Form field (${name})` : 'Form field');
+
     return arrayItems(property(value, 'Kids'), walk.objects);
   });
 };
 
 const addOutline = (walk: Walk, catalog: PdfObjectRecord) => {
   const outlines = resolve(property(catalog.value, 'Outlines'), walk.objects).value;
+
   if (!outlines || !isDictionary(outlines)) {
     return;
   }
+
   const first = property(outlines, 'First');
+
   walkTree(walk, first ? [first] : [], 'Outline', (value, id, place) => {
     const title = shortLabel(resolvedText(property(value, 'Title'), walk.objects));
     const origin = {
@@ -688,7 +784,9 @@ const addOutline = (walk: Walk, catalog: PdfObjectRecord) => {
       holderId: id,
       trigger: 'Outline item selected',
     };
+
     addAction(walk, property(value, 'A'), origin, place);
+
     // An outline item's /Next is its next sibling, not an action chain.
     return [property(value, 'First'), property(value, 'Next')].filter((child): child is PdfValue => {
       return !!child;
@@ -701,14 +799,19 @@ const SCRIPTS_LABEL = 'Document-level scripts';
 /** A name-tree node's `/Kids` or `/Names` array, noting an entry that is there but isn't an array. */
 const nodeArray = (walk: Walk, node: PdfValue, key: string, label: string): PdfValue[] => {
   const entry = property(node, key);
+
   if (!entry) {
     return [];
   }
+
   const resolved = resolve(entry, walk.objects);
+
   if (resolved.value?.type !== 'array') {
     addNote(walk, `${SCRIPTS_LABEL}: /${key} in ${label} ${resolved.note ? `could not be read. ${resolved.note}` : 'is not an array.'}`);
+
     return [];
   }
+
   return resolved.value.items;
 };
 
@@ -720,9 +823,11 @@ const markScript = (walk: Walk, action: PdfAction, value: PdfValue) => {
   action.sensitive ??= SENSITIVE_ACTIONS.JavaScript;
   const resolved = resolve(value, walk.objects).value;
   const js = resolved && isDictionary(resolved) ? script(property(resolved, 'JS'), walk.objects) : undefined;
+
   if (!js || action.target?.label === 'Script') {
     return;
   }
+
   if (action.target) {
     action.notes.push(
       `The /S action type is /${action.type}, not /JavaScript, and the entry also has a /JS script. Inspect it to read the script.`
@@ -742,9 +847,11 @@ const addScript = (walk: Walk, key: PdfValue, value: PdfValue, place: string, ho
     trigger: 'Document opens',
   };
   const action = addAction(walk, value, origin, place);
+
   if (!action) {
     return;
   }
+
   markScript(walk, action, value);
   if (name?.type !== 'string') {
     action.notes.push(`The script's name is ${name ? `a ${name.type}` : 'missing'}, not a string.`);
@@ -756,6 +863,7 @@ const addScripts = (walk: Walk, names: PdfValue[], place: string, holderId: stri
   if (names.length % 2) {
     addNote(walk, `${SCRIPTS_LABEL}: /Names in ${label} has an odd number of items. The last name has no script and is skipped.`);
   }
+
   for (let index = 0; index + 1 < names.length && !isFull(walk); index += 2) {
     addScript(walk, names[index], names[index + 1], `${place}/Names[${index}]`, holderId);
   }
@@ -764,15 +872,20 @@ const addScripts = (walk: Walk, names: PdfValue[], place: string, holderId: stri
 /** One node of the `/Names /JavaScript` tree: its scripts, then its `/Kids` unless the tree is too deep. */
 const visitScriptNode = (walk: Walk, node: PdfValue, id: string | undefined, place: string, { depth, holderId }: TreeItem) => {
   const label = id ? `${id} obj` : `a node in ${holderId} obj`;
+
   if (!property(node, 'Names') && !property(node, 'Kids')) {
     addNote(walk, `${SCRIPTS_LABEL}: ${label} has neither /Names nor /Kids.`);
   }
+
   addScripts(walk, nodeArray(walk, node, 'Names', label), place, holderId, label);
   const kids = nodeArray(walk, node, 'Kids', label);
+
   if (kids.length && depth + 1 >= MAX_NAME_TREE_DEPTH) {
     addNote(walk, `${SCRIPTS_LABEL}: the tree is more than ${MAX_NAME_TREE_DEPTH} levels deep, so the /Kids of ${label} are not listed.`);
+
     return [];
   }
+
   return kids;
 };
 
@@ -780,14 +893,19 @@ const visitScriptNode = (walk: Walk, node: PdfValue, id: string | undefined, pla
 const addDocumentScripts = (walk: Walk, catalog: PdfObjectRecord) => {
   const entry = property(catalog.value, 'Names');
   const names = resolve(entry, walk.objects);
+
   if (entry && (!names.value || !isDictionary(names.value))) {
     addNote(walk, `${SCRIPTS_LABEL}: the catalogue's /Names ${names.note ? `could not be read. ${names.note}` : 'is not a dictionary.'}`);
+
     return;
   }
+
   const tree = names.value && property(names.value, 'JavaScript');
+
   if (!tree) {
     return;
   }
+
   walkTree(
     walk,
     [tree],
@@ -802,29 +920,38 @@ const addDocumentScripts = (walk: Walk, catalog: PdfObjectRecord) => {
 /** The catalogue as a dictionary, or a note saying why catalogue, form and outline actions can't be read. */
 const readCatalog = (walk: Walk, document: PdfDocumentInfo) => {
   const catalog = document.catalogId ? walk.objects.get(document.catalogId) : undefined;
+
   if (catalog && isDictionary(catalog.value)) {
     return catalog;
   }
+
   const reason = document.catalogId ? `The catalogue ${document.catalogId} obj could not be read` : 'The trailer names no catalogue';
+
   addNote(walk, `${reason}, so catalogue, form field and outline actions are not listed.`);
+
   return undefined;
 };
 
 const walkSources = (walk: Walk, document: PdfDocumentInfo) => {
   const catalog = readCatalog(walk, document);
+
   if (catalog) {
     addCatalog(walk, catalog);
   }
+
   // The catalogue's script tree can fill the list on its own, so later sources are named in a note instead of vanishing.
   if (!isUnread(walk, 'pages with their annotations', document.pages.length > 0)) {
     addPages(walk, document.pages);
   }
+
   if (!catalog) {
     return;
   }
+
   if (!isUnread(walk, 'form fields', hasEntry(property(catalog.value, 'AcroForm'), 'Fields', walk.objects))) {
     addFields(walk, catalog);
   }
+
   if (!isUnread(walk, 'the outline', hasEntry(property(catalog.value, 'Outlines'), 'First', walk.objects))) {
     addOutline(walk, catalog);
   }
@@ -833,24 +960,30 @@ const walkSources = (walk: Walk, document: PdfDocumentInfo) => {
 /** Every action reachable from the catalogue and its document-level scripts, pages, annotations, form fields and outline. Nothing is run. */
 export const documentActions = function documentActions(document: PdfDocumentInfo, objects: Objects): PdfActionReport {
   const walk: Walk = { hiddenNotes: 0, noted: new Set(), notes: [], objects, rows: new Map(), steps: 0, total: 0, unread: [] };
+
   try {
     walkSources(walk, document);
   } catch (error) {
     // Keep what was read: a failure here must not hide the rest of the inspection.
     addNote(walk, `The action walk stopped early: ${error instanceof Error ? error.message : String(error)}`);
   }
+
   if (walk.total >= MAX_ACTIONS) {
     walk.notes.push(`The list stops at ${MAX_ACTIONS} actions. Later actions are not listed.`);
   }
+
   if (walk.steps > MAX_STEPS) {
     walk.notes.push(`The list stops after ${MAX_STEPS} steps. Later actions are not listed.`);
   }
+
   if (walk.unread.length) {
     walk.notes.push(`The list stopped before these sources were read, so any actions in them are not listed: ${walk.unread.join(', ')}.`);
   }
+
   if (walk.hiddenNotes) {
     walk.notes.push(`${walk.hiddenNotes} more parse notes are not shown.`);
   }
+
   return { actions: [...walk.rows.values()], notes: walk.notes, total: walk.total };
 };
 
@@ -878,9 +1011,12 @@ export const scriptText = function scriptText(result: StreamResult): { text: str
       return bytes[index] === byte;
     });
   });
+
   if (!mark) {
     return { encoding: 'one character per byte', text: showHidden(result.text, true) };
   }
+
   const [prefix, label, name] = mark;
+
   return { encoding: name, text: showHidden(new TextDecoder(label).decode(bytes.subarray(prefix.length)), true) };
 };

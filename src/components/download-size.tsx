@@ -14,16 +14,20 @@ export const DownloadSize = function DownloadSize({
   const { ref, visible } = useVisible();
   const [size, setSize] = useState<number>();
   const [error, setError] = useState<string>();
+
   useEffect(() => {
     if (!visible) {
       return;
     }
+
     let active = true;
+
     extractStream(id, 'size')
       .then((result) => {
         if (!active) {
           return;
         }
+
         if (result.error || result.byteLength === undefined) {
           setError(result.error ?? 'The complete size could not be determined.');
         } else {
@@ -35,10 +39,12 @@ export const DownloadSize = function DownloadSize({
           setError(reason instanceof Error ? reason.message : 'Could not determine the size.');
         }
       });
+
     return () => {
       active = false;
     };
   }, [id, extractStream, visible]);
+
   return (
     <div
       ref={ref}

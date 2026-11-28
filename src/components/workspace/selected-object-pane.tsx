@@ -45,6 +45,7 @@ export const SelectedObjectPane = ({
   onTabChange: (tab: InspectorTab) => void;
 }) => {
   const pageIds = new Set(pages);
+
   return (
     <ObjectInspector
       onFollowLink={onFollowLink}

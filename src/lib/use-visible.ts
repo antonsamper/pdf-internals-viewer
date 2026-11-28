@@ -3,10 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 export const useVisible = function useVisible() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+
   useEffect(() => {
     if (!ref.current) {
       return;
     }
+
     const observer = new IntersectionObserver((entries) => {
       if (
         entries.some((entry) => {
@@ -17,10 +19,13 @@ export const useVisible = function useVisible() {
         observer.disconnect();
       }
     });
+
     observer.observe(ref.current);
+
     return () => {
       return observer.disconnect();
     };
   }, []);
+
   return { ref, visible };
 };

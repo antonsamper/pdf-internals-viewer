@@ -15,4 +15,5 @@ const Input = function Input({ className, type, ...props }: React.ComponentProps
     />
   );
 };
+
 export { Input };

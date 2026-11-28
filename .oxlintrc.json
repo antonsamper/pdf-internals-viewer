@@ -10,6 +10,13 @@
     "react/exhaustive-deps": "warn",
     "react/only-export-components": ["error", { "allowConstantExport": true }],
     "react/react-in-jsx-scope": "off",
+    "@stylistic/padding-line-between-statements": [
+      "error",
+      { "blankLine": "always", "next": "return", "prev": "*" },
+      { "blankLine": "always", "next": "*", "prev": ["const", "let"] },
+      { "blankLine": "any", "next": ["const", "let"], "prev": ["const", "let"] },
+      { "blankLine": "always", "next": "*", "prev": "block-like" }
+    ],
     "typescript/no-explicit-any": "error",
     "typescript/consistent-type-imports": "error",
     "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
@@ -45,5 +52,6 @@
     "builtin": true,
     "browser": true
   },
-  "ignorePatterns": ["dist", "public/**/*.js", "src/routeTree.gen.ts"]
+  "ignorePatterns": ["dist", "public/**/*.js", "src/routeTree.gen.ts"],
+  "jsPlugins": ["@stylistic/eslint-plugin"]
 }

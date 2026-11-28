@@ -33,9 +33,11 @@ export const WorkspaceContent = ({
   if (about) {
     return <AboutPage onFollowLink={onFollowLink} />;
   }
+
   if (path !== '/') {
     return <PublicPage key={path} page={sitePage(path)!} onFollowLink={onFollowLink} />;
   }
+
   return showWorkspace ? workspace : empty;
 };
 
@@ -56,9 +58,11 @@ export const WorkspaceFooter = ({
   path: SitePath;
 }) => {
   const hasWorkspace = byteCount > 0 || busy;
+
   if (path !== '/' || !hasWorkspace) {
     return <SiteLinks onFollowLink={onFollowLink} />;
   }
+
   return <StatusBar busy={busy} byteCount={byteCount} document={document} objectCount={objectCount} onFollowLink={onFollowLink} />;
 };
 

@@ -13,8 +13,10 @@ const inspect = async function inspect(bytes: Uint8Array) {
       return [object.id, object];
     })
   );
+
   return { document, objects };
 };
+
 describe('object explanations and labelled relationships', () => {
   it('preserves nested key and array paths, without following cycles', async () => {
     const { objects } = await inspect(
@@ -27,6 +29,7 @@ describe('object explanations and labelled relationships', () => {
       ]).bytes
     );
     const links = referencePaths(objects.get('3 0')!).links;
+
     expect(
       links
         .filter((link) => {
@@ -50,6 +53,7 @@ describe('object explanations and labelled relationships', () => {
     const { document, objects } = await inspect(minimalPdf().bytes);
     const stream = objects.get('4 0')!;
     const relationships = objectRelationships(stream, objects);
+
     expect(relationships.incoming).toEqual([{ path: ['/Contents'], sourceId: '3 0', targetId: '4 0' }]);
     expect(objectSummary(stream, document.pages, relationships.incoming, objects)).toContain('content stream referenced by Page 1');
     // The inherited font belongs to the actual ancestor dictionary, not the leaf page.
@@ -65,6 +69,7 @@ describe('object explanations and labelled relationships', () => {
     const { document, objects } = await inspect(resourcesPdf().bytes);
     const image = objects.get('6 0')!;
     const summary = objectSummary(image, document.pages, [], objects);
+
     expect(summary).toContain('1 × 1 pixels');
     expect(summary).toContain('does not prove the image is drawn');
     expect(objectSummary(objects.get('5 0')!, document.pages, [], objects)).toContain('font dictionary');
@@ -82,12 +87,15 @@ describe('object explanations and labelled relationships', () => {
       },
     } as PdfObjectRecord;
     const wide = referencePaths(object);
+
     expect(wide.links).toHaveLength(200);
     expect(wide.incomplete).toBe(true);
     let value = ref;
+
     for (let i = 0; i < 40; i++) {
       value = { items: [value], text: '', type: 'array' };
     }
+
     expect(referencePaths({ ...object, value }).incomplete).toBe(true);
   });
 });

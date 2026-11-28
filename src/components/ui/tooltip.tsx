@@ -5,12 +5,15 @@ import { cn } from '@/lib/utils';
 const TooltipProvider = ({ delay = 0, ...props }: TooltipPrimitive.Provider.Props) => {
   return <TooltipPrimitive.Provider data-slot="tooltip-provider" delay={delay} {...props} />;
 };
+
 const Tooltip = ({ ...props }: TooltipPrimitive.Root.Props) => {
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
 };
+
 const TooltipTrigger = ({ ...props }: TooltipPrimitive.Trigger.Props) => {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 };
+
 const TooltipContent = ({
   className,
   side = 'top',
@@ -38,4 +41,5 @@ const TooltipContent = ({
     </TooltipPrimitive.Portal>
   );
 };
+
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };

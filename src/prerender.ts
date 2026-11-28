@@ -11,4 +11,5 @@ export const renderPage = (page: SitePage) => {
     ? renderToString(createElement(StrictMode, null, createElement(App, { initialPath: page.path })))
     : renderToStaticMarkup(createElement(StaticPublicPage, { page }));
 };
+
 export { SITE_PAGES, SITE_URL, pageHead };

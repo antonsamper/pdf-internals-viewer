@@ -10,6 +10,7 @@ const engine = vi.hoisted(() => {
     open: vi.fn(),
   };
 });
+
 vi.mock('@embedpdf/engine', () => {
   return {
     localEngine: () => {
@@ -23,6 +24,7 @@ const never = () => {
     return undefined;
   });
 };
+
 const blank = {
   close: async () => {
     return undefined;
@@ -43,6 +45,7 @@ describe('page text search time limits', () => {
   });
   it('waits for a slow engine load without starting the search limit', async () => {
     let loaded!: (value: typeof blank) => void;
+
     engine.open
       .mockReturnValueOnce(
         new Promise((done) => {
@@ -52,11 +55,13 @@ describe('page text search time limits', () => {
       .mockReturnValueOnce(never());
     const result = search();
     const settled = vi.fn();
+
     result.catch(settled);
     await vi.advanceTimersByTimeAsync(60_000);
     expect(settled).not.toHaveBeenCalled();
     loaded(blank);
     const timedOut = expect(result).rejects.toThrow('Page text search exceeded 15 seconds. Try a smaller PDF or another search mode.');
+
     await vi.advanceTimersByTimeAsync(15_000);
     await timedOut;
     expect(engine.destroy).toHaveBeenCalled();
@@ -66,6 +71,7 @@ describe('page text search time limits', () => {
     const result = expect(search()).rejects.toThrow(
       'The page text engine did not load within 2 minutes. Check your connection and search again.'
     );
+
     await vi.advanceTimersByTimeAsync(120_000);
     await result;
     expect(engine.open).toHaveBeenCalledTimes(1);
@@ -76,6 +82,7 @@ describe('page text search time limits', () => {
     const settled = expect(result).rejects.toThrow(
       'The page text engine did not load within 2 minutes. Check your connection and search again.'
     );
+
     await vi.advanceTimersByTimeAsync(1000);
     await settled;
   });
@@ -86,6 +93,7 @@ describe('page text search time limits', () => {
   });
   it('reports a cancellation during the engine load as a cancellation', async () => {
     const controller = new AbortController();
+
     engine.open.mockReturnValueOnce(
       new Promise((_, reject) => {
         return controller.signal.addEventListener('abort', () => {
@@ -94,6 +102,7 @@ describe('page text search time limits', () => {
       })
     );
     const result = search(controller.signal);
+
     controller.abort();
     await expect(result).rejects.toMatchObject({ name: 'AbortError' });
     expect(engine.destroy).toHaveBeenCalled();
@@ -109,6 +118,7 @@ const documentWith = (total: number, size: number) => {
   const query = vi.fn(async ({ cursor, limit }: { cursor?: string; limit: { matches: number } }) => {
     const start = Number(cursor ?? 0);
     const end = Math.min(total, start + Math.min(size, limit.matches));
+
     return {
       matches: Array.from({ length: end - start }, (_, index) => {
         return match(((start + index) % 3) + 1);
@@ -116,6 +126,7 @@ const documentWith = (total: number, size: number) => {
       nextCursor: end < total ? String(end) : null,
     };
   });
+
   return {
     pages: {
       list: async () => {
@@ -142,6 +153,7 @@ describe('page text search match limit', () => {
   ])('%i matches in batches of %i is limited: %s', async (total, size, limited) => {
     engine.open.mockResolvedValueOnce(blank).mockResolvedValueOnce(documentWith(total, size));
     const result = await search();
+
     expect(result.limited).toBe(limited);
     expect(
       result.hits.reduce((sum, hit) => {

@@ -3,11 +3,14 @@ import { deflateSync } from 'node:zlib';
 import { classicPdf } from './pdf-fixtures.mjs';
 
 const ascii = text => { return Buffer.from(text, 'latin1'); };
+
 const stream = (data, dictionary = '', compress = false) => {
     const raw = ascii(data);
     const bytes = compress ? deflateSync(raw) : raw;
+
     return Buffer.concat([ascii(`<< /Length ${bytes.length} ${compress ? '/Filter /FlateDecode ' : ''}${dictionary} >>\nstream\n`), bytes, ascii('\nendstream')]);
 };
+
 const page = (extra = '') => { return `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 5 0 R ${extra} >>`; };
 
 /**

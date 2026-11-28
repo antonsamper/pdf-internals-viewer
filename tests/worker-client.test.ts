@@ -47,6 +47,7 @@ afterEach(() => {
 it('pulls the next batch only after receiving the previous one and publishes a complete document', async () => {
   vi.stubGlobal('Worker', ControlledWorker);
   const document = await new PdfInspector().open(minimalPdf().bytes);
+
   // Enough records to require acknowledgements, independent of string size.
   document.objects = Array.from({ length: 300 }, (_, i) => {
     return {
@@ -61,11 +62,14 @@ it('pulls the next batch only after receiving the previous one and publishes a c
   const worker = ControlledWorker.instance;
   let done = false;
   let received = 0;
+
   while (!done) {
     expect(worker.requests).toHaveLength(received + 1);
     const request = worker.requests[received];
+
     expect(request.type).toBe(received ? 'open-next' : 'open');
     const batch = sender.next();
+
     worker.respond({
       requestId: request.requestId,
       type: 'opened-batch',
@@ -75,6 +79,7 @@ it('pulls the next batch only after receiving the previous one and publishes a c
     done = batch.done;
     await Promise.resolve();
   }
+
   expect((await opening).objects).toEqual(document.objects);
   client.dispose();
 });
@@ -85,6 +90,7 @@ it('cancels between batches without requesting more data or publishing a partial
   const opening = client.open(new Uint8Array([1]), 'old.pdf');
   const rejected = expect(opening).rejects.toThrow('cancelled');
   const worker = ControlledWorker.instance;
+
   worker.respond({
     done: false,
     items: [],
@@ -103,6 +109,7 @@ it('rejects errors during a subsequent batch', async () => {
   const opening = client.open(new Uint8Array([1]), 'broken.pdf');
   const rejected = expect(opening).rejects.toThrow('Transfer failed');
   const worker = ControlledWorker.instance;
+
   worker.respond({
     done: false,
     items: [],
@@ -126,6 +133,7 @@ it('terminates the worker when an acknowledgement receives no response', async (
   const opening = client.open(new Uint8Array([1]), 'stalled.pdf');
   const rejected = expect(opening).rejects.toThrow('exceeded 15 seconds');
   const worker = ControlledWorker.instance;
+
   worker.respond({
     done: false,
     items: [],

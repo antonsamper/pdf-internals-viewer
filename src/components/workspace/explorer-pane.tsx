@@ -54,6 +54,7 @@ const sectionObjects = (
         return !!object;
       });
   }
+
   return section === 'resources' ? resourceObjects : objects;
 };
 
@@ -164,6 +165,7 @@ const ObjectList = ({
   onScroll: (top: number) => void;
 }) => {
   const listStart = Math.max(0, Math.floor(scrollTop / OBJECT_ROW_HEIGHT) - 5);
+
   return (
     <div
       className="min-h-0 flex-1 overflow-auto px-1.75"
@@ -238,6 +240,7 @@ export const ExplorerPane = ({
   onVisitBookmark: (saved: Selection) => void;
 }) => {
   const listedObjects = sectionObjects(section, document, objectMap, resourceObjects, objects);
+
   return (
     <aside className="flex h-full min-h-0 flex-col bg-sidebar" aria-label="Structure explorer">
       <PaneHeading>

@@ -81,24 +81,29 @@ const paneTitle = ({ busy, preview, section, selected }: Pick<InspectorPaneProps
   if (busy) {
     return 'Opening PDF';
   }
+
   if (preview) {
     return 'Page preview';
   }
+
   if (selected) {
     return 'Object inspector';
   }
+
   const titles: Partial<Record<Section, string>> = {
     actions: 'Actions',
     issues: 'Issues',
     resources: 'Resource browser',
     structure: 'File structure',
   };
+
   return titles[section] ?? 'Overview';
 };
 
 /** Pins the selected object to compare it with the next one, or unpins it. */
 const PinAction = ({ pinnedId, selected, onPin }: Pick<InspectorPaneProps, 'pinnedId' | 'onPin'> & { selected: PdfObjectRecord }) => {
   const pinned = pinnedId === selected.id;
+
   return (
     <PaneAction
       variant={pinned ? 'secondary' : 'ghost'}
@@ -135,6 +140,7 @@ const PreviewAction = ({
 
 const PaneActions = (props: InspectorPaneProps) => {
   const { hasRange, section, selected, onBookmark, onBrowseResources } = props;
+
   return (
     <div className="flex items-center gap-1 narrow:flex-wrap">
       {section === 'resources' && selected && <PaneAction onClick={onBrowseResources}>Browse resources</PaneAction>}
@@ -152,6 +158,7 @@ const PaneActions = (props: InspectorPaneProps) => {
 
 const SelectedObjectView = ({ inspectorContent, objectMap, pinnedId, selected, onNavigate, onPin }: InspectorPaneProps) => {
   const pinned = pinnedId ? objectMap.get(pinnedId) : undefined;
+
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden [&>section]:flex-1">
       {pinned ? (
@@ -220,6 +227,7 @@ const PreviewView = ({ bytes, filename, previewPage, previewPassword, previewSea
 /** The issues, actions or resources section, or null for a section without its own view. */
 const SectionView = (props: InspectorPaneProps & { document: PdfDocumentInfo }) => {
   const { document, filename, issues, limits, objectMap, section, scrollPositionRef } = props;
+
   if (section === 'issues') {
     return (
       <IssuesPanel
@@ -235,6 +243,7 @@ const SectionView = (props: InspectorPaneProps & { document: PdfDocumentInfo }) 
       />
     );
   }
+
   if (section === 'actions') {
     return (
       <ActionsPanel
@@ -250,6 +259,7 @@ const SectionView = (props: InspectorPaneProps & { document: PdfDocumentInfo }) 
       />
     );
   }
+
   if (section === 'resources') {
     return (
       <ResourceBrowser
@@ -269,6 +279,7 @@ const SectionView = (props: InspectorPaneProps & { document: PdfDocumentInfo }) 
       />
     );
   }
+
   return null;
 };
 
@@ -276,18 +287,23 @@ const SECTION_VIEWS = new Set<Section>(['issues', 'actions', 'resources']);
 
 const InspectorBody = (props: InspectorPaneProps) => {
   const { busy, bytes, document, overview, preview, section, selected } = props;
+
   if (busy) {
     return <LoadingView />;
   }
+
   if (preview && bytes.length) {
     return <PreviewView {...props} />;
   }
+
   if (selected) {
     return <SelectedObjectView {...props} />;
   }
+
   if (document && SECTION_VIEWS.has(section)) {
     return <SectionView {...props} document={document} />;
   }
+
   return overview;
 };
 

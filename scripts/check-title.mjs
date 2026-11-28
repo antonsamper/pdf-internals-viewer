@@ -3,6 +3,7 @@ import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const TYPES = ['feat', 'fix', 'chore', 'docs', 'ci', 'test', 'perf', 'refactor'];
+
 export const AREAS = ['inspector', 'site', 'search', 'infra', 'brand', 'repo'];
 export const MAX_LENGTH = 72;
 
@@ -15,10 +16,13 @@ export const titleProblem = function titleProblem(title) {
   if (!pattern.test(title)) {
     return `"${title}" must match '[PIV-<issue>] type(scope): summary'. The type is one of ${TYPES.join(', ')}, the scope is one of ${AREAS.join(', ')}, and the summary is all lowercase with no full stop. See AGENTS.md.`;
   }
+
   const length = [...title].length;
+
   if (length > MAX_LENGTH) {
     return `"${title}" is ${length} characters. The limit is ${MAX_LENGTH}.`;
   }
+
   return undefined;
 };
 
@@ -43,6 +47,7 @@ export const commitSubjectProblem = function commitSubjectProblem(message) {
       return line.trim();
     })
     .join(' ');
+
   return gitSubject.test(subject) ? undefined : titleProblem(subject);
 };
 
@@ -54,12 +59,14 @@ const annotation = function annotation(text) {
 if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const [first, file] = process.argv.slice(2);
   const problem = first === '--commit-msg-file' ? commitSubjectProblem(readFileSync(file, 'utf8')) : titleProblem(first ?? '');
+
   if (problem) {
     if (process.env.GITHUB_ACTIONS === 'true') {
       console.log(annotation(problem));
     } else {
       console.error(problem);
     }
+
     process.exitCode = 1;
   }
 }

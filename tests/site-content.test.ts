@@ -5,11 +5,13 @@ import { SITE_URL, sitePage, structuredData } from '../src/lib/site-content';
 const graph = (path: string) => {
   return structuredData(sitePage(path)!)['@graph'] as Array<Record<string, unknown>>;
 };
+
 const node = (path: string, type: string) => {
   return graph(path).find((item) => {
     return item['@type'] === type;
   });
 };
+
 const trail = (path: string) => {
   return (node(path, 'BreadcrumbList')!.itemListElement as Array<{ item: string; name: string; position: number }>).map(
     ({ item, name, position }) => {
@@ -26,6 +28,7 @@ describe('public page structured data', () => {
 
   it('gives overview pages a two-step breadcrumb and no article details', () => {
     const page = node('/who-its-for', 'WebPage');
+
     expect(page).not.toHaveProperty('author');
     expect(page).not.toHaveProperty('dateModified');
     expect(trail('/who-its-for')).toEqual([

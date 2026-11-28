@@ -6,6 +6,7 @@ export const property = function property(value: PdfValue, key: string): PdfValu
       })?.value
     : undefined;
 };
+
 export const effectiveResources = function effectiveResources(
   page: PdfObjectRecord,
   objects: Map<string, PdfObjectRecord>
@@ -17,20 +18,26 @@ export const effectiveResources = function effectiveResources(
   | undefined {
   const seen = new Set<string>();
   let current: PdfObjectRecord | undefined = page;
+
   while (current && !seen.has(current.id)) {
     seen.add(current.id);
     const resources = property(current.value, 'Resources');
+
     if (resources) {
       return {
         value: resources,
         ...(current.id !== page.id ? { inheritedFrom: current.id } : {}),
       };
     }
+
     const parent = property(current.value, 'Parent');
+
     current = parent?.type === 'reference' ? objects.get(parent.ref) : undefined;
   }
 };
+
 export const hasSubtype = function hasSubtype(object: PdfObjectRecord, subtype: string): boolean {
   const value = property(object.value, 'Subtype');
+
   return value?.type === 'name' && value.value === subtype;
 };

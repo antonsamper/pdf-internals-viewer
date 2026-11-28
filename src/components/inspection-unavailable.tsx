@@ -19,6 +19,7 @@ export const InspectionUnavailable = function InspectionUnavailable({
   onShowBytes: () => void;
 }) {
   const failure = inspectionFailure(reason);
+
   return (
     <section aria-label="Why structure is unavailable">
       <FileWarning size={24} className="mt-3 mb-1 text-muted-foreground" aria-hidden="true" />

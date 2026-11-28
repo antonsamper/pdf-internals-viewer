@@ -39,6 +39,7 @@ describe('search result limit', () => {
     ['objects', 501, NOTICE],
   ])('%s search with %i matches', async (scope, count, message) => {
     const outcome = await runDocumentSearch(request(scope, { objects: fonts(count), term: 'font' }));
+
     expect(outcome?.found).toHaveLength(500);
     expect(outcome?.message).toBe(message);
   });
@@ -47,6 +48,7 @@ describe('search result limit', () => {
     [501, NOTICE],
   ])('byte search with %i matches', async (count, message) => {
     const outcome = await runDocumentSearch(request('text', { bytes: new TextEncoder().encode('x'.repeat(count)) }));
+
     expect(outcome?.found).toHaveLength(500);
     expect(outcome?.message).toBe(message);
   });
@@ -65,6 +67,7 @@ describe('search result limit', () => {
         },
       })
     );
+
     expect(outcome?.found).toHaveLength(500);
     expect(outcome?.message).toBe(message);
   });

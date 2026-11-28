@@ -11,6 +11,7 @@ const application = (
     <App initialPath={sitePage(window.location.pathname)?.path ?? '/'} />
   </StrictMode>
 );
+
 if (root.hasChildNodes()) {
   hydrateRoot(root, application);
 } else {

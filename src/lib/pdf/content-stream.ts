@@ -12,30 +12,39 @@ export const contentInstructions = function contentInstructions(
   const lexer = new ContentLexer(text);
   const instructions: ContentInstruction[] = [];
   let operands: ContentToken[] = [];
+
   for (let tokenCount = 0; tokenCount < 5000 && instructions.length < limit; tokenCount++) {
     const token = lexer.next();
+
     if (!token) {
       break;
     }
+
     if (token.kind !== 'operator') {
       operands.push(token);
       continue;
     }
+
     if (token.text === 'BI') {
       instructions.push(inlineImageInstruction(operands, token, text.length));
+
       return { incomplete: true, instructions };
     }
+
     instructions.push(operatorInstruction(operands, token));
     operands = [];
   }
+
   if (operands.length && instructions.length < limit) {
     instructions.push(trailingOperandsInstruction(operands));
   }
+
   return {
     incomplete: lexer.incomplete() || operands.length > 0,
     instructions,
   };
 };
+
 const operatorInstruction = function operatorInstruction(operands: ContentToken[], token: ContentToken): ContentInstruction {
   return {
     end: token.end,
@@ -44,6 +53,7 @@ const operatorInstruction = function operatorInstruction(operands: ContentToken[
     tokens: [...operands, token],
   };
 };
+
 const inlineImageInstruction = function inlineImageInstruction(
   operands: ContentToken[],
   token: ContentToken,
@@ -56,6 +66,7 @@ const inlineImageInstruction = function inlineImageInstruction(
       'The instruction view stops at inline image data because it cannot interpret those bytes. Use Decoded byte text to inspect the remaining bytes.',
   };
 };
+
 const trailingOperandsInstruction = function trailingOperandsInstruction(operands: ContentToken[]): ContentInstruction {
   return {
     end: operands[operands.length - 1].end,
@@ -64,6 +75,7 @@ const trailingOperandsInstruction = function trailingOperandsInstruction(operand
     warning: 'Trailing operands have no complete operator.',
   };
 };
+
 /** Reads one complete operand or operator at a time and records whether any value was left unterminated. */
 class ContentLexer {
   private cursor = 0;
@@ -75,6 +87,7 @@ class ContentLexer {
   /** Skip whitespace and comments, then read the next token, if any. */
   next(): ContentToken | undefined {
     this.skip();
+
     return this.cursor < this.text.length ? this.value() : undefined;
   }
   incomplete(): boolean {
@@ -99,6 +112,7 @@ class ContentLexer {
   private value(): ContentToken {
     const start = this.cursor;
     const kind = this.readValue(this.text[this.cursor++], start);
+
     return { end: this.cursor, kind, start, text: this.text.slice(start, this.cursor) };
   }
   private readValue(char: string, start: number): ContentToken['kind'] {
@@ -113,14 +127,18 @@ class ContentLexer {
       this.readHexString();
     } else {
       this.skipRegular();
+
       return char === '/' ? 'name' : bareTokenKind(this.text.slice(start, this.cursor));
     }
+
     return 'value';
   }
   private readString() {
     let depth = 1;
+
     while (this.cursor < this.text.length && depth) {
       const next = this.text[this.cursor++];
+
       if (next === '\\') {
         this.skipEscape();
       } else if (next === '(') {
@@ -129,6 +147,7 @@ class ContentLexer {
         depth--;
       }
     }
+
     if (depth) {
       this.malformed = true;
     }
@@ -143,16 +162,19 @@ class ContentLexer {
   private readContainer(close: string) {
     // Iteration uses an explicit stack; hostile deeply nested values cannot overflow the call stack.
     const closes = [close];
+
     while (this.cursor < this.text.length && closes.length) {
       this.skip();
       this.readContainerPart(closes);
     }
+
     if (closes.length) {
       this.malformed = true;
     }
   }
   private readContainerPart(closes: string[]) {
     const close = closes[closes.length - 1];
+
     if (this.text.startsWith(close, this.cursor)) {
       this.cursor += close.length;
       closes.pop();
@@ -170,6 +192,7 @@ class ContentLexer {
     while (this.cursor < this.text.length && this.text[this.cursor] !== '>') {
       this.cursor++;
     }
+
     if (this.cursor === this.text.length) {
       this.malformed = true;
     } else {
@@ -186,22 +209,28 @@ const bareTokenKind = function bareTokenKind(raw: string): ContentToken['kind'] 
   if (/^[+-]?(?:\d+\.?\d*|\.\d+)$/.test(raw)) {
     return 'number';
   }
+
   return /^(true|false|null)$/.test(raw) ? 'value' : 'operator';
 };
+
 export const resolveValue = function resolveValue(
   value: PdfValue | undefined,
   objects: Map<string, PdfObjectRecord>
 ): PdfValue | undefined {
   const seen = new Set<string>();
+
   while (value?.type === 'reference') {
     if (seen.has(value.ref)) {
       return undefined;
     }
+
     seen.add(value.ref);
     value = objects.get(value.ref)?.value;
   }
+
   return value;
 };
+
 const containsContent = function containsContent(
   value: PdfValue | undefined,
   id: string,
@@ -213,9 +242,11 @@ const containsContent = function containsContent(
   if (!value || seen.size > 64 || depth > 64) {
     return false;
   }
+
   if (value.type === 'reference') {
     return referenceContainsContent(value.ref, id, objects, seen, depth);
   }
+
   return (
     value.type === 'array' &&
     value.items.some((item) => {
@@ -223,6 +254,7 @@ const containsContent = function containsContent(
     })
   );
 };
+
 const referenceContainsContent = function referenceContainsContent(
   ref: string,
   id: string,
@@ -233,12 +265,16 @@ const referenceContainsContent = function referenceContainsContent(
   if (ref === id) {
     return true;
   }
+
   if (seen.has(ref)) {
     return false;
   }
+
   seen.add(ref);
+
   return containsContent(objects.get(ref)?.value, id, objects, seen, depth + 1);
 };
+
 export const resourceContexts = function resourceContexts(
   object: PdfObjectRecord,
   objects: Map<string, PdfObjectRecord>,
@@ -247,6 +283,7 @@ export const resourceContexts = function resourceContexts(
 ): ResourceContext[] {
   if (hasSubtype(object, 'Form')) {
     const own = property(object.value, 'Resources');
+
     if (own) {
       return [
         {
@@ -257,6 +294,7 @@ export const resourceContexts = function resourceContexts(
         },
       ];
     }
+
     // A nearest page in the navigation trail does not prove the resource scope of
     // an invocation through nested forms. Never guess at a missing form dictionary.
     return [
@@ -267,11 +305,14 @@ export const resourceContexts = function resourceContexts(
       },
     ];
   }
+
   const contexts = pages.flatMap((id, index) => {
     const page = objects.get(id);
+
     if (!page || !containsContent(property(page.value, 'Contents'), object.id, objects)) {
       return [];
     }
+
     return [
       {
         id,
@@ -281,17 +322,21 @@ export const resourceContexts = function resourceContexts(
       },
     ];
   });
+
   if (contextPageId) {
     contexts.sort((a, b) => {
       return Number(b.id === contextPageId) - Number(a.id === contextPageId);
     });
   }
+
   return contexts;
 };
+
 export const explainInstruction = function explainInstruction(instruction: ContentInstruction): string {
   if (instruction.warning) {
     return instruction.warning;
   }
+
   if (
     instruction.operator === 'Tf' &&
     instruction.tokens.length === 3 &&
@@ -300,20 +345,26 @@ export const explainInstruction = function explainInstruction(instruction: Conte
   ) {
     return `Select font ${instruction.tokens[0].text} at size ${instruction.tokens[1].text}.`;
   }
+
   return explanations[instruction.operator ?? ''] ?? 'Unknown or unsupported operator; inspect the decoded bytes.';
 };
+
 export const resourceCategory = function resourceCategory(
   operator: string | undefined,
   operandIndex: number,
   operandCount: number
 ): string | undefined {
   const resource = resourceOperands.get(operator ?? '');
+
   if (!resource) {
     return undefined;
   }
+
   const index = resource.operand === 'last' ? operandCount - 1 : resource.operand;
+
   return operandIndex === index ? resource.category : undefined;
 };
+
 /** The operand that names a resource for each operator that uses one. Operators come from the document, so look them up in a Map. */
 const resourceOperands = new Map<string, { category: string; operand: number | 'last' }>([
   ['Tf', { category: 'Font', operand: 0 }],
@@ -327,6 +378,7 @@ const resourceOperands = new Map<string, { category: string; operand: number | '
   ['BDC', { category: 'Properties', operand: 1 }],
   ['DP', { category: 'Properties', operand: 1 }],
 ]);
+
 export const namedResource = function namedResource(
   context: ResourceContext | undefined,
   category: string,
@@ -344,14 +396,17 @@ export const namedResource = function namedResource(
     return String.fromCharCode(parseInt(hex, 16));
   });
   const entry = group && property(group, decodedName);
+
   if (!entry) {
     return undefined;
   }
+
   return {
     value: entry,
     ...(entry.type === 'reference' && objects.has(entry.ref) ? { id: entry.ref } : {}),
   };
 };
+
 export interface ContentToken {
   text: string;
   start: number;
@@ -368,9 +423,11 @@ export interface ContentInstruction {
 const whitespace = (char: string) => {
   return char === '\0' || /[\t\n\f\r ]/.test(char);
 };
+
 const delimiter = (char: string) => {
   return !char || whitespace(char) || /[()[\]<>/%]/.test(char);
 };
+
 export interface ResourceContext {
   id: string;
   label: string;

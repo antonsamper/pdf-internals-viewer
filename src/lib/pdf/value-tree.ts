@@ -16,11 +16,13 @@ const hexText = (bytes: Uint8Array) => {
   const hex = Array.from(bytes.subarray(0, MAX_STRING_PREVIEW), (b) => {
     return b.toString(16).padStart(2, '0');
   }).join('');
+
   return `<${hex}${bytes.length > MAX_STRING_PREVIEW ? '…' : ''}>`;
 };
 
 const stringValue = (object: ObjectOfType<'string'>): PdfValue => {
   const text = object.asString();
+
   return {
     text: object.format === 'hex' ? hexText(object.bytes) : `(${text.slice(0, MAX_STRING_PREVIEW)})`,
     type: 'string',
@@ -30,6 +32,7 @@ const stringValue = (object: ObjectOfType<'string'>): PdfValue => {
 
 const rawValue = (object: ObjectOfType<'raw'>): PdfValue => {
   const text = byteText(object.bytes.subarray(0, MAX_DISPLAY_BYTES));
+
   return { text, type: 'raw', value: text };
 };
 
@@ -52,7 +55,9 @@ const scalarValue = (object: ScalarObject): PdfValue => {
 
 const referenceValue = (object: ObjectOfType<'ref'>, references: Set<string>): PdfValue => {
   const id = refId(object);
+
   references.add(id);
+
   return { ref: id, text: `${id} R`, type: 'reference' };
 };
 
@@ -60,6 +65,7 @@ const arrayValue = (object: ObjectOfType<'array'>, references: Set<string>, dept
   const items = object.toArray().map((item) => {
     return valueTree(item, references, depth + 1);
   });
+
   return {
     items,
     text: `[ ${items
@@ -78,6 +84,7 @@ const dictionaryValue = (object: ObjectOfType<'dict' | 'stream'>, references: Se
       value: valueTree(value, references, depth + 1),
     };
   });
+
   return {
     entries,
     text: `<<\n${entries
@@ -93,9 +100,11 @@ const containerValue = (object: ContainerObject, references: Set<string>, depth:
   if (object.type === 'ref') {
     return referenceValue(object, references);
   }
+
   if (object.type === 'array') {
     return arrayValue(object, references, depth);
   }
+
   return dictionaryValue(object, references, depth);
 };
 
@@ -108,5 +117,6 @@ export const valueTree = (object: PdfObject, references: Set<string>, depth = 0)
   if (depth > MAX_NESTING_DEPTH) {
     return { text: '[Nesting limit reached]', type: 'raw', value: '[Nesting limit reached]' };
   }
+
   return isContainer(object) ? containerValue(object, references, depth) : scalarValue(object);
 };

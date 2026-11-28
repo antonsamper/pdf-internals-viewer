@@ -7,6 +7,7 @@ export const useSourceReveal = () => {
   const [textSource, setTextSource] = useState<TextSource | null>(null);
   const [byteReveal, setByteReveal] = useState<number>();
   const sequence = useRef(0);
+
   return {
     byteReveal,
     clear: () => {

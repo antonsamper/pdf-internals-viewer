@@ -52,17 +52,22 @@ export const useDocumentSearch = (deps: SearchDeps) => {
   const [interrupted, setInterrupted] = useState<'cancelled' | 'failed' | null>(null);
   const [sourceLocationsPage, setSourceLocationsPage] = useState<string | null>(null);
   const [message, setMessage] = useState('');
+
   useEffect(() => {
     if (!open) {
       return;
     }
+
     let settle: ReturnType<typeof setTimeout> | undefined;
     const frame = requestAnimationFrame(() => {
       const item = activeMatchRef.current?.closest<HTMLElement>('[data-search-result-item]');
+
       if (!item) {
         return;
       }
+
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
       item.scrollIntoView({
         behavior: reduced ? 'instant' : 'smooth',
         block: 'nearest',
@@ -71,20 +76,25 @@ export const useDocumentSearch = (deps: SearchDeps) => {
       if (reduced) {
         return;
       }
+
       // WebKit sometimes drops a smooth scroll without moving the list at all, so finish the job instantly.
       const body = item.closest('[data-search-results-body]');
       const start = body?.scrollTop;
+
       settle = setTimeout(() => {
         if (!body || body.scrollTop !== start) {
           return;
         }
+
         const card = item.getBoundingClientRect();
         const frameBox = body.getBoundingClientRect();
+
         if (card.top < frameBox.top || card.bottom > frameBox.bottom) {
           item.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'nearest' });
         }
       }, 600);
     });
+
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(settle);
@@ -95,9 +105,11 @@ export const useDocumentSearch = (deps: SearchDeps) => {
     if (!searching) {
       return;
     }
+
     const timer = setTimeout(() => {
       return setCancelReady(cancelRequest);
     }, 600);
+
     return () => {
       return clearTimeout(timer);
     };
@@ -126,6 +138,7 @@ export const useDocumentSearch = (deps: SearchDeps) => {
 
   const selectTextSource = (location: PageTextLocation, source: TextSource) => {
     const object = deps.objectMap.get(source.id);
+
     deps.visit({
       id: source.id,
       notice: source.ranges.length
@@ -146,21 +159,26 @@ export const useDocumentSearch = (deps: SearchDeps) => {
     setActiveResult(index);
     if (result.pageText) {
       const location = result.pageText;
+
       if (location.sources.length) {
         selectTextSource(location, location.sources[0]);
       } else {
         deps.navigate(location.pageId, 'properties', 'pages');
       }
+
       setPreviewPage(location.pageNumber);
     } else if (result.id) {
       deps.navigate(result.id, resultScope === 'decoded' ? 'decoded' : 'properties');
     } else if (result.range) {
       deps.selectRange(result.range);
     }
+
     reveal.reveal();
   };
+
   // `search` completes asynchronously and must select with the latest closures.
   const selectLatest = useRef(selectResult);
+
   useLayoutEffect(() => {
     selectLatest.current = selectResult;
   });
@@ -169,7 +187,9 @@ export const useDocumentSearch = (deps: SearchDeps) => {
     if (!results?.length) {
       return;
     }
+
     const index = ((activeResult ?? (direction > 0 ? -1 : 0)) + direction + results.length) % results.length;
+
     selectResult(results[index], index);
   };
 
@@ -197,9 +217,11 @@ export const useDocumentSearch = (deps: SearchDeps) => {
   /** Marks a new search as running while the completed results stay visible. */
   const begin = (searchScope: string, term: string) => {
     const token = ++requestId.current;
+
     setCancelRequest(token);
     abort.current?.abort();
     const controller = new AbortController();
+
     abort.current = controller;
     setOpen(true);
     setSearching(true);
@@ -212,6 +234,7 @@ export const useDocumentSearch = (deps: SearchDeps) => {
     setResults((current) => {
       return current ?? [];
     });
+
     return { signal: controller.signal, token };
   };
 
@@ -225,6 +248,7 @@ export const useDocumentSearch = (deps: SearchDeps) => {
     if (found.length) {
       selectLatest.current(found[0], 0, searchScope);
     }
+
     setMessage(note);
     setSearching(false);
   };
@@ -238,11 +262,15 @@ export const useDocumentSearch = (deps: SearchDeps) => {
   const run = async (nextScope?: string) => {
     const searchScope = nextScope ?? scope;
     const term = query.trim();
+
     if (!term) {
       clear();
+
       return;
     }
+
     const { signal, token } = begin(searchScope, term);
+
     try {
       const outcome = await runDocumentSearch({
         bytes: deps.bytes,
@@ -263,6 +291,7 @@ export const useDocumentSearch = (deps: SearchDeps) => {
         signal,
         term,
       });
+
       if (outcome && token === requestId.current) {
         finish(outcome.found, outcome.message, searchScope, term);
       }

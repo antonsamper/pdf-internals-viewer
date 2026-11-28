@@ -5,6 +5,7 @@ import { port } from './vite/port.ts';
 const externalBaseURL = process.env.PLAYWRIGHT_BASE_URL;
 const cloudflarePreview = Boolean(process.env.PLAYWRIGHT_CLOUDFLARE);
 const localBaseURL = cloudflarePreview ? 'http://127.0.0.1:8787' : `http://127.0.0.1:${port}`;
+
 export default defineConfig({
   expect: { timeout: 12000 },
   // Tests use isolated browser contexts, so cases in the same file can run together.

@@ -71,6 +71,7 @@ const pageTextResult = (
  */
 const capResults = (found: SearchResult[]) => {
   const limited = found.length > MAX_RESULTS;
+
   return { found: found.slice(0, MAX_RESULTS), notice: limited ? `Showing the first ${MAX_RESULTS} matches. Narrow your search.` : '' };
 };
 
@@ -82,6 +83,7 @@ const pageTextNote = (limited: boolean, pages: number) => {
 /** The page-text search code is fetched on first use, so loading it counts towards the engine loading limit. */
 const loadPageTextSearch = async (signal: AbortSignal, deadline: number) => {
   let timedOut = false;
+
   try {
     const stopped = new Promise<never>((_, reject) => {
       signal.addEventListener(
@@ -100,6 +102,7 @@ const loadPageTextSearch = async (signal: AbortSignal, deadline: number) => {
         timedOut = true;
       }
     );
+
     return module.searchPageText;
   } catch (error) {
     signal.throwIfAborted();
@@ -109,10 +112,13 @@ const loadPageTextSearch = async (signal: AbortSignal, deadline: number) => {
 
 const searchPageText = async (request: SearchRequest): Promise<SearchOutcome> => {
   const { bytes, document, isCurrent, objectMap, objects, onEngineLoading, password, readStream, signal, term } = request;
+
   if (!document || document.locked) {
     throw new Error('Unlock the PDF before searching page text.');
   }
+
   const deadline = Date.now() + ENGINE_LOAD_TIMEOUT_MS;
+
   onEngineLoading?.(true);
   const runPageSearch = await loadPageTextSearch(signal, deadline);
   const pageSearch = await runPageSearch(bytes, term, password, signal, {
@@ -126,31 +132,40 @@ const searchPageText = async (request: SearchRequest): Promise<SearchOutcome> =>
     if (!streamCache.has(id)) {
       streamCache.set(id, readStream(id, 'decoded'));
     }
+
     return streamCache.get(id)!;
   };
+
   const found: SearchResult[] = [];
+
   for (const hit of pageSearch.hits) {
     if (!isCurrent()) {
       return null;
     }
+
     const page = objects.find((object) => {
       return object.objectNumber === hit.objectNumber && object.kind === 'Page';
     });
+
     if (!page) {
       continue;
     }
+
     // oxlint-disable-next-line react-doctor/async-await-in-loop -- sequential: every page reads streams through the shared cache and must stop as soon as the search is cancelled.
     const list = await pageTextSourceList(page, objectMap, term, cachedRead, document.encrypted, () => {
       return !isCurrent();
     });
+
     list.sources.sort((a, b) => {
       return Number(Boolean(b.ranges.length)) - Number(Boolean(a.ranges.length));
     });
     found.push(pageTextResult(hit, page.id, pageSearch.pages.get(hit.objectNumber) ?? document.pages.indexOf(page.id) + 1, list));
   }
+
   if (!isCurrent()) {
     return null;
   }
+
   return {
     found,
     message: pageTextNote(pageSearch.limited, found.length),
@@ -165,15 +180,20 @@ const searchObjects = ({ objects, scope, term }: SearchRequest): SearchOutcome =
         return entry.key.toLowerCase().includes(needle.replace(/^\//, '')) || hasKey(entry.value);
       });
     }
+
     return value.type === 'array' && value.items.some(hasKey);
   };
+
   const found: SearchResult[] = [];
+
   for (const object of objects) {
     const matches =
       scope === 'keys' ? hasKey(object.value) : `${object.id} ${object.id} R ${object.label} ${object.kind}`.toLowerCase().includes(needle);
+
     if (!matches) {
       continue;
     }
+
     found.push({
       detail: object.label,
       id: object.id,
@@ -183,7 +203,9 @@ const searchObjects = ({ objects, scope, term }: SearchRequest): SearchOutcome =
       break;
     }
   }
+
   const { found: shown, notice } = capResults(found);
+
   return { found: shown, message: notice };
 };
 
@@ -191,19 +213,24 @@ const searchDecoded = async ({ isCurrent, objects, readStream, term }: SearchReq
   const found: SearchResult[] = [];
   const lowered = term.toLowerCase();
   let skipped = 0;
+
   for (const object of objects.filter((candidate) => {
     return candidate.stream;
   })) {
     if (!isCurrent()) {
       return null;
     }
+
     try {
       // oxlint-disable-next-line react-doctor/async-await-in-loop -- sequential: streams are decoded one at a time so cancellation and the result limit apply immediately.
       const result = await readStream(object.id, 'decoded');
+
       if (result.error || result.truncated) {
         skipped++;
       }
+
       const at = result.text.toLowerCase().indexOf(lowered);
+
       if (at >= 0) {
         found.push({
           detail: 'Decoded stream text',
@@ -215,21 +242,26 @@ const searchDecoded = async ({ isCurrent, objects, readStream, term }: SearchReq
     } catch {
       skipped++;
     }
+
     if (found.length > MAX_RESULTS) {
       break;
     }
   }
+
   const partial = skipped ? `${skipped} stream(s) unsupported or incomplete. Results are partial.` : '';
   const { found: shown, notice } = capResults(found);
+
   return { found: shown, message: [notice, partial].filter(Boolean).join(' ') };
 };
 
 /** The bytes to find; throws when the term is not valid for the scope. */
 const byteNeedle = (scope: string, term: string) => {
   const compact = term.replace(/\s/g, '');
+
   if (scope === 'hex' && (!/^[\da-f]+$/i.test(compact) || compact.length % 2)) {
     throw new Error('Enter complete hex bytes, for example 25 50 44 46.');
   }
+
   if (
     scope === 'text' &&
     [...term].some((character) => {
@@ -238,6 +270,7 @@ const byteNeedle = (scope: string, term: string) => {
   ) {
     throw new Error('Original byte-text search accepts Latin-1 characters (0–255). Use decoded search for stream content.');
   }
+
   return scope === 'hex'
     ? Uint8Array.from(compact.match(/../g) ?? [], (pair) => {
         return parseInt(pair, 16);
@@ -246,6 +279,7 @@ const byteNeedle = (scope: string, term: string) => {
         return character.charCodeAt(0);
       });
 };
+
 /** Compares the rest of the needle once its first byte has matched. */
 const matchesAt = (bytes: Uint8Array, needle: Uint8Array, offset: number) => {
   for (let index = 1; index < needle.length; index++) {
@@ -253,8 +287,10 @@ const matchesAt = (bytes: Uint8Array, needle: Uint8Array, offset: number) => {
       return false;
     }
   }
+
   return true;
 };
+
 const byteResult = (bytes: Uint8Array, offset: number, length: number, hex: boolean): SearchResult => {
   return {
     detail: `${length} original file byte${length === 1 ? '' : 's'}`,
@@ -267,6 +303,7 @@ const byteResult = (bytes: Uint8Array, offset: number, length: number, hex: bool
 const searchBytes = async ({ bytes, isCurrent, scope, term }: SearchRequest): Promise<SearchOutcome> => {
   const needle = byteNeedle(scope, term);
   const found: SearchResult[] = [];
+
   for (let offset = 0; offset <= bytes.length - needle.length; offset++) {
     if (offset % 100000 === 0) {
       // oxlint-disable-next-line react-doctor/async-await-in-loop -- yields to the event loop periodically so a long scan stays cancellable.
@@ -277,15 +314,19 @@ const searchBytes = async ({ bytes, isCurrent, scope, term }: SearchRequest): Pr
         return null;
       }
     }
+
     if (bytes[offset] !== needle[0] || !matchesAt(bytes, needle, offset)) {
       continue;
     }
+
     found.push(byteResult(bytes, offset, needle.length, scope === 'hex'));
     if (found.length > MAX_RESULTS) {
       break;
     }
   }
+
   const { found: shown, notice } = capResults(found);
+
   return { found: shown, message: notice };
 };
 

@@ -19,6 +19,7 @@ describe('embedded file extraction', () => {
         })
       )
     );
+
     expect(index.get('6 0')).toEqual([
       {
         filename: 'report.txt',
@@ -30,11 +31,13 @@ describe('embedded file extraction', () => {
     expect(index.get('7 0')).toEqual(index.get('6 0'));
     expect(inspector.readStream('7 0', 'decoded').truncated).toBe(true);
     const download = inspector.readStream('7 0', 'decoded', 'download');
+
     expect(download.error).toBeUndefined();
     expect(download.truncated).toBe(false);
     expect(download.bytes).toEqual(new Uint8Array(fixture.attachment));
     expect(download.text).toBe('');
     const measured = inspector.readStream('7 0', 'decoded', 'size');
+
     expect(measured.byteLength).toBe(fixture.attachment.length);
     expect(measured.bytes).toHaveLength(0);
     expect(measured.text).toBe('');
@@ -51,6 +54,7 @@ describe('embedded file extraction', () => {
         })
       )
     );
+
     for (const id of ['8 0', '9 0', '10 0', '11 0']) {
       expect(index.get(id)).toEqual([
         {
@@ -61,10 +65,12 @@ describe('embedded file extraction', () => {
         },
       ]);
     }
+
     expect(inspector.readStream('11 0', 'decoded', 'download').bytes).toEqual(new Uint8Array(fixture.font));
   });
   it('does not export undecoded data or payloads above the decoding limit', async () => {
     const inspector = new PdfInspector();
+
     await inspector.open(
       classicPdf([
         [1, '<< /Type /Catalog /Pages 2 0 R >>'],
@@ -75,6 +81,7 @@ describe('embedded file extraction', () => {
     expect(inspector.readStream('4 0', 'decoded', 'download').error).toBeTruthy();
     await inspector.open(oversizedDecodedPdf().bytes);
     const result = inspector.readStream('4 0', 'decoded', 'download');
+
     expect(result.error).toMatch(/limit/i);
     expect(result.bytes).toHaveLength(0);
   });
@@ -88,6 +95,7 @@ describe('embedded file extraction', () => {
     const name = (value: string): PdfValue => {
       return { text: `/${value}`, type: 'name', value };
     };
+
     const record = (id: string, entries: [string, PdfValue][], stream = false): PdfObjectRecord => {
       return {
         generation: 0,
@@ -110,6 +118,7 @@ describe('embedded file extraction', () => {
         warnings: [],
       };
     };
+
     const cases: [string, string | undefined, string][] = [
       ['FontFile', undefined, 'type1'],
       ['FontFile2', 'OpenType', 'ttf'],
@@ -119,6 +128,7 @@ describe('embedded file extraction', () => {
       ['FontFile3', 'Type0', 'bin'],
       ['FontFile3', undefined, 'bin'],
     ];
+
     for (const [key, subtype, extension] of cases) {
       const objects = new Map([
         [
@@ -130,6 +140,7 @@ describe('embedded file extraction', () => {
         ],
         ['2 0', record('2 0', subtype ? [['Subtype', name(subtype)]] : [], true)],
       ]);
+
       expect(embeddedDownloads(objects).get('1 0')?.[0].filename).toBe(`Example.${extension}`);
     }
   });

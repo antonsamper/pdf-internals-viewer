@@ -29,6 +29,7 @@ const queryPadding = (query: string, hasResults: boolean) => {
   if (hasResults) {
     return 'w360-w900:pr-21';
   }
+
   return query ? 'w360-w900:pr-9' : '';
 };
 
@@ -48,9 +49,11 @@ const inputClass = (query: string, hasResults: boolean) => {
 
 const resultUnit = (count: number, scope: string) => {
   const plural = count !== 1;
+
   if (scope === 'pageText') {
     return plural ? 'pages' : 'page';
   }
+
   return plural ? 'matches' : 'match';
 };
 
@@ -122,6 +125,7 @@ export const SearchForm = ({ busy, search }: { busy: boolean; search: ReturnType
     setScope,
   } = search;
   const hasResults = results !== null;
+
   return (
     <form
       ref={formRef}
@@ -156,6 +160,7 @@ export const SearchForm = ({ busy, search }: { busy: boolean; search: ReturnType
           if (event.key === 'Escape') {
             setOpen(false);
           }
+
           if (event.key === 'ArrowDown' && results?.length && !searching) {
             event.preventDefault();
             setOpen(true);
@@ -168,6 +173,7 @@ export const SearchForm = ({ busy, search }: { busy: boolean; search: ReturnType
         }}
         onChange={(event) => {
           const value = event.target.value;
+
           if (value.trim()) {
             setQuery(value);
             if (results !== null) {

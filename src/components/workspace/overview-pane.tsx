@@ -67,6 +67,7 @@ const DocumentFacts = ({ byteCount, document, objectMap, objects }: DocumentProp
   const pageRotation = useMemo(() => {
     return document.locked ? 'Locked' : pageRotationSummary(document.pages, objectMap);
   }, [document, objectMap]);
+
   return (
     <dl data-document-facts>
       <Fact label="PDF version">
@@ -92,6 +93,7 @@ const UnlockForm = ({ unlockError, unlocking, onUnlock }: Pick<OverviewPaneProps
         event.preventDefault();
         const form = event.currentTarget;
         const password = new FormData(form).get('password') as string;
+
         onUnlock(password);
       }}
     >
@@ -122,6 +124,7 @@ const UnlockForm = ({ unlockError, unlocking, onUnlock }: Pick<OverviewPaneProps
 
 const EncryptionNotice = (props: DocumentProps) => {
   const { document, unlockError } = props;
+
   if (document.locked) {
     return (
       <Warning render={<div />}>
@@ -141,6 +144,7 @@ const EncryptionNotice = (props: DocumentProps) => {
       </Warning>
     );
   }
+
   if (document.encrypted) {
     return (
       <p role="status" className="text-xs text-muted-foreground">
@@ -149,6 +153,7 @@ const EncryptionNotice = (props: DocumentProps) => {
       </p>
     );
   }
+
   return null;
 };
 
@@ -264,6 +269,7 @@ const IssuesOverview = ({ document, issues, onChooseSection }: DocumentProps) =>
 export const OverviewPane = (props: OverviewPaneProps) => {
   const { document, filename, inspectionError, scrollPositionRef, section, onOpenFile, onShowBytes } = props;
   const scroll = useScrollRestoration(scrollPositionRef);
+
   return (
     <PaneBody {...scroll}>
       <PaneIntro icon={FileCode2} title={section === 'structure' ? 'File structure' : 'Document overview'}>

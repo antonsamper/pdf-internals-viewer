@@ -10,6 +10,7 @@ const name = (value: string): PdfValue => {
     value,
   };
 };
+
 const number = (value: number): PdfValue => {
   return {
     text: String(value),
@@ -17,6 +18,7 @@ const number = (value: number): PdfValue => {
     value,
   };
 };
+
 const ref = (id: string): PdfValue => {
   return {
     ref: id,
@@ -24,6 +26,7 @@ const ref = (id: string): PdfValue => {
     type: 'reference',
   };
 };
+
 const dictionary = (entries: Record<string, PdfValue>): PdfValue => {
   return {
     entries: Object.entries(entries).map(([key, value]) => {
@@ -33,6 +36,7 @@ const dictionary = (entries: Record<string, PdfValue>): PdfValue => {
     type: 'dictionary',
   };
 };
+
 const object = (id: string, entries: Record<string, PdfValue>): PdfObjectRecord => {
   return {
     generation: 0,
@@ -48,6 +52,7 @@ const object = (id: string, entries: Record<string, PdfValue>): PdfObjectRecord 
     warnings: [],
   };
 };
+
 const image = (changes: Record<string, PdfValue> = {}) => {
   return object('4 0', {
     BitsPerComponent: number(8),
@@ -58,6 +63,7 @@ const image = (changes: Record<string, PdfValue> = {}) => {
     ...changes,
   });
 };
+
 describe('object comparison', () => {
   it('compares semantic dictionary values regardless of key order while preserving types', () => {
     expect(samePdfValue(dictionary({ A: number(1), B: name('Hi') }), dictionary({ A: number(1), B: name('Hi') }))).toBe(true);
@@ -77,9 +83,11 @@ describe('object comparison', () => {
   it('retains duplicate key occurrences', () => {
     const left = object('1 0', { A: number(1) }),
       right = object('2 0', { A: number(1) });
+
     if (left.value.type === 'dictionary') {
       left.value.entries.push({ key: 'A', value: number(2) });
     }
+
     expect(
       compareObjects(left, right).map((row) => {
         return row.status;
@@ -109,6 +117,7 @@ describe('bounded image previews', () => {
         return imagePlan(image(changes));
       }).toThrow();
     }
+
     expect(() => {
       return imageRgba(imagePlan(image()), new Uint8Array(2));
     }).toThrow(/length/);
@@ -129,6 +138,7 @@ describe('resource page context', () => {
       Subtype: name('Form'),
     });
     const img = image();
+
     img.id = '5 0';
     const objects = [page, parent, resources, form, img];
     const result = resourcePageAccess(
@@ -139,6 +149,7 @@ describe('resource page context', () => {
         })
       )
     );
+
     expect(result.pages.get('4 0')).toEqual([1]);
     expect(result.pages.get('5 0')).toEqual([1]);
     expect(result.incomplete).toBe(false);

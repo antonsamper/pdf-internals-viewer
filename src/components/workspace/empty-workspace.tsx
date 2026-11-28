@@ -32,6 +32,7 @@ const TrustBadge = ({ className, ...props }: ComponentProps<'span'>) => {
     />
   );
 };
+
 const SAMPLE_TONES = {
   orange: '[--sample-ink:var(--brand-orange-ink)] [--sample-wash:var(--brand-orange-soft)]',
   purple: '[--sample-ink:var(--brand-purple)] [--sample-wash:var(--brand-purple-soft)]',
@@ -78,6 +79,7 @@ const SampleButton = ({
     </button>
   );
 };
+
 export const EmptyWorkspace = ({
   onFollowLink,
   onOpenFile,

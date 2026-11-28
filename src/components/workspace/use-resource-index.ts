@@ -15,6 +15,7 @@ export const useResourceIndex = (document: PdfDocumentInfo | null, objectMap: Ma
     return document?.indexes
       ? document.indexes.resources.flatMap(({ objectId, ...entry }) => {
           const object = objectMap.get(objectId);
+
           return object ? [{ ...entry, object }] : [];
         })
       : resourceCatalog(objectMap, downloadIndex);
@@ -24,5 +25,6 @@ export const useResourceIndex = (document: PdfDocumentInfo | null, objectMap: Ma
       return entry.object;
     });
   }, [resourceEntries]);
+
   return { downloadIndex, resourceEntries, resourceObjects };
 };

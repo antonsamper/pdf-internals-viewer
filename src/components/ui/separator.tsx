@@ -14,4 +14,5 @@ const Separator = function Separator({ className, orientation = 'horizontal', ..
     />
   );
 };
+
 export { Separator };

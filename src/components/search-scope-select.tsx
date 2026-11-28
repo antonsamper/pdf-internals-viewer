@@ -86,6 +86,7 @@ export const SearchScopeSelect = function SearchScopeSelect({
     </Select.Root>
   );
 };
+
 const scopes = [
   { hint: 'Object IDs, labels and types', label: 'Objects', value: 'objects' },
   { hint: 'Dictionary key names', label: 'Keys', value: 'keys' },

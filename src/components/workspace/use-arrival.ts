@@ -19,9 +19,11 @@ export const useArrival = ({ document, reveal, setNotice, setObjectScroll, setPr
     if (next.section !== previousSection) {
       setObjectScroll(0);
     }
+
     setNotice(next.notice ?? null);
     setPreview(false);
     const page = document?.pages.indexOf(next.id ?? '') ?? -1;
+
     if (page >= 0) {
       setPreviewPage(page + 1);
     }

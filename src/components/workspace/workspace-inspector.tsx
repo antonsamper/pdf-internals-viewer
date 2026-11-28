@@ -121,6 +121,7 @@ export const WorkspaceInspector = ({
       }}
     />
   ) : null;
+
   return (
     <InspectorPane
       actionReport={actionReport}

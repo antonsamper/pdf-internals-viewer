@@ -24,18 +24,23 @@ interface ValueContext {
 const ReferenceSuffix = ({ value, ...context }: ValueContext & { value: Extract<PdfValue, { type: 'reference' }> }) => {
   const { ancestors, depth, objects, referenceDepth } = context;
   const target = objects?.get(value.ref);
+
   if (objects && !target) {
     return <span className="text-muted-foreground"> · unavailable reference</span>;
   }
+
   if (ancestors.includes(value.ref)) {
     return <span className="text-muted-foreground"> · already in this path</span>;
   }
+
   if (!target) {
     return null;
   }
+
   if (referenceDepth < 4 && depth < 12) {
     return <InlineReference key={value.ref} target={target} {...context} />;
   }
+
   return <span className="text-muted-foreground"> · inline depth limit; open object to continue</span>;
 };
 
@@ -84,6 +89,7 @@ const DictionaryValue = ({ value, ...context }: ValueContext & { value: Extract<
       {value.entries.length === 0 && <span className="text-muted-foreground">Empty dictionary</span>}
       {value.entries.map(({ key, value: child }, index) => {
         const bareKey = key.replace(/^\//, '');
+
         return (
           <div
             className={cn(
@@ -113,6 +119,7 @@ const ARRAY_ITEMS_SHOWN = 1000;
 
 const ArrayValue = ({ value, ...context }: ValueContext & { value: Extract<PdfValue, { type: 'array' }> }) => {
   const [limit, setLimit] = useState(ARRAY_ITEMS_SHOWN);
+
   return (
     <div className="flex flex-wrap items-baseline gap-1.75 text-detail leading-[inherit]">
       <span className="text-muted-foreground">[</span>
@@ -154,20 +161,26 @@ export const ValueView = function ValueView({
   referenceDepth?: number;
 }) {
   const context = { ancestors, depth, objects, onNavigate, path, referenceDepth };
+
   if (depth > 12) {
     return <span className="text-muted-foreground">Expand this object in Source to inspect deeper nesting.</span>;
   }
+
   if (value.type === 'reference') {
     return <ReferenceValue value={value} {...context} />;
   }
+
   if (value.type === 'dictionary' || value.type === 'stream') {
     return <DictionaryValue value={value} {...context} />;
   }
+
   if (value.type === 'array') {
     return <ArrayValue value={value} {...context} />;
   }
+
   return <span className={cn('font-mono text-detail leading-[inherit] whitespace-pre-wrap', SCALAR_TONE[value.type])}>{value.text}</span>;
 };
+
 const InlineReference = function InlineReference({
   target,
   onNavigate,
@@ -186,6 +199,7 @@ const InlineReference = function InlineReference({
   depth: number;
 }) {
   const [expanded, setExpanded] = useState(false);
+
   return (
     <details
       className="mt-1.5 text-detail leading-[inherit]"
@@ -220,6 +234,7 @@ const InlineReference = function InlineReference({
     </details>
   );
 };
+
 const PROVENANCE_LABELS: Record<PdfObjectRecord['provenance']['type'], string> = {
   decoded: 'Decoded object-stream member',
   file: 'Original-file object',

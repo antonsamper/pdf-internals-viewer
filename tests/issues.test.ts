@@ -8,11 +8,13 @@ import { diagnosticIssue, documentIssues, issueSummary } from '../src/lib/pdf/is
 describe('PDF diagnostics', () => {
   it('reports a clean parse without claiming validation', async () => {
     const document = await new PdfInspector().open(minimalPdf().bytes);
+
     expect(issueSummary(documentIssues(document))).toBe('No issues detected by these checks.');
   });
   it('retains recovery evidence', async () => {
     const fixture = minimalPdf();
     const document = await new PdfInspector().open(fixture.bytes.slice(0, fixture.xref));
+
     expect(documentIssues(document)).toContainEqual(
       expect.objectContaining({
         severity: 'warning',
@@ -27,6 +29,7 @@ describe('PDF diagnostics', () => {
     ]);
     const document = await new PdfInspector().open(fixture.bytes);
     const issues = documentIssues(document);
+
     expect(issues).toContainEqual(
       expect.objectContaining({
         evidence: 'Dangling or unresolved reference: 99 0 R',
@@ -46,6 +49,7 @@ describe('PDF diagnostics', () => {
     ]) {
       expect(diagnosticIssue(evidence).severity).toBe('limitation');
     }
+
     expect(diagnosticIssue('Encrypted document unlocked locally.').severity).toBe('info');
     expect(diagnosticIssue('Cross-reference target has a different object identity.').severity).toBe('error');
     expect(diagnosticIssue('Something unexpected').severity).toBe('warning');

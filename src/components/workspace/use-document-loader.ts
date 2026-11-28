@@ -43,6 +43,7 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
         })
       ? 'warning'
       : undefined;
+
   useEffect(() => {
     return () => {
       client.current?.dispose();
@@ -69,15 +70,19 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
     if (!client.current) {
       return Promise.reject(new Error('Open a PDF before reading a stream.'));
     }
+
     const activeClient = client.current;
     const result = await activeClient.readStream(id, mode);
+
     if (result.error && activeClient === client.current) {
       const issue = diagnosticIssue(result.error, id);
+
       if (issue.severity === 'warning') {
         issue.title = 'Stream could not be read';
         issue.explanation =
           'The viewer could not read this stream. Inspect its dictionary and original bytes; a decoding failure alone does not establish a PDF defect.';
       }
+
       setObservedIssues((current) => {
         return current.some((item) => {
           return item.id === issue.id;
@@ -86,18 +91,21 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
           : [...current, issue];
       });
     }
+
     return result;
   }, []);
   const extractStream = useCallback((id: string, purpose: 'download' | 'size' = 'download') => {
     if (!client.current) {
       return Promise.reject(new Error('Open a PDF before downloading a file.'));
     }
+
     return client.current.readStream(id, 'decoded', purpose);
   }, []);
   const extractImage = useCallback((id: string) => {
     if (!client.current) {
       return Promise.reject(new Error('Open a PDF before downloading an image.'));
     }
+
     return client.current.readStream(id, 'decoded', 'image');
   }, []);
 
@@ -105,21 +113,28 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
     goHome();
     closeAll();
     const token = requestId.current;
+
     if (file.size > MAX_INPUT_BYTES) {
       setError('This file exceeds the current 64 MiB limit. Choose a smaller PDF.');
+
       return;
     }
+
     if (!file.size) {
       setError('This file is empty. Choose a PDF with content.');
+
       return;
     }
+
     setBusy(true);
     setFilename(file.name);
     try {
       const original = new Uint8Array(await file.arrayBuffer());
+
       if (token !== requestId.current) {
         return;
       }
+
       setBytes(original);
       if (
         !(await loadBookmarks(original, () => {
@@ -128,19 +143,25 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
       ) {
         return;
       }
+
       const worker = new PdfWorkerClient();
+
       client.current = worker;
       const parsed = await worker.open(original, file.name);
+
       if (token !== requestId.current) {
         return;
       }
+
       setDocument(parsed);
       setBusy(false);
     } catch (reason) {
       if (token !== requestId.current) {
         return;
       }
+
       const message = reason instanceof Error ? reason.message : 'Could not inspect this file. Choose another PDF.';
+
       setError(message);
       setInspectionError(message);
       setBusy(false);
@@ -151,17 +172,22 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
     if (unlocking) {
       return;
     }
+
     const token = ++requestId.current;
+
     setUnlocking(true);
     setUnlockError(null);
     client.current?.dispose();
     const worker = new PdfWorkerClient();
+
     client.current = worker;
     try {
       const parsed = await worker.open(bytes, filename, password);
+
       if (token !== requestId.current) {
         return;
       }
+
       setDocument(parsed);
       if (parsed.locked) {
         setUnlockError(parsed.encryptionError ?? 'That password did not unlock this PDF. Try again.');
@@ -173,6 +199,7 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
       if (token !== requestId.current) {
         return;
       }
+
       setUnlockError(reason instanceof Error ? reason.message : 'Could not unlock this PDF.');
     } finally {
       if (token === requestId.current) {
@@ -184,16 +211,21 @@ export const useDocumentLoader = ({ closeAll, goHome, loadBookmarks, setNotice }
   const sample = async (file: string) => {
     closeAll();
     const token = requestId.current;
+
     setBusy(true);
     try {
       const response = await fetch(`${import.meta.env.BASE_URL}samples/${file}`);
+
       if (!response.ok) {
         throw new Error('The sample could not be loaded. Try opening a local PDF.');
       }
+
       const data = await response.arrayBuffer();
+
       if (token !== requestId.current) {
         return;
       }
+
       await open(new File([data], file, { type: 'application/pdf' }));
     } catch (reason) {
       if (token === requestId.current) {
