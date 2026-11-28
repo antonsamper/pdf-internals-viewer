@@ -1,6 +1,6 @@
 import type { SearchMatch } from '@embedpdf/engine';
 
-import { localEngine } from '@embedpdf/engine';
+import { localEngine, resolveDefaultWasmSource } from '@embedpdf/engine';
 
 import type { SearchSnippet } from './search-snippet';
 
@@ -30,6 +30,22 @@ const blankPdf = () => {
     .join('')}`;
   text += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
   return new TextEncoder().encode(text);
+};
+
+/**
+ * Downloads the engine's wasm where the engine would, but with `signal`. The engine's own download can't be stopped:
+ * destroying it waits for the download to finish first.
+ */
+const loadWasm = async (signal: AbortSignal) => {
+  const source = await resolveDefaultWasmSource({});
+  if (source.wasmBinary) {
+    return source.wasmBinary;
+  }
+  const response = await fetch(source.wasmUrl!, { signal });
+  if (!response.ok) {
+    throw new Error(`The page text engine download failed with HTTP ${response.status}.`);
+  }
+  return response.arrayBuffer();
 };
 
 /**
@@ -86,8 +102,14 @@ export const searchPageText = async function searchPageText(
   const bounded = <T>(request: PromiseLike<T>) => {
     return withTimeout(request, OPERATION_TIMEOUT_MS, SEARCH_TIMED_OUT, abort);
   };
-  const engine = localEngine();
+  const download = new AbortController();
+  const engine = localEngine({
+    wasmLoader: () => {
+      return loadWasm(download.signal);
+    },
+  });
   const abort = () => {
+    download.abort();
     void engine.destroy().catch(() => {
       return undefined;
     });
