@@ -5,6 +5,7 @@ import type { PdfObjectRecord, PdfValue } from '@/lib/pdf/types';
 
 import { Note } from '@/components/inspector/notes';
 import { ReferenceButton } from '@/components/inspector/reference-button';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 const SCALAR_TONE: Record<string, string> = { name: 'text-foreground', string: 'text-pdf-string' };
@@ -104,8 +105,11 @@ const DictionaryValue = ({ value, ...context }: ValueContext & { value: Extract<
   );
 };
 
-/** A page's /Contents can list hundreds of thousands of references, and rendering them all at once freezes the tab. */
-const ARRAY_ITEMS_SHOWN = 100;
+/**
+ * A page's /Contents can list hundreds of thousands of references, and rendering them all at once freezes the tab.
+ * Ordinary arrays, such as a font's /Widths, stay under the limit, so their expanded state survives Back.
+ */
+const ARRAY_ITEMS_SHOWN = 1000;
 
 const ArrayValue = ({ value, ...context }: ValueContext & { value: Extract<PdfValue, { type: 'array' }> }) => {
   const [limit, setLimit] = useState(ARRAY_ITEMS_SHOWN);
@@ -116,14 +120,16 @@ const ArrayValue = ({ value, ...context }: ValueContext & { value: Extract<PdfVa
         return <ValueView key={index} {...context} value={child} depth={context.depth + 1} path={[...context.path, `[${index}]`]} />;
       })}
       {value.items.length > limit && (
-        <button
-          className="text-detail leading-[inherit] text-reference underline underline-offset-3"
+        <Button
+          variant="outline"
+          size="xs"
+          className="text-detail"
           onClick={() => {
             return setLimit(limit + ARRAY_ITEMS_SHOWN);
           }}
         >
-          Show more ({value.items.length - limit} remaining)
-        </button>
+          Show more items ({value.items.length - limit} remaining)
+        </Button>
       )}
       <span className="text-muted-foreground">]</span>
     </div>

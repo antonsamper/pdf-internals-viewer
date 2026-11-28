@@ -3964,9 +3964,8 @@ test('indexes and shows a page whose /Contents array lists 100,000 references', 
   const inspector = page.getByRole('region', { exact: true, name: 'Object inspector' });
   await expect(inspector.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
   await expect(inspector.getByRole('button', { name: 'Show more warnings (99995 remaining)' })).toBeVisible();
-  await expect(inspector.getByRole('button', { name: 'Show more (99901 remaining)' })).toBeVisible();
-  await inspector.getByRole('button', { name: 'Show more (99901 remaining)' }).click();
-  await expect(inspector.getByRole('button', { name: 'Show more (99801 remaining)' })).toBeVisible();
+  await inspector.getByRole('button', { name: 'Show more items (99001 remaining)' }).click();
+  await expect(inspector.getByRole('button', { name: 'Show more items (98001 remaining)' })).toBeVisible();
 });
 test('page text search says when a page lists more content references than it follows', async ({ page }) => {
   await cacheEngineAssets(page);
