@@ -335,8 +335,8 @@ describe('page text source mapping', () => {
   it('says when a page lists more /Contents references than it follows', () => {
     const stream = { id: '4 0', stream: { filters: [], length: 1 } } as PdfObjectRecord;
     const objects = new Map([['4 0', stream]]);
-    expect(pageContentIds(contentsPage(99_999), objects)).toEqual({ complete: true, ids: ['4 0'] });
-    expect(pageContentIds(contentsPage(100_000), objects)).toEqual({ complete: false, ids: [] });
+    expect(pageContentIds(contentsPage(9_999), objects)).toEqual({ complete: true, ids: ['4 0'] });
+    expect(pageContentIds(contentsPage(10_000), objects)).toEqual({ complete: false, ids: [] });
   });
   it('does not report a page with exactly 100 sources as limited', async () => {
     const list = await streamPageSources(
