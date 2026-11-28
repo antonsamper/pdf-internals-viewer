@@ -75,9 +75,23 @@ const pageTextNote = (limited: boolean, pages: number) => {
 const loadPageTextSearch = async (signal: AbortSignal, deadline: number) => {
   let timedOut = false;
   try {
-    const module = await withTimeout(import('@/lib/pdf/page-text-search'), deadline - Date.now(), ENGINE_LOAD_SLOW, () => {
-      timedOut = true;
+    const stopped = new Promise<never>((_, reject) => {
+      signal.addEventListener(
+        'abort',
+        () => {
+          return reject(signal.reason);
+        },
+        { once: true }
+      );
     });
+    const module = await withTimeout(
+      Promise.race([import('@/lib/pdf/page-text-search'), stopped]),
+      deadline - Date.now(),
+      ENGINE_LOAD_SLOW,
+      () => {
+        timedOut = true;
+      }
+    );
     return module.searchPageText;
   } catch (error) {
     signal.throwIfAborted();

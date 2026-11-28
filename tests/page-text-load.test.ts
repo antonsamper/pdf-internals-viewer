@@ -66,4 +66,21 @@ describe('page text search code loading', () => {
     await result;
     expect(search).toHaveBeenCalledWith(expect.any(Uint8Array), 'term', undefined, expect.any(AbortSignal), started + 120_000);
   });
+  it('stops waiting for the code when the search is cancelled', async () => {
+    mockModule(Number.POSITIVE_INFINITY);
+    const { runDocumentSearch } = await import('../src/lib/pdf/document-search');
+    const controller = new AbortController();
+    const result = expect(runDocumentSearch({ ...request(), signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
+    controller.abort();
+    await result;
+  });
+  it('blames the engine when the code fails to load', async () => {
+    vi.doMock('../src/lib/pdf/page-text-search', async () => {
+      throw new Error('chunk failed');
+    });
+    const { runDocumentSearch } = await import('../src/lib/pdf/document-search');
+    await expect(runDocumentSearch(request())).rejects.toThrow(
+      'The page text engine could not load. Check your connection and search again.'
+    );
+  });
 });

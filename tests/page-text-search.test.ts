@@ -70,6 +70,15 @@ describe('page text search time limits', () => {
     await result;
     expect(engine.open).toHaveBeenCalledTimes(1);
   });
+  it('gives the engine only the time left before the deadline', async () => {
+    engine.open.mockReturnValueOnce(never());
+    const result = searchPageText(new Uint8Array([1]), 'term', undefined, new AbortController().signal, Date.now() + 1000);
+    const settled = expect(result).rejects.toThrow(
+      'The page text engine did not load within 2 minutes. Check your connection and search again.'
+    );
+    await vi.advanceTimersByTimeAsync(1000);
+    await settled;
+  });
   it('blames the engine when it fails to load', async () => {
     engine.open.mockReturnValueOnce(Promise.reject(new Error('engine failed to boot')));
     await expect(search()).rejects.toThrow('The page text engine could not load. Check your connection and search again.');
