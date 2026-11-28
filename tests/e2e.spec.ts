@@ -3209,6 +3209,38 @@ test('page text search waits for a slow engine download before its time limit st
   await expect(results).toContainText('1 page');
   await expect(results).not.toContainText('exceeded 15 seconds');
 });
+test('cancelling page text search or opening another pdf cancels the engine download', async ({ page }) => {
+  await openMinimal(page);
+  // Hold the download open so only cancellation can end it.
+  await page.route('**/*.wasm*', () => {
+    return undefined;
+  });
+  await selectSearchScope(page, 'pageText');
+  await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('internals');
+  const loading = page.waitForRequest((request) => {
+    return request.url().includes('.wasm');
+  });
+  await page.getByRole('button', { exact: true, name: 'Run search' }).click();
+  const download = await loading;
+  const cancelled = page.waitForEvent('requestfailed', (request) => {
+    return request === download;
+  });
+  const results = page.getByRole('region', { exact: true, name: 'Search results' });
+  await results.getByRole('button', { exact: true, name: 'Cancel search' }).click();
+  await expect(results).toContainText('Search cancelled for “internals”');
+  await cancelled;
+  const reloading = page.waitForRequest((request) => {
+    return request.url().includes('.wasm') && request !== download;
+  });
+  await page.getByRole('button', { exact: true, name: 'Run search' }).click();
+  const next = await reloading;
+  const replaced = page.waitForEvent('requestfailed', (request) => {
+    return request === next;
+  });
+  await page.getByLabel('Open local PDF').setInputFiles(samplePath('compressed.pdf'));
+  await expect(page.locator('[data-filename]')).toContainText('compressed.pdf');
+  await replaced;
+});
 test('page text search blames the engine, not the file, when the engine fails to load', async ({ page }) => {
   await cacheEngineAssets(page);
   await page.clock.install();
