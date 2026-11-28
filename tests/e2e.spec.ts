@@ -3944,6 +3944,30 @@ test('page text search says when a page stops at the source limit', async ({ pag
   await expect(page.locator('[data-text-source-note]')).not.toContainText('incomplete');
   await results.screenshot({ path: screenshotPath('page-text-source-limit.png') });
 });
+test('indexes and shows a page whose /Contents array lists 100,000 references', async ({ page }) => {
+  const missing = Array.from({ length: 100_000 }, (_, index) => {
+    return `${index + 10} 0 R`;
+  }).join(' ');
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+    [3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents [${missing} 4 0 R] >>`],
+    [4, '<< /Length 0 >>\nstream\n\nendstream'],
+  ]);
+  await page.getByLabel('Open local PDF').setInputFiles({
+    buffer: Buffer.from(fixture.bytes),
+    mimeType: 'application/pdf',
+    name: 'huge-contents-array.pdf',
+  });
+  await expect(page.getByRole('contentinfo')).toContainText('4 objects indexed');
+  await page.getByRole('button', { exact: true, name: 'First page' }).click();
+  const inspector = page.getByRole('region', { exact: true, name: 'Object inspector' });
+  await expect(inspector.getByRole('heading', { name: /3 0\s+obj/ })).toBeVisible();
+  await expect(inspector.getByRole('button', { name: 'Show more warnings (99995 remaining)' })).toBeVisible();
+  await expect(inspector.getByRole('button', { name: 'Show more (99901 remaining)' })).toBeVisible();
+  await inspector.getByRole('button', { name: 'Show more (99901 remaining)' }).click();
+  await expect(inspector.getByRole('button', { name: 'Show more (99801 remaining)' })).toBeVisible();
+});
 test('page text search says when a page lists more content references than it follows', async ({ page }) => {
   await cacheEngineAssets(page);
   const content = 'BT /F1 12 Tf 72 700 Td (Hello) Tj ET';

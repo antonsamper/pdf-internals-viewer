@@ -104,13 +104,27 @@ const DictionaryValue = ({ value, ...context }: ValueContext & { value: Extract<
   );
 };
 
+/** A page's /Contents can list hundreds of thousands of references, and rendering them all at once freezes the tab. */
+const ARRAY_ITEMS_SHOWN = 100;
+
 const ArrayValue = ({ value, ...context }: ValueContext & { value: Extract<PdfValue, { type: 'array' }> }) => {
+  const [limit, setLimit] = useState(ARRAY_ITEMS_SHOWN);
   return (
     <div className="flex flex-wrap items-baseline gap-1.75 text-detail leading-[inherit]">
       <span className="text-muted-foreground">[</span>
-      {value.items.map((child, index) => {
+      {value.items.slice(0, limit).map((child, index) => {
         return <ValueView key={index} {...context} value={child} depth={context.depth + 1} path={[...context.path, `[${index}]`]} />;
       })}
+      {value.items.length > limit && (
+        <button
+          className="text-detail leading-[inherit] text-reference underline underline-offset-3"
+          onClick={() => {
+            return setLimit(limit + ARRAY_ITEMS_SHOWN);
+          }}
+        >
+          Show more ({value.items.length - limit} remaining)
+        </button>
+      )}
       <span className="text-muted-foreground">]</span>
     </div>
   );

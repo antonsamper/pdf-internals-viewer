@@ -17,6 +17,7 @@ import { ReferenceButton } from '@/components/inspector/reference-button';
 import { SourceCode } from '@/components/inspector/source-code';
 import { Warning } from '@/components/inspector/warning';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ValueView } from '@/components/value-view';
 import { embeddedDownloads } from '@/lib/pdf/downloads';
@@ -476,6 +477,32 @@ interface ObjectInspectorProps {
   extractImage: (id: string) => Promise<StreamResult>;
 }
 
+const WARNINGS_SHOWN = 5;
+
+/** An object can carry one warning per dangling reference, so a long list opens collapsed. */
+const ObjectWarnings = ({ warnings }: { warnings: string[] }) => {
+  const [limit, setLimit] = useState(WARNINGS_SHOWN);
+  return (
+    <>
+      {warnings.slice(0, limit).map((warning, i) => {
+        return <Warning key={i}>{warning}</Warning>;
+      })}
+      {warnings.length > limit && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="mx-5.5 mb-3 self-start max-w480:mx-4.5"
+          onClick={() => {
+            return setLimit(limit + 50);
+          }}
+        >
+          Show more warnings ({warnings.length - limit} remaining)
+        </Button>
+      )}
+    </>
+  );
+};
+
 export const ObjectInspector = function ObjectInspector({
   object,
   scrollPositionRef,
@@ -517,9 +544,7 @@ export const ObjectInspector = function ObjectInspector({
         extractStream={extractStream}
       />
       <ProvenanceNote object={object} onNavigate={onNavigate} />
-      {object.warnings.map((warning, i) => {
-        return <Warning key={i}>{warning}</Warning>;
-      })}
+      <ObjectWarnings key={object.id} warnings={object.warnings} />
       <Tabs
         value={safeTab}
         onValueChange={(value) => {
