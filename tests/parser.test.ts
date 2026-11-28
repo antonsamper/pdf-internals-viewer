@@ -195,4 +195,30 @@ describe('read-only PDF inspection', () => {
     expect(entry?.value.type === 'array' && entry.value.items.length).toBe(200_001);
     expect(object(document, '3 0').references).toContain('4 0');
   }, 30_000);
+
+  it('opens a damaged file whose recovery reports more warnings than fit in call arguments', async () => {
+    // Without a cross-reference table the parser recovers objects by scanning, and warns once per unreadable token.
+    const tokens = Array.from({ length: 200_000 }, () => {
+      return 'x';
+    }).join(' ');
+    const text = [
+      '%PDF-1.7',
+      '1 0 obj',
+      `[${tokens}]`,
+      'endobj',
+      '2 0 obj',
+      '<< /Type /Catalog /Pages 3 0 R >>',
+      'endobj',
+      '3 0 obj',
+      '<< /Type /Pages /Kids [4 0 R] /Count 1 >>',
+      'endobj',
+      '4 0 obj',
+      '<< /Type /Page /Parent 3 0 R /MediaBox [0 0 612 792] >>',
+      'endobj',
+      '%%EOF',
+    ].join('\n');
+    const document = await new PdfInspector().open(new TextEncoder().encode(text));
+    expect(document.recovered).toBe(true);
+    expect(document.pages).toEqual(['4 0']);
+  }, 30_000);
 });
