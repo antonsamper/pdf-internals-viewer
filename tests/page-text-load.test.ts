@@ -64,7 +64,13 @@ describe('page text search code loading', () => {
     const result = runDocumentSearch(request());
     await vi.advanceTimersByTimeAsync(60_000);
     await result;
-    expect(search).toHaveBeenCalledWith(expect.any(Uint8Array), 'term', undefined, expect.any(AbortSignal), started + 120_000);
+    expect(search).toHaveBeenCalledWith(
+      expect.any(Uint8Array),
+      'term',
+      undefined,
+      expect.any(AbortSignal),
+      expect.objectContaining({ deadline: started + 120_000 })
+    );
   });
   it('stops waiting for the code when the search is cancelled', async () => {
     mockModule(Number.POSITIVE_INFINITY);
@@ -82,5 +88,24 @@ describe('page text search code loading', () => {
     await expect(runDocumentSearch(request())).rejects.toThrow(
       'The page text engine could not load. Check your connection and search again.'
     );
+  });
+  it('reports the engine as loading until the search itself starts', async () => {
+    const search = mockModule(1000);
+    search.mockImplementationOnce(async (_bytes, _text, _password, _signal, load) => {
+      load?.onEngineReady?.();
+      return { hits: [], limited: false, pages: new Map() };
+    });
+    const { runDocumentSearch } = await import('../src/lib/pdf/document-search');
+    const loading: boolean[] = [];
+    const result = runDocumentSearch({
+      ...request(),
+      onEngineLoading: (value) => {
+        loading.push(value);
+      },
+    });
+    expect(loading).toEqual([true]);
+    await vi.advanceTimersByTimeAsync(1000);
+    await result;
+    expect(loading).toEqual([true, false]);
   });
 });

@@ -72,7 +72,7 @@ describe('page text search time limits', () => {
   });
   it('gives the engine only the time left before the deadline', async () => {
     engine.open.mockReturnValueOnce(never());
-    const result = searchPageText(new Uint8Array([1]), 'term', undefined, new AbortController().signal, Date.now() + 1000);
+    const result = searchPageText(new Uint8Array([1]), 'term', undefined, new AbortController().signal, { deadline: Date.now() + 1000 });
     const settled = expect(result).rejects.toThrow(
       'The page text engine did not load within 2 minutes. Check your connection and search again.'
     );

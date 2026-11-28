@@ -87,16 +87,20 @@ const addMatch = (hits: Map<number, PageTextHit>, match: SearchMatch, text: stri
   });
 };
 
-/**
- * A short-lived local engine, terminated on cancellation or completion. `deadline` is when the engine must have
- * loaded; the caller sets it before importing this module so the import counts towards the same limit.
- */
+export interface EngineLoad {
+  /** When the engine must have loaded. The caller sets it before importing this module, so the import counts too. */
+  deadline?: number;
+  /** Called once the engine has loaded and the search itself starts. */
+  onEngineReady?: () => void;
+}
+
+/** A short-lived local engine, terminated on cancellation or completion. */
 export const searchPageText = async function searchPageText(
   bytes: Uint8Array,
   text: string,
   password: string | undefined,
   signal: AbortSignal,
-  deadline = Date.now() + ENGINE_LOAD_TIMEOUT_MS
+  { deadline = Date.now() + ENGINE_LOAD_TIMEOUT_MS, onEngineReady }: EngineLoad = {}
 ) {
   // A malformed file must not leave the search UI waiting on a stuck worker.
   const bounded = <T>(request: PromiseLike<T>) => {
@@ -118,6 +122,7 @@ export const searchPageText = async function searchPageText(
   try {
     signal.throwIfAborted();
     await loadEngine(engine, signal, abort, deadline);
+    onEngineReady?.();
     const document = await bounded(engine.open({ bytes: bytes.slice().buffer, kind: 'bytes' }, { password }));
     const listed = await bounded(document.pages.list());
     const pages = new Map(

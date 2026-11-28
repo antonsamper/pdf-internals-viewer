@@ -3204,7 +3204,9 @@ test('page text search waits for a slow engine download before its time limit st
   await loading;
   await page.clock.fastForward(30_000);
   const results = page.getByRole('region', { exact: true, name: 'Search results' });
-  await expect(results).toContainText('Searching for “internals”…');
+  await expect(results).toContainText('Loading the page text engine… · page text');
+  await expect(results).not.toContainText('Searching for');
+  await results.screenshot({ path: screenshotPath('page-text-engine-loading.png') });
   release();
   await expect(results).toContainText('1 page');
   await expect(results).not.toContainText('exceeded 15 seconds');
