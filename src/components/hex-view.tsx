@@ -405,17 +405,17 @@ const hexText = (bytes: Uint8Array, ranges: HexViewProps['ranges'], start: numbe
   ).join(' ');
 };
 
-/** The virtualised rows inside the scrolling viewport, or the empty state when no file is open. */
 const HexRows = ({
   bytes,
   columns,
   cursor,
   firstRow,
   lastRow,
+  totalRows,
   isSelected,
   offsetText,
   onSelect,
-}: Omit<ComponentProps<typeof HexRow>, 'row'> & { firstRow: number; lastRow: number }) => {
+}: Omit<ComponentProps<typeof HexRow>, 'row'> & { firstRow: number; lastRow: number; totalRows: number }) => {
   if (!bytes.length) {
     return (
       <div
@@ -437,7 +437,7 @@ const HexRows = ({
       style={
         {
           '--hex-columns': columns,
-          height: Math.ceil(bytes.length / columns) * ROW_HEIGHT,
+          height: totalRows * ROW_HEIGHT,
         } as CSSProperties
       }
     >
@@ -736,6 +736,7 @@ export const HexView = ({
           cursor={cursor}
           firstRow={firstRow}
           lastRow={lastRow}
+          totalRows={totalRows}
           isSelected={isSelected}
           offsetText={offsetText}
           onSelect={selectByte}
