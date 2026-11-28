@@ -260,11 +260,12 @@ test('lists document actions without running them, with notes and an empty state
   });
   await expect(page.getByRole('contentinfo')).toContainText('objects indexed');
   const sections = page.getByRole('navigation', { name: 'Document sections' });
-  await expect(sections.getByRole('button', { name: /^Actions/ })).toContainText('14');
+  await expect(sections.getByRole('button', { name: /^Actions/ })).toContainText('15');
   await sections.getByRole('button', { name: /^Actions/ }).click();
   const panel = page.getByRole('region', { name: 'PDF actions' });
-  await expect(panel.getByRole('status')).toHaveText('14 actions · 6 marked for review · 4 parse notes');
-  await expect(panel.locator('[data-action-type="JavaScript"]')).toHaveCount(3);
+  await expect(panel.getByRole('status')).toHaveText('15 actions · 7 marked for review · 4 parse notes');
+  await expect(panel.locator('[data-action-type="JavaScript"]')).toHaveCount(4);
+  await expect(panel).toContainText('Document-level script (init)');
   await expect(panel.locator('[data-action-type="Launch"]')).toContainText('Opens a file or app');
   await expect(panel).toContainText('Cycle: /Next leads back to 7 0 obj');
   await expect(panel).toContainText('The action dictionary has no /S action type.');

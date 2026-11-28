@@ -189,15 +189,18 @@ export const SuspiciousFeaturesGuide = function SuspiciousFeaturesGuide() {
           <strong>Inspect</strong> to open the stream, and check <strong>Original bytes</strong> when you need the exact syntax stored in
           the file.
         </li>
+        <li>
+          Document-level scripts sit in the catalogue’s <code>/Names /JavaScript</code> tree and run when the file opens. Each entry gets
+          its own row, named after its key. <strong>Inspect holder</strong> opens the tree node that lists it.
+        </li>
         <li>An action that is malformed or points to a missing object stays in the list with a note.</li>
       </ol>
       <h2>Search for what Actions leaves out</h2>
       <p>
-        Actions reads the catalogue, pages, annotations, form fields and outline. Document-level scripts in the{' '}
-        <code>/Names /JavaScript</code> tree, scripts inside XFA forms and actions stored anywhere else are not listed; a note at the top of
-        the list says when the document has a <code>/Names /JavaScript</code> tree or an XFA form. To find them, select{' '}
-        <strong>Keys</strong> in search and look for <code>JavaScript</code> and <code>JS</code>, then <code>OpenAction</code> and{' '}
-        <code>AA</code>. Select a result to inspect the dictionary that holds it.
+        Actions reads the catalogue and its <code>/Names /JavaScript</code> tree, pages, annotations, form fields and outline. Scripts
+        inside XFA forms and actions stored anywhere else are not listed. A note at the top of the list says when the document has an XFA
+        form. To find them, select <strong>Keys</strong> in search and look for <code>JavaScript</code> and <code>JS</code>, then{' '}
+        <code>OpenAction</code> and <code>AA</code>. Select a result to inspect the dictionary that holds it.
       </p>
       <h2>Read what you found</h2>
       <p>
