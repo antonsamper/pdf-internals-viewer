@@ -200,8 +200,9 @@ export const SuspiciousFeaturesGuide = function SuspiciousFeaturesGuide() {
       <p>
         Actions reads the catalogue and its <code>/Names /JavaScript</code> tree, pages, annotations, form fields and outline. Scripts
         inside XFA forms and actions stored anywhere else are not listed. A note at the top of the list says when the document has an XFA
-        form. To find them, select <strong>Keys</strong> in search and look for <code>JavaScript</code> and <code>JS</code>, then{' '}
-        <code>OpenAction</code> and <code>AA</code>. Select a result to inspect the dictionary that holds it.
+        form, and another names any source left unread because the list stopped. To find them, select <strong>Keys</strong> in search and
+        look for <code>JavaScript</code> and <code>JS</code>, then <code>OpenAction</code> and <code>AA</code>. Select a result to inspect
+        the dictionary that holds it.
       </p>
       <h2>Read what you found</h2>
       <p>

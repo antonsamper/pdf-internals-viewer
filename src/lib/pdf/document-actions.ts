@@ -77,6 +77,8 @@ interface Walk {
   total: number;
   /** Pages, annotations, action entries and tree items visited, repeats included. */
   steps: number;
+  /** Sources the document has that the walk never started because it was full. */
+  unread: string[];
 }
 /** The action objects and `/Next` arrays above an action, and how many actions deep it is. */
 interface Chain {
@@ -482,6 +484,20 @@ const noteUnlistedScripts = (walk: Walk, catalog: PdfObjectRecord) => {
   }
 };
 
+/** True, and records the source as unread, when the document has it but the walk is already full. */
+const isUnread = (walk: Walk, label: string, present: boolean) => {
+  if (present && isFull(walk)) {
+    walk.unread.push(label);
+    return true;
+  }
+  return false;
+};
+
+const hasEntry = (value: PdfValue | undefined, key: string, objects: Objects) => {
+  const resolved = resolve(value, objects).value;
+  return !!resolved && isDictionary(resolved) && !!property(resolved, key);
+};
+
 const addCatalog = (walk: Walk, catalog: PdfObjectRecord) => {
   const origin = { context: 'Document catalogue', holderId: catalog.id };
   addAction(
@@ -491,7 +507,12 @@ const addCatalog = (walk: Walk, catalog: PdfObjectRecord) => {
     catalog.id
   );
   addAdditional(walk, catalog.value, origin, catalog.id, CATALOG_TRIGGERS);
-  addDocumentScripts(walk, catalog);
+  const names = property(catalog.value, 'Names');
+  // An unreadable /Names may still hold scripts, so it counts as a source too.
+  const hasScripts = !!names && (hasEntry(names, 'JavaScript', walk.objects) || !isDictionary(resolve(names, walk.objects).value));
+  if (!isUnread(walk, 'document-level scripts', hasScripts)) {
+    addDocumentScripts(walk, catalog);
+  }
   noteUnlistedScripts(walk, catalog);
 };
 
@@ -794,16 +815,24 @@ const walkSources = (walk: Walk, document: PdfDocumentInfo) => {
   if (catalog) {
     addCatalog(walk, catalog);
   }
-  addPages(walk, document.pages);
-  if (catalog) {
+  // The catalogue's script tree can fill the list on its own, so later sources are named in a note instead of vanishing.
+  if (!isUnread(walk, 'pages with their annotations', document.pages.length > 0)) {
+    addPages(walk, document.pages);
+  }
+  if (!catalog) {
+    return;
+  }
+  if (!isUnread(walk, 'form fields', hasEntry(property(catalog.value, 'AcroForm'), 'Fields', walk.objects))) {
     addFields(walk, catalog);
+  }
+  if (!isUnread(walk, 'the outline', hasEntry(property(catalog.value, 'Outlines'), 'First', walk.objects))) {
     addOutline(walk, catalog);
   }
 };
 
 /** Every action reachable from the catalogue and its document-level scripts, pages, annotations, form fields and outline. Nothing is run. */
 export const documentActions = function documentActions(document: PdfDocumentInfo, objects: Objects): PdfActionReport {
-  const walk: Walk = { hiddenNotes: 0, noted: new Set(), notes: [], objects, rows: new Map(), steps: 0, total: 0 };
+  const walk: Walk = { hiddenNotes: 0, noted: new Set(), notes: [], objects, rows: new Map(), steps: 0, total: 0, unread: [] };
   try {
     walkSources(walk, document);
   } catch (error) {
@@ -815,6 +844,9 @@ export const documentActions = function documentActions(document: PdfDocumentInf
   }
   if (walk.steps > MAX_STEPS) {
     walk.notes.push(`The list stops after ${MAX_STEPS} steps. Later actions are not listed.`);
+  }
+  if (walk.unread.length) {
+    walk.notes.push(`The list stopped before these sources were read, so any actions in them are not listed: ${walk.unread.join(', ')}.`);
   }
   if (walk.hiddenNotes) {
     walk.notes.push(`${walk.hiddenNotes} more parse notes are not shown.`);
