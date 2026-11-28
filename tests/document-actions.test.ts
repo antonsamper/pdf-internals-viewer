@@ -477,7 +477,58 @@ describe('documentActions', () => {
     const report = documentActions(document, objects);
     expect(report.total).toBe(5000);
     expect(report.actions.at(-1)?.context).toBe('Link annotation on page 50');
-    expect(report.notes).toEqual(['The list stops at 5000 actions. Later actions are not listed.']);
+    expect(report.notes).toEqual([
+      'The list stops at 5000 actions. Later actions are not listed.',
+      'The list stopped before these sources were read, so any actions in them are not listed: form fields, the outline.',
+    ]);
+  });
+
+  it('names the sources a full list of document-level scripts leaves unread', async () => {
+    const scripts = Array.from({ length: 5000 }, (_, index) => {
+      return `(s${index}) << /S /JavaScript /JS (n = ${index};) >>`;
+    }).join(' ');
+    const report = await inspect(
+      minimal(
+        '/Names << /JavaScript << /Names [' + scripts + '] >> >> /AcroForm << /Fields [4 0 R] >> /Outlines << /First 5 0 R >>',
+        '/AA << /O << /S /Named /N /NextPage >> >>',
+        [
+          [4, '<< /T (total) /A << /S /Named /N /NextPage >> >>'],
+          [5, '<< /Title (One) /A << /S /Named /N /NextPage >> >>'],
+        ]
+      )
+    );
+    expect(report.total).toBe(5000);
+    expect(report.actions.at(-1)?.context).toBe('Document-level script (s4999)');
+    expect(report.notes).toEqual([
+      'The list stops at 5000 actions. Later actions are not listed.',
+      'The list stopped before these sources were read, so any actions in them are not listed: pages with their annotations, form fields, the outline.',
+    ]);
+  });
+
+  it('names document-level scripts as unread when catalogue actions fill the list, and skips sources the file lacks', async () => {
+    const more = Array.from({ length: 30 }, (_, i): [number, string] => {
+      return [10 + i, `<< /S /Named /N /NextPage /Next [${11 + i} 0 R ${11 + i} 0 R] >>`];
+    });
+    more.push([40, '<< /S /Named /N /NextPage >>']);
+    const report = await inspect(
+      minimal('/OpenAction 10 0 R /Names << /JavaScript << /Names [(a) << /S /JavaScript /JS (a;) >>] >> >>', '', more)
+    );
+    expect(report.notes).toEqual([
+      'The list stops at 5000 actions. Later actions are not listed.',
+      'The list stopped before these sources were read, so any actions in them are not listed: document-level scripts, pages with their annotations.',
+    ]);
+  });
+
+  it('names an unreadable /Names as unread document-level scripts when the list is full', async () => {
+    const more = Array.from({ length: 30 }, (_, i): [number, string] => {
+      return [10 + i, `<< /S /Named /N /NextPage /Next [${11 + i} 0 R ${11 + i} 0 R] >>`];
+    });
+    more.push([40, '<< /S /Named /N /NextPage >>']);
+    const report = await inspect(minimal('/OpenAction 10 0 R /Names 99 0 R', '', more));
+    expect(report.notes).toEqual([
+      'The list stops at 5000 actions. Later actions are not listed.',
+      'The list stopped before these sources were read, so any actions in them are not listed: document-level scripts, pages with their annotations.',
+    ]);
   });
 
   it('stops a walk that would visit one shared /Annots array on every page, and the document still opens', async () => {
@@ -491,7 +542,7 @@ describe('documentActions', () => {
       })
       .join(' ');
     const bytes = classicPdf([
-      [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+      [1, '<< /Type /Catalog /Pages 2 0 R /AcroForm << /Fields [11 0 R] >> /Outlines << /First 12 0 R >> >>'],
       [2, `<< /Type /Pages /Kids [${kids}] /Count ${pages.length} >>`],
       [
         9,
@@ -500,6 +551,8 @@ describe('documentActions', () => {
         }).join(' ')}]`,
       ],
       [10, '<< /Type /Annot /Subtype /Link /Rect [0 0 10 10] >>'],
+      [11, '<< /T (f) /A << /S /Named /N /NextPage >> >>'],
+      [12, '<< /Title (o) /A << /S /Named /N /NextPage >> >>'],
       ...pages.map((id, index): [number, string] => {
         return [id, page(`/Annots 9 0 R${index ? '' : ' /AA << /O << /S /GoTo /D [100 0 R /Fit] >> >>'}`)];
       }),
@@ -523,7 +576,10 @@ describe('documentActions', () => {
         return [action.trigger, action.context, action.type];
       })
     ).toEqual([['Page opens', 'Page 1', 'GoTo']]);
-    expect(report?.notes).toEqual(['The list stops after 500000 steps. Later actions are not listed.']);
+    expect(report?.notes).toEqual([
+      'The list stops after 500000 steps. Later actions are not listed.',
+      'The list stopped before these sources were read, so any actions in them are not listed: form fields, the outline.',
+    ]);
     // The full walk takes several seconds; the budget keeps the whole transfer well under the 15-second request limit.
     expect(elapsed).toBeLessThan(5000);
   });
