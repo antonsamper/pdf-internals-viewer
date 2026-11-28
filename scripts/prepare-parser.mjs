@@ -132,6 +132,11 @@ browserSource = browserSource.replace(permsComparison, permsComparison.replace('
 const decryptFallback = 'console.warn(`Failed to decrypt object ${objNum} ${genNum}:`, error);\n\t\t\t\treturn obj;';
 if (browserSource.split(decryptFallback).length !== 2) { throw new Error('Unexpected decryption fallback'); }
 browserSource = browserSource.replace(decryptFallback, 'throw new Error(`Failed to decrypt object ${objNum} ${genNum}: ${error instanceof Error ? error.message : "decryption failed"}`);');
+// Spreading a parsed array into call arguments overflows the stack past about 100,000 items in a browser worker,
+// which drops the object. Build the array from the item list instead.
+const arraySpread = 'object: PdfArray.of(...items),';
+if (browserSource.split(arraySpread).length !== 2) { throw new Error('Unexpected array parser shape'); }
+browserSource = browserSource.replace(arraySpread, 'object: new PdfArray(items),');
 // Relocating the bundle must preserve every dependency's engine-local resolution.
 // The complete upstream source is hash-pinned above; only static bare imports move.
 const relocated = browserSource.replace(/^(import .+? from )"([^".][^"]*)";/gm, (_, prefix, specifier) => {

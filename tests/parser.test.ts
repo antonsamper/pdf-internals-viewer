@@ -170,4 +170,29 @@ describe('read-only PDF inspection', () => {
     expect(object(document, '1 0').warnings.join(' ')).toContain('99 0 R');
     expect(object(document, '1 0').referencedBy).toContain('2 0');
   });
+
+  it('indexes a page whose /Contents array is too long to pass as call arguments', async () => {
+    // 200,000 references overflow the call stack when spread into arguments, in Node and in a browser worker.
+    const references = Array.from({ length: 200_000 }, (_, index) => {
+      return `${1000 + index} 0 R`;
+    }).join(' ');
+    const fixture = classicPdf([
+      [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+      [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>'],
+      [3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents [${references} 4 0 R] >>`],
+      [4, '<< /Length 0 >>\nstream\n\nendstream'],
+    ]);
+    const document = await new PdfInspector().open(fixture.bytes);
+    expect(document.pages).toEqual(['3 0']);
+    expect(document.objects).toHaveLength(4);
+    const contents = object(document, '3 0').value;
+    const entry =
+      contents.type === 'dictionary'
+        ? contents.entries.find((item) => {
+            return item.key === 'Contents' || item.key === '/Contents';
+          })
+        : undefined;
+    expect(entry?.value.type === 'array' && entry.value.items.length).toBe(200_001);
+    expect(object(document, '3 0').references).toContain('4 0');
+  }, 30_000);
 });
