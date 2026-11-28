@@ -581,7 +581,7 @@ interface TreeItem {
   value: PdfValue;
   /** How many levels below a root the item sits. */
   depth: number;
-  /** The nearest object above the item, so a direct dictionary still has an object to inspect. */
+  /** The nearest object that holds the item, so a direct dictionary still has an object to inspect. A visitor gets the item's own object when it has one. */
   holderId?: string;
 }
 type Visit = (value: PdfValue, id: string | undefined, place: string, item: TreeItem) => PdfValue[];
@@ -692,14 +692,22 @@ const nodeArray = (walk: Walk, node: PdfValue, key: string, label: string): PdfV
 };
 
 /**
- * Readers run every entry in the tree as a script, so the row is marked even when `/S` is missing or different,
- * and a `/JS` entry is shown when `/S` didn't lead to one.
+ * Readers run every entry in the tree as a script, so the row is marked even when `/S` is missing or different.
+ * A `/JS` script is shown when `/S` didn't lead to a target, and noted when `/S` led to another one.
  */
 const markScript = (walk: Walk, action: PdfAction, value: PdfValue) => {
   action.sensitive ??= SENSITIVE_ACTIONS.JavaScript;
   const resolved = resolve(value, walk.objects).value;
-  if (!action.target && resolved && isDictionary(resolved)) {
-    action.target = script(property(resolved, 'JS'), walk.objects);
+  const js = resolved && isDictionary(resolved) ? script(property(resolved, 'JS'), walk.objects) : undefined;
+  if (!js || action.target?.label === 'Script') {
+    return;
+  }
+  if (action.target) {
+    action.notes.push(
+      `The /S action type is /${action.type}, not /JavaScript, and the entry also has a /JS script. Inspect it to read the script.`
+    );
+  } else {
+    action.target = js;
   }
 };
 
@@ -749,8 +757,13 @@ const visitScriptNode = (walk: Walk, node: PdfValue, id: string | undefined, pla
 
 /** Each entry in the catalogue's `/Names /JavaScript` tree, which readers run when the document opens. */
 const addDocumentScripts = (walk: Walk, catalog: PdfObjectRecord) => {
-  const names = resolve(property(catalog.value, 'Names'), walk.objects);
-  const tree = names.value && isDictionary(names.value) ? property(names.value, 'JavaScript') : undefined;
+  const entry = property(catalog.value, 'Names');
+  const names = resolve(entry, walk.objects);
+  if (entry && (!names.value || !isDictionary(names.value))) {
+    addNote(walk, `${SCRIPTS_LABEL}: the catalogue's /Names ${names.note ? `could not be read. ${names.note}` : 'is not a dictionary.'}`);
+    return;
+  }
+  const tree = names.value && property(names.value, 'JavaScript');
   if (!tree) {
     return;
   }

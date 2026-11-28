@@ -191,7 +191,8 @@ export const SuspiciousFeaturesGuide = function SuspiciousFeaturesGuide() {
         </li>
         <li>
           Document-level scripts sit in the catalogue’s <code>/Names /JavaScript</code> tree and run when the file opens. Each entry gets
-          its own row, named after its key. <strong>Inspect holder</strong> opens the tree node that lists it.
+          its own row, named after its key. <strong>Inspect holder</strong> opens the tree node that lists it. A node written inline has no
+          object of its own, so the button opens the object that contains it.
         </li>
         <li>An action that is malformed or points to a missing object stays in the list with a note.</li>
       </ol>

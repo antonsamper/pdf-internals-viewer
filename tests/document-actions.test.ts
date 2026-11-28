@@ -409,6 +409,30 @@ describe('documentActions', () => {
     ]);
   });
 
+  it('marks tree entries with another /S type or a non-dictionary value, and notes an unreadable /Names', async () => {
+    const report = await inspect(
+      minimal(
+        '/Names << /JavaScript << /Names [(uri) << /S /URI /URI (https://example.invalid/) /JS (hidden();) >> (launch) << /S /Launch /F (a.exe) >> (bare) (x)] >> >>'
+      )
+    );
+    expect(
+      report.actions.map((action) => {
+        return [action.type, action.sensitive, action.target, action.notes];
+      })
+    ).toEqual([
+      [
+        'URI',
+        'Runs a script',
+        { label: 'URI', text: 'https://example.invalid/' },
+        ['The /S action type is /URI, not /JavaScript, and the entry also has a /JS script. Inspect it to read the script.'],
+      ],
+      ['Launch', 'Opens a file or app', { label: 'File', text: 'a.exe' }, []],
+      [undefined, 'Runs a script', undefined, ['Expected an action dictionary, found a string.']],
+    ]);
+    const unreadable = await inspect(minimal('/Names 99 0 R'));
+    expect(unreadable.notes).toEqual(["Document-level scripts: the catalogue's /Names could not be read. 99 0 R could not be resolved."]);
+  });
+
   it('reads document-level scripts as text and never runs them', async () => {
     const scope = globalThis as { pivScriptRan?: number };
     const report = await inspect(
