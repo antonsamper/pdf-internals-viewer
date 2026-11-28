@@ -477,7 +477,46 @@ describe('documentActions', () => {
     const report = documentActions(document, objects);
     expect(report.total).toBe(5000);
     expect(report.actions.at(-1)?.context).toBe('Link annotation on page 50');
-    expect(report.notes).toEqual(['The list stops at 5000 actions. Later actions are not listed.']);
+    expect(report.notes).toEqual([
+      'The list stops at 5000 actions. Later actions are not listed.',
+      'The list was full before these sources were read, so their actions are not listed: form fields, the outline.',
+    ]);
+  });
+
+  it('names the sources a full list of document-level scripts leaves unread', async () => {
+    const scripts = Array.from({ length: 5000 }, (_, index) => {
+      return `(s${index}) << /S /JavaScript /JS (n = ${index};) >>`;
+    }).join(' ');
+    const report = await inspect(
+      minimal(
+        '/Names << /JavaScript << /Names [' + scripts + '] >> >> /AcroForm << /Fields [4 0 R] >> /Outlines << /First 5 0 R >>',
+        '/AA << /O << /S /Named /N /NextPage >> >>',
+        [
+          [4, '<< /T (total) /A << /S /Named /N /NextPage >> >>'],
+          [5, '<< /Title (One) /A << /S /Named /N /NextPage >> >>'],
+        ]
+      )
+    );
+    expect(report.total).toBe(5000);
+    expect(report.actions.at(-1)?.context).toBe('Document-level script (s4999)');
+    expect(report.notes).toEqual([
+      'The list stops at 5000 actions. Later actions are not listed.',
+      'The list was full before these sources were read, so their actions are not listed: pages with their annotations, form fields, the outline.',
+    ]);
+  });
+
+  it('names document-level scripts as unread when catalogue actions fill the list, and skips sources the file lacks', async () => {
+    const more = Array.from({ length: 30 }, (_, i): [number, string] => {
+      return [10 + i, `<< /S /Named /N /NextPage /Next [${11 + i} 0 R ${11 + i} 0 R] >>`];
+    });
+    more.push([40, '<< /S /Named /N /NextPage >>']);
+    const report = await inspect(
+      minimal('/OpenAction 10 0 R /Names << /JavaScript << /Names [(a) << /S /JavaScript /JS (a;) >>] >> >>', '', more)
+    );
+    expect(report.notes).toEqual([
+      'The list stops at 5000 actions. Later actions are not listed.',
+      'The list was full before these sources were read, so their actions are not listed: document-level scripts, pages with their annotations.',
+    ]);
   });
 
   it('stops a walk that would visit one shared /Annots array on every page, and the document still opens', async () => {
