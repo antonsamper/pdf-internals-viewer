@@ -34,11 +34,17 @@ export type SearchOutcome = { found: SearchResult[]; message: string } | null;
 
 const MAX_RESULTS = 500;
 
-const pageTextResult = (hit: PageTextHit, pageId: string, pageNumber: number, { limited, sources }: PageTextSourceList): SearchResult => {
+const pageTextResult = (
+  hit: PageTextHit,
+  pageId: string,
+  pageNumber: number,
+  { contentsLimited, limited, sources }: PageTextSourceList
+): SearchResult => {
   return {
     detail: `${hit.count} text match${hit.count === 1 ? '' : 'es'}`,
     label: `Page ${pageNumber}`,
     pageText: {
+      contentsLimited,
       count: hit.count,
       matches: hit.matches,
       pageId,
@@ -55,9 +61,13 @@ const pageTextResult = (hit: PageTextHit, pageId: string, pageNumber: number, { 
   };
 };
 
-/** Results that stop at MAX_RESULTS say so. Each result is one match. */
-const limitNotice = (found: SearchResult[]) => {
-  return found.length === MAX_RESULTS ? `Showing the first ${MAX_RESULTS} matches. Narrow your search.` : '';
+/**
+ * Scopes collect one result past MAX_RESULTS, so a search with exactly MAX_RESULTS matches is not reported as cut off.
+ * Each result is one match.
+ */
+const capResults = (found: SearchResult[]) => {
+  const limited = found.length > MAX_RESULTS;
+  return { found: found.slice(0, MAX_RESULTS), notice: limited ? `Showing the first ${MAX_RESULTS} matches. Narrow your search.` : '' };
 };
 
 /** Page-text results are pages, and the search stops at MAX_RESULTS text matches rather than pages. */
@@ -130,11 +140,12 @@ const searchObjects = ({ objects, scope, term }: SearchRequest): SearchOutcome =
       id: object.id,
       label: `${object.id} obj`,
     });
-    if (found.length === MAX_RESULTS) {
+    if (found.length > MAX_RESULTS) {
       break;
     }
   }
-  return { found, message: limitNotice(found) };
+  const { found: shown, notice } = capResults(found);
+  return { found: shown, message: notice };
 };
 
 const searchDecoded = async ({ isCurrent, objects, readStream, term }: SearchRequest): Promise<SearchOutcome> => {
@@ -165,12 +176,13 @@ const searchDecoded = async ({ isCurrent, objects, readStream, term }: SearchReq
     } catch {
       skipped++;
     }
-    if (found.length === MAX_RESULTS) {
+    if (found.length > MAX_RESULTS) {
       break;
     }
   }
   const partial = skipped ? `${skipped} stream(s) unsupported or incomplete. Results are partial.` : '';
-  return { found, message: [limitNotice(found), partial].filter(Boolean).join(' ') };
+  const { found: shown, notice } = capResults(found);
+  return { found: shown, message: [notice, partial].filter(Boolean).join(' ') };
 };
 
 /** The bytes to find; throws when the term is not valid for the scope. */
@@ -230,11 +242,12 @@ const searchBytes = async ({ bytes, isCurrent, scope, term }: SearchRequest): Pr
       continue;
     }
     found.push(byteResult(bytes, offset, needle.length, scope === 'hex'));
-    if (found.length === MAX_RESULTS) {
+    if (found.length > MAX_RESULTS) {
       break;
     }
   }
-  return { found, message: limitNotice(found) };
+  const { found: shown, notice } = capResults(found);
+  return { found: shown, message: notice };
 };
 
 /** Runs one document search; scope-specific validation errors are thrown. */

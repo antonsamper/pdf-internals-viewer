@@ -3819,7 +3819,7 @@ test('page result actions are visible before choosing an unselected page', async
     page.getByRole('region', { exact: true, name: 'Original file bytes' }).locator('button[data-hex-byte][data-selected]')
   ).toHaveCount(5);
 });
-test('page text search keeps its coverage note when 500 pages match', async ({ page }) => {
+test('page text search keeps its coverage note without a limit notice when exactly 500 pages match', async ({ page }) => {
   await cacheEngineAssets(page);
   const pages = Array.from({ length: 500 }, (_, index) => {
     return index + 3;
@@ -3852,7 +3852,8 @@ test('page text search keeps its coverage note when 500 pages match', async ({ p
   await page.getByRole('button', { exact: true, name: 'Run search' }).click();
   const results = page.getByRole('region', { exact: true, name: 'Search results' });
   await expect(results).toContainText('500 pages', { timeout: 30_000 });
-  await expect(results).toContainText('Showing 500 pages for the first 500 text matches. Results are grouped by page.');
+  await expect(results).toContainText('Results are grouped by page.');
+  await expect(results).not.toContainText('for the first 500 text matches');
   await expect(results).not.toContainText('Showing the first 500 matches');
   await results.locator('[data-search-results-body]').evaluate((body) => {
     return body.scrollTo({ top: body.scrollHeight });
@@ -3908,6 +3909,34 @@ test('page text search says when a page stops at the source limit', async ({ pag
   await expect(page.locator('[data-text-source-note]')).toContainText('Highlighted original bytes');
   await expect(page.locator('[data-text-source-note]')).not.toContainText('incomplete');
   await results.screenshot({ path: screenshotPath('page-text-source-limit.png') });
+});
+test('page text search says when a page lists more content references than it follows', async ({ page }) => {
+  await cacheEngineAssets(page);
+  const content = 'BT /F1 12 Tf 72 700 Td (Hello) Tj ET';
+  const missing = Array.from({ length: 10_000 }, (_, index) => {
+    return `${index + 10} 0 R`;
+  }).join(' ');
+  const fixture = classicPdf([
+    [1, '<< /Type /Catalog /Pages 2 0 R >>'],
+    [2, '<< /Type /Pages /Kids [3 0 R] /Count 1 /Resources << /Font << /F1 5 0 R >> >> >>'],
+    [3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents [4 0 R ${missing} 6 0 R] >>`],
+    [4, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`],
+    [5, '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'],
+    [6, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`],
+  ]);
+  await page.getByLabel('Open local PDF').setInputFiles({
+    buffer: Buffer.from(fixture.bytes),
+    mimeType: 'application/pdf',
+    name: 'many-content-references.pdf',
+  });
+  await expect(page.getByRole('contentinfo')).toContainText('6 objects indexed');
+  await selectSearchScope(page, 'pageText');
+  await page.getByRole('textbox', { exact: true, name: 'Search document' }).fill('Hello');
+  await page.getByRole('button', { exact: true, name: 'Run search' }).click();
+  const results = page.getByRole('region', { exact: true, name: 'Search results' });
+  await expect(results).toContainText('1 page');
+  await expect(results).toContainText('This page lists more than 10,000 content references. Streams after the first 10,000 were not read.');
+  await results.screenshot({ path: screenshotPath('page-text-contents-limit.png') });
 });
 test('page text search highlights bytes encoded through a Unicode range font map', async ({ page }) => {
   await cacheEngineAssets(page);

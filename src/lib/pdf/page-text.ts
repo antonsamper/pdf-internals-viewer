@@ -4,7 +4,7 @@ import type { ContentToken } from './content-stream';
 import type { ByteRange, PdfObjectRecord, PdfValue, StreamResult } from './types';
 
 import { contentInstructions, resolveValue } from './content-stream';
-import { MAX_TEXT_SOURCES } from './limits';
+import { MAX_CONTENT_REFERENCES, MAX_TEXT_SOURCES } from './limits';
 import { effectiveResources, property } from './navigation';
 const hexStringBytes = (text: string, start: number): EncodedByte[] => {
   const digits = [...text.matchAll(/[\da-f]/gi)].map((match) => {
@@ -398,11 +398,13 @@ export const sourceTextMatches = (text: string, fonts: Map<string, Decoder | und
   run.flush();
   return run.matches;
 };
-export const pageContentIds = (page: PdfObjectRecord, objects: Map<string, PdfObjectRecord>): string[] => {
+/** A page's content streams in order; `complete` is false when /Contents has more than MAX_CONTENT_REFERENCES references. */
+export const pageContentIds = (page: PdfObjectRecord, objects: Map<string, PdfObjectRecord>): { ids: string[]; complete: boolean } => {
   const ids: string[] = [];
   const seen = new Set<string>();
+  let complete = true;
   const collect = (value: PdfValue | undefined, depth = 0): void => {
-    if (!value || depth > 32 || seen.size >= 500) {
+    if (!value || depth > 32 || !complete) {
       return;
     }
     if (value.type === 'reference') {
@@ -417,6 +419,10 @@ export const pageContentIds = (page: PdfObjectRecord, objects: Map<string, PdfOb
     if (seen.has(ref)) {
       return;
     }
+    if (seen.size >= MAX_CONTENT_REFERENCES) {
+      complete = false;
+      return;
+    }
     seen.add(ref);
     const object = objects.get(ref);
     if (object?.stream) {
@@ -426,7 +432,7 @@ export const pageContentIds = (page: PdfObjectRecord, objects: Map<string, PdfOb
     }
   };
   collect(property(page.value, 'Contents'));
-  return ids;
+  return { complete, ids };
 };
 type ReadDecoded = (id: string, mode: 'decoded') => Promise<StreamResult>;
 const toUnicodeMap = async (font: PdfValue | undefined, readStream: ReadDecoded) => {
@@ -508,6 +514,8 @@ export interface PageTextSourceList {
   sources: TextSource[];
   /** True when the page reached the limit, so later matches or content streams were not read. */
   limited: boolean;
+  /** True when /Contents had more than MAX_CONTENT_REFERENCES references, so streams after them were not read. */
+  contentsLimited: boolean;
 }
 export const pageTextSourceList = async (
   page: PdfObjectRecord,
@@ -519,15 +527,15 @@ export const pageTextSourceList = async (
 ): Promise<PageTextSourceList> => {
   const fonts = await pageFonts(page, objects, readStream, cancelled);
   if (!fonts) {
-    return { limited: false, sources: [] };
+    return { contentsLimited: false, limited: false, sources: [] };
   }
   const search: StreamSearch = { encrypted, fonts, objects, readStream, term };
   const sources: TextSource[] = [];
-  const contentIds = pageContentIds(page, objects);
+  const { complete, ids: contentIds } = pageContentIds(page, objects);
   let read = 0;
   for (const id of contentIds) {
     if (cancelled()) {
-      return { limited: false, sources: [] };
+      return { contentsLimited: false, limited: false, sources: [] };
     }
     if (sources.length >= MAX_TEXT_SOURCES) {
       break;
@@ -536,7 +544,8 @@ export const pageTextSourceList = async (
     sources.push(...(await streamSources(id, search, MAX_TEXT_SOURCES + 1 - sources.length)));
     read++;
   }
-  return { limited: sources.length > MAX_TEXT_SOURCES || read < contentIds.length, sources: sources.slice(0, MAX_TEXT_SOURCES) };
+  const limited = sources.length > MAX_TEXT_SOURCES || read < contentIds.length;
+  return { contentsLimited: !complete && !limited, limited, sources: sources.slice(0, MAX_TEXT_SOURCES) };
 };
 export interface TextSource {
   id: string;
@@ -554,6 +563,8 @@ export interface PageTextLocation {
   sources: TextSource[];
   /** True when the source list stopped at MAX_TEXT_SOURCES. */
   sourcesLimited: boolean;
+  /** True when streams after the first MAX_CONTENT_REFERENCES /Contents references were not read. */
+  contentsLimited: boolean;
   matches: SearchMatch[];
 }
 type EncodedByte = {

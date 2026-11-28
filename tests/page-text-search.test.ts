@@ -90,3 +90,54 @@ describe('page text search time limits', () => {
     expect(engine.destroy).toHaveBeenCalled();
   });
 });
+
+const match = (objectNumber: number) => {
+  return { page: { objectNumber } };
+};
+
+/** A document whose matches arrive in batches of `size`, with `total` matches in all. */
+const documentWith = (total: number, size: number) => {
+  const query = vi.fn(async ({ cursor, limit }: { cursor?: string; limit: { matches: number } }) => {
+    const start = Number(cursor ?? 0);
+    const end = Math.min(total, start + Math.min(size, limit.matches));
+    return {
+      matches: Array.from({ length: end - start }, (_, index) => {
+        return match(((start + index) % 3) + 1);
+      }),
+      nextCursor: end < total ? String(end) : null,
+    };
+  });
+  return {
+    pages: {
+      list: async () => {
+        return {
+          pages: [1, 2, 3].map((objectNumber) => {
+            return { ref: { objectNumber } };
+          }),
+        };
+      },
+    },
+    search: { query },
+  };
+};
+
+describe('page text search match limit', () => {
+  beforeEach(() => {
+    engine.open.mockReset();
+  });
+  it.each([
+    [500, 100, false],
+    [500, 500, false],
+    [501, 100, true],
+    [501, 500, true],
+  ])('%i matches in batches of %i is limited: %s', async (total, size, limited) => {
+    engine.open.mockResolvedValueOnce(blank).mockResolvedValueOnce(documentWith(total, size));
+    const result = await search();
+    expect(result.limited).toBe(limited);
+    expect(
+      result.hits.reduce((sum, hit) => {
+        return sum + hit.count;
+      }, 0)
+    ).toBe(500);
+  });
+});
