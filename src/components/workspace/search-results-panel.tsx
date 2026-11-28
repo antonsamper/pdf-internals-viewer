@@ -36,10 +36,10 @@ const countLabel = (count: number, scope: string) => {
   return `${count} ${count === 1 ? noun : plural}`;
 };
 
-const statusText = ({ displayedScope, interrupted, results, resultsScope, searching, searchingQuery }: Search) => {
+const statusText = ({ displayedScope, engineLoading, interrupted, results, resultsScope, searching, searchingQuery }: Search) => {
   let headline = countLabel(results?.length ?? 0, resultsScope);
   if (searching) {
-    headline = `Searching for “${searchingQuery}”…`;
+    headline = engineLoading ? 'Loading the page text engine…' : `Searching for “${searchingQuery}”…`;
   } else if (interrupted) {
     headline = `Search ${interrupted} for “${searchingQuery}”`;
   }

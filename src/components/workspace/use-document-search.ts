@@ -42,6 +42,7 @@ export const useDocumentSearch = (deps: SearchDeps) => {
   const [results, setResults] = useState<SearchResult[] | null>(null);
   const [activeResult, setActiveResult] = useState<number | null>(null);
   const [searching, setSearching] = useState(false);
+  const [engineLoading, setEngineLoading] = useState(false);
   const [cancelRequest, setCancelRequest] = useState(0);
   const [cancelReady, setCancelReady] = useState(0);
   const [searchingScope, setSearchingScope] = useState('objects');
@@ -202,6 +203,7 @@ export const useDocumentSearch = (deps: SearchDeps) => {
     abort.current = controller;
     setOpen(true);
     setSearching(true);
+    setEngineLoading(false);
     setSearchingScope(searchScope);
     setSearchingQuery(term);
     setInterrupted(null);
@@ -250,6 +252,11 @@ export const useDocumentSearch = (deps: SearchDeps) => {
         },
         objectMap: deps.objectMap,
         objects: deps.objects,
+        onEngineLoading: (loading) => {
+          if (token === requestId.current) {
+            setEngineLoading(loading);
+          }
+        },
         password: deps.previewPassword,
         readStream: deps.readStream,
         scope: searchScope,
@@ -274,6 +281,7 @@ export const useDocumentSearch = (deps: SearchDeps) => {
     cancelRequest,
     clear,
     displayedScope: searching || interrupted ? searchingScope : resultsScope,
+    engineLoading,
     formRef,
     inputRef,
     interrupted,

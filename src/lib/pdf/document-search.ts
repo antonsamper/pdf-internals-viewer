@@ -28,6 +28,8 @@ export interface SearchRequest {
   term: string;
   /** False once the search was cancelled or replaced by a newer one. */
   isCurrent: () => boolean;
+  /** Page-text search only: true while its engine loads, then false once the search itself starts. */
+  onEngineLoading?: (loading: boolean) => void;
   readStream: (id: string, mode: 'raw' | 'decoded') => Promise<StreamResult>;
 }
 
@@ -100,13 +102,19 @@ const loadPageTextSearch = async (signal: AbortSignal, deadline: number) => {
 };
 
 const searchPageText = async (request: SearchRequest): Promise<SearchOutcome> => {
-  const { bytes, document, isCurrent, objectMap, objects, password, readStream, signal, term } = request;
+  const { bytes, document, isCurrent, objectMap, objects, onEngineLoading, password, readStream, signal, term } = request;
   if (!document || document.locked) {
     throw new Error('Unlock the PDF before searching page text.');
   }
   const deadline = Date.now() + ENGINE_LOAD_TIMEOUT_MS;
+  onEngineLoading?.(true);
   const runPageSearch = await loadPageTextSearch(signal, deadline);
-  const pageSearch = await runPageSearch(bytes, term, password, signal, deadline);
+  const pageSearch = await runPageSearch(bytes, term, password, signal, {
+    deadline,
+    onEngineReady: () => {
+      return onEngineLoading?.(false);
+    },
+  });
   const streamCache = new Map<string, Promise<StreamResult>>();
   const cachedRead = (id: string) => {
     if (!streamCache.has(id)) {
