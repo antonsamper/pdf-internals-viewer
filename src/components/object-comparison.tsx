@@ -104,7 +104,7 @@ export const ObjectComparison = function ObjectComparison({
                         <div className="min-w-0 overflow-auto p-2">
                           <span className="mb-1 block text-xs text-muted-foreground min-w600:hidden">Pinned</span>
                           {row.left ? (
-                            <ValueView value={row.left} onNavigate={onNavigate} />
+                            <ValueView key={pinned.id} value={row.left} onNavigate={onNavigate} />
                           ) : (
                             <span className="text-xs text-muted-foreground">Absent</span>
                           )}
@@ -112,7 +112,7 @@ export const ObjectComparison = function ObjectComparison({
                         <div className="min-w-0 overflow-auto p-2">
                           <span className="mb-1 block text-xs text-muted-foreground min-w600:hidden">Current</span>
                           {row.right ? (
-                            <ValueView value={row.right} onNavigate={onNavigate} />
+                            <ValueView key={current?.id} value={row.right} onNavigate={onNavigate} />
                           ) : (
                             <span className="text-xs text-muted-foreground">Absent</span>
                           )}

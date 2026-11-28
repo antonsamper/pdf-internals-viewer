@@ -25,7 +25,8 @@ A dedicated worker parses the document and indexes every object, reference, reso
 - requires LibPDF 0.5.3 exactly and checks the SHA-256 of its bundle;
 - never modifies `node_modules` or the input PDF;
 - finds object boundaries from the engine's parsed tokens, not by searching for `obj`/`endobj` text;
-- bounds Flate decoding and stubs out two optional cloud-signing imports the read-only adapter never uses.
+- bounds Flate decoding and stubs out two optional cloud-signing imports the read-only adapter never uses;
+- builds parsed arrays and collects recovery warnings without spreading them into call arguments, so a list of hundreds of thousands of items, such as a long `/Contents` array, doesn't overflow the stack in a browser worker.
 
 Import the adapter as `pdf-internals-viewer/inspection`, which resolves in the browser build, the development server and the Node tests. The adapter relies on internal fields with no stable API, so upgrading LibPDF makes preparation fail until the adapter has been reviewed and the provenance tests pass again.
 
